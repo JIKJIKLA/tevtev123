@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="color-scheme" content="dark">
-<title>Tevin League 8.1 — Showtime</title>
+<title>Tevin League 8.2 — Flow</title>
 <script>
 // Independent bootstrap diagnostics remain available even if the engine fails.
 window.tevinBoot={ready:false,error:'',stage:'engine bundle not reached'};
@@ -119,11 +119,11 @@ button:focus-visible{outline:3px solid #ffbd65;outline-offset:4px}
 <div id="msg"></div>
 <div id="menu" class="ov on" data-screen="home"><section id="intro" aria-label="Tevin League title screen">
  <div id="intro-stage" aria-hidden="true"><div class="intro-art"></div><div class="intro-horizon"></div></div>
- <div class="intro-top"><span>TEVIN / CHAMPIONSHIP SERIES</span><span>SEASON 08.1</span></div>
+ <div class="intro-top"><span>TEVIN / CHAMPIONSHIP SERIES</span><span>SEASON 08.2</span></div>
  <div class="intro-title"><p>THE ARENA IS YOURS</p><h1>TEVIN<span>LEAGUE</span></h1><div class="intro-rule"></div><p class="intro-tagline">ONE MORE MATCH. ONE GREAT MOMENT.</p></div>
  <div class="intro-controls"><button id="intro-start">START MUSIC <small>CLICK OR PRESS ENTER TO ENABLE AUDIO</small></button><button id="intro-play">PLAY <span>SELECT YOUR MODE →</span></button><button id="intro-skip">CONTINUE WITHOUT MUSIC</button><p id="intro-status" role="status" aria-live="polite">Loading game engine…</p></div>
  <div class="intro-track"><div id="intro-spectrum" aria-hidden="true"></div><div><small>NOW PLAYING / YOUR SOUNDTRACK</small><strong>LUV U NEED U</strong><span>Slushii · Monstercat</span></div></div>
- <div class="intro-options"><button id="intro-sound" hidden>PAUSE MUSIC</button><label>MUSIC <input id="intro-volume" aria-label="Intro music volume" type="range" min="0" max="100" value="38"></label><label><input id="intro-motion" type="checkbox" checked> BEAT MOTION</label></div>
+ <div class="intro-options"><button id="intro-sound" hidden>PAUSE MUSIC</button><label>MUSIC <input id="intro-volume" aria-label="Intro music volume" type="range" min="0" max="100" value="100"></label><label><input id="intro-motion" type="checkbox" checked> BEAT MOTION</label></div>
 </section>
 
 
@@ -165,6 +165,11 @@ button:focus-visible{outline:3px solid #ffbd65;outline-offset:4px}
 
 </div>
 
+<section id="loading-screen" hidden role="dialog" aria-modal="true" aria-labelledby="loading-title" aria-describedby="loading-detail">
+ <div class="loading-art" aria-hidden="true"></div><header><strong>TEVIN<span>LEAGUE</span></strong><span>CHAMPIONSHIP SERIES / 08.2</span></header>
+ <main><p id="loading-cache">PREPARING YOUR NEXT SESSION</p><h1 id="loading-title" tabindex="-1">ENTER THE ARENA</h1><p id="loading-detail">Preparing your game</p><div class="loading-track" id="loading-meter" role="progressbar" aria-label="Loading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="loading-fill"></div></div><div class="loading-readout"><span id="loading-phase" role="status" aria-live="polite">Preparing assets</span><strong id="loading-percent">0%</strong></div></main>
+ <footer><span>YOUR NEXT GREAT TOUCH IS WAITING.</span><span>W / S DRIVE &nbsp; · &nbsp; SHIFT BOOST &nbsp; · &nbsp; SPACE JUMP</span></footer>
+</section>
 <div id="training-hud" hidden><span id="match-kind">SANDBOX</span><button id="training-open">TRAINING SETTINGS · F2</button></div>
 <div id="pause" class="ov"><h1 id="pause-title">PAUSED</h1><section id="training-panel" hidden><h2>YOUR PLAYGROUND</h2><p id="training-roster"></p><div><button id="ally-remove">− ALLY</button><button id="ally-add">+ ALLY AI</button><button id="enemy-remove">− OPPONENT</button><button id="enemy-add">+ OPPONENT AI</button></div><div><button id="training-reset-ball">RESET BALL · R</button><button id="training-reset-car">RECOVER CAR · T</button><button id="training-boost">BOOST: NORMAL</button></div><p>Team size, car speed and gravity are set before launch.</p></section><button class="btn" id="res">RESUME</button><button class="btn alt" id="q1">QUIT</button></div>
 <div id="end" class="ov"><div class="winner-heading"><small id="endt">VICTORY</small><h1 id="winner-team">BLUE TEAM</h1><p id="ends"></p><p id="end-reason"></p></div><div class="winner-footer"><div id="podium-cards"></div><div id="recap"><span><b id="stat-touch">0</b>YOUR TOUCHES</span><span><b id="stat-speed">0</b>TOP KM/H</span><span><b id="stat-boost">0</b>BOOST USED</span></div><button class="btn" id="rm">REMATCH</button><button class="btn alt" id="q2">MENU</button></div></div>
@@ -237,6 +242,7 @@ button:focus-visible{outline:3px solid #ffbd65;outline-offset:4px}
 .destination-tabs{grid-template-columns:repeat(2,1fr);gap:8px}.destination-tabs button{min-height:70px;text-align:left;padding:15px;border-left:3px solid #3d6079;font-size:12px}.destination-tabs button[aria-pressed=true]{background:linear-gradient(105deg,#d7f6ff,#6cc4eb);color:#06243a;border-color:#b1eeff;box-shadow:none}.destination-tabs button small{font-size:10px}.home-actions{gap:4px}.home-actions button{border:0;border-left:3px solid #4f88ad;background:linear-gradient(90deg,#071726f2,#0a2133c0)}.home-actions button b{font-size:23px}.home-actions button:hover{background:linear-gradient(90deg,#83d6ff,#d8f4ff);color:#06243a}.menu-pages>section{border-radius:3px;border-top:3px solid #73d1fa;background:linear-gradient(115deg,#0c2237f7,#06111ef5)}#menu .seg.on{background:#aadff4;color:#082b42}.menu-pages .eyebrow{color:#b1c8d8}
 @media(max-width:700px){.intro-top{font-size:8px;letter-spacing:1px}.intro-title{top:17vh}.intro-title h1{letter-spacing:-3px!important}.intro-controls{bottom:27vh}.intro-track{bottom:14vh}.intro-options{bottom:4vh;left:8vw;right:auto;gap:12px;flex-wrap:wrap}.intro-title .intro-tagline{font-size:8px;letter-spacing:1px}}
 @media(max-height:560px) and (min-width:701px){.intro-title{top:18vh}.intro-title h1{font-size:68px!important}.intro-controls{left:auto;right:8vw;bottom:26vh}.intro-title .intro-tagline{max-width:230px;line-height:1.8}.intro-track{bottom:5vh}.intro-top{padding-top:3vh}}
+#loading-screen{position:fixed;inset:0;z-index:100;display:flex;flex-direction:column;background:#040f1d;color:#eaf7ff;isolation:isolate;opacity:1;transition:opacity .18s ease;animation:loading-enter .18s ease both;font-family:Arial,sans-serif}#loading-screen[hidden]{display:none!important}#loading-screen.leaving{opacity:0;pointer-events:auto}#loading-screen.cached{animation-duration:.1s;transition-duration:.1s}.loading-art{position:absolute;inset:0;z-index:-1;background:linear-gradient(110deg,#040c19f5,#06162dcc 50%,#07152470),var(--stadium-art) center/cover;filter:saturate(.8)}#loading-screen header{display:flex;justify-content:space-between;align-items:center;padding:5vh 6vw}#loading-screen header strong{font-size:24px;font-style:italic;letter-spacing:-1px}#loading-screen header strong span{font-weight:400}#loading-screen header>span{color:#82a8c3;font-size:9px;letter-spacing:2px}#loading-screen main{width:min(600px,82vw);margin:auto 8vw}#loading-cache{font-size:9px;letter-spacing:3px;color:#81cdea}#loading-screen h1{font-size:clamp(32px,5vw,68px);font-style:italic;line-height:1.04;letter-spacing:-1px;margin:18px 0;background:none;-webkit-text-fill-color:#effaff;outline:0}#loading-detail{color:#b3cbde;font-size:13px;line-height:1.6;min-height:22px}.loading-track{height:4px;margin-top:40px;background:#44668140;overflow:hidden}#loading-fill{height:100%;background:linear-gradient(90deg,#4cb9f2,#c0f5ff);transform:scaleX(0);transform-origin:left;transition:transform .18s ease}.loading-readout{display:flex;justify-content:space-between;align-items:center;margin-top:13px;font-size:11px;color:#9fbbd1}.loading-readout strong{font-size:17px;color:#e5f8ff;font-variant-numeric:tabular-nums}#loading-screen footer{padding:5vh 6vw;display:flex;justify-content:space-between;font-size:8px;letter-spacing:1.5px;color:#6f94b1;gap:20px}.menu-pages>section:not([hidden]),#home-panel:not([hidden]){animation:menu-reveal .2s ease both}@keyframes loading-enter{from{opacity:0}to{opacity:1}}@keyframes menu-reveal{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}@media(prefers-reduced-motion:reduce){#loading-screen,.menu-pages>section,#home-panel{animation:none!important;transition:none!important}#loading-fill{transition:none}}@media(max-width:650px){#loading-screen header>span{display:none}#loading-screen footer{flex-direction:column}#loading-screen main{margin:auto 8vw}.loading-track{margin-top:28px}}
 </style>
 <script>
 /* BUNDLED MODULES: rendering.js + policy.js + Three.js 0.186.1.
@@ -9882,8 +9888,8 @@ window.tevinBoot.stage='input setup';
 
 const keys={};let ballCam=true;
 
-addEventListener('keydown',e=>{if(!e.repeat)unlockAudio();
- if(INTRO.active){if(e.key==='Enter'&&!e.repeat&&!(e.target instanceof HTMLButtonElement)){e.preventDefault();INTRO.started?introPlay():introStart()}if(e.key==='Escape'){e.preventDefault();introPlay()}return}
+addEventListener('keydown',e=>{if(LOADING.active){e.preventDefault();return}if(!e.repeat)unlockAudio();
+ if(INTRO.active){if(!INTRO.started&&!INTRO.manualPause&&e.key!=='Escape')introStart();if(e.key==='Enter'&&!e.repeat&&!(e.target instanceof HTMLButtonElement)){e.preventDefault();INTRO.started?introPlay():introStart()}if(e.key==='Escape'){e.preventDefault();introPlay()}return}
 
  // Text entry must never feed driving controls or the global offline shortcut.
 
@@ -10024,33 +10030,50 @@ addEventListener('pagehide',audioSilence);
 // SHOWTIME 8.1: supplied MP3s stay embedded in the drop-in HTML. Music streams
 // through one media element + one analyser; it is not decoded into a huge PCM bank.
 // Motion follows measured bass energy, never a guessed BPM. No flashing overlays.
-const INTRO={active:true,started:false,media:null,node:null,gain:null,analyser:null,bins:new Uint8Array(512),level:0,average:.12,pulse:0,clock:0,lastBeat:-1,music:.38,motion:true};
+const INTRO={active:true,started:false,media:null,node:null,gain:null,analyser:null,bins:new Uint8Array(512),level:0,average:.12,pulse:0,clock:0,lastBeat:-1,music:1,motion:true,fadeStart:0,fadeEnd:0,manualPause:false,leaving:false,attempt:0};
 try{const p=JSON.parse(localStorage.getItem('tevin-intro-v1')||'null');if(p){INTRO.music=cl(Number(p.music)||0,0,1);INTRO.motion=p.motion!==false}}catch(_){}
-function introMix(){if(INTRO.gain&&AC)INTRO.gain.gain.setTargetAtTime(INTRO.music,AC.currentTime,.08)}
+// FLOW 8.2: audio-clock automation makes the six-second fade independent of FPS.
+function introMix(){if(!INTRO.gain||!AC)return;const now=AC.currentTime,g=INTRO.gain.gain,remaining=Math.max(0,INTRO.fadeEnd-now),fraction=remaining?cl((now-INTRO.fadeStart)/6,0,1):1;g.cancelScheduledValues(now);g.setValueAtTime(INTRO.music*fraction,now);if(remaining)g.linearRampToValueAtTime(INTRO.music,INTRO.fadeEnd);else g.setTargetAtTime(INTRO.music,now,.08)}
 function introPreferences(){try{localStorage.setItem('tevin-intro-v1',JSON.stringify({music:INTRO.music,motion:INTRO.motion}))}catch(_){}introMix()}
 function introMessage(text){$('intro-status').textContent=text}
-async function introStart(){
- if(!INTRO.active)return;unlockAudio();if(!AC){introMessage('Audio unavailable. You can still choose Play.');return}
+async function introStart(automatic=false){
+ if(!INTRO.active||INTRO.leaving)return;unlockAudio();if(!AC){introMessage('Audio unavailable. You can still choose Play.');return}
+ const attempt=++INTRO.attempt;
  try{
-  if(!INTRO.media){const m=document.createElement('audio');m.src=window.TEVIN_MENU_AUDIO.music;m.loop=true;m.preload='none';INTRO.media=m;
-   INTRO.node=AC.createMediaElementSource(m);INTRO.gain=AC.createGain();INTRO.analyser=AC.createAnalyser();INTRO.analyser.fftSize=1024;INTRO.analyser.smoothingTimeConstant=.72;
-   INTRO.node.connect(INTRO.analyser);INTRO.analyser.connect(INTRO.gain);INTRO.gain.connect(AUDIO.master);introMix();
+  if(!INTRO.media){const m=document.createElement('audio');m.src=window.TEVIN_MENU_AUDIO.music;m.loop=true;m.preload='auto';INTRO.media=m;
+   INTRO.node=AC.createMediaElementSource(m);INTRO.gain=AC.createGain();INTRO.gain.gain.setValueAtTime(0,AC.currentTime);INTRO.analyser=AC.createAnalyser();INTRO.analyser.fftSize=1024;INTRO.analyser.smoothingTimeConstant=.72;
+   INTRO.node.connect(INTRO.analyser);INTRO.analyser.connect(INTRO.gain);INTRO.gain.connect(AUDIO.master);
    m.addEventListener('waiting',()=>{if(INTRO.active)introMessage('Loading your soundtrack… Play is available now.')});
-   m.addEventListener('playing',()=>{if(INTRO.active)introMessage('ARENA READY · CHOOSE PLAY WHEN YOU’RE READY')});
-   m.addEventListener('error',()=>introMessage('Soundtrack could not load. Play is still available.'));
+   m.addEventListener('error',()=>{if(INTRO.active)introMessage('Soundtrack could not load. Play is still available.')});
   }
-  await AC.resume();if(!INTRO.active)return;await INTRO.media.play();if(!INTRO.active){INTRO.media.pause();return}
-  INTRO.started=true;$('intro-start').hidden=true;$('intro-sound').hidden=false;introMessage('ARENA READY · CHOOSE PLAY WHEN YOU’RE READY');
- }catch(_){introMessage('Press START MUSIC to enable sound, or choose Play.');$('intro-start').hidden=false}
+  const wasPlaying=INTRO.started&&!INTRO.media.paused&&AC.state==='running';
+  // An autoplay-blocked resume promise can remain pending. Each user gesture can
+  // retry independently; no shared pending promise can lock the title screen.
+  const resume=AC.resume();const play=INTRO.media.play();
+  await Promise.all([resume,play]);
+  if(!INTRO.active||INTRO.leaving){INTRO.media.pause();return}if(attempt!==INTRO.attempt)return;
+  if(!wasPlaying){INTRO.fadeStart=AC.currentTime;INTRO.fadeEnd=INTRO.fadeStart+6;introMix()}
+  INTRO.started=true;INTRO.manualPause=false;$('intro-start').hidden=true;$('intro-sound').hidden=false;$('intro-sound').textContent='PAUSE MUSIC';introMessage('MUSIC ON · FADING IN · CHOOSE PLAY WHEN READY');
+ }catch(_){if(attempt!==INTRO.attempt||!INTRO.active)return;introMessage('CLICK OR PRESS A KEY TO START MUSIC · PLAY IS READY');$('intro-start').hidden=false}
 }
 function introStop(){INTRO.active=false;INTRO.media?.pause();INTRO.pulse=0;$('intro').hidden=true;for(const e of $('menu').children)if(e.id!=='intro')e.inert=false;$('intro-stage').style.transform='none';}
-function introPlay(){introStop();showMenuScreen('play');$('choose-quick').focus?.()}
+async function introPlay(){
+ if(starting||INTRO.leaving)return;INTRO.leaving=true;starting=true;let transition;
+ try{
+  configureCars();transition=await loadingBegin('WELCOME TO THE ARENA','Preparing your stadium, garage and game modes',graphicsReady());
+  if(INTRO.gain&&AC){const g=INTRO.gain.gain;g.cancelScheduledValues(AC.currentTime);g.setTargetAtTime(0,AC.currentTime,.06)}
+  await loadingStage(8,'Preparing your session');await init3d();refreshCarModels();
+  introStop();showMenuScreen('play');await loadingEnd(transition);$('choose-quick').focus?.();
+ }catch(error){loadingAbort(transition);try{dispose3d()}catch(_){}introStop();showMenuScreen('play');$('start-status').textContent='Graphics preparation failed: '+(error.message||error)+'. Try Performance mode in Settings.'}
+ finally{starting=false;INTRO.leaving=false}
+}
 function introFrame(dt){
  if(!INTRO.active)return;INTRO.clock+=dt;if(INTRO.clock<1/30)return;const elapsed=INTRO.clock;INTRO.clock=0;
  let bass=0;if(INTRO.analyser&&INTRO.media&&!INTRO.media.paused&&!document.hidden&&!AUDIO.settings.muted){INTRO.analyser.getByteFrequencyData(INTRO.bins);for(let i=1;i<=5;i++)bass+=INTRO.bins[i];bass/=5*255;}
  INTRO.average+=(bass-INTRO.average)*Math.min(1,elapsed*1.8);INTRO.pulse*=Math.exp(-elapsed*8);
  const now=performance.now()/1000;if(bass>.22&&bass>INTRO.average*1.12&&now-INTRO.lastBeat>.24){INTRO.pulse=Math.min(1,(bass-INTRO.average)*3+.15);INTRO.lastBeat=now}
  INTRO.level+=(bass-INTRO.level)*Math.min(1,elapsed*12);
+ if(INTRO.started&&!INTRO.media?.paused&&AC&&AC.currentTime>=INTRO.fadeEnd&&!INTRO.leaving)introMessage('ARENA READY · CHOOSE PLAY WHEN YOU’RE READY');
  const motion=INTRO.motion&&!INTRO.reduced;
  const p=motion?INTRO.pulse:0;$('intro-stage').style.transform=`scale(${1+p*.018}) rotate(${Math.sin(now*2)*p*.22}deg) translateY(${-p*3}px)`;
  $('intro').style.setProperty('--beat',p.toFixed(3));
@@ -10058,19 +10081,40 @@ function introFrame(dt){
 }
 function setupIntro(){
  const preference=window.matchMedia?.('(prefers-reduced-motion: reduce)');INTRO.reduced=!!preference?.matches;preference?.addEventListener?.('change',e=>INTRO.reduced=e.matches);
- $('intro-start').onclick=introStart;$('intro-play').onclick=introPlay;$('intro-skip').onclick=introPlay;
- $('intro-sound').onclick=()=>{if(!INTRO.media)return;if(INTRO.media.paused){introStart();$('intro-sound').textContent='PAUSE MUSIC'}else{INTRO.media.pause();$('intro-sound').textContent='RESUME MUSIC';introMessage('MUSIC PAUSED · CHOOSE PLAY WHEN YOU’RE READY')}};
+ $('intro-start').onclick=()=>introStart();$('intro-play').onclick=introPlay;$('intro-skip').onclick=introPlay;
+ $('intro-sound').onclick=()=>{if(!INTRO.media)return;if(INTRO.media.paused){introStart();$('intro-sound').textContent='PAUSE MUSIC'}else{INTRO.manualPause=true;INTRO.media.pause();$('intro-sound').textContent='RESUME MUSIC';introMessage('MUSIC PAUSED · CHOOSE PLAY WHEN YOU’RE READY')}};
  $('intro-volume').value=Math.round(INTRO.music*100);$('intro-volume').oninput=()=>{INTRO.music=Number($('intro-volume').value)/100;introPreferences()};
  $('intro-motion').checked=INTRO.motion;$('intro-motion').onchange=()=>{INTRO.motion=$('intro-motion').checked;introPreferences()};
  for(let i=0;i<32;i++)$('intro-spectrum').appendChild(document.createElement('i'));
  for(const e of $('menu').children)if(e.id!=='intro')e.inert=true;
- $('intro-start').focus?.();introMessage('READY · START MUSIC OR PLAY WITHOUT SOUND');
- addEventListener('visibilitychange',()=>{if(document.hidden){INTRO.media?.pause();if(INTRO.started){$('intro-sound').textContent='RESUME MUSIC';introMessage('MUSIC PAUSED · PRESS RESUME MUSIC')}}});
+ $('intro-play').focus?.();introMessage('STARTING YOUR SOUNDTRACK · PLAY IS READY');
+ const firstGesture=e=>{if(INTRO.active&&!INTRO.leaving&&!INTRO.manualPause&&(!INTRO.started||INTRO.media?.paused)&&!['intro-play','intro-skip','intro-start','intro-sound'].includes(e.target?.id))introStart()};
+ addEventListener('pointerdown',firstGesture);
+ introStart(true);
+ addEventListener('visibilitychange',()=>{if(document.hidden){INTRO.manualPause=true;INTRO.media?.pause();if(INTRO.started){$('intro-sound').textContent='RESUME MUSIC';introMessage('MUSIC PAUSED · PRESS RESUME MUSIC')}}});
  addEventListener('pagehide',()=>INTRO.media?.pause());
 }
 // Project the incoming shot only for audio feedback; it never changes physics.
 function audioGoalThreat(c){const sign=c.team?1:-1,v=ball.v.z*sign;if(v<2||ball.p.z*sign<25)return false;const t=(HZ-ball.p.z*sign)/v;if(t<0||t>1.5)return false;return Math.abs(ball.p.x+ball.v.x*t)<GX+BR&&ball.p.y+ball.v.y*t-.5*G*cfg.gravity*t*t<GH+BR}
 function audioSave(c,wasThreat){if(wasThreat&&!audioGoalThreat(c)&&simTime-(c.lastSaveSound??-100)>6.5){c.lastSaveSound=simTime;audioWorld('save',10,null,c.id)}}
+
+// 8.2: one transition owner, real stage completion, no fake percentage timer.
+// Cached scenes take only a short dissolve. Gameplay readiness is announced
+// after the overlay clears, so a hidden countdown cannot give another player a lead.
+const LOADING={active:false,serial:0,progress:0,cached:false};
+const loadingDelay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
+function graphicsReady(){return !!inited&&graphicsPreset===cfg.hi+cfg.models*2+cars.length*10}
+async function loadingBegin(title,detail,cached=false){
+ const id=++LOADING.serial;Object.assign(LOADING,{active:true,progress:0,cached});
+ const el=$('loading-screen');el.hidden=false;el.classList.remove('leaving');el.classList.toggle('cached',cached);el.setAttribute('aria-busy','true');
+ $('loading-title').textContent=title;$('loading-detail').textContent=detail;$('loading-cache').textContent=cached?'READY IN MEMORY · QUICK TRANSITION':'PREPARING YOUR NEXT SESSION';
+ $('menu').inert=true;loadingProgress(cached?90:4,cached?'Restoring your scene':'Preparing assets');$('loading-title').focus?.();
+ await loadingDelay(cached?35:70);return id;
+}
+function loadingProgress(value,label){if(!LOADING.active)return;LOADING.progress=Math.max(LOADING.progress,Math.min(100,value));$('loading-phase').textContent=label;$('loading-percent').textContent=Math.round(LOADING.progress)+'%';$('loading-fill').style.transform='scaleX('+LOADING.progress/100+')';$('loading-meter').setAttribute('aria-valuenow',String(Math.round(LOADING.progress)))}
+async function loadingStage(value,label){if(!LOADING.active)return;loadingProgress(value,label);await loadingDelay(20)}
+async function loadingEnd(id){if(id!==LOADING.serial)return;loadingProgress(100,'Ready');$('loading-screen').setAttribute('aria-busy','false');await loadingDelay(20);if(id!==LOADING.serial)return;$('loading-screen').classList.add('leaving');await loadingDelay(LOADING.cached?100:180);if(id!==LOADING.serial)return;$('loading-screen').hidden=true;$('menu').inert=false;LOADING.active=false;}
+function loadingAbort(id){if(id!==LOADING.serial)return;LOADING.serial++;LOADING.active=false;$('loading-screen').hidden=true;$('menu').inert=false;}
 
 
 // ARCHIVE FX v7.4: converted TGA textures + bounded, event-driven animation.
@@ -10282,13 +10326,13 @@ function menuBack(){audioSample('uiBack',.38);showMenuScreen(menuScreen==='party
 function chooseRoute(route){if(typeof SOC!=='undefined'&&SOC.searching&&route!=='quick')cancelQuickMatch();playRoute=route;$('quick-panel').hidden=route!=='quick';for(const name of ['quick','offline','online','training'])$('choose-'+name).setAttribute('aria-pressed',String(name===route));$('go').hidden=route!=='offline';$('sandbox-start').hidden=route!=='training';$('mp-panel').hidden=route!=='online';$('mp-status').hidden=route!=='online';$('route-help').textContent=route==='quick'?'Play against other people online. Search solo or with a party on your team.':route==='online'?'Play in an invite-only match. Friends join individually with a match code.':route==='training'?'Endless practice. Change AI and boost with F2; reset the ball with R.':'Play a complete match with AI teammates and opponents.';updateMatchSummary();socialUI();privateMenuUI()}
 function showMenuScreen(screen){if(screen==='party'&&menuScreen!=='party')partyReturn=menuScreen;menuScreen=screen;for(const name of ['home','play','garage','settings','party'])$(name+'-panel').hidden=name!==screen;$('menu').setAttribute('data-screen',screen);$('menu-back').hidden=screen==='home';$('menu-back').textContent=screen==='party'&&partyReturn!=='home'?'← BACK TO '+partyReturn.toUpperCase():'← HOME';$('menu-location').textContent=screen==='home'?'HOME':screen==='party'?'QUICK MATCH / PARTY':'HOME / '+screen.toUpperCase();$('menu').classList.toggle('live-preview',screen==='garage'&&!!inited);$('start-status').textContent='';if(screen==='play')chooseRoute(playRoute);if(screen==='garage')previewGarage();updateMatchSummary();socialUI()}
 async function previewGarage(){if(previewJob)return previewJob;if(starting)return;starting=true;$('go').disabled=$('sandbox-start').disabled=true;$('preview-car').disabled=true;$('garage-status').textContent='Preparing your '+BODY_NAMES[cfg.body]+'…';
- previewJob=(async()=>{try{configureCars();await init3d();refreshCarModels();if(menuScreen==='garage')$('menu').classList.add('live-preview');$('garage-status').textContent=BODY_NAMES[cfg.body]+' · '+COLOR_NAMES[cfg.color]+' · READY'}catch(e){$('garage-status').textContent='Preview unavailable. Try Performance mode in Settings.';console.warn('Garage preview',e)}finally{starting=false;$('go').disabled=$('sandbox-start').disabled=false;$('preview-car').disabled=false;previewJob=null}})();return previewJob;
+ previewJob=(async()=>{let transition;try{configureCars();transition=await loadingBegin('YOUR GARAGE',BODY_NAMES[cfg.body]+' · Preparing your car',graphicsReady());await init3d();const changed=cm.some((m,i)=>m.userData.body!==(cars[i].body||0)||m.userData.simple===!!cfg.models);refreshCarModels();if(changed&&ren?.compileAsync){await loadingStage(94,'Preparing your selected car');ENGINE.status.warming=true;try{await ren.compileAsync(scene,cam)}finally{ENGINE.status.warming=false}}if(menuScreen==='garage')$('menu').classList.add('live-preview');$('garage-status').textContent=BODY_NAMES[cfg.body]+' · '+COLOR_NAMES[cfg.color]+' · READY';await loadingEnd(transition);$('preview-car').focus?.()}catch(e){loadingAbort(transition);$('garage-status').textContent='Preview unavailable. Try Performance mode in Settings.';console.warn('Garage preview',e)}finally{starting=false;$('go').disabled=$('sandbox-start').disabled=false;$('preview-car').disabled=false;previewJob=null}})();return previewJob;
 }
 function setupMenu(){
  $('nav-play').onclick=()=>showMenuScreen('play');$('nav-garage').onclick=()=>showMenuScreen('garage');$('nav-settings').onclick=()=>showMenuScreen('settings');$('nav-training').onclick=()=>{chooseRoute('training');showMenuScreen('play')};$('menu-back').onclick=menuBack;$('preview-car').onclick=previewGarage;
  $('private-create').onclick=()=>choosePrivateAction('create');$('private-join').onclick=()=>choosePrivateAction('join');$('party-create-tab').onclick=()=>choosePartyAction('create');$('party-join-tab').onclick=()=>choosePartyAction('join');$('quick-manage-party').onclick=()=>showMenuScreen('party');$('party-private-link').onclick=()=>{chooseRoute('online');showMenuScreen('play')};
  for(const name of ['quick','offline','online','training'])$('choose-'+name).onclick=()=>chooseRoute(name);
- BODY_NAMES.forEach((name,i)=>{const b=document.createElement('button');b.textContent=name.toUpperCase();b.setAttribute('aria-pressed',String(cfg.body===i));b.onclick=()=>{cfg.body=i;P1.body=i;for(const [j,button] of Array.from($('body-options').children).entries())button.setAttribute('aria-pressed',String(i===j));savePresentation();updateMatchSummary();if(inited&&!starting){refreshCarModels();$('garage-status').textContent=name+' · READY'}else previewGarage()};$('body-options').appendChild(b)});
+ BODY_NAMES.forEach((name,i)=>{const b=document.createElement('button');b.textContent=name.toUpperCase();b.setAttribute('aria-pressed',String(cfg.body===i));b.onclick=()=>{cfg.body=i;P1.body=i;for(const [j,button] of Array.from($('body-options').children).entries())button.setAttribute('aria-pressed',String(i===j));savePresentation();updateMatchSummary();previewGarage()};$('body-options').appendChild(b)});
  $('performance-mode').checked=!cfg.hi;$('performance-mode').onchange=()=>{cfg.hi=$('performance-mode').checked?0:1;cfg.models=cfg.hi;savePresentation();$('quality-description').textContent=cfg.hi?'ULTRA · Imported cars, cinematic lighting and detailed grass.':'PERFORMANCE · Simplified cars and lower rendering cost. Your garage choices are saved.';$('garage-performance').hidden=!!cfg.hi;updateMatchSummary()};$('performance-mode').onchange();
  $('paint-name').textContent=COLOR_NAMES[cfg.color];chooseRoute('quick');showMenuScreen('home');
 }
@@ -10427,11 +10471,14 @@ async function startGame(){
 
   unlockAudio();AUDIO.goalKey="";AUDIO.countKey="";AUDIO.events.length=0;
 
-  try{configureCars();trainingLabels();$('training-panel').hidden=!sandbox;await init3d();refreshCarModels()}catch(err){console.error(err);try{dispose3d()}catch(_){}starting=false;st='MENU';$('menu').classList.add('on');$('go').disabled=false;$('go').innerHTML='RETRY KICKOFF <small>ENTER ↵</small>';$('start-status').textContent='Graphics could not start: '+(err.message||err)+'. Try Performance graphics or open this file in Chrome/Edge.';if(MP.active)mpReset();return false}starting=false;$('go').disabled=false;$('go').textContent='START OFFLINE MATCH';$('start-status').textContent='';last=performance.now();acc=0;$('cv').style.filter='none';['menu','end','pause'].forEach(x=>$(x).classList.remove('on'));$('hud').style.display='block';
+  let transition;try{configureCars();transition=await loadingBegin('ENTERING THE ARENA',(cfg.mode?'HEATSEEKER':'SOCCAR')+' · '+cfg.size+'v'+cfg.size,graphicsReady());trainingLabels();$('training-panel').hidden=!sandbox;await init3d();refreshCarModels()}catch(err){loadingAbort(transition);console.error(err);try{dispose3d()}catch(_){}starting=false;st='MENU';$('menu').classList.add('on');$('go').disabled=false;$('go').innerHTML='RETRY KICKOFF <small>ENTER ↵</small>';$('start-status').textContent='Graphics could not start: '+(err.message||err)+'. Try Performance graphics or open this file in Chrome/Edge.';if(MP.active)mpReset();return false}$('go').disabled=false;$('go').textContent='START OFFLINE MATCH';$('start-status').textContent='';last=performance.now();acc=0;$('cv').style.filter='none';['menu','end','pause'].forEach(x=>$(x).classList.remove('on'));$('hud').style.display='block';
 
   for(const k in keys)keys[k]=0;particleCount=particleReplace=0;shake=flash=0;score=[0,0];tl=cfg.len;ot=0;Object.assign(matchStats,{touches:0,topSpeed:0,boost:0,lastTouch:-1e9});const role=MP.active?((MP.quick?'QUICK MATCH':MP.role.toUpperCase())+' · YOU ARE '+(localPlayer().team?'ORANGE':'BLUE')):['ROOKIE','PRO','ALL-STAR'][cfg.lvl]+' · YOU ARE BLUE';$('matchlevel').textContent=role;$('s0').textContent=$('s1').textContent=0;
 
- if(MP.active){MP.matchBegun=false;MP.localPaused=false;try{await mpLoaded()}catch(e){mpFailure(e)}}else kickoff();return true}
+ // Place the camera/cars before revealing them; the loading gate freezes countdown ticks.
+ if(!MP.active)kickoff();else st='WAIT';render(0);
+ await loadingEnd(transition);starting=false;last=performance.now();acc=0;
+ if(MP.active){MP.matchBegun=false;MP.localPaused=false;try{await mpLoaded()}catch(e){mpFailure(e)}}return true}
 
 function startOfflineGame(training=false){if(starting||mpBusy||SOC.searching||SOC.busy)return;if(training!==true&&st==='MENU'&&menuScreen==='home'){showMenuScreen('play');return}if(training!==true&&st==='MENU'&&(playRoute==='online'||playRoute==='quick'))return;sandbox=training===true||playRoute==='training';if(MP.active)mpReset();startGame()}
 
@@ -10833,6 +10880,7 @@ async function build3d(forceGL){
 
  if(inited&&graphicsPreset===cfg.hi+cfg.models*2+cars.length*10)return;if(inited)dispose3d();graphicsPreset=cfg.hi+cfg.models*2+cars.length*10;
 
+ await loadingStage(12,'Connecting graphics device');
   ren=await ENGINE.createRenderer($('cv'),cfg.hi,forceGL);renderScale=1;perfEMA=1/60;perfTimer=0;ren.setPixelRatio(pixelRatio());ren.setSize(innerWidth,innerHeight);
 
  // Static filtered environment avoids the periodic six-pass cube-camera hitch.
@@ -10843,6 +10891,7 @@ async function build3d(forceGL){
 
  cam=new THREE.PerspectiveCamera(77,innerWidth/innerHeight,.1,700);
 
+ await loadingStage(28,'Preparing stadium lighting');
  const et=ENGINE.stadiumEnvironment();envTarget=await ENGINE.environment(ren,et);scene.environment=envTarget.texture;et.dispose();
 
  scene.add(new THREE.HemisphereLight(0xd5e7ff,0x3d4a29,.85));
@@ -10889,6 +10938,7 @@ async function build3d(forceGL){
 
  makeGrass();
 
+ await loadingStage(55,'Loading car models and textures');
  const importedTextures=assetTextures=cfg.models?await ENGINE.loadImportedTextures():null;
 
  cm=cars.map(createCarVisual);
@@ -10971,6 +11021,7 @@ async function build3d(forceGL){
 
  const lp=localPlayer();cam.position.copy(cpos);cam.lookAt(lookPos);sun.position.set(35,55,22);sun.target.position.set(0,0,0);
 
+ await loadingStage(90,'Compiling materials and effects');
  await ENGINE.prewarm(ren,scene,cam,pipeline,cm,pts);
 
  if(ren.isWebGPURenderer)ren.onDeviceLost=handleDeviceLoss;
@@ -11084,6 +11135,7 @@ function render(dt){
 const spinAxis=new V3(),spinQ=new Qn();let DBG=0,last=0,acc=0;
 
 function frame(t){requestAnimationFrame(frame);const dt=cl((t-last)/1000||0,0,.1);last=t;introFrame(dt);
+ if(LOADING.active){acc=0;if(inited&&!ENGINE.status.warming)render(dt);return}
 
  if(MP.active){mpPauseGate();if(MP.role==='guest'){if(st!=='PAUSE')applyMultiplayer(dt);acc=0;publishMultiplayer(dt);updateAudio();render(dt);return}}
 
