@@ -127,7 +127,7 @@ button:focus-visible{outline:3px solid #ffbd65;outline-offset:4px}
 </section>
 
 
- <header class="menu-top"><div class="wordmark">TEVIN<span>LEAGUE</span><small>SHOWTIME / 08.1</small></div><button id="menu-back" hidden>← BACK</button><button id="party-toggle">QUICK MATCH PARTY</button><span id="menu-location">HOME</span></header>
+ <header class="menu-top"><div class="wordmark">TEVIN<span>LEAGUE</span><small>FLOW / 08.2</small></div><button id="menu-back" hidden>← BACK</button><button id="party-toggle">QUICK MATCH PARTY</button><span id="menu-location">HOME</span></header>
 
  <div id="home-panel"><div class="hero-copy"><p class="eyebrow">YOUR NEXT GREAT TOUCH</p><h1>TAKE THE<br><em>SPOTLIGHT.</em></h1><p>Arena soccer. Full-throttle freedom.</p></div><nav class="home-actions" aria-label="Main menu"><button id="nav-play" class="main-action"><b>PLAY</b><span>Quick Match, friends or free play</span><i>↗</i></button><button id="nav-garage"><b>GARAGE</b><span>Your car. Your colors.</span><i>→</i></button><button id="nav-settings"><b>SETTINGS</b><span>Sound, graphics and keyboard controls</span><i>→</i></button></nav><div class="home-caption">SOCCAR / HEATSEEKER <span>1v1 — 3v3</span></div></div>
 
@@ -10050,6 +10050,7 @@ async function introStart(automatic=false){
   // An autoplay-blocked resume promise can remain pending. Each user gesture can
   // retry independently; no shared pending promise can lock the title screen.
   const resume=AC.resume();const play=INTRO.media.play();
+  if(automatic&&AC.state!=='running')introMessage('CLICK OR PRESS A KEY TO START MUSIC · PLAY IS READY');
   await Promise.all([resume,play]);
   if(!INTRO.active||INTRO.leaving){INTRO.media.pause();return}if(attempt!==INTRO.attempt)return;
   if(!wasPlaying){INTRO.fadeStart=AC.currentTime;INTRO.fadeEnd=INTRO.fadeStart+6;introMix()}
@@ -10326,7 +10327,7 @@ function menuBack(){audioSample('uiBack',.38);showMenuScreen(menuScreen==='party
 function chooseRoute(route){if(typeof SOC!=='undefined'&&SOC.searching&&route!=='quick')cancelQuickMatch();playRoute=route;$('quick-panel').hidden=route!=='quick';for(const name of ['quick','offline','online','training'])$('choose-'+name).setAttribute('aria-pressed',String(name===route));$('go').hidden=route!=='offline';$('sandbox-start').hidden=route!=='training';$('mp-panel').hidden=route!=='online';$('mp-status').hidden=route!=='online';$('route-help').textContent=route==='quick'?'Play against other people online. Search solo or with a party on your team.':route==='online'?'Play in an invite-only match. Friends join individually with a match code.':route==='training'?'Endless practice. Change AI and boost with F2; reset the ball with R.':'Play a complete match with AI teammates and opponents.';updateMatchSummary();socialUI();privateMenuUI()}
 function showMenuScreen(screen){if(screen==='party'&&menuScreen!=='party')partyReturn=menuScreen;menuScreen=screen;for(const name of ['home','play','garage','settings','party'])$(name+'-panel').hidden=name!==screen;$('menu').setAttribute('data-screen',screen);$('menu-back').hidden=screen==='home';$('menu-back').textContent=screen==='party'&&partyReturn!=='home'?'← BACK TO '+partyReturn.toUpperCase():'← HOME';$('menu-location').textContent=screen==='home'?'HOME':screen==='party'?'QUICK MATCH / PARTY':'HOME / '+screen.toUpperCase();$('menu').classList.toggle('live-preview',screen==='garage'&&!!inited);$('start-status').textContent='';if(screen==='play')chooseRoute(playRoute);if(screen==='garage')previewGarage();updateMatchSummary();socialUI()}
 async function previewGarage(){if(previewJob)return previewJob;if(starting)return;starting=true;$('go').disabled=$('sandbox-start').disabled=true;$('preview-car').disabled=true;$('garage-status').textContent='Preparing your '+BODY_NAMES[cfg.body]+'…';
- previewJob=(async()=>{let transition;try{configureCars();transition=await loadingBegin('YOUR GARAGE',BODY_NAMES[cfg.body]+' · Preparing your car',graphicsReady());await init3d();const changed=cm.some((m,i)=>m.userData.body!==(cars[i].body||0)||m.userData.simple===!!cfg.models);refreshCarModels();if(changed&&ren?.compileAsync){await loadingStage(94,'Preparing your selected car');ENGINE.status.warming=true;try{await ren.compileAsync(scene,cam)}finally{ENGINE.status.warming=false}}if(menuScreen==='garage')$('menu').classList.add('live-preview');$('garage-status').textContent=BODY_NAMES[cfg.body]+' · '+COLOR_NAMES[cfg.color]+' · READY';await loadingEnd(transition);$('preview-car').focus?.()}catch(e){loadingAbort(transition);$('garage-status').textContent='Preview unavailable. Try Performance mode in Settings.';console.warn('Garage preview',e)}finally{starting=false;$('go').disabled=$('sandbox-start').disabled=false;$('preview-car').disabled=false;previewJob=null}})();return previewJob;
+ previewJob=(async()=>{let transition;try{configureCars();transition=await loadingBegin('YOUR GARAGE',BODY_NAMES[cfg.body]+' · Preparing your car',graphicsReady());await init3d();const changed=cm.some((m,i)=>m.userData.body!==(cars[i].body||0)||m.userData.simple===!!cfg.models);refreshCarModels();if(changed&&ren?.compileAsync){await loadingStage(94,'Preparing your selected car');ENGINE.status.warming=true;try{await ren.compileAsync(scene,cam)}finally{ENGINE.status.warming=false}}if(menuScreen==='garage')$('menu').classList.add('live-preview');$('garage-status').textContent=BODY_NAMES[cfg.body]+' · '+COLOR_NAMES[cfg.color]+' · READY';await loadingEnd(transition);$('preview-car').focus?.()}catch(e){loadingAbort(transition);try{dispose3d()}catch(_){}$('menu').classList.remove('live-preview');$('garage-status').textContent='Preview unavailable. Try Performance mode in Settings.';console.warn('Garage preview',e)}finally{starting=false;$('go').disabled=$('sandbox-start').disabled=false;$('preview-car').disabled=false;previewJob=null}})();return previewJob;
 }
 function setupMenu(){
  $('nav-play').onclick=()=>showMenuScreen('play');$('nav-garage').onclick=()=>showMenuScreen('garage');$('nav-settings').onclick=()=>showMenuScreen('settings');$('nav-training').onclick=()=>{chooseRoute('training');showMenuScreen('play')};$('menu-back').onclick=menuBack;$('preview-car').onclick=previewGarage;
@@ -11155,7 +11156,7 @@ setupModesUI();setupMenu();setupSocial();setupAudioUI();setupGraphicsUI();config
 
 window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:60,policyVersion:1,policyLength:policyEncoders[1].data.length,quality:cfg.hi?'Ultra':'Performance'});
 
-window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 8.1 · SHOWTIME · Ready to play');
+window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 8.2 · FLOW · Ready to play');
 
 
 } catch(error) { window.tevinBoot.error=String(error.message||error);window.tevinBoot.show("Startup failed at "+window.tevinBoot.stage+": "+window.tevinBoot.error);console.error(error); }
