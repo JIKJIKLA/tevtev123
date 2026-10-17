@@ -2,10 +2,11 @@
 try {
 
 
-/* Tevin League 9.0 — Precision. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
+/* Tevin League 9.1 — Aftershock. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
 window.tevinBoot.stage='game script';
 
 const ENGINE=TevinEngine;
+// INLINE:renderer.js
 
 const SIM_DT=1/60; // outer simulation tick; preserve DT=1/120 solver calibration
 
@@ -1203,7 +1204,7 @@ const keys={};let ballCam=true;
 // INLINE:controls.js
 
 addEventListener('keydown',e=>{if(captureBinding(e))return;if(LOADING.active){e.preventDefault();return}if(!e.repeat)unlockAudio();
- if(INTRO.active){if(!INTRO.started&&!INTRO.manualPause&&e.key!=='Escape')introStart();if(e.key==='Enter'&&!e.repeat&&!(e.target instanceof HTMLButtonElement)){e.preventDefault();INTRO.started?introPlay():introStart()}if(e.key==='Escape'){e.preventDefault();introPlay()}return}
+ if(INTRO.active){if(!INTRO.started&&!INTRO.manualPause&&e.key!=='Escape')introStart();if(e.key==='Enter'&&!e.repeat&&!(e.target instanceof HTMLButtonElement)){e.preventDefault();introPlay()}if(e.key==='Escape'){e.preventDefault();introPlay()}return}
 
  // Text entry must never feed driving controls or the global offline shortcut.
 
@@ -1340,18 +1341,18 @@ addEventListener('pagehide',audioSilence);
 // SHOWTIME 8.1: supplied MP3s stay embedded in the drop-in HTML. Music streams
 // through one media element + one analyser; it is not decoded into a huge PCM bank.
 // Motion follows measured bass energy, never a guessed BPM. No flashing overlays.
-const INTRO={active:true,started:false,media:null,node:null,gain:null,analyser:null,bins:new Uint8Array(512),level:0,average:.12,pulse:0,clock:0,lastBeat:-1,music:1,motion:true,fadeStart:0,fadeEnd:0,manualPause:false,leaving:false,attempt:0};
-try{const p=JSON.parse(localStorage.getItem('tevin-intro-v1')||'null');if(p){INTRO.music=cl(Number(p.music)||0,0,1);INTRO.motion=p.motion!==false}}catch(_){}
+const INTRO={stopped:false,active:true,started:false,media:null,node:null,gain:null,analyser:null,bins:new Uint8Array(1024),level:0,average:.12,pulse:0,clock:0,lastBeat:-1,music:1,motion:true,fadeStart:0,fadeEnd:0,manualPause:false,leaving:false,attempt:0};
+try{const p=JSON.parse(localStorage.getItem('tevin-intro-v2')||'null');if(p){INTRO.music=cl(Number(p.music)||0,0,1);INTRO.motion=p.motion!==false}}catch(_){}
 // FLOW 8.2: audio-clock automation makes the six-second fade independent of FPS.
 function introMix(){if(!INTRO.gain||!AC)return;const now=AC.currentTime,g=INTRO.gain.gain,remaining=Math.max(0,INTRO.fadeEnd-now),fraction=remaining?cl((now-INTRO.fadeStart)/6,0,1):1;g.cancelScheduledValues(now);g.setValueAtTime(INTRO.music*fraction,now);if(remaining)g.linearRampToValueAtTime(INTRO.music,INTRO.fadeEnd);else g.setTargetAtTime(INTRO.music,now,.08)}
-function introPreferences(){try{localStorage.setItem('tevin-intro-v1',JSON.stringify({music:INTRO.music,motion:INTRO.motion}))}catch(_){}introMix()}
+function introPreferences(){try{localStorage.setItem('tevin-intro-v2',JSON.stringify({music:INTRO.music,motion:INTRO.motion}))}catch(_){}introMix()}
 function introMessage(text){$('intro-status').textContent=text}
 async function introStart(automatic=false){
- if(!INTRO.active||INTRO.leaving)return;unlockAudio();if(!AC){introMessage('Audio unavailable. You can still choose Play.');return}
+ if(st!=='MENU'||INTRO.stopped)return;unlockAudio();if(!AC){introMessage('Audio unavailable. You can still choose Play.');return}
  const attempt=++INTRO.attempt;
  try{
   if(!INTRO.media){const m=document.createElement('audio');m.src=window.TEVIN_MENU_AUDIO.music;m.loop=true;m.preload='auto';INTRO.media=m;
-   INTRO.node=AC.createMediaElementSource(m);INTRO.gain=AC.createGain();INTRO.gain.gain.setValueAtTime(0,AC.currentTime);INTRO.analyser=AC.createAnalyser();INTRO.analyser.fftSize=1024;INTRO.analyser.smoothingTimeConstant=.72;
+   INTRO.node=AC.createMediaElementSource(m);INTRO.gain=AC.createGain();INTRO.gain.gain.setValueAtTime(0,AC.currentTime);INTRO.analyser=AC.createAnalyser();INTRO.analyser.fftSize=2048;INTRO.analyser.smoothingTimeConstant=.55;
    INTRO.node.connect(INTRO.analyser);INTRO.analyser.connect(INTRO.gain);INTRO.gain.connect(AUDIO.master);
    m.addEventListener('waiting',()=>{if(INTRO.active)introMessage('Loading your soundtrack… Play is available now.')});
    m.addEventListener('error',()=>{if(INTRO.active)introMessage('Soundtrack could not load. Play is still available.')});
@@ -1362,37 +1363,26 @@ async function introStart(automatic=false){
   const resume=AC.resume();const play=INTRO.media.play();
   if(automatic&&AC.state!=='running')introMessage('CLICK OR PRESS A KEY TO START MUSIC · PLAY IS READY');
   await Promise.all([resume,play]);
-  if(!INTRO.active||INTRO.leaving){INTRO.media.pause();return}if(attempt!==INTRO.attempt)return;
+  if(st!=='MENU'||INTRO.stopped){INTRO.media.pause();return}if(attempt!==INTRO.attempt){if(INTRO.manualPause)INTRO.media.pause();return;}
   if(!wasPlaying){INTRO.fadeStart=AC.currentTime;INTRO.fadeEnd=INTRO.fadeStart+6;introMix()}
   INTRO.started=true;INTRO.manualPause=false;$('intro-start').hidden=true;$('intro-sound').hidden=false;$('intro-sound').textContent='PAUSE MUSIC';introMessage('MUSIC ON · FADING IN · CHOOSE PLAY WHEN READY');
  }catch(_){if(attempt!==INTRO.attempt||!INTRO.active)return;introMessage('CLICK OR PRESS A KEY TO START MUSIC · PLAY IS READY');$('intro-start').hidden=false}
 }
-function introStop(){INTRO.active=false;INTRO.media?.pause();INTRO.pulse=0;$('intro').hidden=true;for(const e of $('menu').children)if(e.id!=='intro')e.inert=false;$('intro-stage').style.transform='none';}
-async function introPlay(){
- if(starting||INTRO.leaving)return;INTRO.leaving=true;starting=true;let transition;
- try{
-  configureCars();transition=await loadingBegin('WELCOME TO THE ARENA','Preparing your stadium, garage and game modes',graphicsReady());
-  if(INTRO.gain&&AC){const g=INTRO.gain.gain;g.cancelScheduledValues(AC.currentTime);g.setTargetAtTime(0,AC.currentTime,.06)}
-  await loadingStage(8,'Preparing your session');await init3d();refreshCarModels();
-  introStop();showMenuScreen('play');await loadingEnd(transition);$('choose-quick').focus?.();
- }catch(error){loadingAbort(transition);try{dispose3d()}catch(_){}introStop();showMenuScreen('play');$('start-status').textContent='Graphics preparation failed: '+(error.message||error)+'. Try Performance mode in Settings.'}
- finally{starting=false;INTRO.leaving=false}
+function introStop(){INTRO.stopped=true;INTRO.active=false;INTRO.media?.pause();INTRO.pulse=0;$('intro').hidden=true;for(const e of $('menu').children)if(e.id!=='intro')e.inert=false;$('intro-stage').style.transform='none';}
+async function openPlaySelection(){
+ if(starting||LOADING.active)return;starting=true;let transition;
+ try{transition=await loadingBegin('CHOOSE YOUR MATCH','1v1, 2v2 or 3v3. Your arena. Your rules.',true);
+ await loadingStage(45,'Loading playlists');configureCars();
+ INTRO.active=false;INTRO.leaving=false;$('intro').hidden=true;for(const e of $('menu').children)e.inert=false;
+ showMenuScreen('play');await loadingStage(100,'Playlists ready');await loadingEnd(transition);$('choose-offline').focus?.();
+ }catch(error){loadingAbort(transition);$('start-status').textContent='Could not open playlists. Please try again.';console.warn(error)}finally{starting=false;INTRO.leaving=false}
 }
-function introFrame(dt){
- if(!INTRO.active)return;INTRO.clock+=dt;if(INTRO.clock<1/30)return;const elapsed=INTRO.clock;INTRO.clock=0;
- let bass=0;if(INTRO.analyser&&INTRO.media&&!INTRO.media.paused&&!document.hidden&&!AUDIO.settings.muted){INTRO.analyser.getByteFrequencyData(INTRO.bins);for(let i=1;i<=5;i++)bass+=INTRO.bins[i];bass/=5*255;}
- INTRO.average+=(bass-INTRO.average)*Math.min(1,elapsed*1.8);INTRO.pulse*=Math.exp(-elapsed*8);
- const now=performance.now()/1000;if(bass>.22&&bass>INTRO.average*1.12&&now-INTRO.lastBeat>.24){INTRO.pulse=Math.min(1,(bass-INTRO.average)*3+.15);INTRO.lastBeat=now}
- INTRO.level+=(bass-INTRO.level)*Math.min(1,elapsed*12);
- if(INTRO.started&&!INTRO.media?.paused&&AC&&AC.currentTime>=INTRO.fadeEnd&&!INTRO.leaving)introMessage('ARENA READY · CHOOSE PLAY WHEN YOU’RE READY');
- const motion=INTRO.motion&&!INTRO.reduced;
- const p=motion?INTRO.pulse:0;$('intro-stage').style.transform=`scale(${1+p*.018}) rotate(${Math.sin(now*2)*p*.22}deg) translateY(${-p*3}px)`;
- $('intro').style.setProperty('--beat',p.toFixed(3));
- const bars=$('intro-spectrum').children;for(let i=0;i<bars.length;i++){const n=INTRO.bins[1+i*2]/255;bars[i].style.transform=`scaleY(${motion?Math.max(.08,n):.12})`}
-}
+function introPlay(){if(starting||LOADING.active)return;if(!INTRO.manualPause)introStart();return openPlaySelection();}
+// INLINE:visualizer.js
 function setupIntro(){
  const preference=window.matchMedia?.('(prefers-reduced-motion: reduce)');INTRO.reduced=!!preference?.matches;preference?.addEventListener?.('change',e=>INTRO.reduced=e.matches);
- $('intro-start').onclick=()=>introStart();$('intro-play').onclick=introPlay;$('intro-skip').onclick=introPlay;
+ $('menu-music').onclick=()=>{if(INTRO.media&&!INTRO.media.paused){INTRO.manualPause=true;INTRO.media.pause();$('menu-music').textContent='MUSIC OFF'}else{INTRO.manualPause=false;introStart();$('menu-music').textContent='MUSIC ON'}};
+ $('intro-start').onclick=()=>introStart();$('intro-play').onclick=introPlay;$('intro-skip').onclick=()=>{INTRO.manualPause=true;INTRO.attempt++;INTRO.media?.pause();openPlaySelection()};
  $('intro-sound').onclick=()=>{if(!INTRO.media)return;if(INTRO.media.paused){introStart();$('intro-sound').textContent='PAUSE MUSIC'}else{INTRO.manualPause=true;INTRO.media.pause();$('intro-sound').textContent='RESUME MUSIC';introMessage('MUSIC PAUSED · CHOOSE PLAY WHEN YOU’RE READY')}};
  $('intro-volume').value=Math.round(INTRO.music*100);$('intro-volume').oninput=()=>{INTRO.music=Number($('intro-volume').value)/100;introPreferences()};
  $('intro-motion').checked=INTRO.motion;$('intro-motion').onchange=()=>{INTRO.motion=$('intro-motion').checked;introPreferences()};
@@ -1401,7 +1391,7 @@ function setupIntro(){
  $('intro-play').focus?.();introMessage('STARTING YOUR SOUNDTRACK · PLAY IS READY');
  const firstGesture=e=>{if(INTRO.active&&!INTRO.leaving&&!INTRO.manualPause&&(!INTRO.started||INTRO.media?.paused)&&!['intro-play','intro-skip','intro-start','intro-sound'].includes(e.target?.id))introStart()};
  addEventListener('pointerdown',firstGesture);
- introStart(true);
+ if(document.readyState==='complete')introStart(true);else addEventListener('load',()=>introStart(true),{once:true});
  addEventListener('visibilitychange',()=>{if(document.hidden){INTRO.manualPause=true;INTRO.media?.pause();if(INTRO.started){$('intro-sound').textContent='RESUME MUSIC';introMessage('MUSIC PAUSED · PRESS RESUME MUSIC')}}});
  addEventListener('pagehide',()=>INTRO.media?.pause());
 }
@@ -1416,15 +1406,15 @@ const LOADING={active:false,serial:0,progress:0,cached:false};
 const loadingDelay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
 function graphicsReady(){return !!inited&&graphicsPreset===cfg.hi+cfg.models*2+cars.length*10}
 async function loadingBegin(title,detail,cached=false){
- const id=++LOADING.serial;Object.assign(LOADING,{active:true,progress:0,cached});
+ const id=++LOADING.serial;Object.assign(LOADING,{active:true,progress:0,cached,opened:performance.now()});
  const el=$('loading-screen');el.hidden=false;el.classList.remove('leaving');el.classList.toggle('cached',cached);el.setAttribute('aria-busy','true');
  $('loading-title').textContent=title;$('loading-detail').textContent=detail;$('loading-cache').textContent=cached?'READY IN MEMORY · QUICK TRANSITION':'PREPARING YOUR NEXT SESSION';
  $('menu').inert=true;loadingProgress(cached?90:4,cached?'Restoring your scene':'Preparing assets');$('loading-title').focus?.();
- await loadingDelay(cached?35:70);return id;
+ await loadingDelay(INTRO.reduced?0:220);return id;
 }
 function loadingProgress(value,label){if(!LOADING.active)return;LOADING.progress=Math.max(LOADING.progress,Math.min(100,value));$('loading-phase').textContent=label;$('loading-percent').textContent=Math.round(LOADING.progress)+'%';$('loading-fill').style.transform='scaleX('+LOADING.progress/100+')';$('loading-meter').setAttribute('aria-valuenow',String(Math.round(LOADING.progress)))}
 async function loadingStage(value,label){if(!LOADING.active)return;loadingProgress(value,label);await loadingDelay(20)}
-async function loadingEnd(id){if(id!==LOADING.serial)return;loadingProgress(100,'Ready');$('loading-screen').setAttribute('aria-busy','false');await loadingDelay(20);if(id!==LOADING.serial)return;$('loading-screen').classList.add('leaving');await loadingDelay(LOADING.cached?100:180);if(id!==LOADING.serial)return;$('loading-screen').hidden=true;$('menu').inert=false;LOADING.active=false;}
+async function loadingEnd(id){if(id!==LOADING.serial)return;loadingProgress(100,'Ready');$('loading-screen').setAttribute('aria-busy','false');await loadingDelay(INTRO.reduced?0:Math.max(80,650-(performance.now()-LOADING.opened)));if(id!==LOADING.serial)return;$('loading-screen').classList.add('leaving');await loadingDelay(INTRO.reduced?0:320);if(id!==LOADING.serial)return;$('loading-screen').hidden=true;$('menu').inert=false;LOADING.active=false;}
 function loadingAbort(id){if(id!==LOADING.serial)return;LOADING.serial++;LOADING.active=false;$('loading-screen').hidden=true;$('menu').inert=false;}
 
 
@@ -1591,7 +1581,7 @@ function changeBots(team,delta){if(!sandbox||MP.active)return;const key=team?'en
 function trainingLabels(){$('training-roster').textContent=cfg.allies+' allied AI · '+cfg.enemies+' opposing AI';$('training-boost').textContent=cfg.unlimited?'BOOST: UNLIMITED':'BOOST: NORMAL';}
 function setupModesUI(){
  $('team-colors').checked=cfg.teamColors;$('team-colors').onchange=()=>{if(MP.active||SOC.searching){$('team-colors').checked=cfg.teamColors;return}cfg.teamColors=$('team-colors').checked;savePresentation();applyTeamColors();};
- const options=[['mode','PLAYLIST',['SOCCAR','HEATSEEKER'],[0,1]],['size','TEAM SIZE',['1v1','2v2','3v3'],[1,2,3]],['speed','CAR SPEED',['1×','1.5×','2×'],[1,1.5,2]],['gravity','GRAVITY',['LOW','NORMAL','HIGH'],[.5,1,1.5]],['unlimited','BOOST',['NORMAL','UNLIMITED'],[false,true]]];
+ const options=[['size','TEAM SIZE',['1v1','2v2','3v3'],[1,2,3]],['mode','PLAYLIST',['SOCCAR','HEATSEEKER'],[0,1]],['speed','CAR SPEED',['1×','1.5×','2×'],[1,1.5,2]],['gravity','GRAVITY',['LOW','NORMAL','HIGH'],[.5,1,1.5]],['unlimited','BOOST',['NORMAL','UNLIMITED'],[false,true]]];
  for(const [key,label,names,values] of options){const row=document.createElement('div');row.className='row';const title=document.createElement('label');title.textContent=label;row.appendChild(title);names.forEach((name,i)=>{const button=document.createElement('button');button.className='seg'+(cfg[key]===values[i]?' on':'');button.textContent=name;button.setAttribute('aria-pressed',String(cfg[key]===values[i]));settingButtons.push({button,key,value:values[i]});button.onclick=()=>{cfg[key]=values[i];for(let n=0;n<names.length;n++){const b=row.children[n+1];b.classList.toggle('on',n===i);b.setAttribute('aria-pressed',String(n===i))}cfg.allies=cfg.size-1;cfg.enemies=cfg.size;updateMatchSummary();$('playlist-note').textContent=cfg.mode?'HEATSEEKER · First to 7. Touch to redirect. Backboards return fire.':'SOCCAR · Timed match. Highest score wins. Sudden-death overtime.'};row.appendChild(button)});$(['mode','size'].includes(key)?'mode-rows':'mutator-rows').appendChild(row)}
  PALETTE.forEach((color,i)=>{const button=document.createElement('button');button.className='swatch'+(i===cfg.color?' on':'');button.style.background='#'+color.toString(16).padStart(6,'0');button.textContent=COLOR_NAMES[i];button.setAttribute('aria-label',COLOR_NAMES[i]+' car paint');button.onclick=()=>{cfg.color=i;P1.color=color;applyTeamColors();savePresentation();updateMatchSummary();$('paint-name').textContent=COLOR_NAMES[i];$('swatches').querySelectorAll('button').forEach((b,j)=>b.classList.toggle('on',i===j));if(inited)paintCar(0);};$('swatches').appendChild(button)});
  $('sandbox-start').onclick=()=>{sandbox=true;cfg.allies=cfg.size-1;cfg.enemies=cfg.size;startOfflineGame(true)};
@@ -1640,7 +1630,7 @@ async function previewGarage(){if(previewJob)return previewJob;if(starting)retur
  previewJob=(async()=>{let transition;try{configureCars();transition=await loadingBegin('YOUR GARAGE',BODY_NAMES[cfg.body]+' · Preparing your car',graphicsReady());await init3d();const changed=cm.some((m,i)=>m.userData.body!==(cars[i].body||0)||m.userData.simple===!!cfg.models);refreshCarModels();if(changed&&ren?.compileAsync){await loadingStage(94,'Preparing your selected car');ENGINE.status.warming=true;try{await ren.compileAsync(scene,cam)}finally{ENGINE.status.warming=false}}if(menuScreen==='garage')$('menu').classList.add('live-preview');$('garage-status').textContent=BODY_NAMES[cfg.body]+' · '+COLOR_NAMES[cfg.color]+' · READY';await loadingEnd(transition);$('preview-car').focus?.()}catch(e){loadingAbort(transition);try{dispose3d()}catch(_){}$('menu').classList.remove('live-preview');$('garage-status').textContent='Preview unavailable. Try Performance mode in Settings.';console.warn('Garage preview',e)}finally{starting=false;$('go').disabled=$('sandbox-start').disabled=false;$('preview-car').disabled=false;previewJob=null}})();return previewJob;
 }
 function setupMenu(){
- $('nav-play').onclick=()=>showMenuScreen('play');$('nav-garage').onclick=()=>showMenuScreen('garage');$('nav-settings').onclick=()=>showMenuScreen('settings');$('nav-training').onclick=()=>{chooseRoute('training');showMenuScreen('play')};$('menu-back').onclick=menuBack;$('preview-car').onclick=previewGarage;
+ $('nav-play').onclick=()=>{if(!INTRO.manualPause)introStart();openPlaySelection()};$('nav-garage').onclick=()=>showMenuScreen('garage');$('nav-settings').onclick=()=>showMenuScreen('settings');$('nav-training').onclick=()=>{chooseRoute('training');showMenuScreen('play')};$('menu-back').onclick=menuBack;$('preview-car').onclick=previewGarage;
  $('private-create').onclick=()=>choosePrivateAction('create');$('private-join').onclick=()=>choosePrivateAction('join');$('party-create-tab').onclick=()=>choosePartyAction('create');$('party-join-tab').onclick=()=>choosePartyAction('join');$('quick-manage-party').onclick=()=>showMenuScreen('party');$('party-private-link').onclick=()=>{chooseRoute('online');showMenuScreen('play')};
  for(const name of ['quick','offline','online','training'])$('choose-'+name).onclick=()=>chooseRoute(name);
  BODY_NAMES.forEach((name,i)=>{const b=document.createElement('button');b.textContent=name.toUpperCase();b.setAttribute('aria-pressed',String(cfg.body===i));b.onclick=()=>{cfg.body=i;P1.body=i;for(const [j,button] of Array.from($('body-options').children).entries())button.setAttribute('aria-pressed',String(i===j));savePresentation();updateMatchSummary();previewGarage()};$('body-options').appendChild(b)});
@@ -1779,13 +1769,13 @@ let starting=false;
 
 async function startGame(){
 
- if(starting)return false;introStop();starting=true;$('go').disabled=true;$('go').textContent='LOADING ARENA…';$('start-status').textContent='Preparing graphics and shaders…';
+ if(starting||LOADING.active)return false;$('graphics-error').hidden=true;introStop();starting=true;$('go').disabled=true;$('go').textContent='LOADING ARENA…';$('start-status').textContent='Preparing graphics and shaders…';
 
  
 
   unlockAudio();AUDIO.goalKey="";AUDIO.countKey="";AUDIO.events.length=0;
 
-  let transition;try{configureCars();transition=await loadingBegin('ENTERING THE ARENA',(cfg.mode?'HEATSEEKER':'SOCCAR')+' · '+cfg.size+'v'+cfg.size,graphicsReady());trainingLabels();$('training-panel').hidden=!sandbox;await init3d();refreshCarModels()}catch(err){loadingAbort(transition);console.error(err);try{dispose3d()}catch(_){}starting=false;st='MENU';$('menu').classList.add('on');$('go').disabled=false;$('go').innerHTML='RETRY KICKOFF <small>ENTER ↵</small>';$('start-status').textContent='Graphics could not start: '+(err.message||err)+'. Try Performance graphics or open this file in Chrome/Edge.';if(MP.active)mpReset();return false}$('go').disabled=false;$('go').textContent='START OFFLINE MATCH';$('start-status').textContent='';last=performance.now();acc=0;$('cv').style.filter='none';['menu','end','pause'].forEach(x=>$(x).classList.remove('on'));$('hud').style.display='block';
+  let transition;try{configureCars();transition=await loadingBegin('ENTERING THE ARENA',(cfg.mode?'HEATSEEKER':'SOCCAR')+' · '+cfg.size+'v'+cfg.size,graphicsReady());trainingLabels();$('training-panel').hidden=!sandbox;await init3d();refreshCarModels()}catch(err){loadingAbort(transition);console.error(err);try{dispose3d()}catch(_){}starting=false;st='MENU';$('menu').classList.add('on');$('go').disabled=false;$('go').innerHTML='RETRY KICKOFF <small>ENTER ↵</small>';graphicsFailure(err);if(MP.active)mpReset();return false}$('go').disabled=false;$('go').textContent='START OFFLINE MATCH';$('start-status').textContent='';last=performance.now();acc=0;$('cv').style.filter='none';['menu','end','pause'].forEach(x=>$(x).classList.remove('on'));$('hud').style.display='block';
 
   for(const k in keys)keys[k]=0;particleCount=particleReplace=0;shake=flash=0;score=[0,0];tl=cfg.len;ot=0;Object.assign(matchStats,{touches:0,topSpeed:0,boost:0,lastTouch:-1e9});const role=MP.active?((MP.quick?'QUICK MATCH':MP.role.toUpperCase())+' · YOU ARE '+(localPlayer().team?'ORANGE':'BLUE')):['ROOKIE','PRO','ALL-STAR'][cfg.lvl]+' · YOU ARE BLUE';$('matchlevel').textContent=role;$('s0').textContent=$('s1').textContent=0;
 
@@ -1796,12 +1786,18 @@ async function startGame(){
 
 function startOfflineGame(training=false){if(starting||mpBusy||SOC.searching||SOC.busy)return;if(training!==true&&st==='MENU'&&menuScreen==='home'){showMenuScreen('play');return}if(training!==true&&st==='MENU'&&(playRoute==='online'||playRoute==='quick'))return;sandbox=training===true||playRoute==='training';if(MP.active)mpReset();startGame()}
 
-function quit(){if(SOC.searching)cancelQuickMatch();st='MENU';syncMenuSettings();if(MP.active)mpReset();learnFlush();learnUI();['pause','end'].forEach(x=>$(x).classList.remove('on'));$('menu').classList.add('on');showMenuScreen('home');$('training-hud').hidden=true;$('hud').style.display='none';$('msg').style.opacity=0;audioSilence()}
+function finishQuit(){if(SOC.searching)cancelQuickMatch();st='MENU';syncMenuSettings();if(MP.active)mpReset();learnFlush();learnUI();['pause','end'].forEach(x=>$(x).classList.remove('on'));$('menu').classList.add('on');showMenuScreen('home');$('training-hud').hidden=true;$('hud').style.display='none';$('msg').style.opacity=0;audioSilence()}
 
+async function quit(){
+ if(LOADING.active)return;const transition=loadingBegin('BACK TO THE LOBBY','Saving your session and returning to the lobby',true);
+ finishQuit();starting=true;INTRO.stopped=false;if(!INTRO.manualPause)introStart();
+ try{const id=await transition;await loadingStage(100,'Lobby ready');await loadingEnd(id)}finally{starting=false}
+}
 window.tevinBoot.stage='menu handlers';
 
 $('go').onclick=startOfflineGame;$('rm').onclick=()=>{if(MP.quick){quit();chooseRoute('quick');showMenuScreen('play');return}if(MP.active&&MP.role==='guest'){mpStatus(`ROOM ${MP.code} · WAITING FOR HOST REMATCH`,'')}else startGame()};$('res').onclick=pause;$('q1').onclick=$('q2').onclick=quit;
 
+$('graphics-retry').onclick=retryGraphics;$('graphics-open').href='https://jikjikla.github.io/tevtev123/';
 $('host-match').onclick=hostMatch;$('join-match').onclick=joinMatch;$('room-code').addEventListener('input',e=>e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6));
 
 $('leave-room').onclick=quit;
@@ -2195,7 +2191,7 @@ async function build3d(forceGL){
  if(inited&&graphicsPreset===cfg.hi+cfg.models*2+cars.length*10)return;if(inited)dispose3d();graphicsPreset=cfg.hi+cfg.models*2+cars.length*10;
 
  await loadingStage(12,'Connecting graphics device');
-  ren=await ENGINE.createRenderer($('cv'),cfg.hi,forceGL||!cfg.hi);renderScale=1;perfEMA=1/60;perfTimer=0;ren.setPixelRatio(pixelRatio());ren.setSize(innerWidth,innerHeight);
+  ren=await createGameRenderer(forceGL);renderScale=1;perfEMA=1/60;perfTimer=0;ren.setPixelRatio(pixelRatio());ren.setSize(innerWidth,innerHeight);
 
  // Static filtered environment avoids the periodic six-pass cube-camera hitch.
 

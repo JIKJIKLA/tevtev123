@@ -2,7 +2,7 @@ const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const root=path.resolve(__dirname,'..');
 const read=name=>fs.readFileSync(path.join(root,'src',name),'utf8');
 let html=read('shell.html');
-html=html.replace('<!-- INLINE:precision.css -->',()=>read('precision.css'));
+html=html.replace('<!-- INLINE:precision.css -->',()=>read('precision.css')+'\n'+read('aftershock.css'));
 for(const file of ['bootstrap.js','engine.bundle.js','game.js']) {
  // The recovered 8.2 artifact retains the original bundled engine and embedded assets.
  // Keep it byte-for-byte: it is also the release recovery copy.
