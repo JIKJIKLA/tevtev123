@@ -1,0 +1,9 @@
+if(window.__TEVIN_TEST__){
+ window.tevinTest={THREE,cfg,cars,ball,PADS,PHYS,BODY_PHYSICS,DT,SIM_DT,PROTOCOL,keys,bindings,padInput,cameraSettings,MP,
+  throttleAcceleration,steeringCurvature,padContains,bodyPhysics,resetCar,stepCar,carBall,ballSub,stepBall,carCar,padStep,sim,frame,configureCars,spawnCar,surf,carPenetration,predictBall,finishRegulation,advanceMatchClock,validSnapshot,packetValid,queuePlan,human,pollController,mappedKey,captureBinding,setupDriverSettings,renderBindings,fitCarVisual,
+  getState:()=>({st,tl,ot,score:[...score],sandbox,ballCam,penetration:SS}),
+  setState:v=>{if(v.st!==undefined)st=v.st;if(v.tl!==undefined)tl=v.tl;if(v.ot!==undefined)ot=v.ot;if(v.score)score=[...v.score];if(v.sandbox!==undefined)sandbox=v.sandbox;},
+  setPad:p=>Object.assign(padInput,p),forecast:()=>BOT_PATH.map(v=>v.toArray()),startGame,kickoff,goal,quit
+ };
+ if(window.__TEVIN_TEST__==='headless'){window.tevinBoot.ready=true;return;}
+}
