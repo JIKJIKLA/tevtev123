@@ -10422,7 +10422,7 @@ function queuePlan(tickets,size,now){const groups=Object.entries(tickets||{}).fi
 }
 function cleanQueue(q,now){q=q||{};q.tickets=q.tickets||{};q.matches=q.matches||{};for(const [id,m] of Object.entries(q.matches))if(now-m.created>120000)delete q.matches[id];for(const [id,t] of Object.entries(q.tickets))if(now-t.seen>SOCIAL_LEASE&&!t.match||t.match&&!q.matches[t.match])delete q.tickets[id];return q}
 async function findQuickMatch(){if(SOC.searching||SOC.busy||starting||MP.active||st!=='MENU')return;SOC.busy=true;SOC.error='';socialUI();try{const db=await socialConnect();await socialHeartbeat();const members=SOC.party?partyMembers((await SOC.party.once('value')).val()):[[SOC.id,{...socialProfile(),seen:socialNow(),connected:true,ready:true}]];
- if(!partyLeader())throw Error('Only the party leader can start Quick Match.');if(members.length>cfg.size)throw Error('Your party needs '+members.length+'v'+members.length+' or larger.');if(members.some(([,m])=>m.protocol!==PROTOCOL))throw Error('Every party member must reload version 9.0 before searching.');if(members.some(([,m])=>!memberLive(m)||!m.ready))throw Error('Every party member must be online and ready first.');
+ if(!partyLeader())throw Error('Only the party leader can start Quick Match.');if(members.length>cfg.size)throw Error('Your party needs '+members.length+'v'+members.length+' or larger.');if(members.some(([,m])=>m.protocol!==PROTOCOL))throw Error('Every party member must reload version 9.1 before searching.');if(members.some(([,m])=>!memberLive(m)||!m.ready))throw Error('Every party member must be online and ready first.');
  const ticket=crypto.randomUUID(),key=(cfg.mode?'heat':'soccar')+'-v4-'+cfg.size,ref=db.ref(SOCIAL_ROOT+'/queues/'+key),now=socialNow(),epoch=++SOC.epoch;
  SOC.ticket=ticket;SOC.queue=ref;SOC.owner=true;SOC.since=now;
  const entries=members.map(([id,m])=>({session:id,name:m.name,body:m.body||0,color:m.color||0,teamColors:m.teamColors!==false}));
@@ -11203,7 +11203,7 @@ setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();se
 
 window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:60,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
 
-window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.0 · PRECISION · Ready to play');
+window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.1 · AFTERSHOCK · Ready to play');
 
 
 } catch(error) { window.tevinBoot.error=String(error.message||error);window.tevinBoot.show("Startup failed at "+window.tevinBoot.stage+": "+window.tevinBoot.error);console.error(error); }
