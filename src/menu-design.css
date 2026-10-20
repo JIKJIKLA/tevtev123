@@ -31,3 +31,7 @@ body.music-playing .beam-orange{background:linear-gradient(transparent,#e58bff,t
 @media(max-height:580px) and (min-width:701px){#intro .intro-title{top:21vh}.match-ball{top:28%;right:35%;width:100px}.stadium-coordinate{display:none}}
 @media(prefers-reduced-motion:reduce){.match-ball,.stadium-beam{animation:none!important}}
 #intro[hidden] .match-ball,#intro[hidden] .stadium-beam{animation-play-state:paused}
+#intro .intro-title{top:16vh}
+#intro .intro-title h1{font-size:clamp(68px,9vw,138px)}
+@media(max-width:700px){#intro .intro-title{top:14vh}#intro .intro-title h1{font-size:clamp(66px,15vw,108px)}}
+@media(max-height:580px) and (min-width:701px){#intro .intro-title{top:17vh}#intro .intro-title h1{font-size:76px}}
