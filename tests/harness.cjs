@@ -5,7 +5,7 @@ const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]);
 module.exports=function loadGame(options={}){
  const {window}=parseHTML(html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,''));
- const storage=new Map(),errors=[];let pads=[];
+ const storage=new Map(Object.entries(options.storage||{})),errors=[];let pads=[];
  const sandbox={window:null,self:null,document:window.document,console:{...console,error:(...args)=>errors.push(args.map(String).join(' ')),warn:()=>{}},
   navigator:{userAgent:'Tevin physics tests',getGamepads:()=>pads},location:{search:'',href:'https://test.invalid/'},performance:{now:()=>1000},
   URL,URLSearchParams,TextDecoder,TextEncoder,AbortController,Blob,atob,btoa,crypto:require('node:crypto').webcrypto,

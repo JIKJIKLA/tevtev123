@@ -2,7 +2,7 @@
 try {
 
 
-/* Tevin League 9.1 — Aftershock. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
+/* Tevin League 9.2 — Aftershock. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
 window.tevinBoot.stage='game script';
 
 const ENGINE=TevinEngine;
@@ -271,7 +271,10 @@ function stepCar(c,dt){
 
   let vf=c.v.dot(_ft),vl=c.v.dot(_rt),vn=c.v.dot(n);const th=bo?1:i.thr,sp=Math.abs(vf);let a;
 
-  if(Math.abs(th)>=.01)a=th*vf<0?Math.sign(th)*Math.min(sp/dt,Gd.brakeF/CM):th*throttleAcceleration(sp);
+  if(Math.abs(th)>=.01){
+   if(th*vf<0){const stopTime=sp/(Gd.brakeF/CM);a=stopTime>=dt?Math.sign(th)*Gd.brakeF/CM:(-vf+th*throttleAcceleration(0)*(dt-stopTime))/dt;}
+   else a=th*throttleAcceleration(sp);
+  }
 
   else a=-Math.sign(vf)*Math.min(sp/dt,Gd.coastF/CM);
 
@@ -1341,14 +1344,15 @@ addEventListener('pagehide',audioSilence);
 // SHOWTIME 8.1: supplied MP3s stay embedded in the drop-in HTML. Music streams
 // through one media element + one analyser; it is not decoded into a huge PCM bank.
 // Motion follows measured bass energy, never a guessed BPM. No flashing overlays.
-const INTRO={stopped:false,active:true,started:false,media:null,node:null,gain:null,analyser:null,bins:new Uint8Array(1024),level:0,average:.12,pulse:0,clock:0,lastBeat:-1,music:1,motion:true,fadeStart:0,fadeEnd:0,manualPause:false,leaving:false,attempt:0};
+const INTRO={stopped:false,active:true,started:false,media:null,node:null,gain:null,analyser:null,bins:new Uint8Array(1024),level:0,average:.12,pulse:0,clock:0,lastBeat:-1,music:1,motion:true,fadeStart:0,fadeEnd:0,manualPause:false,leaving:false,attempt:0,enabled:false};
 try{const p=JSON.parse(localStorage.getItem('tevin-intro-v2')||'null');if(p){INTRO.music=cl(Number(p.music)||0,0,1);INTRO.motion=p.motion!==false}}catch(_){}
+try{INTRO.enabled=localStorage.getItem('tevin-music-enabled-v1')==='true'}catch(_){}
 // FLOW 8.2: audio-clock automation makes the six-second fade independent of FPS.
 function introMix(){if(!INTRO.gain||!AC)return;const now=AC.currentTime,g=INTRO.gain.gain,remaining=Math.max(0,INTRO.fadeEnd-now),fraction=remaining?cl((now-INTRO.fadeStart)/6,0,1):1;g.cancelScheduledValues(now);g.setValueAtTime(INTRO.music*fraction,now);if(remaining)g.linearRampToValueAtTime(INTRO.music,INTRO.fadeEnd);else g.setTargetAtTime(INTRO.music,now,.08)}
 function introPreferences(){try{localStorage.setItem('tevin-intro-v2',JSON.stringify({music:INTRO.music,motion:INTRO.motion}))}catch(_){}introMix()}
 function introMessage(text){$('intro-status').textContent=text}
 async function introStart(automatic=false){
- if(st!=='MENU'||INTRO.stopped)return;unlockAudio();if(!AC){introMessage('Audio unavailable. You can still choose Play.');return}
+ if(!INTRO.enabled||st!=='MENU'||INTRO.stopped)return;unlockAudio();if(!AC){introMessage('Audio unavailable. You can still choose Play.');return}
  const attempt=++INTRO.attempt;
  try{
   if(!INTRO.media){const m=document.createElement('audio');m.src=window.TEVIN_MENU_AUDIO.music;m.loop=true;m.preload='auto';INTRO.media=m;
@@ -1363,9 +1367,9 @@ async function introStart(automatic=false){
   const resume=AC.resume();const play=INTRO.media.play();
   if(automatic&&AC.state!=='running')introMessage('CLICK OR PRESS A KEY TO START MUSIC · PLAY IS READY');
   await Promise.all([resume,play]);
-  if(st!=='MENU'||INTRO.stopped){INTRO.media.pause();return}if(attempt!==INTRO.attempt){if(INTRO.manualPause)INTRO.media.pause();return;}
+  if(!INTRO.enabled||st!=='MENU'||INTRO.stopped){INTRO.media.pause();return}if(attempt!==INTRO.attempt){if(INTRO.manualPause)INTRO.media.pause();return;}
   if(!wasPlaying){INTRO.fadeStart=AC.currentTime;INTRO.fadeEnd=INTRO.fadeStart+6;introMix()}
-  INTRO.started=true;INTRO.manualPause=false;$('intro-start').hidden=true;$('intro-sound').hidden=false;$('intro-sound').textContent='PAUSE MUSIC';introMessage('MUSIC ON · FADING IN · CHOOSE PLAY WHEN READY');
+  INTRO.started=true;INTRO.manualPause=false;document.body.classList.add('music-playing');$('intro-start').hidden=true;$('intro-sound').hidden=false;$('intro-sound').textContent='PAUSE MUSIC';introMessage('MUSIC ON · FADING IN · CHOOSE PLAY WHEN READY');
  }catch(_){if(attempt!==INTRO.attempt||!INTRO.active)return;introMessage('CLICK OR PRESS A KEY TO START MUSIC · PLAY IS READY');$('intro-start').hidden=false}
 }
 function introStop(){INTRO.stopped=true;INTRO.active=false;INTRO.media?.pause();INTRO.pulse=0;$('intro').hidden=true;for(const e of $('menu').children)if(e.id!=='intro')e.inert=false;$('intro-stage').style.transform='none';}
@@ -1381,14 +1385,16 @@ function introPlay(){if(starting||LOADING.active)return;if(!INTRO.manualPause)in
 // INLINE:visualizer.js
 function setupIntro(){
  const preference=window.matchMedia?.('(prefers-reduced-motion: reduce)');INTRO.reduced=!!preference?.matches;preference?.addEventListener?.('change',e=>INTRO.reduced=e.matches);
- $('menu-music').onclick=()=>{if(INTRO.media&&!INTRO.media.paused){INTRO.manualPause=true;INTRO.media.pause();$('menu-music').textContent='MUSIC OFF'}else{INTRO.manualPause=false;introStart();$('menu-music').textContent='MUSIC ON'}};
- $('intro-start').onclick=()=>introStart();$('intro-play').onclick=introPlay;$('intro-skip').onclick=()=>{INTRO.manualPause=true;INTRO.attempt++;INTRO.media?.pause();openPlaySelection()};
+ const openMusicSettings=()=>{INTRO.active=false;$('intro').hidden=true;for(const e of $('menu').children)e.inert=false;showMenuScreen('settings');};
+ $('menu-music').onclick=openMusicSettings;$('menu-music').textContent='MUSIC SETTINGS';
+ $('music-enabled').checked=INTRO.enabled;$('music-enabled').onchange=()=>{INTRO.enabled=$('music-enabled').checked;try{localStorage.setItem('tevin-music-enabled-v1',String(INTRO.enabled))}catch(_){}if(INTRO.enabled){INTRO.manualPause=false;introStart()}else{INTRO.attempt++;INTRO.media?.pause();document.body.classList.remove('music-playing');introMessage('MUSIC OFF · ENABLE IN SETTINGS')}};
+ $('intro-start').onclick=()=>introStart();$('intro-play').onclick=introPlay;$('intro-skip').onclick=openMusicSettings;
  $('intro-sound').onclick=()=>{if(!INTRO.media)return;if(INTRO.media.paused){introStart();$('intro-sound').textContent='PAUSE MUSIC'}else{INTRO.manualPause=true;INTRO.media.pause();$('intro-sound').textContent='RESUME MUSIC';introMessage('MUSIC PAUSED · CHOOSE PLAY WHEN YOU’RE READY')}};
  $('intro-volume').value=Math.round(INTRO.music*100);$('intro-volume').oninput=()=>{INTRO.music=Number($('intro-volume').value)/100;introPreferences()};
  $('intro-motion').checked=INTRO.motion;$('intro-motion').onchange=()=>{INTRO.motion=$('intro-motion').checked;introPreferences()};
  for(let i=0;i<32;i++)$('intro-spectrum').appendChild(document.createElement('i'));
  for(const e of $('menu').children)if(e.id!=='intro')e.inert=true;
- $('intro-play').focus?.();introMessage('STARTING YOUR SOUNDTRACK · PLAY IS READY');
+ $('intro-play').focus?.();introMessage(INTRO.enabled?'YOUR SOUNDTRACK IS READY · PLAY WHEN READY':'MUSIC OFF · ENABLE IN SETTINGS');
  const firstGesture=e=>{if(INTRO.active&&!INTRO.leaving&&!INTRO.manualPause&&(!INTRO.started||INTRO.media?.paused)&&!['intro-play','intro-skip','intro-start','intro-sound'].includes(e.target?.id))introStart()};
  addEventListener('pointerdown',firstGesture);
  if(document.readyState==='complete')introStart(true);else addEventListener('load',()=>introStart(true),{once:true});
@@ -1639,7 +1645,7 @@ function setupMenu(){
 }
 function createCarVisual(c){const visual=cfg.models?ENGINE.importedCar(ren,BODY_IDS[c.body||0],c.color,assetTextures):carMesh2('#'+c.color.toString(16).padStart(6,'0'),'#d9efff');const m=fitCarVisual(visual,c);m.userData.body=c.body||0;m.userData.simple=!cfg.models;preparePaint(m,c.color);m.traverse(o=>{o.castShadow=!!o.isMesh&&!o.material.transparent});return m}
 function fitCarVisual(visual,c){
- const spec=bodyPhysics(c),flame=visual.userData.f;visual.remove(flame);const box=new THREE.Box3().setFromObject(visual),size=box.getSize(new V3());visual.add(flame);const m=new THREE.Group();m.userData={...visual.userData};visual.scale.set(spec.half[0]*2*1.06/size.x,(c.body===2?.46:.55)/size.y,spec.half[2]*2*1.04/size.z);visual.position.set(spec.center[0]-(box.min.x+size.x/2)*visual.scale.x,-spec.height-box.min.y*visual.scale.y,-(box.min.z+size.z/2)*visual.scale.z);m.add(visual);return m;
+ const spec=bodyPhysics(c),flame=visual.userData.f;visual.remove(flame);const box=new THREE.Box3().setFromObject(visual),size=box.getSize(new V3());visual.add(flame);const m=new THREE.Group();m.userData={...visual.userData};visual.scale.setScalar(spec.half[0]*2*1.06/size.x);visual.position.set(spec.center[0]-(box.min.x+size.x/2)*visual.scale.x,-spec.height-box.min.y*visual.scale.y,-(box.min.z+size.z/2)*visual.scale.z);m.add(visual);return m;
 }
 function refreshCarModels(){if(!inited)return;for(let k=0;k<cars.length;k++){const old=cm[k],c=cars[k];if(!old||old.userData.body===(c.body||0)&&old.userData.simple===!cfg.models)continue;const next=createCarVisual(c);next.position.copy(old.position);next.quaternion.copy(old.quaternion);scene.remove(old);scene.add(next);cm[k]=next;const geos=new Set(),mats=new Set();old.traverse(o=>{if(o.geometry)geos.add(o.geometry);for(const m of Array.isArray(o.material)?o.material:[o.material])if(m)mats.add(m)});geos.forEach(g=>g.dispose());mats.forEach(m=>m.dispose());if(pipeline?.refreshVisibility)pipeline.refreshVisibility();ren.shadowMap.needsUpdate=true;sun.shadow.needsUpdate=true;}}
 
@@ -1694,7 +1700,7 @@ function queuePlan(tickets,size,now){const groups=Object.entries(tickets||{}).fi
 }
 function cleanQueue(q,now){q=q||{};q.tickets=q.tickets||{};q.matches=q.matches||{};for(const [id,m] of Object.entries(q.matches))if(now-m.created>120000)delete q.matches[id];for(const [id,t] of Object.entries(q.tickets))if(now-t.seen>SOCIAL_LEASE&&!t.match||t.match&&!q.matches[t.match])delete q.tickets[id];return q}
 async function findQuickMatch(){if(SOC.searching||SOC.busy||starting||MP.active||st!=='MENU')return;SOC.busy=true;SOC.error='';socialUI();try{const db=await socialConnect();await socialHeartbeat();const members=SOC.party?partyMembers((await SOC.party.once('value')).val()):[[SOC.id,{...socialProfile(),seen:socialNow(),connected:true,ready:true}]];
- if(!partyLeader())throw Error('Only the party leader can start Quick Match.');if(members.length>cfg.size)throw Error('Your party needs '+members.length+'v'+members.length+' or larger.');if(members.some(([,m])=>m.protocol!==PROTOCOL))throw Error('Every party member must reload version 9.1 before searching.');if(members.some(([,m])=>!memberLive(m)||!m.ready))throw Error('Every party member must be online and ready first.');
+ if(!partyLeader())throw Error('Only the party leader can start Quick Match.');if(members.length>cfg.size)throw Error('Your party needs '+members.length+'v'+members.length+' or larger.');if(members.some(([,m])=>m.protocol!==PROTOCOL))throw Error('Every party member must reload version 9.2 before searching.');if(members.some(([,m])=>!memberLive(m)||!m.ready))throw Error('Every party member must be online and ready first.');
  const ticket=crypto.randomUUID(),key=(cfg.mode?'heat':'soccar')+'-v4-'+cfg.size,ref=db.ref(SOCIAL_ROOT+'/queues/'+key),now=socialNow(),epoch=++SOC.epoch;
  SOC.ticket=ticket;SOC.queue=ref;SOC.owner=true;SOC.since=now;
  const entries=members.map(([id,m])=>({session:id,name:m.name,body:m.body||0,color:m.color||0,teamColors:m.teamColors!==false}));
@@ -1871,25 +1877,28 @@ function uploadParticles(){
 }
 
 function addSpectators(){
-
- const count=cfg.hi?1200:300,mesh=new THREE.InstancedMesh(new THREE.BoxGeometry(.3,.6,.28),new THREE.MeshStandardMaterial({roughness:.95}),count);
-
- const matrix=new THREE.Matrix4(),color=new THREE.Color(),palette=[0x3a6bff,0xff7a20,0xe8eef8,0x8a93a6,0xffd84a,0xcc3333];
-
+ // Three shared geometries keep a fuller crowd inexpensive on integrated graphics.
+ const count=cfg.hi?1800:900,mat=new THREE.MeshStandardMaterial({roughness:1});
+ const bodies=new THREE.InstancedMesh(new THREE.BoxGeometry(.32,.48,.24),mat,count);
+ const heads=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(.14,0),mat,count);
+ const arms=new THREE.InstancedMesh(new THREE.BoxGeometry(.09,.43,.09),mat,count);
+ const matrix=new THREE.Matrix4(),color=new THREE.Color(),palette=[0x3979df,0xff862f,0xdce7ed,0x405078,0xeabc54,0xac4352],skins=[0xe0ac83,0x985f40,0x613e30,0xc38a61];
  for(let k=0;k<count;k++){
-
-  const side=k%4,row=Math.floor(k/4)%8,along=((Math.floor(k/32)+.5)/Math.ceil(count/32)*2-1),end=side>1,sign=side%2?1:-1;
-
+  const side=k%4,row=Math.floor(k/4)%8,along=(Math.floor(k/32)+.5)/Math.ceil(count/32)*2-1,end=side>1,sign=side%2?1:-1;
   const distance=(end?HZ+GD+11:HX+11)+row*2.3,len=(end?2*HX-8:2*HZ-8)+row*1.2;
-
-  matrix.makeTranslation(end?along*len*.48:sign*distance,3.05+row*1.5,end?sign*distance:along*len*.48);
-
-  mesh.setMatrixAt(k,matrix);mesh.setColorAt(k,color.setHex(palette[k%palette.length]));
-
+  const x=end?along*len*.48:sign*distance,y=3.05+row*1.5,z=end?sign*distance:along*len*.48;
+  matrix.makeTranslation(x,y,z);bodies.setMatrixAt(k,matrix);bodies.setColorAt(k,color.setHex(palette[(k*7+row)%6]));
+  matrix.makeTranslation(x,y+.36,z);heads.setMatrixAt(k,matrix);heads.setColorAt(k,color.setHex(skins[(k+row)%4]));
+  matrix.makeRotationZ((k%3-1)*.65);matrix.setPosition(x+.22,y+.22+(k%3)*.08,z);arms.setMatrixAt(k,matrix);arms.setColorAt(k,color.setHex(palette[(k*7+row)%6]));
  }
-
- mesh.instanceMatrix.needsUpdate=true;mesh.instanceColor.needsUpdate=true;mesh.computeBoundingSphere();scene.add(mesh);
-
+ for(const mesh of [bodies,heads,arms]){mesh.instanceMatrix.needsUpdate=true;mesh.instanceColor.needsUpdate=true;mesh.computeBoundingSphere();scene.add(mesh)}
+ // Silhouettes, roof beacons and trees give the skyline depth without shadow maps.
+ const city=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshStandardMaterial({color:0x40556b,roughness:.9}),48);
+ const trees=new THREE.InstancedMesh(new THREE.ConeGeometry(1,1,5),new THREE.MeshStandardMaterial({color:0x254e45,roughness:1}),64);
+ const pos=new V3(),q=new THREE.Quaternion(),scale=new V3();
+ for(let k=0;k<48;k++){const t=k/48*Math.PI*2,h=12+(k*17%29);pos.set(Math.cos(t)*(140+k%3*12),h/2-3,Math.sin(t)*(152+k%4*10));scale.set(6+k%5,h,7+k%7);matrix.compose(pos,q,scale);city.setMatrixAt(k,matrix)}
+ for(let k=0;k<64;k++){const t=k/64*Math.PI*2,h=5+k%5;pos.set(Math.cos(t)*108,h/2,Math.sin(t)*121);scale.set(2.5,h,2.5);matrix.compose(pos,q,scale);trees.setMatrixAt(k,matrix)}
+ for(const mesh of [city,trees]){mesh.instanceMatrix.needsUpdate=true;mesh.computeBoundingSphere();scene.add(mesh)}
 }
 
 let renderScale=1,perfEMA=1/60,perfTimer=0,shadowTimer=0,uiClock=-1,uiBoost=-1,uiSpeed=-1,dbgTimer=0;
@@ -2398,21 +2407,21 @@ function render(dt){
 
   const c=local,cp=cm[c.id].position;camDesired.set(1,0,0).applyQuaternion(cm[c.id].quaternion).setY(0);if(camDesired.lengthSq()<.01)camDesired.copy(cd);else camDesired.normalize();
 
-  camToBall.copy(bm.position).sub(cp);if(ballCam&&camToBall.lengthSq()>.01){camToBall.y*=.3;camDesired.copy(camToBall.normalize())}
+  camToBall.copy(bm.position).sub(cp);if(ballCam&&camToBall.lengthSq()>.01){camToBall.y=0;if(camToBall.lengthSq()>4)camDesired.copy(camToBall.normalize())}
 
-  cd.lerp(camDesired,1-Math.exp(-dt*(4+cameraSettings.stiffness*12))).normalize();camDesired.copy(cp).addScaledVector(cd,-(cameraSettings.distance+c.v.length()*.008));camDesired.y=Math.max(camDesired.y+cameraSettings.height,.9);
+  cd.lerp(camDesired,1-Math.exp(-dt*(4+cameraSettings.stiffness*12))).normalize();camDesired.copy(cp).addScaledVector(cd,-(cameraSettings.distance+c.v.length()*.008));camDesired.y=Math.max(camDesired.y+cameraSettings.height,.9);if(c.ground&&c.n.y<.8)camDesired.addScaledVector(c.n,cameraSettings.height*.8);
 
   cpos.lerp(camDesired,1-Math.exp(-dt*(cpos.distanceToSquared(camDesired)>64?25:4+cameraSettings.stiffness*14)));cam.position.copy(cpos);
 
   for(let k=0;k<3;k++){surf(cam.position);if(SS>=1)break;cam.position.addScaledVector(SN,1-SS)}cpos.copy(cam.position);
 
-  if(ballCam)camLook.copy(bm.position).lerp(cp,.06);else camLook.copy(cp).addScaledVector(cd,9);if(!ballCam)camLook.y=cp.y+cameraSettings.height-Math.tan(cameraSettings.angle*Math.PI/180)*(9+cameraSettings.distance);lookPos.lerp(camLook,1-Math.exp(-dt*(ballCam?13:9)));
+  if(ballCam){camLook.copy(bm.position).sub(cp);if(camLook.length()>18)camLook.setLength(18);camLook.add(cp);camLook.y=Math.max(cp.y+.35,camLook.y);}else camLook.copy(cp).addScaledVector(cd,9);if(!ballCam)camLook.y=cp.y+cameraSettings.height-Math.tan(cameraSettings.angle*Math.PI/180)*(9+cameraSettings.distance);lookPos.lerp(camLook,1-Math.exp(-dt*(ballCam?13:9)));
 
   if(cameraSettings.shake&&shake>.002){cam.position.x+=(Math.random()-.5)*shake;cam.position.y+=(Math.random()-.5)*shake;shake*=Math.exp(-dt*13)}else shake=0;
 
   if(sp>20)emit(ball.p.x,ball.p.y,ball.p.z,0,0,0,.45,((ball.color>>16)&255)/255,((ball.color>>8)&255)/255,(ball.color&255)/255);cam.lookAt(lookPos);
 
-  const fov=2*Math.atan(Math.tan(cameraSettings.fov*Math.PI/360)/Math.max(.5,cam.aspect))*180/Math.PI;cam.fov+=(fov-cam.fov)*(1-Math.exp(-dt*6));if(Math.abs(fov-cam.fov)>.015)cam.updateProjectionMatrix();
+  const fov=2*Math.atan(Math.tan(cameraSettings.fov*Math.PI/360)/(16/9))*180/Math.PI;cam.fov+=(fov-cam.fov)*(1-Math.exp(-dt*6));if(Math.abs(fov-cam.fov)>.015)cam.updateProjectionMatrix();
 
   if(cfg.hi){shadowTimer+=dt;if(shadowTimer>=1/30){ren.shadowMap.needsUpdate=true;sun.shadow.needsUpdate=true;shadowTimer=0}}
 
@@ -2466,7 +2475,7 @@ setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();se
 
 window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:60,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
 
-window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.1 · AFTERSHOCK · Ready to play');
+window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.2 · AFTERSHOCK · Ready to play');
 
 
 } catch(error) { window.tevinBoot.error=String(error.message||error);window.tevinBoot.show("Startup failed at "+window.tevinBoot.stage+": "+window.tevinBoot.error);console.error(error); }

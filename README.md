@@ -1,4 +1,4 @@
-# Tevin League 9.1 — Aftershock
+# Tevin League 9.2 — Aftershock
 
 Chromebook-focused browser car soccer. Play at https://jikjikla.github.io/tevtev123/ or download `index.html` and open it in Chrome. Offline matches and sandbox work without a server; online modes use the configured Supabase project.
 
@@ -31,4 +31,4 @@ Edit `src/game.js`, `src/accuracy.js`, `src/controls.js`, `src/renderer.js`, `sr
 
 `supabase/functions/tevin-store/` contains the recovered and updated deployed backend source. Version 4 adds isolated new-build queues while keeping older rooms compatible with their existing clients. Publishable client configuration is embedded; service credentials remain server-side.
 
-See [accuracy and limitations](docs/ACCURACY.md) and [release notes](docs/RELEASE-9.1.md).
+See [accuracy and limitations](docs/ACCURACY.md) and [release notes](docs/RELEASE-9.2.md).
