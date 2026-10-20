@@ -1,5 +1,5 @@
-const SHOWROOM={yaw:.22,pitch:.22,distance:3.1,drag:false,x:0,y:0,ready:false};
-function resetShowroom(){SHOWROOM.yaw=.22;SHOWROOM.pitch=.22;SHOWROOM.distance=3.1;}
+const SHOWROOM={yaw:-.55,pitch:.12,distance:2.55,drag:false,x:0,y:0,ready:false};
+function resetShowroom(){SHOWROOM.yaw=-.55;SHOWROOM.pitch=.12;SHOWROOM.distance=2.55;}
 function setupShowroomControls(){
  const region=$('car-inspect');
  region.addEventListener('pointerdown',e=>{if(st!=='MENU'||INTRO.active||!['home','garage'].includes(menuScreen))return;SHOWROOM.drag=true;SHOWROOM.x=e.clientX;SHOWROOM.y=e.clientY;region.setPointerCapture?.(e.pointerId);region.focus();});

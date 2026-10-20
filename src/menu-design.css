@@ -1,4 +1,10 @@
 /* Field-level live arena layout, using the player's actual car and supplied HUD art. */
+#menu:has(#intro:not([hidden])) > :not(#intro){visibility:hidden}
+#menu .menu-top{inset:0!important;box-sizing:border-box;width:100%}
+#menu .menu-pages{position:absolute!important;top:90px!important;bottom:55px;left:auto;right:3vw;margin:0!important;transform:none}
+#menu[data-screen=garage] .menu-pages{left:3vw;right:auto}
+#menu[data-screen=play] .menu-pages{left:50%;right:auto;transform:translateX(-50%)}
+#menu #menu-music{border:1px solid #84b6d533;background:#061018bb;color:#b8dcee;padding:9px 12px;font-size:10px}
 #menu{background:transparent!important}
 #menu.live-preview:before,body.music-playing #menu.live-preview:before{opacity:0!important}
 #menu:after{background:linear-gradient(90deg,#020b1777,transparent 58%),linear-gradient(0deg,#020b1799,transparent 30%)!important}
