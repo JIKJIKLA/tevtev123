@@ -2,13 +2,13 @@
 try {
 
 
-/* Tevin League 9.3 — Aftershock. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
+/* Tevin League 9.4 — Aftershock. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
 window.tevinBoot.stage='game script';
 
 const ENGINE=TevinEngine;
 // INLINE:renderer.js
 
-const SIM_DT=1/60; // outer simulation tick; preserve DT=1/120 solver calibration
+const SIM_DT=1/120; // outer simulation tick; preserve DT=1/120 solver calibration
 
 const FORCE_GL=new URLSearchParams(location.search).get('renderer')==='webgl';
 
@@ -1381,7 +1381,7 @@ async function openPlaySelection(){
  showMenuScreen('play');await loadingStage(100,'Playlists ready');await loadingEnd(transition);$('choose-offline').focus?.();
  }catch(error){loadingAbort(transition);$('start-status').textContent='Could not open playlists. Please try again.';console.warn(error)}finally{starting=false;INTRO.leaving=false}
 }
-function introPlay(){if(starting||LOADING.active)return;if(!INTRO.manualPause)introStart();return openPlaySelection();}
+function introPlay(){if(starting||LOADING.active)return;if(!INTRO.manualPause)introStart();return INTRO.active?enterArenaHome():openPlaySelection();}
 // INLINE:visualizer.js
 function setupIntro(){
  const preference=window.matchMedia?.('(prefers-reduced-motion: reduce)');INTRO.reduced=!!preference?.matches;preference?.addEventListener?.('change',e=>INTRO.reduced=e.matches);
@@ -1600,12 +1600,9 @@ function setupModesUI(){
  for(const name of ['play','garage','training'])$('nav-'+name).onclick=()=>{$('garage-panel').hidden=name!=='garage';$('play-panel').hidden=name==='garage';$('sandbox-start').classList.toggle('featured',name==='training');$('menu-caption').textContent=name==='garage'?'YOUR CAR. YOUR SIGNATURE.':name==='training'?'BUILD YOUR OWN PLAYGROUND.':'FIND YOUR NEXT MATCH.';};
 }
 function paintCar(id){const m=cm[id],c=cars[id];if(!m||!c||m.userData.paintColor===c.color)return;m.userData.paintColor=c.color;for(const mat of m.userData.paintMaterials||[])mat.color.setHex(c.color);m.userData.f?.traverse(o=>{if(o.material?.color)o.material.color.setHex(c.color)});}
-function preparePaint(m,color){const mats=new Set();m.traverse(o=>{for(const mat of (Array.isArray(o.material)?o.material:[o.material]))if(mat?.color&&mat.color.getHex()===color)mats.add(mat)});m.userData.paintMaterials=[...mats];}
+function preparePaint(m,color){const mats=new Set();m.traverse(o=>{for(const mat of (Array.isArray(o.material)?o.material:[o.material]))if(mat?.color&&mat.color.getHex()===color)mats.add(mat)});m.userData.paintMaterials=[...mats];for(const mat of mats){mat.roughness=.3;mat.metalness=.3;mat.envMapIntensity=1.25;}}
 function showPodium(){const winner=score[0]>score[1]?0:1;$('end').setAttribute('data-winner',winner?'orange':'blue');$('winner-team').textContent=(winner?'ORANGE':'BLUE')+' TEAM';$('winner-team').style.color=teamHex(winner);$('end').style.setProperty('--winner-color',teamHex(winner));$('podium-cards').innerHTML='';const winning=cars.filter(c=>c.enabled&&c.team===winner);for(const c of winning){const card=document.createElement('div');card.className='podium-card';card.style.borderColor='#'+c.color.toString(16).padStart(6,'0');const humanPlayer=MP.active?!!MP.seats[c.id]:c===P1;card.textContent=(c===localPlayer()?'YOU':humanPlayer?(MP.seats[c.id]?.name||'PLAYER '+(c.id+1)):'AI '+(c.id+1))+' · '+c.goals+' GOALS · '+c.touches+' TOUCHES';$('podium-cards').appendChild(card)}}
-function renderShowcase(dt){if(!inited||st==='MENU'&&(menuScreen!=='garage'||!$('menu').classList.contains('live-preview')))return;previewTime+=dt;const ending=st==='END';garageStage.visible=!ending;grassM.visible=ending;cam.fov=ending?62:48;cam.updateProjectionMatrix();const winner=score[0]>score[1]?0:1;let count=0;for(const c of cars)if(c.enabled&&c.team===winner)count++;let n=0;for(let k=0;k<cm.length;k++){const m=cm[k],c=cars[k];m.visible=ending?c.enabled&&c.team===winner:k===0;paintCar(k);if(m.visible){const x=ending?(n++-(count-1)/2)*3.4:0;m.position.set(x,.485,0);m.quaternion.setFromAxisAngle(Y3,ending?Math.PI*.4:Math.PI*.22+Math.sin(previewTime*.2)*.12);m.userData.f.visible=false;}}
- bm.visible=false;for(let k=0;k<contactShadows.length;k++){const s=contactShadows[k],m=cm[k];s.visible=!!m?.visible;if(s.visible){s.position.set(m.position.x,.018,0);s.material.opacity=.35}}
- if(ending){if(cam.view?.enabled)cam.clearViewOffset()}else cam.setViewOffset(innerWidth,innerHeight,innerWidth>800?innerWidth*.2:0,innerWidth>800?0:innerHeight*.24,innerWidth,innerHeight);cam.position.set(ending?1.5:3.7,ending?2.9:1.6,ending?10:5.1);cam.lookAt(0,.6,0);updateWind(dt,true);pts.count=0;if(cfg.hi){ren.shadowMap.needsUpdate=true;sun.shadow.needsUpdate=true}pipeline.render();
-}
+// INLINE:showroom.js
 
 function syncMenuSettings(){for(const {button,key,value} of settingButtons){const selected=cfg[key]===value;button.classList.toggle('on',selected);button.setAttribute('aria-pressed',String(selected))}updateBotBrief();$('playlist-note').textContent=cfg.mode?'HEATSEEKER · First to 7. Touch to redirect. Backboards return fire.':'SOCCAR · Timed match. Highest score wins. Sudden-death overtime.'}
 
@@ -1631,7 +1628,7 @@ function choosePrivateAction(action){privateAction=action;privateMenuUI();$('mp-
 function choosePartyAction(action){partyAction=action;socialUI();if(action==='join')$('party-code-input').focus?.()}
 function menuBack(){audioSample('uiBack',.38);showMenuScreen(menuScreen==='party'?partyReturn:'home')}
 function chooseRoute(route){if(typeof SOC!=='undefined'&&SOC.searching&&route!=='quick')cancelQuickMatch();playRoute=route;$('quick-panel').hidden=route!=='quick';for(const name of ['quick','offline','online','training'])$('choose-'+name).setAttribute('aria-pressed',String(name===route));$('go').hidden=route!=='offline';$('sandbox-start').hidden=route!=='training';$('mp-panel').hidden=route!=='online';$('mp-status').hidden=route!=='online';$('route-help').textContent=route==='quick'?'Play against other people online. Search solo or with a party on your team.':route==='online'?'Play in an invite-only match. Friends join individually with a match code.':route==='training'?'Endless practice. Change AI and boost with F2; reset the ball with R.':'Play a complete match with AI teammates and opponents.';updateMatchSummary();socialUI();privateMenuUI()}
-function showMenuScreen(screen){if(screen==='party'&&menuScreen!=='party')partyReturn=menuScreen;menuScreen=screen;for(const name of ['home','play','garage','settings','party'])$(name+'-panel').hidden=name!==screen;$('menu').setAttribute('data-screen',screen);$('menu-back').hidden=screen==='home';$('menu-back').textContent=screen==='party'&&partyReturn!=='home'?'← BACK TO '+partyReturn.toUpperCase():'← HOME';$('menu-location').textContent=screen==='home'?'HOME':screen==='party'?'QUICK MATCH / PARTY':'HOME / '+screen.toUpperCase();$('menu').classList.toggle('live-preview',screen==='garage'&&!!inited);$('start-status').textContent='';if(screen==='play')chooseRoute(playRoute);if(screen==='garage')previewGarage();updateMatchSummary();socialUI()}
+function showMenuScreen(screen){if(screen==='party'&&menuScreen!=='party')partyReturn=menuScreen;menuScreen=screen;for(const name of ['home','play','garage','settings','party'])$(name+'-panel').hidden=name!==screen;$('menu').setAttribute('data-screen',screen);$('menu-back').hidden=screen==='home';$('menu-back').textContent=screen==='party'&&partyReturn!=='home'?'← BACK TO '+partyReturn.toUpperCase():'← HOME';$('menu-location').textContent=screen==='home'?'HOME':screen==='party'?'QUICK MATCH / PARTY':'HOME / '+screen.toUpperCase();$('menu').classList.toggle('live-preview',!!inited);$('start-status').textContent='';if(screen==='play')chooseRoute(playRoute);if(screen==='garage')previewGarage();updateMatchSummary();socialUI()}
 async function previewGarage(){if(previewJob)return previewJob;if(starting)return;starting=true;$('go').disabled=$('sandbox-start').disabled=true;$('preview-car').disabled=true;$('garage-status').textContent='Preparing your '+BODY_NAMES[cfg.body]+'…';
  previewJob=(async()=>{let transition;try{configureCars();transition=await loadingBegin('YOUR GARAGE',BODY_NAMES[cfg.body]+' · Preparing your car',graphicsReady());await init3d();const changed=cm.some((m,i)=>m.userData.body!==(cars[i].body||0)||m.userData.simple===!!cfg.models);refreshCarModels();if(changed&&ren?.compileAsync){await loadingStage(94,'Preparing your selected car');ENGINE.status.warming=true;try{await ren.compileAsync(scene,cam)}finally{ENGINE.status.warming=false}}if(menuScreen==='garage')$('menu').classList.add('live-preview');$('garage-status').textContent=BODY_NAMES[cfg.body]+' · '+COLOR_NAMES[cfg.color]+' · READY';await loadingEnd(transition);$('preview-car').focus?.()}catch(e){loadingAbort(transition);try{dispose3d()}catch(_){}$('menu').classList.remove('live-preview');$('garage-status').textContent='Preview unavailable. Try Performance mode in Settings.';console.warn('Garage preview',e)}finally{starting=false;$('go').disabled=$('sandbox-start').disabled=false;$('preview-car').disabled=false;previewJob=null}})();return previewJob;
 }
@@ -1749,7 +1746,7 @@ function kickoff(newRound=true){
 
  for(const c of cars)spawnCar(c);heat.target=0;heat.speed=18;heat.cooldown=0;ball.color=0xdceeff;ball.lastPlayer=-1;
 
-  const lp=localPlayer();ball.p.set(0,BR,0);ball.v.set(0,0,0);ball.w.set(0,0,0);ball.last=-1;ball.hit=0;ball.hitT=0;setupHeatServe();ball.prevP.copy(ball.p);ball.frameP.copy(ball.p);if(bm)bm.quaternion.identity();cd.set(1,0,0).applyQuaternion(lp.q);cpos.copy(lp.p).addScaledVector(cd,-5);cpos.y+=1.5;lookPos.copy(ball.p);acc=0;PADS.forEach(p=>p.t=0);st='COUNT';cnt=3.99;
+  const lp=localPlayer();ball.p.set(0,BR,0);ball.v.set(0,0,0);ball.w.set(0,0,0);ball.last=-1;ball.hit=0;ball.hitT=0;setupHeatServe();ball.prevP.copy(ball.p);ball.frameP.copy(ball.p);if(bm)bm.quaternion.identity();cd.set(1,0,0).applyQuaternion(lp.q);cpos.copy(lp.p).addScaledVector(cd,-5);cpos.y+=1.5;lookPos.copy(ball.p);cameraAnchorReady=false;acc=0;PADS.forEach(p=>p.t=0);st='COUNT';cnt=3.99;
 
   if(MP.active&&MP.role==='host'&&newRound){MP.round++;mpClearInput();publishMatch()}
 
@@ -2091,7 +2088,7 @@ let windFlags=[];
 
 function makeGrass(){
 
- const N=cfg.hi?24000:3000,bg=new THREE.BufferGeometry(),off=new Float32Array(N*3);
+ const N=cfg.hi?24000:9000,bg=new THREE.BufferGeometry(),off=new Float32Array(N*3);
 
  bg.setAttribute('position',new THREE.Float32BufferAttribute([-.012,0,0,.012,0,0,-.008,.5,0,.008,.5,0,0,1,0,0,0,-.012,0,0,.012,0,.5,-.008,0,.5,.008,0,.9,0],3));bg.setIndex([0,1,2,1,3,2,2,3,4,5,6,7,6,8,7,7,8,9]);
 
@@ -2204,7 +2201,7 @@ async function build3d(forceGL){
 
  // Static filtered environment avoids the periodic six-pass cube-camera hitch.
 
-  ren.outputColorSpace=THREE.SRGBColorSpace;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=.92;ren.shadowMap.enabled=!!cfg.hi;ren.shadowMap.type=THREE.PCFShadowMap;ren.shadowMap.autoUpdate=false;ren.shadowMap.needsUpdate=!!cfg.hi;
+  ren.outputColorSpace=THREE.SRGBColorSpace;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=1.05;ren.shadowMap.enabled=!!cfg.hi;ren.shadowMap.type=THREE.PCFShadowMap;ren.shadowMap.autoUpdate=false;ren.shadowMap.needsUpdate=!!cfg.hi;
 
  scene=new THREE.Scene();scene.background=new THREE.Color(0x34526c);scene.fog=new THREE.Fog(0x516775,125,360);
 
@@ -2213,7 +2210,7 @@ async function build3d(forceGL){
  await loadingStage(28,'Preparing stadium lighting');
  const et=ENGINE.stadiumEnvironment();envTarget=await ENGINE.environment(ren,et);scene.environment=envTarget.texture;et.dispose();
 
- scene.add(new THREE.HemisphereLight(0xd5e7ff,0x3d4a29,.85));
+ scene.add(new THREE.HemisphereLight(0xd5e7ff,0x596247,1.65));
 
  sun=new THREE.DirectionalLight(0xffeed8,2.2);sun.castShadow=!!cfg.hi;sun.shadow.autoUpdate=false;sun.shadow.needsUpdate=!!cfg.hi;sun.shadow.mapSize.set(2048,2048);const sc=sun.shadow.camera;sc.left=sc.bottom=-76;sc.right=sc.top=76;sc.near=1;sc.far=200;sun.shadow.bias=-.00015;sun.shadow.normalBias=.018;scene.add(sun,sun.target);
 
@@ -2411,7 +2408,7 @@ function render(dt){
 
   cd.lerp(camDesired,1-Math.exp(-dt*(4+cameraSettings.stiffness*12))).normalize();camDesired.copy(cp).addScaledVector(cd,-(cameraSettings.distance+c.v.length()*.008));camDesired.y=Math.max(camDesired.y+cameraSettings.height,.9);if(c.ground&&c.n.y<.8)camDesired.addScaledVector(c.n,cameraSettings.height*.8);
 
-  cpos.lerp(camDesired,1-Math.exp(-dt*(cpos.distanceToSquared(camDesired)>64?25:4+cameraSettings.stiffness*14)));cam.position.copy(cpos);
+  if(cameraAnchorReady)cpos.add(camAnchorDelta.copy(cp).sub(cameraAnchor));cameraAnchor.copy(cp);cameraAnchorReady=true;cpos.lerp(camDesired,1-Math.exp(-dt*(cpos.distanceToSquared(camDesired)>64?25:4+cameraSettings.stiffness*14)));cam.position.copy(cpos);
 
   for(let k=0;k<3;k++){surf(cam.position);if(SS>=1)break;cam.position.addScaledVector(SN,1-SS)}cpos.copy(cam.position);
 
@@ -2433,7 +2430,7 @@ function render(dt){
 
  uploadParticles();pipeline.render();
 
-  if(st==='PLAY'){perfEMA+=(dt-perfEMA)*.03;perfTimer+=dt;if(perfTimer>2){perfTimer=0;const next=perfEMA>.022?Math.max(.55,renderScale-.08):perfEMA<.0172?Math.min(1,renderScale+.05):renderScale;if(next!==renderScale){renderScale=next;ren.setPixelRatio(pixelRatio());pipeline.resize(innerWidth,innerHeight,pixelRatio())}}}
+  if(st==='PLAY'){perfEMA+=(dt-perfEMA)*.03;perfTimer+=dt;if(perfTimer>4){perfTimer=0;const next=perfEMA>.022?Math.max(.8,renderScale-.04):perfEMA<.0172?Math.min(1,renderScale+.025):renderScale;if(next!==renderScale){renderScale=next;ren.setPixelRatio(pixelRatio());pipeline.resize(innerWidth,innerHeight,pixelRatio())}}}
 
   const sec=ot?-1-Math.floor(tl):Math.ceil(Math.max(0,tl));if(sec!==uiClock){uiClock=sec;$('clk').textContent=sandbox?'FREE':cfg.mode===1?'TO 7':ot?`+${Math.floor(tl/60)}:${String(Math.floor(tl)%60).padStart(2,'0')}`:`${sec/60|0}:${String(sec%60).padStart(2,'0')}`}
 
@@ -2451,6 +2448,7 @@ function render(dt){
 
 }
 
+const cameraAnchor=new V3(),camAnchorDelta=new V3();let cameraAnchorReady=false;
 const spinAxis=new V3(),spinQ=new Qn();let DBG=0,last=0,acc=0;
 
 function frame(t){requestAnimationFrame(frame);const dt=cl((t-last)/1000||0,0,.1);last=t;pollController();introFrame(dt);
@@ -2464,18 +2462,19 @@ function frame(t){requestAnimationFrame(frame);const dt=cl((t-last)/1000||0,0,.1
 
  if(st=='PLAY'||st=='GOAL'||st=='COUNT')acc+=dt*(st=='GOAL'?.3:1);else acc=0;
 
-  let steps=0;while(acc+1e-10>=SIM_DT&&steps++<4){acc=Math.max(0,acc-SIM_DT);for(let k=0;k<cars.length;k++){cars[k].frameP.copy(cars[k].p);cars[k].frameQ.copy(cars[k].q)}ball.frameP.copy(ball.p);sim(DT);sim(DT)}if(steps>4)acc%=SIM_DT; // avoid a backlog spiral after a slow or hidden frame
+  let steps=0;while(acc+1e-10>=SIM_DT&&steps++<12){acc=Math.max(0,acc-SIM_DT);for(let k=0;k<cars.length;k++){cars[k].frameP.copy(cars[k].p);cars[k].frameQ.copy(cars[k].q)}ball.frameP.copy(ball.p);sim(DT)}if(steps>12)acc%=SIM_DT; // avoid a backlog spiral after a slow or hidden frame
 
  if(st=='GOAL'&&(gt-=dt)<=0&&(!MP.active||MP.role==='host')){if(!sandbox&&(ot||cfg.mode===1&&Math.max(...score)>=7||cfg.mode===0&&tl<=0&&score[0]!==score[1]))endMatch();else{if(!sandbox&&cfg.mode===0&&tl<=0){ot=1;tl=0}kickoff()}}
 
  publishMultiplayer(dt);updateAudio();render(dt)}
 
+// INLINE:preload.js
 // INLINE:test-hooks.js
-setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();setupGraphicsUI();configureCars();kickoff();st='MENU';setupIntro();requestAnimationFrame(frame);
+setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();setupGraphicsUI();configureCars();kickoff();st='MENU';setupIntro();setupShowroomControls();requestAnimationFrame(frame);if(!window.__TEVIN_TEST__)setTimeout(preloadArena,0);
 
-window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:60,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
+window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:120,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
 
-window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.3 · AFTERSHOCK · Ready to play');
+window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.4 · AFTERSHOCK · Ready to play');
 
 
 } catch(error) { window.tevinBoot.error=String(error.message||error);window.tevinBoot.show("Startup failed at "+window.tevinBoot.stage+": "+window.tevinBoot.error);console.error(error); }

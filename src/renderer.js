@@ -10,7 +10,7 @@ async function rendererWithFallback(create, fresh, lightweight, forceGL=false) {
 function freshGameCanvas(){const old=$('cv'),next=old.cloneNode(false);next.width=1;next.height=1;old.replaceWith(next);return next;}
 async function createGameRenderer(forceGL){
  return rendererWithFallback(
-  (canvas,gl)=>ENGINE.createRenderer(canvas,cfg.hi,gl),freshGameCanvas,
+  (canvas,gl)=>ENGINE.createRenderer(canvas,true,gl),freshGameCanvas,
   canvas=>{const result=new THREE.WebGLRenderer({canvas,antialias:false,alpha:false,stencil:false,powerPreference:'default',failIfMajorPerformanceCaveat:false});ENGINE.status.backend='WebGL2 compatibility';return result;},forceGL);
 }
 function graphicsFailure(error){

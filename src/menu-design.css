@@ -1,37 +1,56 @@
-/* Original procedural sports identity. No raster artwork or external fonts. */
-#menu:before,body.music-playing #menu:before{background-image:radial-gradient(ellipse at 85% 25%,#16465d88,transparent 50%),linear-gradient(125deg,#040d19,#0b1d2a 65%,#362317)!important;animation:none}
-#intro .intro-art,body.music-playing #intro .intro-art{background:radial-gradient(ellipse at 75% 38%,#153e56,transparent 62%),linear-gradient(125deg,#050c17 22%,#0b1926 68%,#342115)!important;filter:none!important}
-#intro .intro-horizon{background:linear-gradient(90deg,#030d1c77,transparent 65%)}
-.stadium-design{position:absolute;inset:0;overflow:hidden;--cyan:#65dcff;--amber:#ffa951}
-.stadium-pitch{position:absolute;width:66%;height:49%;right:-9%;top:45%;border:2px solid #b9e8ec99;border-radius:30px;transform:perspective(850px) rotateX(56deg) rotateZ(-26deg);background:repeating-linear-gradient(90deg,#58d2d909 0 10%,#69d9db17 10% 20%),linear-gradient(135deg,#13394a,#10282f);box-shadow:0 0 0 12px #0d2638,0 0 0 14px #537b8c66,0 0 0 40px #071522,0 0 0 42px #2b4c60,0 50px 60px #0008}
-.stadium-pitch:before{content:'';position:absolute;left:50%;top:0;bottom:0;border-left:2px solid #c3ebed88}
-.pitch-center{position:absolute;left:38%;top:26%;width:24%;height:48%;border:2px solid #c3ebed88;border-radius:50%}
-.pitch-center:after{content:'';position:absolute;left:49%;top:48%;width:5px;height:5px;border-radius:50%;background:white}
-.pitch-box{position:absolute;top:22%;height:56%;width:16%;border:2px solid #c3ebed88}.box-blue{left:0;border-left:0}.box-orange{right:0;border-right:0}
-.pitch-goal{position:absolute;top:36%;height:28%;width:4%;background:repeating-linear-gradient(0deg,transparent 0 8px,#c3ebed44 8px 9px),repeating-linear-gradient(90deg,transparent 0 8px,#c3ebed44 8px 9px);border:3px solid;box-shadow:0 0 24px currentColor}.goal-blue{left:-4%;color:var(--cyan)}.goal-orange{right:-4%;color:var(--amber)}
-.stadium-stands{position:absolute;width:74%;height:26%;top:47%;right:-8%;transform:rotate(-15deg);opacity:.28;background:radial-gradient(ellipse,#99d8ff 0 1px,transparent 2px) 0 0/12px 9px;mask-image:linear-gradient(transparent,#000 45%,transparent)}
-.match-ball{position:absolute;width:clamp(110px,15vw,245px);right:17%;top:29%;border-radius:50%;filter:drop-shadow(-12px 10px 0 #52cfff15) drop-shadow(0 20px 24px #0009);animation:ball-hover 7s ease-in-out infinite}
-.match-ball svg{display:block;width:100%;height:100%;transform:rotate(-16deg)}
-.stadium-orbit{position:absolute;border:1px solid #64d7ff25;width:56vw;height:56vw;right:-10vw;top:-13vw;border-radius:50%}.orbit-two{width:48vw;height:48vw;right:-6vw;top:-9vw;border-style:dashed;opacity:.6}
-.stadium-beam{position:absolute;top:-15%;width:8%;height:100%;transform-origin:50% 0;opacity:.14;background:linear-gradient(transparent,#77ddff,transparent);animation:stadium-sweep 14s ease-in-out infinite alternate}.beam-blue{right:30%;transform:rotate(28deg)}.beam-orange{right:6%;background:linear-gradient(transparent,#ffae62,transparent);animation-delay:-7s}
-.stadium-coordinate{position:absolute;right:9%;bottom:16%;color:#9fbac8;font:9px/2 monospace;letter-spacing:3px}.stadium-coordinate span{color:#54778c;font-size:8px}
-#intro #intro-stage{inset:-2%}
-#intro .intro-title h1{font-style:italic;letter-spacing:-.055em}
-#intro .intro-title{top:24vh}
-#intro .intro-title:before{content:'// PLAY WITHOUT LIMITS';display:block;font:9px monospace;letter-spacing:3px;color:#72cdeb;margin-bottom:22px}
-#intro .intro-title .intro-kicker{display:none}
-#intro .intro-track{border-left:2px solid #65d8ff;padding-left:16px}
-#intro #music-visualizer{opacity:.5;mix-blend-mode:screen}
-body.music-playing .stadium-pitch{border-color:#c0a5ff;box-shadow:0 0 0 12px #1e2144,0 0 0 14px #896ed988,0 0 0 40px #0c1228,0 0 0 42px #4b3e76,0 40px 70px #573f8f55}
-body.music-playing .beam-orange{background:linear-gradient(transparent,#e58bff,transparent)}
-#loading-screen .loading-art{background-image:repeating-linear-gradient(120deg,transparent 0 90px,#5ed3ff12 90px 92px),radial-gradient(ellipse at 80% 30%,#22566b,#06101e 70%)!important}
-@keyframes ball-hover{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-18px) rotate(5deg)}}
-@keyframes stadium-sweep{from{transform:rotate(-24deg)}to{transform:rotate(32deg)}}
-@media(max-width:700px){#intro .intro-title{top:17vh}.stadium-pitch{width:115%;height:31%;top:46%;right:-39%;opacity:.7}.match-ball{width:125px;right:8%;top:35%;opacity:.85}.stadium-coordinate{display:none}.stadium-orbit{width:100vw;height:100vw;top:25%;right:-45%}#intro .intro-title:before{font-size:8px;margin-bottom:18px}.stadium-beam{width:15%}#intro .intro-horizon{background:linear-gradient(0deg,#030d1ccc,transparent 60%)}}
-@media(max-height:580px) and (min-width:701px){#intro .intro-title{top:21vh}.match-ball{top:28%;right:35%;width:100px}.stadium-coordinate{display:none}}
-@media(prefers-reduced-motion:reduce){.match-ball,.stadium-beam{animation:none!important}}
-#intro[hidden] .match-ball,#intro[hidden] .stadium-beam{animation-play-state:paused}
-#intro .intro-title{top:16vh}
-#intro .intro-title h1{font-size:clamp(68px,9vw,138px)}
-@media(max-width:700px){#intro .intro-title{top:14vh}#intro .intro-title h1{font-size:clamp(66px,15vw,108px)}}
-@media(max-height:580px) and (min-width:701px){#intro .intro-title{top:17vh}#intro .intro-title h1{font-size:76px}}
+/* Field-level live arena layout, using the player's actual car and supplied HUD art. */
+#menu{background:transparent!important}
+#menu.live-preview:before,body.music-playing #menu.live-preview:before{opacity:0!important}
+#menu:after{background:linear-gradient(90deg,#020b1777,transparent 58%),linear-gradient(0deg,#020b1799,transparent 30%)!important}
+#intro{background:#06111e}
+body.arena-ready #intro{background:linear-gradient(0deg,#030e1a88,transparent 65%)!important}
+body.arena-ready #intro-stage,body.arena-ready #music-visualizer{display:none}
+#intro .intro-title{top:24%;left:50%;transform:translateX(-50%);width:90%;text-align:center}
+#intro .intro-title:before,#intro .intro-title .intro-tagline,#intro .intro-title p,#intro .intro-title:after{display:none}
+#intro .intro-title h1{font-size:clamp(62px,9vw,145px);line-height:.83;letter-spacing:-.055em;text-shadow:0 5px 20px #001126aa}
+#intro .intro-title h1 em{color:white}
+#intro .intro-controls{left:50%;bottom:22%;transform:translateX(-50%);width:440px;max-width:90vw;align-items:center;text-align:center}
+#intro #intro-play{clip-path:none;min-height:0;padding:12px 30px;background:transparent;color:#8edcff;border:0;box-shadow:none;font-size:24px;text-align:center;letter-spacing:3px}
+#intro #intro-play span{font-size:10px;margin-top:10px;color:#d2ebfa}
+#intro #intro-skip{font-size:10px;color:#ddd}
+#intro .intro-track,#intro .intro-options{bottom:4vh}
+#menu .menu-top{height:70px;padding:18px 3vw;background:linear-gradient(#03132388,transparent);position:relative;z-index:8}
+#menu #home-panel{position:absolute;inset:70px 0 65px;pointer-events:none}
+#menu #home-panel .hero-copy,#menu #home-panel .home-caption{display:none}
+#menu .home-actions{position:absolute;left:3vw;top:35%;width:245px;display:flex;flex-direction:column;gap:5px;pointer-events:auto}
+#menu .home-actions button,#menu #nav-play{min-height:43px;margin:0;padding:10px 18px;background:#061018dc;color:#fff;border:0;border-left:3px solid #83d9ff00;border-radius:0;clip-path:polygon(3% 0,100% 0,96% 100%,0 100%);box-shadow:none;text-align:left}
+#menu .home-actions button:hover,#menu .home-actions button:focus-visible,#menu #nav-play{background:linear-gradient(90deg,#d8f8ff,#64c5eb);color:#062238;border-left-color:white}
+#menu .home-actions b,#menu #nav-play b{font-size:20px;font-weight:500;letter-spacing:1px}
+#menu .home-actions span,#menu .home-actions i{display:none}
+#car-inspect{position:absolute;left:27%;right:2%;top:90px;bottom:100px;z-index:2;cursor:grab;touch-action:none;outline:none}
+#car-inspect:active{cursor:grabbing}#car-inspect:focus-visible{outline:1px solid #9ce5ff66}
+#car-inspect span{position:absolute;bottom:0;right:4%;font-size:9px;letter-spacing:2px;color:#d5edff88;pointer-events:none}
+#menu:not([data-screen=home]):not([data-screen=garage]) #car-inspect{display:none}
+#menu .menu-pages{position:relative;z-index:4;pointer-events:none}#menu .menu-pages>section{pointer-events:auto}
+#menu[data-screen=garage] .menu-pages{margin:5vh 0 0 3vw;width:300px;max-width:30vw}
+#menu #garage-panel{padding:22px;background:linear-gradient(110deg,#031221ef,#082133ce);border:0;border-top:2px solid #80dfff;box-shadow:none}
+#menu #garage-panel h2{font-size:27px;margin:12px 0 24px}#menu #body-options{flex-direction:column}#menu #body-options button{padding:13px}
+#menu #swatches{grid-template-columns:repeat(4,1fr)}#menu #swatches button{height:36px;font-size:8px}
+#menu #garage-panel .garage-note{font-size:10px}#menu #garage-panel .eyebrow{font-size:8px}
+#menu[data-screen=play] .menu-pages{width:min(1100px,92vw);margin:10px auto;max-height:calc(100vh - 125px);overflow:auto}
+#menu #play-panel{background:#041426dc;padding:20px 30px;box-shadow:none}#menu #play-panel h2{font-weight:300;font-size:32px;margin:5px 0}
+#menu #play-panel .destination-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+#menu #play-panel .destination-tabs button{position:relative;overflow:hidden;min-height:165px;padding:100px 16px 18px;text-align:left;border:2px solid #479cc5;background:linear-gradient(150deg,#14586e,#092540 70%);font-size:18px;font-weight:400;transform:skewX(-3deg)}
+#menu #play-panel .destination-tabs button:before{content:'◈';position:absolute;top:7px;right:22px;font-size:80px;color:#98ecff77;font-weight:900;text-shadow:0 0 30px #79d9ff33}
+#menu #play-panel #choose-offline{background:linear-gradient(150deg,#2373a3,#092540 70%)}#menu #play-panel #choose-offline:before{content:'VS'}
+#menu #play-panel #choose-online{background:linear-gradient(150deg,#a25b29,#402c37 70%)}#menu #play-panel #choose-online:before{content:'◇'}
+#menu #play-panel #choose-training{background:linear-gradient(150deg,#684da5,#292145 70%)}#menu #play-panel #choose-training:before{content:'◎'}
+#menu #play-panel .destination-tabs button[aria-pressed=true]{border-color:#bdeaff;box-shadow:0 0 0 2px #50b8e8;color:white}
+#menu .menu-footer{bottom:0;left:0;right:0;padding:12px 3vw;background:#02101cce;border-top:1px solid #50bce277}
+#sb{top:18px;border:0;border-radius:2px;box-shadow:none;background:#06111ec9;overflow:hidden}
+#sb span{font-weight:400;font-size:35px;padding:8px 20px;border-radius:0}#sb span:before{display:none!important}#sb #clk{font-size:32px;padding:10px 24px;min-width:110px;background:#06111ee6}#s0{background:#1470ca!important}#s1{background:#dc8729!important}
+#bo,#spd{width:136px;height:136px;border:0!important;background:none!important;box-shadow:none!important;border-radius:0;overflow:visible;bottom:22px;right:25px}
+#spd{right:170px;color:white}#spd svg,#bo:before,#bo:after{display:none!important}
+.hud-dial,.hud-fill{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
+#bo .hud-fill{mask-image:conic-gradient(from 180deg,black calc(var(--p,33)*2.3deg),transparent 0)}
+#spd .hud-fill{mask-image:conic-gradient(from 180deg,black calc(var(--speed,0)*230deg),transparent 0)}
+#bn,#spd #speedvalue{position:absolute;inset:42px 0 auto;text-align:center;font-size:33px;line-height:1;font-weight:400;margin:0;color:white;z-index:2}
+#spd small{position:absolute;top:82px;left:0;right:0;text-align:center}#surface{position:absolute;bottom:-10px;left:-15px;right:-15px;font-size:8px}
+#bo:after{content:'BOOST';display:block!important;position:absolute;top:82px;left:0;right:0;bottom:auto;font-size:8px;text-align:center;letter-spacing:2px;background:none}
+@media(max-width:800px){#menu .home-actions{left:4vw;top:50%;width:190px}#car-inspect{left:40%;top:90px;bottom:190px}#menu[data-screen=garage] .menu-pages{margin:0 3vw;width:94vw;max-width:none;position:absolute;bottom:48px}#menu #garage-panel{padding:12px;max-height:30vh;overflow:auto}#menu #body-options{flex-direction:row}#menu #garage-panel h2,#menu #garage-panel .eyebrow,#menu #garage-panel .garage-note{display:none}#menu #play-panel .destination-tabs{grid-template-columns:repeat(2,1fr)}#menu #play-panel .destination-tabs button{min-height:120px;padding-top:66px}#menu #play-panel .destination-tabs button:before{font-size:50px}#bo,#spd{width:105px;height:105px;transform:none;bottom:25px}#bo{right:10px}#spd{right:115px}#bn,#spd #speedvalue{top:32px;font-size:28px}#spd small,#bo:after{top:64px}#intro .intro-title{top:27%}}
+@media(max-height:650px) and (min-width:801px){#menu[data-screen=garage] .menu-pages{margin-top:0}#menu #garage-panel{padding:15px;max-height:calc(100vh - 120px);overflow:auto}#menu #play-panel .destination-tabs button{min-height:120px;padding-top:62px}#menu #play-panel .destination-tabs button:before{font-size:50px}}
