@@ -1,0 +1,33 @@
+/* Original procedural sports identity. No raster artwork or external fonts. */
+#menu:before,body.music-playing #menu:before{background-image:radial-gradient(ellipse at 85% 25%,#16465d88,transparent 50%),linear-gradient(125deg,#040d19,#0b1d2a 65%,#362317)!important;animation:none}
+#intro .intro-art,body.music-playing #intro .intro-art{background:radial-gradient(ellipse at 75% 38%,#153e56,transparent 62%),linear-gradient(125deg,#050c17 22%,#0b1926 68%,#342115)!important;filter:none!important}
+#intro .intro-horizon{background:linear-gradient(90deg,#030d1c77,transparent 65%)}
+.stadium-design{position:absolute;inset:0;overflow:hidden;--cyan:#65dcff;--amber:#ffa951}
+.stadium-pitch{position:absolute;width:66%;height:49%;right:-9%;top:45%;border:2px solid #b9e8ec99;border-radius:30px;transform:perspective(850px) rotateX(56deg) rotateZ(-26deg);background:repeating-linear-gradient(90deg,#58d2d909 0 10%,#69d9db17 10% 20%),linear-gradient(135deg,#13394a,#10282f);box-shadow:0 0 0 12px #0d2638,0 0 0 14px #537b8c66,0 0 0 40px #071522,0 0 0 42px #2b4c60,0 50px 60px #0008}
+.stadium-pitch:before{content:'';position:absolute;left:50%;top:0;bottom:0;border-left:2px solid #c3ebed88}
+.pitch-center{position:absolute;left:38%;top:26%;width:24%;height:48%;border:2px solid #c3ebed88;border-radius:50%}
+.pitch-center:after{content:'';position:absolute;left:49%;top:48%;width:5px;height:5px;border-radius:50%;background:white}
+.pitch-box{position:absolute;top:22%;height:56%;width:16%;border:2px solid #c3ebed88}.box-blue{left:0;border-left:0}.box-orange{right:0;border-right:0}
+.pitch-goal{position:absolute;top:36%;height:28%;width:4%;background:repeating-linear-gradient(0deg,transparent 0 8px,#c3ebed44 8px 9px),repeating-linear-gradient(90deg,transparent 0 8px,#c3ebed44 8px 9px);border:3px solid;box-shadow:0 0 24px currentColor}.goal-blue{left:-4%;color:var(--cyan)}.goal-orange{right:-4%;color:var(--amber)}
+.stadium-stands{position:absolute;width:74%;height:26%;top:47%;right:-8%;transform:rotate(-15deg);opacity:.28;background:radial-gradient(ellipse,#99d8ff 0 1px,transparent 2px) 0 0/12px 9px;mask-image:linear-gradient(transparent,#000 45%,transparent)}
+.match-ball{position:absolute;width:clamp(110px,15vw,245px);right:17%;top:29%;border-radius:50%;filter:drop-shadow(-12px 10px 0 #52cfff15) drop-shadow(0 20px 24px #0009);animation:ball-hover 7s ease-in-out infinite}
+.match-ball svg{display:block;width:100%;height:100%;transform:rotate(-16deg)}
+.stadium-orbit{position:absolute;border:1px solid #64d7ff25;width:56vw;height:56vw;right:-10vw;top:-13vw;border-radius:50%}.orbit-two{width:48vw;height:48vw;right:-6vw;top:-9vw;border-style:dashed;opacity:.6}
+.stadium-beam{position:absolute;top:-15%;width:8%;height:100%;transform-origin:50% 0;opacity:.14;background:linear-gradient(transparent,#77ddff,transparent);animation:stadium-sweep 14s ease-in-out infinite alternate}.beam-blue{right:30%;transform:rotate(28deg)}.beam-orange{right:6%;background:linear-gradient(transparent,#ffae62,transparent);animation-delay:-7s}
+.stadium-coordinate{position:absolute;right:9%;bottom:16%;color:#9fbac8;font:9px/2 monospace;letter-spacing:3px}.stadium-coordinate span{color:#54778c;font-size:8px}
+#intro #intro-stage{inset:-2%}
+#intro .intro-title h1{font-style:italic;letter-spacing:-.055em}
+#intro .intro-title{top:24vh}
+#intro .intro-title:before{content:'// PLAY WITHOUT LIMITS';display:block;font:9px monospace;letter-spacing:3px;color:#72cdeb;margin-bottom:22px}
+#intro .intro-title .intro-kicker{display:none}
+#intro .intro-track{border-left:2px solid #65d8ff;padding-left:16px}
+#intro #music-visualizer{opacity:.5;mix-blend-mode:screen}
+body.music-playing .stadium-pitch{border-color:#c0a5ff;box-shadow:0 0 0 12px #1e2144,0 0 0 14px #896ed988,0 0 0 40px #0c1228,0 0 0 42px #4b3e76,0 40px 70px #573f8f55}
+body.music-playing .beam-orange{background:linear-gradient(transparent,#e58bff,transparent)}
+#loading-screen .loading-art{background-image:repeating-linear-gradient(120deg,transparent 0 90px,#5ed3ff12 90px 92px),radial-gradient(ellipse at 80% 30%,#22566b,#06101e 70%)!important}
+@keyframes ball-hover{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-18px) rotate(5deg)}}
+@keyframes stadium-sweep{from{transform:rotate(-24deg)}to{transform:rotate(32deg)}}
+@media(max-width:700px){#intro .intro-title{top:17vh}.stadium-pitch{width:115%;height:31%;top:46%;right:-39%;opacity:.7}.match-ball{width:125px;right:8%;top:35%;opacity:.85}.stadium-coordinate{display:none}.stadium-orbit{width:100vw;height:100vw;top:25%;right:-45%}#intro .intro-title:before{font-size:8px;margin-bottom:18px}.stadium-beam{width:15%}#intro .intro-horizon{background:linear-gradient(0deg,#030d1ccc,transparent 60%)}}
+@media(max-height:580px) and (min-width:701px){#intro .intro-title{top:21vh}.match-ball{top:28%;right:35%;width:100px}.stadium-coordinate{display:none}}
+@media(prefers-reduced-motion:reduce){.match-ball,.stadium-beam{animation:none!important}}
+#intro[hidden] .match-ball,#intro[hidden] .stadium-beam{animation-play-state:paused}
