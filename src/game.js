@@ -2,7 +2,7 @@
 try {
 
 
-/* Tevin League 9.4 — Aftershock. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
+/* Tevin League 9.5 — Aftershock. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
 window.tevinBoot.stage='game script';
 
 const ENGINE=TevinEngine;
@@ -1205,6 +1205,7 @@ window.tevinBoot.stage='input setup';
 
 const keys={};let ballCam=true;
 // INLINE:controls.js
+// INLINE:gauges.js
 
 addEventListener('keydown',e=>{if(captureBinding(e))return;if(LOADING.active){e.preventDefault();return}if(!e.repeat)unlockAudio();
  if(INTRO.active){if(!INTRO.started&&!INTRO.manualPause&&e.key!=='Escape')introStart();if(e.key==='Enter'&&!e.repeat&&!(e.target instanceof HTMLButtonElement)){e.preventDefault();introPlay()}if(e.key==='Escape'){e.preventDefault();introPlay()}return}
@@ -1227,7 +1228,7 @@ addEventListener('keydown',e=>{if(captureBinding(e))return;if(LOADING.active){e.
 
  if(menuState&&k===' '&&btn)return;
 
- if([' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();
+ if(['shift',' ','arrowup','arrowdown','arrowleft','arrowright'].includes(k))e.preventDefault();
 
  if(!e.repeat){
 
@@ -1245,7 +1246,7 @@ addEventListener('keydown',e=>{if(captureBinding(e))return;if(LOADING.active){e.
 
  keys[k]=1;if(k===' '&&st==='PLAY')localPlayer().jh=1});
 
-addEventListener('keyup',e=>{const k=heldCodes.get(e.code)||mappedKey(e);heldCodes.delete(e.code);keys[k]=0;if(k==' ')localPlayer().jh=padInput.jump?1:0});
+addEventListener('keyup',e=>{const k=heldCodes.get(e.code)||mappedKey(e);heldCodes.delete(e.code);keys[k]=[...heldCodes.values()].includes(k)?1:0;if(k==' ')localPlayer().jh=padInput.jump?1:0});
 
 function lostFocus(){inputFocused=false;heldCodes.clear();Object.assign(padInput,{thr:0,steer:0,pitch:0,yaw:0,roll:0,boost:0,ps:0,jump:false});audioSilence();if(document.hidden&&AC?.state==='running')AC.suspend().catch(()=>{});for(const k in keys)keys[k]=0;localPlayer().jp=localPlayer().jh=0;if(MP.active&&MP.loaded){mpSetPause(true)}else if(st==='PLAY'||st==='COUNT')pause()}
 
@@ -1637,7 +1638,7 @@ function setupMenu(){
  $('private-create').onclick=()=>choosePrivateAction('create');$('private-join').onclick=()=>choosePrivateAction('join');$('party-create-tab').onclick=()=>choosePartyAction('create');$('party-join-tab').onclick=()=>choosePartyAction('join');$('quick-manage-party').onclick=()=>showMenuScreen('party');$('party-private-link').onclick=()=>{chooseRoute('online');showMenuScreen('play')};
  for(const name of ['quick','offline','online','training'])$('choose-'+name).onclick=()=>chooseRoute(name);
  BODY_NAMES.forEach((name,i)=>{const b=document.createElement('button');b.textContent=name.toUpperCase();b.setAttribute('aria-pressed',String(cfg.body===i));b.onclick=()=>{cfg.body=i;P1.body=i;for(const [j,button] of Array.from($('body-options').children).entries())button.setAttribute('aria-pressed',String(i===j));savePresentation();updateMatchSummary();previewGarage()};$('body-options').appendChild(b)});
- $('performance-mode').checked=!cfg.hi;$('performance-mode').onchange=()=>{cfg.hi=$('performance-mode').checked?0:1;cfg.models=1;try{localStorage.setItem("tevin.graphics.v9",cfg.hi?"detail":"chromebook")}catch(_){}savePresentation();$('quality-description').textContent=cfg.hi?'DETAIL · Richer shadows and turf. Best on faster devices.':'CHROMEBOOK · Detailed cars, lighter turf and adaptive resolution. Built for smooth play.';$('garage-performance').hidden=true;updateMatchSummary()};$('performance-mode').onchange();
+ $('performance-mode').checked=!cfg.hi;$('performance-mode').onchange=()=>{cfg.hi=$('performance-mode').checked?0:1;cfg.models=1;try{localStorage.setItem("tevin.graphics.v9",cfg.hi?"detail":"chromebook")}catch(_){}savePresentation();$('quality-description').textContent=cfg.hi?'DETAIL · Richer shadows and turf. Best on faster devices.':'CHROMEBOOK · Detailed cars, lighter turf and crisp native resolution. Built for smooth play.';$('garage-performance').hidden=true;updateMatchSummary()};$('performance-mode').onchange();
  $('paint-name').textContent=COLOR_NAMES[cfg.color];chooseRoute('offline');showMenuScreen('home');
 }
 function createCarVisual(c){const visual=cfg.models?ENGINE.importedCar(ren,BODY_IDS[c.body||0],c.color,assetTextures):carMesh2('#'+c.color.toString(16).padStart(6,'0'),'#d9efff');const m=fitCarVisual(visual,c);m.userData.body=c.body||0;m.userData.simple=!cfg.models;preparePaint(m,c.color);m.traverse(o=>{o.castShadow=!!o.isMesh&&!o.material.transparent});return m}
@@ -1900,7 +1901,7 @@ function addSpectators(){
 
 let renderScale=1,perfEMA=1/60,perfTimer=0,shadowTimer=0,uiClock=-1,uiBoost=-1,uiSpeed=-1,dbgTimer=0;
 
-function pixelRatio(){return Math.min(window.devicePixelRatio||1,cfg.hi?1.5:1,Math.sqrt((cfg.hi?1800000:921600)/(innerWidth*innerHeight)))*renderScale}
+function pixelRatio(){return Math.min(window.devicePixelRatio||1,1.5,Math.sqrt(3686400/(innerWidth*innerHeight)))}
 
 const cvs=(w,h)=>{const c=document.createElement('canvas');c.width=w;c.height=h;return c},tex=c=>{const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=8;return t};
 
@@ -2430,11 +2431,11 @@ function render(dt){
 
  uploadParticles();pipeline.render();
 
-  if(st==='PLAY'){perfEMA+=(dt-perfEMA)*.03;perfTimer+=dt;if(perfTimer>4){perfTimer=0;const next=perfEMA>.022?Math.max(.8,renderScale-.04):perfEMA<.0172?Math.min(1,renderScale+.025):renderScale;if(next!==renderScale){renderScale=next;ren.setPixelRatio(pixelRatio());pipeline.resize(innerWidth,innerHeight,pixelRatio())}}}
+  if(st==='PLAY'){perfEMA+=(dt-perfEMA)*.03;perfTimer+=dt;if(perfTimer>4){perfTimer=0;const next=1;if(next!==renderScale){renderScale=next;ren.setPixelRatio(pixelRatio());pipeline.resize(innerWidth,innerHeight,pixelRatio())}}}
 
   const sec=ot?-1-Math.floor(tl):Math.ceil(Math.max(0,tl));if(sec!==uiClock){uiClock=sec;$('clk').textContent=sandbox?'FREE':cfg.mode===1?'TO 7':ot?`+${Math.floor(tl/60)}:${String(Math.floor(tl)%60).padStart(2,'0')}`:`${sec/60|0}:${String(sec%60).padStart(2,'0')}`}
 
-  const boost=Math.round(c.boost),speed=Math.round(c.v.length()*3.6);if(boost!==uiBoost){uiBoost=boost;$('bo').style.setProperty('--p',boost);$('bo').classList.toggle('low',boost<15);$('bn').textContent=boost}if(speed!==uiSpeed){uiSpeed=speed;$('speedvalue').textContent=speed;$('spd').style.setProperty('--speed',cl(speed/83,0,1));$('spd').classList.toggle('fast',speed>=79)}
+  const boost=Math.round(c.boost),speed=Math.round(c.v.length()*3.6);if(boost!==uiBoost){uiBoost=boost;$('bo').style.setProperty('--p',boost);$('bo').classList.toggle('low',boost<15);$('bn').textContent=boost;updateGauge('bo',boost,100)}if(speed!==uiSpeed){uiSpeed=speed;$('speedvalue').textContent=speed;$('spd').style.setProperty('--speed',cl(speed/83,0,1));$('spd').classList.toggle('fast',speed>=79);updateGauge('spd',speed,83)}
 
   const surfaceLabel=speed>=79?'SUPERSONIC':!c.ground?'AIRBORNE':Math.abs(c.n.y)<.7?'WALL GRIP':'ON THE PITCH';if($('surface').textContent!==surfaceLabel)$('surface').textContent=surfaceLabel;
 
@@ -2470,11 +2471,11 @@ function frame(t){requestAnimationFrame(frame);const dt=cl((t-last)/1000||0,0,.1
 
 // INLINE:preload.js
 // INLINE:test-hooks.js
-setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();setupGraphicsUI();configureCars();kickoff();st='MENU';setupIntro();setupShowroomControls();requestAnimationFrame(frame);if(!window.__TEVIN_TEST__)setTimeout(preloadArena,0);
+setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();setupGraphicsUI();configureCars();kickoff();st='MENU';setupIntro();setupShowroomControls();setupGauges();requestAnimationFrame(frame);if(!window.__TEVIN_TEST__)setTimeout(preloadArena,0);
 
 window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:120,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
 
-window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.4 · AFTERSHOCK · Ready to play');
+window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.5 · AFTERSHOCK · Ready to play');
 
 
 } catch(error) { window.tevinBoot.error=String(error.message||error);window.tevinBoot.show("Startup failed at "+window.tevinBoot.stage+": "+window.tevinBoot.error);console.error(error); }

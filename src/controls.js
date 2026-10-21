@@ -13,6 +13,7 @@ function saveControls(){try{localStorage.setItem('tevin.controls.v9',JSON.string
 function keyLabel(code){return code.replace(/^Key|^Digit/,'').replace('Left',' L').replace('Right',' R').replace('Control','Ctrl');}
 function mappedKey(e){
  for(const [action,code] of Object.entries(bindings))if(code===e.code)return ACTION_KEYS[action];
+ if(e.code==='ShiftRight'&&bindings.boost==='ShiftLeft')return 'shift';
  if(/^Arrow/.test(e.code)||['Escape','Enter','Tab','F2','F3','KeyR','KeyT'].includes(e.code))return e.key.toLowerCase();
  return 'unbound:'+e.code;
 }
@@ -60,8 +61,11 @@ function human(c){
  const k=keys,w=k.w||k.arrowup?1:0,s=k.s||k.arrowdown?1:0,a=k.a||k.arrowleft?1:0,d=k.d||k.arrowright?1:0,i=c.inp;
  const combine=(digital,analog)=>digital||analog;
  i.thr=combine(w-s,padInput.thr);i.pitch=combine(w-s,padInput.pitch);i.steer=i.yaw=combine(d-a,padInput.steer);
- i.roll=combine((k.e?1:0)-(k.q?1:0),padInput.roll);i.boost=k.shift||padInput.boost?1:0;i.ps=k.control||padInput.ps?1:0;c.jh=k[' ']||padInput.jump?1:0;
+ i.roll=combine((k.e?1:0)-(k.q?1:0),padInput.roll);i.boost=k.shift||k.mouseBoost||padInput.boost?1:0;i.ps=k.control||padInput.ps?1:0;c.jh=k[' ']||padInput.jump?1:0;
 }
+addEventListener('pointerdown',e=>{if(e.button===0&&e.target?.id==='cv'&&st==='PLAY'&&!LOADING.active){keys.mouseBoost=1;e.preventDefault();}});
+addEventListener('pointerup',e=>{if(e.button===0)keys.mouseBoost=0;});
+addEventListener('pointercancel',()=>{keys.mouseBoost=0;});
 function setupDriverSettings(){
  const panel=document.createElement('section');panel.className='driver-settings';panel.innerHTML='<h3>CAMERA</h3><p class="settings-note">Your view, saved on this device.</p><div id="camera-settings"></div><label class="camera-toggle"><input id="camera-shake" type="checkbox"> CAMERA SHAKE</label><h3>YOUR CONTROLS</h3><p id="controller-status" class="settings-note"></p><div id="binding-grid"></div><p id="binding-status" class="settings-note" role="status"></p><button id="reset-driver-settings" class="inline-action">RESET CAMERA & CONTROLS</button>';
  $('settings-panel').insertBefore(panel,$('learnbox'));

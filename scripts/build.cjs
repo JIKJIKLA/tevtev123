@@ -3,7 +3,7 @@ const root=path.resolve(__dirname,'..');
 const read=name=>fs.readFileSync(path.join(root,'src',name),'utf8');
 let html=read('shell.html');
 for(const name of ['base','blue','orange'])html=html.replaceAll('HUD:'+name,'data:image/png;base64,'+fs.readFileSync(path.join(root,'src/hud',name+'.png')).toString('base64'));
-html=html.replace('<!-- INLINE:menu-design.css -->',()=>read('menu-design.css'));
+html=html.replace('<!-- INLINE:menu-design.css -->',()=>read('menu-design.css')+'\n'+read('gauges.css'));
 html=html.replace('<!-- INLINE:precision.css -->',()=>read('precision.css')+'\n'+read('aftershock.css'));
 for(const file of ['bootstrap.js','engine.bundle.js','game.js']) {
  // The recovered 8.2 artifact retains the original bundled engine and embedded assets.
