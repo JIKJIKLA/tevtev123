@@ -10085,7 +10085,7 @@ function audioCue(kind,strength=8,position=null,cid=-1){
   if(!audioSample(kind==='hit'||kind==='ball'?'hit'+variant:'wall'+(variant%2+1),v, .94+variant*.035,position))snd(kind==='hit'?150:85,'triangle',.12,v*.2,40);
  }else audioSample(kind,kind==='pickup'?.38:kind==='jump'||kind==='dodge'?.32:.55,1,position);
 }
-function audioWorld(kind,strength=8,p=null,cid=-1){
+function audioWorld(kind,strength=8,p=null,cid=-1){if(DED.replaying)return;
  const now=performance.now(),gate=kind+':'+cid;if(now-(AUDIO.gate[gate]??-1000)<(kind==='ball'?100:70))return;AUDIO.gate[gate]=now;
  const position=p?[p.x,p.y,p.z]:null;
  if(MP.active&&MP.role==='host'){AUDIO.events.push({id:++AUDIO.seq,kind,strength:cl(strength,0,100),position,cid,at:now});if(AUDIO.events.length>16)AUDIO.events.shift()}
@@ -10298,11 +10298,92 @@ let st='MENU',ps_,score=[0,0],tl=300,ot=0,cnt=0,gt=0,mt=0,simTime=0,kickoffAge=0
 // Supabase Realtime is a relay, not an anti-cheat server. No rollback/client prediction is claimed.
 const SUPABASE_CONFIG=window.TEVIN_SUPABASE;
 const MP={active:false,quick:'',endReason:'',role:'',slot:0,code:'',room:null,loaded:false,session:'',listeners:[],disconnects:[],seats:{},presence:{},inputs:{},lastInputs:{},seenJumps:{},localPaused:false,transport:false,seq:0,received:-1,round:0,publishClock:0,pending:0,lastSnapshot:0,snapshot:null,buffer:[],jump:0,matchBegun:false,force:true,closed:false,startRequested:false};
+// Direct Phoenix match transport. No database writes in the gameplay loop.
+const DED={enabled:!window.__TEVIN_SERVER__,url:'wss://tevin-161-153-26-154.sslip.io/play',ws:null,connecting:null,active:false,owner:'',requests:new Map(),request:0,entering:null,history:[],outbox:[],seq:0,lastJump:0,replaying:false,offset:new V3(),rtt:0,pingAt:0,lastPacket:0};
+const DRIVER_SCALARS=['jt','jl','jAge','jumped','jHoldTime','canJ','canD','dT','dcd','aT','cT','wy','grip','wasG','ground','bs','bt','bst','sk','un','righting','clearance','wheelsOn','hullContact'];
+function packDriver(c){const s={};for(const k of DRIVER_SCALARS)if(Number.isFinite(c[k])||typeof c[k]==='boolean')s[k]=c[k];return{s,jdir:c.jdir.toArray(),flipAxis:c.flipAxis.toArray()}}
+function readDriver(c,p){if(!p)return;for(const k of DRIVER_SCALARS)if(Number.isFinite(p.s?.[k])||typeof p.s?.[k]==='boolean')c[k]=p.s[k];if(finiteVector(p.jdir,3,1.01))c.jdir.fromArray(p.jdir);if(finiteVector(p.flipAxis,3,1.01))c.flipAxis.fromArray(p.flipAxis)}
+function dedSend(m){if(DED.ws?.readyState!==1)return false;if(DED.ws.bufferedAmount>65536)return false;DED.ws.send(JSON.stringify(m));return true}
+function dedRequest(m){return new Promise((resolve,reject)=>{const request=++DED.request,timer=setTimeout(()=>{DED.requests.delete(request);reject(Error('Server did not respond. Try again.'))},12000);DED.requests.set(request,{resolve,reject,timer});if(!dedSend({...m,request})){clearTimeout(timer);DED.requests.delete(request);reject(Error('Server connection is unavailable.'))}})}
+function dedConnect(){
+ if(DED.ws?.readyState===1)return Promise.resolve();if(DED.connecting)return DED.connecting;
+ DED.connecting=new Promise((resolve,reject)=>{
+  const ws=new WebSocket(DED.url);DED.ws=ws;let welcomed=false;
+  const timer=setTimeout(()=>{ws.close();reject(Error('Phoenix server connection timed out.'))},12000);
+  ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(_){return}
+   if(m.type==='hello'){if(m.wire!==1){ws.close();reject(Error('Reload the latest game.'));return}welcomed=true;clearTimeout(timer);SOC.id=m.session;SOC.connected=true;resolve();return}
+   if(m.request&&DED.requests.has(m.request)){const p=DED.requests.get(m.request);clearTimeout(p.timer);DED.requests.delete(m.request);m.type==='error'?p.reject(Error(m.message)):p.resolve(m);return}
+   if(m.type==='error'){SOC.error=m.message;socialUI();mpStatus(m.message,'bad');return}
+   if(m.type==='joined'){DED.entering=dedJoined(m).catch(e=>{mpReset();mpFailure(e)});return}
+   if(m.type==='lobby'){DED.owner=m.owner;MP.seats=m.seats||{};if(MP.loaded)mpApplySeats();mpLobby();return}
+   if(m.type==='state'){dedState(m);return}
+   if(m.type==='pong'){DED.rtt=Math.round(performance.now()-m.id);return}
+   if(m.type==='party'){SOC.party=m.code?{dedicated:true}:null;SOC.partyCode=m.code;SOC.partyData=m.data;SOC.ready=!!m.data?.members?.[SOC.id]?.ready;socialUI();return}
+   if(m.type==='queue'){SOC.searching=!!m.searching;SOC.since=m.since||Date.now();SOC.queueData={tickets:{phoenix:{seen:Date.now(),members:Array(m.count||0).fill({})}}};socialUI()}
+  };
+  ws.onerror=()=>{if(!welcomed){clearTimeout(timer);reject(Error('Cannot reach the Phoenix server. Please try again.'))}};
+  ws.onclose=()=>{clearTimeout(timer);if(DED.ws!==ws)return;DED.ws=null;SOC.connected=false;SOC.searching=false;SOC.party=null;SOC.partyData=null;SOC.partyCode='';SOC.ready=false;SOC.error=welcomed?'Server connection closed. Reconnect to find another match.':'';
+   for(const p of DED.requests.values()){clearTimeout(p.timer);p.reject(Error('Connection closed.'))}DED.requests.clear();
+   if(DED.active){MP.closed=true;MP.transport=false;mpFreeze('CONNECTION LOST — QUIT TO RECONNECT')}socialUI();if(!welcomed)reject(Error('Connection closed.'));
+  };
+ }).finally(()=>DED.connecting=null);return DED.connecting;
+}
+function dedReset(){if(DED.active)dedSend({type:'leave'});DED.active=false;DED.owner='';DED.history.length=DED.outbox.length=0;DED.offset.set(0,0,0);DED.seq=DED.lastJump=0}
+async function dedJoined(m){
+ if(previewJob)await previewJob;mpReset(false);sandbox=false;applySettings(m.settings);
+ DED.active=true;DED.owner=m.owner;DED.seq=DED.lastJump=0;DED.history.length=DED.outbox.length=0;DED.offset.set(0,0,0);
+ Object.assign(MP,{active:true,role:'guest',slot:m.slot,session:m.session,code:m.code,seats:m.seats,quick:m.quick?'phoenix':'',transport:true,closed:false});
+ SOC.searching=false;SOC.entering=false;SOC.ready=false;socialUI();$('room-code').value=m.code;
+ if(!await startGame())throw Error('Arena failed to load. Try again.');
+}
+async function dedPrivate(type){
+ if(mpBusy||starting||SOC.searching||SOC.busy)return;const code=$('room-code').value.trim().toUpperCase();if(type==='join'&&!/^[A-Z2-9]{6}$/.test(code)){mpStatus('Enter the six-character match code.','bad');return}
+ mpBusyUI(true);try{mpReset();mpStatus('CONNECTING TO PHOENIX…');await dedConnect();await dedRequest({type,wire:1,code,settings:matchSettings(),profile:socialProfile()});await DED.entering}catch(e){mpReset();mpFailure(e)}finally{mpBusyUI(false)}
+}
+async function dedLoaded(){MP.loaded=true;MP.localPaused=false;kickoff(false);st='WAIT';mpClearInput();mpApplySeats();mpLobby();await dedRequest({type:'ready'})}
+async function dedStart(){if(DED.owner!==MP.session)return;try{await dedRequest({type:'start'})}catch(e){mpStatus(e.message,'bad')}}
+function dedPause(value){MP.localPaused=!!value;mpClearInput();DED.history.length=DED.outbox.length=0;dedSend({type:'input',seq:++DED.seq,round:MP.round,jump:MP.jump,held:false,paused:true,controls:{...Z}});if(value)mpFreeze('MENU OPEN — ONLINE MATCH CONTINUES');else{$('pause').classList.remove('on');st=MP.snapshot?.phase||'WAIT';DED.offset.set(0,0,0)}}
+function dedState(m){
+ const s=m.state;if(!DED.active||!validSnapshot(s)||s.seq<=MP.received)return;
+ const phaseChanged=MP.snapshot?.phase!==s.phase||MP.round!==s.round;
+ MP.received=s.seq;MP.lastSnapshot=performance.now();if(phaseChanged)MP.buffer.length=0;MP.snapshot=s;MP.buffer.push({at:MP.lastSnapshot,state:s});if(MP.buffer.length>10)MP.buffer.shift();
+ if(!MP.loaded)return;
+ const c=localPlayer(),before=c.p.clone().add(DED.offset);
+ handleRemoteMatch(s);
+ if(phaseChanged){DED.history.length=DED.outbox.length=0;DED.offset.set(0,0,0);DED.lastJump=MP.jump;acc=0}
+ mpReadCar(c,s.cars[MP.slot],1,0);readDriver(c,m.driver);
+ DED.history=DED.history.filter(f=>f.seq>m.ack&&f.round===s.round);
+ if(s.phase==='PLAY'&&!MP.localPaused){DED.replaying=true;try{for(const f of DED.history){Object.assign(c.inp,f.controls);c.jp=f.edge?1:0;c.jh=f.held?1:0;stepCar(c,DT);resolveArenaCar(c)}}finally{DED.replaying=false}}
+ c.frameP.copy(c.p);c.frameQ.copy(c.q);c.prevP.copy(c.p);c.prevQ.copy(c.q);
+ if(!phaseChanged){DED.offset.copy(before).sub(c.p);if(DED.offset.length()>5)DED.offset.set(0,0,0)}
+ mpStatus('PHOENIX · '+(DED.rtt?DED.rtt+' ms':'CONNECTED'),'good');
+}
+function dedFrame(dt){
+ if(!MP.loaded)return;const now=performance.now();
+ if(MP.closed||MP.lastSnapshot&&now-MP.lastSnapshot>2500){mpFreeze('CONNECTION INTERRUPTED');return}
+ if(now-DED.pingAt>2000){DED.pingAt=now;dedSend({type:'ping',id:Math.round(now)})}
+ applyMultiplayer(dt);DED.offset.multiplyScalar(Math.exp(-dt*12));
+ if(st==='PLAY'&&!MP.localPaused){acc+=dt;let steps=0;const c=localPlayer();human(c);
+  while(acc>=DT&&steps++<12){acc-=DT;const edge=MP.jump>DED.lastJump;DED.lastJump=MP.jump;
+   const f={seq:++DED.seq,round:MP.round,jump:MP.jump,held:!!c.jh,paused:false,controls:{...c.inp},edge};c.frameP.copy(c.p);c.frameQ.copy(c.q);c.jp=edge?1:0;
+   stepCar(c,DT);resolveArenaCar(c);DED.history.push(f);DED.outbox.push(f);
+  }
+  if(acc>=DT)acc%=DT;if(DED.history.length>120)DED.history.splice(0,DED.history.length-120);
+ }else acc=0;
+ if(DED.outbox.length>=2||DED.outbox.length&&now-DED.lastPacket>20){if(dedSend({type:'frames',frames:DED.outbox.slice(0,12)})){DED.outbox.splice(0,12);DED.lastPacket=now}}
+ if(DED.outbox.length>24)DED.outbox.splice(0,DED.outbox.length-24);
+ updateAudio();render(dt);
+}
+async function dedSocial(type,extra={}){
+ if(SOC.busy)return;SOC.busy=true;SOC.error='';socialUI();
+ try{await dedConnect();await dedRequest({type,wire:1,profile:socialProfile(),...extra})}catch(e){SOC.error=e.message;if(type==='queue')SOC.searching=false}finally{SOC.busy=false;socialUI()}
+}
+
 let multiplayerStore=null,mpBusy=false;
 function localPlayer(){return cars[MP.active?MP.slot:0]||P1}
 function remotePlayer(){return nearestOpponent(localPlayer())}
 function mpStatus(text,kind=''){$('mp-status').textContent=text;$('mp-status').className=kind;$('nettag').textContent=MP.active?`${MP.code} · ${text}`:'';$('nettag').className=kind==='good'?'live':MP.active?'wait':'';mpLobby()}
-function mpLobby(){const waiting=MP.active&&MP.loaded&&(st==='WAIT'||st==='PAUSE'&&ps_==='WAIT');$('lobby').hidden=!waiting;if(!waiting)return;$('lobby-code').textContent=MP.code;$('lobby-kind').textContent=MP.quick?'QUICK MATCH · PLAYERS FOUND':'PRIVATE MATCH · INVITE YOUR TEAM';$('lobby-code-label').textContent=MP.quick?'QUICK MATCH':'PRIVATE MATCH CODE';$('lobby-code').hidden=$('copy-code').hidden=$('lobby-code-help').hidden=!!MP.quick;$('lobby-detail').textContent=`${cfg.size}v${cfg.size} ${cfg.mode?'HEATSEEKER':'SOCCAR'} · ${Object.keys(MP.seats).length}/${cfg.size*2} PLAYERS · ${MP.quick?'Quick Match · Waiting for every driver to load.':'Empty seats become AI when the host starts.'}`;$('lobby-start').hidden=MP.role!=='host'||!!MP.quick;$('lobby-start').disabled=MP.localPaused||MP.startRequested;$('lobby-roster').textContent=Array.from({length:cfg.size*2},(_,k)=>`${k%2?'ORANGE':'BLUE'} ${1+(k>>1)}: ${MP.seats[k]?(MP.seats[k].session===MP.session?'YOU':MP.seats[k].name||'PLAYER'):'AI / OPEN'}`).join(' · ')}
+function mpLobby(){const waiting=MP.active&&MP.loaded&&(st==='WAIT'||st==='PAUSE'&&ps_==='WAIT');$('lobby').hidden=!waiting;if(!waiting)return;$('lobby-code').textContent=MP.code;$('lobby-kind').textContent=MP.quick?'QUICK MATCH · PLAYERS FOUND':'PRIVATE MATCH · INVITE YOUR TEAM';$('lobby-code-label').textContent=MP.quick?'QUICK MATCH':'PRIVATE MATCH CODE';$('lobby-code').hidden=$('copy-code').hidden=$('lobby-code-help').hidden=!!MP.quick;$('lobby-detail').textContent=`${cfg.size}v${cfg.size} ${cfg.mode?'HEATSEEKER':'SOCCAR'} · ${Object.keys(MP.seats).length}/${cfg.size*2} PLAYERS · ${MP.quick?'Quick Match · Waiting for every driver to load.':'Empty seats become AI when the host starts.'}`;$('lobby-start').hidden=(DED.active?DED.owner!==MP.session:MP.role!=='host')||!!MP.quick;$('lobby-start').disabled=MP.localPaused||MP.startRequested;$('lobby-roster').textContent=Array.from({length:cfg.size*2},(_,k)=>`${k%2?'ORANGE':'BLUE'} ${1+(k>>1)}: ${MP.seats[k]?(MP.seats[k].session===MP.session?'YOU':MP.seats[k].name||'PLAYER'):'AI / OPEN'}`).join(' · ')}
 function mpBusyUI(v){mpBusy=v;$('host-match').disabled=$('join-match').disabled=v}
 function mpTimeout(promise,label,ms=15000){let timer;return Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error(label+' timed out. Check your connection.')),ms)})]).finally(()=>clearTimeout(timer))}
 function mpDatabase(){if(!multiplayerStore)throw Error('Connect to Supabase first.');return multiplayerStore}
@@ -10312,14 +10393,14 @@ function mpListen(ref,event,handler){const session=MP.session,guarded=s=>{if(MP.
 function mpFailure(error){console.warn('Multiplayer',error);mpStatus(error.message||String(error),'bad');if(MP.active&&MP.loaded)mpFreeze('NETWORK ERROR — reconnect or quit')}
 function randomRoomCode(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let code='';for(let k=0;k<6;k++)code+=chars[Math.random()*chars.length|0];return code}
 function validNumber(v){return typeof v==='number'&&Number.isFinite(v)}
-function mpReset(removeRoom=true){AUDIO.received=0;AUDIO.events.length=0;const room=MP.room,role=MP.role,session=MP.session,slot=MP.slot;for(const l of MP.listeners)l.ref.off(l.event,l.handler);MP.listeners.length=0;for(const d of MP.disconnects)d.cancel().catch(()=>{});MP.disconnects.length=0;
+function mpReset(removeRoom=true){dedReset();AUDIO.received=0;AUDIO.events.length=0;const room=MP.room,role=MP.role,session=MP.session,slot=MP.slot;for(const l of MP.listeners)l.ref.off(l.event,l.handler);MP.listeners.length=0;for(const d of MP.disconnects)d.cancel().catch(()=>{});MP.disconnects.length=0;
  if(room&&removeRoom){if(role==='host')room.remove().catch(()=>{});else{room.child('meta').transaction(m=>{if(m===null)return null;if(m.seats?.[slot]?.session!==session)return;delete m.seats[slot];return m},undefined,false).catch(()=>{});room.child('presence/'+session).remove().catch(()=>{});room.child('inputs/'+session).remove().catch(()=>{})}}
  Object.assign(MP,{active:false,quick:'',endReason:'',role:'',slot:0,code:'',room:null,loaded:false,session:'',seats:{},presence:{},inputs:{},lastInputs:{},seenJumps:{},localPaused:false,transport:false,seq:0,received:-1,round:0,publishClock:0,pending:0,lastSnapshot:0,snapshot:null,buffer:[],jump:0,matchBegun:false,force:true,closed:false,startRequested:false});mpStatus('Host a private room or enter a six-character code.')}
 function mpClearInput(){for(const k in keys)keys[k]=0;for(const c of cars){c.jp=c.jh=0;Object.assign(c.inp,Z)}for(const s in MP.inputs)MP.seenJumps[s]=MP.inputs[s].jump||0;acc=0}
 function mpFreeze(reason){if(!MP.loaded)return;if(st!=='PAUSE'){ps_=st;st='PAUSE';mpClearInput()}audioSilence();$('msg').style.opacity=0;$('pause').classList.add('on');$('pause-title').textContent=reason;$('res').disabled=!MP.localPaused;$('res').textContent=MP.localPaused?'RESUME':'WAITING FOR PLAYERS'}
-function mpSetPause(value){if(!MP.active||!MP.room)return;MP.localPaused=!!value;const p=MP.presence[MP.session]||{};p.paused=!!value;MP.presence[MP.session]=p;if(value)mpFreeze('MATCH PAUSED');else{mpClearInput();if(ps_==='WAIT'){st='WAIT';$('pause').classList.remove('on');mpLobby()}}MP.room.child('presence/'+MP.session+'/paused').set(!!value).catch(mpFailure);MP.force=true}
+function mpSetPause(value){if(DED.active)return dedPause(value);if(!MP.active||!MP.room)return;MP.localPaused=!!value;const p=MP.presence[MP.session]||{};p.paused=!!value;MP.presence[MP.session]=p;if(value)mpFreeze('MATCH PAUSED');else{mpClearInput();if(ps_==='WAIT'){st='WAIT';$('pause').classList.remove('on');mpLobby()}}MP.room.child('presence/'+MP.session+'/paused').set(!!value).catch(mpFailure);MP.force=true}
 function mpPlayersReady(){for(const k in MP.seats){const seat=MP.seats[k],p=MP.presence[seat.session];if(!p?.ready||!p.connected||p.paused)return false;if(+k!==0&&!MP.inputs[seat.session])return false}return !!MP.presence[MP.session]?.ready}
-async function mpStartMatch(){if(!MP.active||MP.role!=='host'||MP.startRequested||MP.matchBegun)return;if(!mpPlayersReady()){mpStatus('Waiting for every player to load and resume.');return}MP.startRequested=true;mpLobby();try{const result=await MP.room.child('meta').transaction(m=>{if(m===null)return null;if(m.host!==MP.session)return;if(Object.values(m.seats||{}).some(seat=>!MP.presence[seat.session]?.ready||!MP.presence[seat.session]?.connected||MP.presence[seat.session]?.paused))return;m.locked=true;return m},undefined,false);if(!result.committed||!result.snapshot.val()?.locked)throw Error('A player is still loading. Try Start again.');MP.matchBegun=true;kickoff();mpStatus('LIVE · PLAYER 1','good');MP.force=true}catch(e){mpStatus(e.message,'bad')}finally{MP.startRequested=false;mpLobby()}}
+async function mpStartMatch(){if(DED.active)return dedStart();if(!MP.active||MP.role!=='host'||MP.startRequested||MP.matchBegun)return;if(!mpPlayersReady()){mpStatus('Waiting for every player to load and resume.');return}MP.startRequested=true;mpLobby();try{const result=await MP.room.child('meta').transaction(m=>{if(m===null)return null;if(m.host!==MP.session)return;if(Object.values(m.seats||{}).some(seat=>!MP.presence[seat.session]?.ready||!MP.presence[seat.session]?.connected||MP.presence[seat.session]?.paused))return;m.locked=true;return m},undefined,false);if(!result.committed||!result.snapshot.val()?.locked)throw Error('A player is still loading. Try Start again.');MP.matchBegun=true;kickoff();mpStatus('LIVE · PLAYER 1','good');MP.force=true}catch(e){mpStatus(e.message,'bad')}finally{MP.startRequested=false;mpLobby()}}
 function mpPauseGate(){if(!MP.active||!MP.loaded)return;if(MP.role==='guest'){if(MP.closed||!MP.transport||MP.lastSnapshot&&performance.now()-MP.lastSnapshot>2200)mpFreeze('CONNECTION INTERRUPTED');return}if(!MP.matchBegun){if(MP.localPaused)mpFreeze('LOBBY PAUSED');else{st='WAIT';$('pause').classList.remove('on')}$('msg').style.opacity=0;mpLobby();if(Object.keys(MP.seats).length===cfg.size*2&&mpPlayersReady())mpStartMatch();return}let blocked=MP.closed||!MP.transport,stale=blocked;for(const k in MP.seats){const s=MP.seats[k].session,p=MP.presence[s];if(!p?.ready||!p.connected)blocked=stale=true;if(p?.paused)blocked=true;if(+k!==0&&performance.now()-(MP.lastInputs[s]||0)>2200)blocked=stale=true}if(blocked)mpFreeze(stale?'CONNECTION INTERRUPTED':'MATCH PAUSED');else if(st==='PAUSE'){st=ps_||'COUNT';mpClearInput();$('pause').classList.remove('on');MP.force=true}mpLobby()}
 function mpApplySeats(){for(let k=0;k<cars.length;k++){cars[k].color=PALETTE[cl(Math.round(Number(MP.seats[k]?.color??k%2)),0,PALETTE.length-1)];cars[k].body=cl(Math.round(Number(MP.seats[k]?.body??k%3)),0,2);cars[k].enabled=true}applyTeamColors();refreshCarModels()}
 function attachRoomListeners(){const room=MP.room;mpListen(room.child('presence'),'value',s=>{MP.presence=s.val()||{};if(MP.loaded&&MP.matchBegun&&Object.values(MP.seats).some(x=>MP.presence[x.session]?.paused))mpFreeze('MATCH PAUSED');MP.force=true});
@@ -10327,8 +10408,8 @@ function attachRoomListeners(){const room=MP.room;mpListen(room.child('presence'
  if(MP.role==='host')mpListen(room.child('inputs'),'value',s=>{const values=s.val()||{};for(const id in values){const v=values[id];if(Number.isInteger(v.seq)&&v.seq>(MP.inputs[id]?.seq??-1)){MP.inputs[id]=v;MP.lastInputs[id]=performance.now()}}});
  else mpListen(room.child('state'),'value',s=>{const v=s.val();if(!validSnapshot(v)||v.seq<=MP.received)return;MP.received=v.seq;MP.lastSnapshot=performance.now();if(!MP.snapshot||v.round!==MP.snapshot.round||v.phase!==MP.snapshot.phase)MP.buffer.length=0;MP.snapshot=v;MP.buffer.push({at:MP.lastSnapshot,state:v});if(MP.buffer.length>10)MP.buffer.shift();if(MP.loaded)handleRemoteMatch(v)});
  mpListen(mpDatabase().ref('.info/connected'),'value',s=>{MP.transport=!!s.val();if(!MP.transport){if(MP.loaded)mpFreeze('CONNECTION INTERRUPTED');return}const d=room.child('presence/'+MP.session).onDisconnect();d.update({connected:false,paused:true}).catch(mpFailure);MP.disconnects.push(d);if(MP.loaded){MP.localPaused=true;room.child('presence/'+MP.session).update({connected:true,ready:true,paused:true}).catch(mpFailure)}})}
-async function hostMatch(){if(mpBusy||starting||SOC.searching||SOC.busy)return;mpBusyUI(true);try{mpReset();sandbox=false;const db=await mpReady(),session=db.session;let room,code,res;for(let n=0;n<6;n++){code=randomRoomCode();room=db.ref('rooms/'+code);res=await mpTimeout(room.transaction(v=>v===null?{meta:{protocol:PROTOCOL,host:session,settings:matchSettings(),seats:{0:{session,color:cfg.color,body:cfg.body}},locked:false,createdAt:Date.now()}}:undefined),'Create room');if(res.committed)break}if(!res.committed)throw Error('Unable to reserve room. Try again.');Object.assign(MP,{active:true,role:'host',slot:0,session,room,code,seats:res.snapshot.val().meta.seats});$('room-code').value=code;attachRoomListeners();mpStatus('WAITING FOR PLAYERS');await startGame()}catch(e){mpReset();mpFailure(e)}finally{mpBusyUI(false)}}
-async function joinMatch(){if(mpBusy||starting||SOC.searching||SOC.busy)return;const code=$('room-code').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');if(MP.active&&MP.role==='host'&&MP.code===code){mpStatus('Share '+code+' with the second player or your team.');return}if(code.length!==6){mpStatus('Enter the six-character room code.','bad');return}mpBusyUI(true);try{mpReset();sandbox=false;const db=await mpReady(),room=db.ref('rooms/'+code),session=db.session,meta=(await mpTimeout(room.child('meta').once('value'),'Room lookup')).val();if(!meta?.host)throw Error('Match not found or host disconnected. Use a MATCH code here; party codes belong in Quick Match Party.');if(meta.protocol!==PROTOCOL)throw Error('Everyone must reload the latest Tevin League build.');
+async function hostMatch(){if(DED.enabled)return dedPrivate('create');if(mpBusy||starting||SOC.searching||SOC.busy)return;mpBusyUI(true);try{mpReset();sandbox=false;const db=await mpReady(),session=db.session;let room,code,res;for(let n=0;n<6;n++){code=randomRoomCode();room=db.ref('rooms/'+code);res=await mpTimeout(room.transaction(v=>v===null?{meta:{protocol:PROTOCOL,host:session,settings:matchSettings(),seats:{0:{session,color:cfg.color,body:cfg.body}},locked:false,createdAt:Date.now()}}:undefined),'Create room');if(res.committed)break}if(!res.committed)throw Error('Unable to reserve room. Try again.');Object.assign(MP,{active:true,role:'host',slot:0,session,room,code,seats:res.snapshot.val().meta.seats});$('room-code').value=code;attachRoomListeners();mpStatus('WAITING FOR PLAYERS');await startGame()}catch(e){mpReset();mpFailure(e)}finally{mpBusyUI(false)}}
+async function joinMatch(){if(DED.enabled)return dedPrivate('join');if(mpBusy||starting||SOC.searching||SOC.busy)return;const code=$('room-code').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');if(MP.active&&MP.role==='host'&&MP.code===code){mpStatus('Share '+code+' with the second player or your team.');return}if(code.length!==6){mpStatus('Enter the six-character room code.','bad');return}mpBusyUI(true);try{mpReset();sandbox=false;const db=await mpReady(),room=db.ref('rooms/'+code),session=db.session,meta=(await mpTimeout(room.child('meta').once('value'),'Room lookup')).val();if(!meta?.host)throw Error('Match not found or host disconnected. Use a MATCH code here; party codes belong in Quick Match Party.');if(meta.protocol!==PROTOCOL)throw Error('Everyone must reload the latest Tevin League build.');
  const res=await mpTimeout(room.child('meta').transaction(m=>{if(m===null)return null;if(m.host!==meta.host||m.protocol!==PROTOCOL||m.locked)return;const count=cl(Number(m.settings?.size)||1,1,3)*2;m.seats=m.seats||{};for(let k=1;k<count;k++)if(!m.seats[k]){m.seats[k]={session,color:cfg.color,body:cfg.body};return m}},undefined,false),'Join room');const joined=res.snapshot?.val(),entry=Object.entries(joined?.seats||{}).find(([,seat])=>seat.session===session);if(!res.committed||!entry)throw Error('Room full or match already started. Ask the host for a new lobby.');applySettings(joined.settings);Object.assign(MP,{active:true,role:'guest',slot:Number(entry[0]),session,room,code,seats:joined.seats});attachRoomListeners();await startGame()}catch(e){mpReset();mpFailure(e)}finally{mpBusyUI(false)}}
 function carPacket(c){return{x:c.p.x,y:c.p.y,z:c.p.z,q:c.q.toArray(),v:c.v.toArray(),w:c.w.toArray(),n:c.n.toArray(),boost:c.boost,ground:!!c.ground,input:{...c.inp},boosting:!!c.bst,color:c.color,touches:c.touches,goals:c.goals,topSpeed:c.topSpeed,boostUsed:c.boostUsed}}
 function ballPacket(){return{p:ball.p.toArray(),v:ball.v.toArray(),w:ball.w.toArray(),last:ball.last,lastPlayer:ball.lastPlayer??-1,color:ball.color||0xdceeff}}
@@ -10337,10 +10418,10 @@ function publishMultiplayer(dt){if(!MP.active||!MP.loaded||!MP.room||MP.closed)r
 function mpRemoteControls(c){const seat=MP.seats[c.id];if(!seat){bot(c);return}const p=MP.inputs[seat.session];Object.assign(c.inp,Z);c.jp=c.jh=0;if(!p||p.round!==MP.round||p.paused)return;for(const key in Z)c.inp[key]=cl(Number(p.controls?.[key])||0,-1,1);c.jp=p.jump>(MP.seenJumps[seat.session]||0)?1:0;MP.seenJumps[seat.session]=p.jump;c.jh=p.held?1:0}
 function packetValid(p){return p&&[p.x,p.y,p.z].every(x=>Number.isFinite(x)&&Math.abs(x)<=1000)&&Number.isFinite(p.boost)&&p.boost>=0&&p.boost<=100&&finiteVector(p.q,4,1.01)&&p.q.reduce((sum,x)=>sum+x*x,0)>.5&&finiteVector(p.v,3,100)&&finiteVector(p.w,3,100)&&finiteVector(p.n,3,1.01)}
 function mpReadCar(c,p,blend,age,previous=p){if(!packetValid(p)||!packetValid(previous))return;_a.set(previous.x,previous.y,previous.z);_b.set(p.x,p.y,p.z);c.p.lerpVectors(_a,_b,blend);_b.fromArray(p.v);c.p.addScaledVector(_b,age);c.q.fromArray(previous.q).normalize();_q1.fromArray(p.q).normalize();c.q.slerp(_q1,blend);c.v.copy(_b);if(p.w?.length===3)c.w.fromArray(p.w);if(p.n?.length===3)c.n.fromArray(p.n);c.boost=p.boost;c.ground=p.ground;c.bst=p.boosting?1:0;c.color=p.color||PALETTE[c.team];c.touches=p.touches||0;c.goals=p.goals||0;c.topSpeed=p.topSpeed||0;c.boostUsed=p.boostUsed||0;Object.assign(c.inp,p.input||Z);c.frameP.copy(c.p);c.frameQ.copy(c.q);c.prevP.copy(c.p);c.prevQ.copy(c.q)}
-function applyMultiplayer(dt,snap=false){if(MP.role!=='guest'||!MP.snapshot)return;let a=MP.snapshot,b=a,blend=1,age=0;const target=performance.now()-100,buf=MP.buffer;if(!snap&&a.phase==='PLAY'&&buf.length){a=b=buf[0].state;for(let k=1;k<buf.length;k++){if(buf[k].at>=target){a=buf[k-1].state;b=buf[k].state;blend=cl((target-buf[k-1].at)/Math.max(1,buf[k].at-buf[k-1].at),0,1);break}a=b=buf[k].state}if(target>buf[buf.length-1].at)age=Math.min(.05,(target-buf[buf.length-1].at)/1000)}for(let k=0;k<cars.length;k++)mpReadCar(cars[k],b.cars[k],blend,age,a.cars[k]);if(a.ball?.p?.length===3&&b.ball?.p?.length===3){_a.fromArray(a.ball.p);_b.fromArray(b.ball.p);ball.p.lerpVectors(_a,_b,blend);ball.v.fromArray(b.ball.v);ball.p.addScaledVector(ball.v,age);ball.w.fromArray(b.ball.w);ball.last=b.ball.last;ball.lastPlayer=b.ball.lastPlayer;ball.color=b.ball.color;ball.frameP.copy(ball.p);ball.prevP.copy(ball.p)}}
+function applyMultiplayer(dt,snap=false){if(MP.role!=='guest'||!MP.snapshot)return;let a=MP.snapshot,b=a,blend=1,age=0;const target=performance.now()-100,buf=MP.buffer;if(!snap&&a.phase==='PLAY'&&buf.length){a=b=buf[0].state;for(let k=1;k<buf.length;k++){if(buf[k].at>=target){a=buf[k-1].state;b=buf[k].state;blend=cl((target-buf[k-1].at)/Math.max(1,buf[k].at-buf[k-1].at),0,1);break}a=b=buf[k].state}if(target>buf[buf.length-1].at)age=Math.min(.05,(target-buf[buf.length-1].at)/1000)}for(let k=0;k<cars.length;k++)if(!DED.active||snap||k!==MP.slot)mpReadCar(cars[k],b.cars[k],blend,age,a.cars[k]);if(a.ball?.p?.length===3&&b.ball?.p?.length===3){_a.fromArray(a.ball.p);_b.fromArray(b.ball.p);ball.p.lerpVectors(_a,_b,blend);ball.v.fromArray(b.ball.v);ball.p.addScaledVector(ball.v,age);ball.w.fromArray(b.ball.w);ball.last=b.ball.last;ball.lastPlayer=b.ball.lastPlayer;ball.color=b.ball.color;ball.frameP.copy(ball.p);ball.prevP.copy(ball.p)}}
 function publishMatch(){MP.force=true}
 function handleRemoteMatch(s){if(!MP.loaded||MP.role!=='guest')return;const changed=st!==s.phase,roundChanged=MP.round!==s.round;heat.server=Number.isInteger(s.serve)?s.serve:-1;MP.round=s.round;MP.endReason=s.endReason||'';tl=s.clock;cnt=s.count;gt=s.goalTime;ot=s.overtime?1:0;MP.matchBegun=s.phase!=='WAIT';if(Array.isArray(s.score)){score[0]=s.score[0];score[1]=s.score[1];$('s0').textContent=score[0];$('s1').textContent=score[1]}if(s.pads)for(let k=0;k<PADS.length;k++)PADS[k].t=s.pads[k]||0;if(roundChanged){kickoff(false);MP.round=s.round;mpClearInput();$('end').classList.remove('on');$('hud').style.display='block'}if(s.phase==='PAUSE'){applyMultiplayer(0,true);ps_=s.resume;mpFreeze('MATCH PAUSED')}else if(MP.localPaused){mpFreeze('PAUSE REQUESTED')}else{st=s.phase;$('pause').classList.remove('on');if(changed||roundChanged){mpClearInput();applyMultiplayer(0,true);if(st==='PLAY')msg('GO!',.8,'#4f8');if(st==='GOAL'){goalPulse=1;msg('GOAL!',3.2,'#fff')}if(st==='END')endMatch(false)}}audioReceive(s);updateServeHint();if(st==='COUNT')msg(Math.max(1,Math.ceil(cnt)),.2,'#fff');mpStatus('LIVE · PLAYER '+(MP.slot+1),'good')}
-async function mpLoaded(){if(multiplayerStore?.readyRoom)await multiplayerStore.readyRoom(MP.code);MP.loaded=true;MP.localPaused=false;kickoff(false);st='WAIT';mpClearInput();$('copy-status').textContent='';mpLobby();MP.force=true;await MP.room.child('presence/'+MP.session).set({ready:true,paused:false,connected:true});if(MP.role==='guest'&&MP.snapshot)handleRemoteMatch(MP.snapshot)}
+async function mpLoaded(){if(DED.active)return dedLoaded();if(multiplayerStore?.readyRoom)await multiplayerStore.readyRoom(MP.code);MP.loaded=true;MP.localPaused=false;kickoff(false);st='WAIT';mpClearInput();$('copy-status').textContent='';mpLobby();MP.force=true;await MP.room.child('presence/'+MP.session).set({ready:true,paused:false,connected:true});if(MP.role==='guest'&&MP.snapshot)handleRemoteMatch(MP.snapshot)}
 
 
 // TEVIN 5 — match rules, sandbox and presentation. Embedded by build.cjs.
@@ -10540,18 +10621,18 @@ async function bindParty(ref,code){
  ref.on('value',SOC.partyListener,socialError);await socialHeartbeat();socialUI();
 }
 function unbindParty(){if(SOC.party&&SOC.partyListener)SOC.party.off('value',SOC.partyListener);SOC.partyDisconnect?.cancel().catch(()=>{});SOC.party=null;SOC.partyCode='';SOC.partyData=null;SOC.partyListener=null;SOC.partyDisconnect=null;SOC.ready=false;socialUI()}
-async function createParty(){if(SOC.busy||SOC.party||MP.active)return;SOC.busy=true;SOC.error='';socialUI();try{const db=await socialConnect();let ref,code,result;const now=socialNow();for(let n=0;n<5;n++){code=randomRoomCode();ref=db.ref(SOCIAL_ROOT+'/parties/'+code);result=await mpTimeout(ref.transaction(p=>p===null?{leader:SOC.id,created:now,members:{[SOC.id]:{...socialProfile(),joined:now,seen:now,connected:false,ready:false}}}:undefined,undefined,false),'Create party');if(result.committed)break}if(!result.committed)throw Error('Could not reserve a party code. Try again.');await bindParty(ref,code)}catch(e){socialError(e)}finally{SOC.busy=false;socialUI()}}
-async function joinParty(){if(SOC.busy||SOC.party||MP.active)return;const code=$('party-code-input').value.trim().toUpperCase();if(!/^[A-Z0-9]{6}$/.test(code)){socialError(Error('Enter a six-character party code.'));return}SOC.busy=true;SOC.error='';socialUI();try{const db=await socialConnect(),ref=db.ref(SOCIAL_ROOT+'/parties/'+code),now=socialNow();const r=await mpTimeout(ref.transaction(p=>{if(p===null)return null;p=cleanParty(p,now);if(!p||p.queue||partyMembers(p).length>=3)return;p.members[SOC.id]={...socialProfile(),joined:now,seen:now,connected:false,ready:false};return p},undefined,false),'Join party');if(!r.committed||!r.snapshot.val()?.members?.[SOC.id])throw Error('Party unavailable. Check the PARTY code, available space and whether the leader is searching. Match codes belong in Private Match.');await bindParty(ref,code)}catch(e){socialError(e)}finally{SOC.busy=false;socialUI()}}
-async function leaveParty(){if(SOC.busy)return;await cancelQuickMatch('',true);const ref=SOC.party,id=SOC.id;unbindParty();if(ref)await ref.transaction(p=>{if(p===null)return null;if(p.members)delete p.members[id];if(p.leader===id)p.leader=partyMembers(p)[0]?.[0]||'';return partyMembers(p).length?p:null},undefined,false).catch(socialError)}
-async function togglePartyReady(){if(!SOC.party||SOC.searching||SOC.busy)return;SOC.ready=!SOC.ready;SOC.error='';await socialHeartbeat();if(SOC.ready)audioSample('uiReady',.38);socialUI()}
-async function socialHeartbeat(){if(!SOC.party)return;const ref=SOC.party,id=SOC.id,now=socialNow(),profile=socialProfile(),ready=SOC.ready&&st==='MENU'&&!MP.active;await ref.transaction(p=>{if(p===null)return null;if(!p.members?.[id])return;p=cleanParty(p,now);if(!p?.members?.[id])return;Object.assign(p.members[id],profile,{seen:now,connected:true,ready});return p},undefined,false)}
+async function createParty(){if(DED.enabled)return dedSocial('partyCreate');if(SOC.busy||SOC.party||MP.active)return;SOC.busy=true;SOC.error='';socialUI();try{const db=await socialConnect();let ref,code,result;const now=socialNow();for(let n=0;n<5;n++){code=randomRoomCode();ref=db.ref(SOCIAL_ROOT+'/parties/'+code);result=await mpTimeout(ref.transaction(p=>p===null?{leader:SOC.id,created:now,members:{[SOC.id]:{...socialProfile(),joined:now,seen:now,connected:false,ready:false}}}:undefined,undefined,false),'Create party');if(result.committed)break}if(!result.committed)throw Error('Could not reserve a party code. Try again.');await bindParty(ref,code)}catch(e){socialError(e)}finally{SOC.busy=false;socialUI()}}
+async function joinParty(){if(DED.enabled)return dedSocial('partyJoin',{code:$('party-code-input').value.trim().toUpperCase()});if(SOC.busy||SOC.party||MP.active)return;const code=$('party-code-input').value.trim().toUpperCase();if(!/^[A-Z0-9]{6}$/.test(code)){socialError(Error('Enter a six-character party code.'));return}SOC.busy=true;SOC.error='';socialUI();try{const db=await socialConnect(),ref=db.ref(SOCIAL_ROOT+'/parties/'+code),now=socialNow();const r=await mpTimeout(ref.transaction(p=>{if(p===null)return null;p=cleanParty(p,now);if(!p||p.queue||partyMembers(p).length>=3)return;p.members[SOC.id]={...socialProfile(),joined:now,seen:now,connected:false,ready:false};return p},undefined,false),'Join party');if(!r.committed||!r.snapshot.val()?.members?.[SOC.id])throw Error('Party unavailable. Check the PARTY code, available space and whether the leader is searching. Match codes belong in Private Match.');await bindParty(ref,code)}catch(e){socialError(e)}finally{SOC.busy=false;socialUI()}}
+async function leaveParty(){if(DED.enabled)return dedSocial('partyLeave');if(SOC.busy)return;await cancelQuickMatch('',true);const ref=SOC.party,id=SOC.id;unbindParty();if(ref)await ref.transaction(p=>{if(p===null)return null;if(p.members)delete p.members[id];if(p.leader===id)p.leader=partyMembers(p)[0]?.[0]||'';return partyMembers(p).length?p:null},undefined,false).catch(socialError)}
+async function togglePartyReady(){if(DED.enabled)return dedSocial('partyReady',{ready:!SOC.ready});if(!SOC.party||SOC.searching||SOC.busy)return;SOC.ready=!SOC.ready;SOC.error='';await socialHeartbeat();if(SOC.ready)audioSample('uiReady',.38);socialUI()}
+async function socialHeartbeat(){if(DED.enabled){if(DED.ws?.readyState===1)dedSend({type:'profile',profile:socialProfile()});return}if(!SOC.party)return;const ref=SOC.party,id=SOC.id,now=socialNow(),profile=socialProfile(),ready=SOC.ready&&st==='MENU'&&!MP.active;await ref.transaction(p=>{if(p===null)return null;if(!p.members?.[id])return;p=cleanParty(p,now);if(!p?.members?.[id])return;Object.assign(p.members[id],profile,{seen:now,connected:true,ready});return p},undefined,false)}
 // Bounded dynamic program: each party can occupy either team, never both. Oldest
 // tickets win ties; at most (size+1)^2 states, 48 tickets and six reserved humans.
 function queuePlan(tickets,size,now){const groups=Object.entries(tickets||{}).filter(([,t])=>t.protocol===PROTOCOL&&!t.match&&now-t.seen<SOCIAL_LEASE&&Array.isArray(t.members)&&t.members.length>0&&t.members.length<=size).sort((a,b)=>a[1].created-b[1].created||a[0].localeCompare(b[0])).slice(0,48),seen=new Set();let states=new Map([['0,0',{a:0,b:0,picks:[]}]]);
  for(const [id,t] of groups){if(t.members.some(m=>!m.session||seen.has(m.session))||new Set(t.members.map(m=>m.session)).size!==t.members.length)continue;t.members.forEach(m=>seen.add(m.session));const next=new Map(states),n=t.members.length;for(const s of states.values())for(let team=0;team<2;team++){const a=s.a+(team===0?n:0),b=s.b+(team===1?n:0),key=a+','+b;if(a<=size&&b<=size&&!next.has(key))next.set(key,{a,b,picks:[...s.picks,{id,team,members:t.members}]})}states=next;if(states.has(size+','+size))return states.get(size+','+size).picks}return null;
 }
 function cleanQueue(q,now){q=q||{};q.tickets=q.tickets||{};q.matches=q.matches||{};for(const [id,m] of Object.entries(q.matches))if(now-m.created>120000)delete q.matches[id];for(const [id,t] of Object.entries(q.tickets))if(now-t.seen>SOCIAL_LEASE&&!t.match||t.match&&!q.matches[t.match])delete q.tickets[id];return q}
-async function findQuickMatch(){if(SOC.searching||SOC.busy||starting||MP.active||st!=='MENU')return;SOC.busy=true;SOC.error='';socialUI();try{const db=await socialConnect();await socialHeartbeat();const members=SOC.party?partyMembers((await SOC.party.once('value')).val()):[[SOC.id,{...socialProfile(),seen:socialNow(),connected:true,ready:true}]];
+async function findQuickMatch(){if(DED.enabled){if(SOC.searching||SOC.busy||starting||MP.active)return;return dedSocial('queue',{settings:matchSettings()})}if(SOC.searching||SOC.busy||starting||MP.active||st!=='MENU')return;SOC.busy=true;SOC.error='';socialUI();try{const db=await socialConnect();await socialHeartbeat();const members=SOC.party?partyMembers((await SOC.party.once('value')).val()):[[SOC.id,{...socialProfile(),seen:socialNow(),connected:true,ready:true}]];
  if(!partyLeader())throw Error('Only the party leader can start Quick Match.');if(members.length>cfg.size)throw Error('Your party needs '+members.length+'v'+members.length+' or larger.');if(members.some(([,m])=>m.protocol!==PROTOCOL))throw Error('Every party member must reload version 9.2 before searching.');if(members.some(([,m])=>!memberLive(m)||!m.ready))throw Error('Every party member must be online and ready first.');
  const ticket=crypto.randomUUID(),key=(cfg.mode?'heat':'soccar')+'-v4-'+cfg.size,ref=db.ref(SOCIAL_ROOT+'/queues/'+key),now=socialNow(),epoch=++SOC.epoch;
  SOC.ticket=ticket;SOC.queue=ref;SOC.owner=true;SOC.since=now;
@@ -10579,11 +10660,11 @@ async function enterQuickMatch(match,epoch){if(match.settings?.protocol!==PROTOC
 function stopQueueListener(){if(SOC.queue&&SOC.queueListener)SOC.queue.off('value',SOC.queueListener);SOC.queueListener=null;SOC.queue=null;SOC.queueData=null;SOC.searching=false;SOC.entering=false;SOC.entered=false;SOC.ticket='';SOC.reservation=null;SOC.epoch++;socialUI()}
 async function clearPartyQueue(ticket){if(!SOC.party)return;await SOC.party.transaction(p=>{if(p===null)return null;if(p.queue?.ticket===ticket){delete p.queue;for(const m of Object.values(p.members||{}))m.ready=false;return p}},undefined,false)}
 function finishSearch(){const ticket=SOC.ticket;stopQueueListener();SOC.ready=false;clearPartyQueue(ticket).catch(socialError)}
-async function cancelQuickMatch(reason='',notify=true){const ref=SOC.queue,ticket=SOC.ticket,matchId=SOC.queueData?.tickets?.[ticket]?.match,reservation=SOC.reservation;SOC.error=reason;stopQueueListener();SOC.ready=false;
+async function cancelQuickMatch(reason='',notify=true){if(DED.enabled){SOC.error=reason;if(DED.ws?.readyState===1)await dedRequest({type:'cancelQueue'}).catch(socialError);SOC.searching=false;socialUI();return}const ref=SOC.queue,ticket=SOC.ticket,matchId=SOC.queueData?.tickets?.[ticket]?.match,reservation=SOC.reservation;SOC.error=reason;stopQueueListener();SOC.ready=false;
  if(ref&&notify)await ref.transaction(q=>{if(q===null)return null;if(matchId&&q.matches?.[matchId])q.matches[matchId].cancelled=true;if(q.tickets)delete q.tickets[ticket];return q},undefined,false).catch(socialError);
  if(reservation?.host===SOC.id&&!MP.active)mpDatabase().ref('rooms/'+reservation.code).transaction(v=>v?.meta?.quick===reservation.id?null:undefined,undefined,false).catch(socialError);
  if(matchId&&MP.quick===matchId){quit();showMenuScreen('play');chooseRoute('quick')}await clearPartyQueue(ticket).catch(socialError);socialUI();}
-async function socialPulse(){if(SOC.pulseBusy)return;SOC.pulseBusy=true;try{if(SOC.party)await socialHeartbeat();if(SOC.searching&&SOC.owner&&SOC.queue){const now=socialNow(),ticket=SOC.ticket;await SOC.queue.transaction(q=>{if(q===null)return null;const t=q.tickets?.[ticket];if(!t)return;t.seen=now;if(t.match&&q.matches?.[t.match]&&now-q.matches[t.match].created>35000&&Object.keys(q.matches[t.match].acks||{}).length<q.matches[t.match].players.length)q.matches[t.match].cancelled=true;return q},undefined,false);if(!SOC.entering)await matchQueue()}if(SOC.searching){const t=SOC.queueData?.tickets?.[SOC.ticket],m=t?.match?SOC.queueData?.matches?.[t.match]:null;if(!t&&socialNow()-SOC.since>6000||t&&!t.match&&socialNow()-t.seen>SOCIAL_LEASE)await cancelQuickMatch('Search expired. Please try again.');else if(m&&socialNow()-m.created>35000&&Object.keys(m.acks||{}).length<m.players.length)await cancelQuickMatch('A driver could not load the arena. Search again.')}socialUI()}catch(e){socialError(e)}finally{SOC.pulseBusy=false}}
+async function socialPulse(){if(DED.enabled){await socialHeartbeat();socialUI();return}if(SOC.pulseBusy)return;SOC.pulseBusy=true;try{if(SOC.party)await socialHeartbeat();if(SOC.searching&&SOC.owner&&SOC.queue){const now=socialNow(),ticket=SOC.ticket;await SOC.queue.transaction(q=>{if(q===null)return null;const t=q.tickets?.[ticket];if(!t)return;t.seen=now;if(t.match&&q.matches?.[t.match]&&now-q.matches[t.match].created>35000&&Object.keys(q.matches[t.match].acks||{}).length<q.matches[t.match].players.length)q.matches[t.match].cancelled=true;return q},undefined,false);if(!SOC.entering)await matchQueue()}if(SOC.searching){const t=SOC.queueData?.tickets?.[SOC.ticket],m=t?.match?SOC.queueData?.matches?.[t.match]:null;if(!t&&socialNow()-SOC.since>6000||t&&!t.match&&socialNow()-t.seen>SOCIAL_LEASE)await cancelQuickMatch('Search expired. Please try again.');else if(m&&socialNow()-m.created>35000&&Object.keys(m.acks||{}).length<m.players.length)await cancelQuickMatch('A driver could not load the arena. Search again.')}socialUI()}catch(e){socialError(e)}finally{SOC.pulseBusy=false}}
 function setupSocial(){try{SOC.name=localStorage.getItem('tevin.driverName')||'DRIVER'}catch(_){SOC.name='DRIVER'}$('player-name').value=SOC.name;$('player-name').onchange=()=>{SOC.name=socialName();try{localStorage.setItem('tevin.driverName',SOC.name)}catch(_){}socialHeartbeat().catch(socialError)};$('queue-dock').onclick=()=>{chooseRoute('quick');showMenuScreen('play')};$('party-toggle').onclick=()=>showMenuScreen('party');$('party-create').onclick=createParty;$('party-join').onclick=joinParty;$('party-leave').onclick=leaveParty;$('party-ready').onclick=togglePartyReady;$('quick-find').onclick=findQuickMatch;$('quick-cancel').onclick=()=>cancelQuickMatch();$('party-play').onclick=()=>{chooseRoute('quick');showMenuScreen('play')};$('party-copy').onclick=async()=>{try{await navigator.clipboard.writeText(SOC.partyCode);SOC.error='Party code copied.'}catch(_){SOC.error='Select the code and press Ctrl+C.'}socialUI()};
  setInterval(socialPulse,4000);socialUI();
 }
@@ -10653,7 +10734,7 @@ async function quit(){
 }
 window.tevinBoot.stage='menu handlers';
 
-$('go').onclick=startOfflineGame;$('rm').onclick=()=>{if(MP.quick){quit();chooseRoute('quick');showMenuScreen('play');return}if(MP.active&&MP.role==='guest'){mpStatus(`ROOM ${MP.code} · WAITING FOR HOST REMATCH`,'')}else startGame()};$('res').onclick=pause;$('q1').onclick=$('q2').onclick=quit;
+$('go').onclick=startOfflineGame;$('rm').onclick=()=>{if(DED.active&&!MP.quick){dedStart();return}if(MP.quick){quit();chooseRoute('quick');showMenuScreen('play');return}if(MP.active&&MP.role==='guest'){mpStatus(`ROOM ${MP.code} · WAITING FOR HOST REMATCH`,'')}else startGame()};$('res').onclick=pause;$('q1').onclick=$('q2').onclick=quit;
 
 $('graphics-retry').onclick=retryGraphics;$('graphics-open').href='https://jikjikla.github.io/tevtev123/';
 $('host-match').onclick=hostMatch;$('join-match').onclick=joinMatch;$('room-code').addEventListener('input',e=>e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6));
@@ -10674,7 +10755,7 @@ function sim(dt){
 
   for(let k=0;k<cars.length;k++){const c=cars[k];
 
-   if(!c.enabled)continue;if(live){c===lp?human(c):MP.active?mpRemoteControls(c):bot(c)}else Object.assign(c.inp,Z);const boostBefore=c.boost;stepCar(c,dt);c.boostUsed+=Math.max(0,boostBefore-c.boost);c.topSpeed=Math.max(c.topSpeed,c.v.length());
+   if(!c.enabled)continue;if(live){window.__TEVIN_SERVER__?mpRemoteControls(c):c===lp?human(c):MP.active?mpRemoteControls(c):bot(c)}else Object.assign(c.inp,Z);const boostBefore=c.boost;stepCar(c,dt);c.boostUsed+=Math.max(0,boostBefore-c.boost);c.topSpeed=Math.max(c.topSpeed,c.v.length());
 
    if(live&&c===lp){matchStats.boost+=Math.max(0,boostBefore-c.boost);matchStats.topSpeed=Math.max(matchStats.topSpeed,c.v.length())}}
 
@@ -11223,7 +11304,7 @@ function render(dt){
 
  if(!inited||st==='PAUSE')return;updateGraphicsEffects(dt);if(st==='MENU'||st==='END'){renderShowcase(dt);return}bm.visible=true;garageStage.visible=false;grassM.visible=true;if(cam.view?.enabled)cam.clearViewOffset();const alpha=cl(acc/SIM_DT,0,1);
 
- for(let k=0;k<cars.length;k++){const c=cars[k],m=cm[k];m.visible=c.enabled;if(!c.enabled)continue;paintCar(k);m.position.lerpVectors(c.frameP,c.p,alpha);m.quaternion.copy(c.frameQ).slerp(c.q,alpha);
+ for(let k=0;k<cars.length;k++){const c=cars[k],m=cm[k];m.visible=c.enabled;if(!c.enabled)continue;paintCar(k);m.position.lerpVectors(c.frameP,c.p,alpha);m.quaternion.copy(c.frameQ).slerp(c.q,alpha);if(DED.active&&k===MP.slot)m.position.add(DED.offset);
 
    renderForward.set(1,0,0).applyQuaternion(c.q);renderRight.set(0,0,1).applyQuaternion(c.q);const roll=c.v.dot(renderForward)*dt/.24;
 
@@ -11309,6 +11390,7 @@ const spinAxis=new V3(),spinQ=new Qn();let DBG=0,last=0,acc=0;
 function frame(t){requestAnimationFrame(frame);const dt=cl((t-last)/1000||0,0,.1);last=t;pollController();introFrame(dt);
  if(LOADING.active){acc=0;if(inited&&!ENGINE.status.warming)render(dt);return}
 
+ if(DED.active){dedFrame(dt);return}
  if(MP.active){mpPauseGate();if(MP.role==='guest'){if(st!=='PAUSE')applyMultiplayer(dt);acc=0;publishMultiplayer(dt);updateAudio();render(dt);return}}
 
  if(mt>0&&(mt-=dt)<=0)$('msg').style.opacity=0;
@@ -11341,8 +11423,43 @@ async function enterArenaHome(){
  catch(e){loadingAbort(id);$('start-status').textContent='Could not prepare the arena: '+e.message}finally{starting=false}
 }
 
+// The dedicated server runs this same solver without creating a renderer.
+// This entry point is set only by the server's isolated JS context.
+if(window.__TEVIN_SERVER__){
+ window.tevinServer={
+  initialize(settings){
+   applySettings(settings);cfg.hi=0;sandbox=false;configureCars();
+   Object.assign(MP,{active:true,role:'host',loaded:true,round:0,seq:0,seats:{},inputs:{},seenJumps:{}});
+   score=[0,0];tl=cfg.len;ot=0;kickoff(false);st='WAIT';
+   return matchSettings();
+  },
+  seats(seats){MP.seats=seats;const sessions=new Set(Object.values(seats).map(s=>s.session));for(const id of Object.keys(MP.inputs))if(!sessions.has(id)){delete MP.inputs[id];delete MP.seenJumps[id]}mpApplySeats()},
+  input(session,packet){MP.inputs[session]=packet},
+  start(){if(st!=='WAIT'&&st!=='END')return false;score=[0,0];tl=cfg.len;ot=0;MP.matchBegun=true;kickoff();return true},
+  step(){
+   const dt=DT;
+   if(st==='COUNT'){cnt-=dt;if(cnt<=0)st='PLAY'}
+   if(st==='PLAY')sim(dt);
+   if(st==='GOAL'){
+    // Slow-motion replay isn't simulated on the server. Hold the scoring state,
+    // then start the next authoritative kickoff.
+    gt-=dt;if(gt<=0){
+     if(ot||cfg.mode===1&&Math.max(...score)>=7||cfg.mode===0&&tl<=0&&score[0]!==score[1])endMatch(false);
+     else{if(cfg.mode===0&&tl<=0){ot=1;tl=0}kickoff()}
+    }
+   }
+  },
+  state(){return mpSnapshot()},
+  driver(slot){return packDriver(cars[slot])},
+  phase(){return st},
+  // Server-side diagnostics/tests; none of these mutators are network messages.
+  inspect(){return{cars,ball,cfg,MP}},
+ };
+ window.tevinBoot.ready=true;return;
+}
+
 if(window.__TEVIN_TEST__){
- window.tevinTest={pixelRatio,setupGauges,updateGauge,SHOWROOM,resetShowroom,THREE,cfg,cars,ball,PADS,PHYS,BODY_PHYSICS,DT,SIM_DT,PROTOCOL,keys,bindings,padInput,cameraSettings,MP,
+ window.tevinTest={DED,dedState,dedFrame,packDriver,pixelRatio,setupGauges,updateGauge,SHOWROOM,resetShowroom,THREE,cfg,cars,ball,PADS,PHYS,BODY_PHYSICS,DT,SIM_DT,PROTOCOL,keys,bindings,padInput,cameraSettings,MP,
   throttleAcceleration,steeringCurvature,padContains,bodyPhysics,resetCar,stepCar,carBall,ballSub,stepBall,carCar,padStep,sim,frame,configureCars,spawnCar,surf,carPenetration,predictBall,finishRegulation,advanceMatchClock,validSnapshot,packetValid,queuePlan,human,pollController,mappedKey,captureBinding,setupDriverSettings,renderBindings,fitCarVisual,rendererWithFallback,spectrumEnergy,advanceMusicEnvelope,INTRO,LOADING,introPlay,openPlaySelection,loadingBegin,loadingEnd,
   getState:()=>({st,tl,ot,score:[...score],sandbox,ballCam,penetration:SS}),
   setState:v=>{if(v.st!==undefined)st=v.st;if(v.tl!==undefined)tl=v.tl;if(v.ot!==undefined)ot=v.ot;if(v.score)score=[...v.score];if(v.sandbox!==undefined)sandbox=v.sandbox;},
@@ -11353,7 +11470,7 @@ if(window.__TEVIN_TEST__){
 
 setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();setupGraphicsUI();configureCars();kickoff();st='MENU';setupIntro();setupShowroomControls();setupGauges();requestAnimationFrame(frame);if(!window.__TEVIN_TEST__)setTimeout(preloadArena,0);
 
-window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:120,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
+window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:120,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,multiplayer:DED.active?'Phoenix dedicated':'offline',rtt:DED.rtt,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
 
 window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.5 · AFTERSHOCK · Ready to play');
 
