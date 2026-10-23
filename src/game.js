@@ -387,7 +387,7 @@ function carBall(c){
 
   b.v.addScaledVector(_a,-jt/Mb);c.v.addScaledVector(_a,jt/CM*H.recoil);_g.crossVectors(_h,_a).multiplyScalar(-jt/Ib);b.w.add(_g)}
 
-  audioSave(c,saveThreat);heatTouch(c);b.lastPlayer=c.id;b.color=c.color;if(simTime-c.lastTouchAt>.18){c.touches++;c.lastTouchAt=simTime}b.last=c.team;b.hit=cls;b.hitT=.5;c.ai.commit=Math.min(c.ai.commit,.15);learnHit(c,cls);
+  audioSave(c,saveThreat);heatTouch(c);b.lastPlayer=c.id;b.color=c.color;if(simTime-c.lastTouchAt>.18){c.touches++;c.lastTouchAt=simTime}b.last=c.team;b.hit=cls;b.hitT=.5;c.ai.commit=Math.min(c.ai.commit,.15);if(!DED.active)learnHit(c,cls);
 
   if(c===localPlayer()&&st==='PLAY'&&cls>1.5&&simTime-matchStats.lastTouch>.18){matchStats.touches++;matchStats.lastTouch=simTime}
 
@@ -395,17 +395,17 @@ function carBall(c){
 
 }
 
-function ballSub(dt){
+function ballSub(dt,predicted=false){
 
  const b=ball,B=PHYS.ball;heat.cooldown=Math.max(0,heat.cooldown-dt);if(cfg.mode===1)heatSteer(b.p,b.v,dt,heat.target,heat.speed);
 
  b.v.y-=PHYS.g*dt;b.v.multiplyScalar(Math.exp(-B.drag*dt));b.p.addScaledVector(b.v,dt);
 
- for(const c of cars)carBall(c);
+ if(predicted)carBall(localPlayer());else for(const c of cars)carBall(c);
 
  surf(b.p);const pen=BR-SS;
 
- if(pen>0){_n.copy(SN);if(_n.y>.99&&b.p.y<BR+.03)finishRegulation();b.p.addScaledVector(_n,pen);const vn=b.v.dot(_n);
+ if(pen>0){_n.copy(SN);if(!predicted&&_n.y>.99&&b.p.y<BR+.03)finishRegulation();b.p.addScaledVector(_n,pen);const vn=b.v.dot(_n);
 
    if(vn<0){if(cfg.mode===1&&heat.target&&Math.abs(_n.z)>.6&&Math.abs(b.p.z)>HZ-R&&heat.cooldown<=0){heat.target=-Math.sign(b.p.z);heat.speed=Math.min(42,heat.speed+2);heat.cooldown=.2;}const cls=-vn,e=B.e*cl((cls-.4)/1.6,0,1);b.v.addScaledVector(_n,(1+e)*cls);if(cls>3)impactSound('ball',cls,b.p);
 
@@ -1509,7 +1509,7 @@ function publishMultiplayer(dt){if(!MP.active||!MP.loaded||!MP.room||MP.closed)r
 function mpRemoteControls(c){const seat=MP.seats[c.id];if(!seat){bot(c);return}const p=MP.inputs[seat.session];Object.assign(c.inp,Z);c.jp=c.jh=0;if(!p||p.round!==MP.round||p.paused)return;for(const key in Z)c.inp[key]=cl(Number(p.controls?.[key])||0,-1,1);c.jp=p.jump>(MP.seenJumps[seat.session]||0)?1:0;MP.seenJumps[seat.session]=p.jump;c.jh=p.held?1:0}
 function packetValid(p){return p&&[p.x,p.y,p.z].every(x=>Number.isFinite(x)&&Math.abs(x)<=1000)&&Number.isFinite(p.boost)&&p.boost>=0&&p.boost<=100&&finiteVector(p.q,4,1.01)&&p.q.reduce((sum,x)=>sum+x*x,0)>.5&&finiteVector(p.v,3,100)&&finiteVector(p.w,3,100)&&finiteVector(p.n,3,1.01)}
 function mpReadCar(c,p,blend,age,previous=p){if(!packetValid(p)||!packetValid(previous))return;_a.set(previous.x,previous.y,previous.z);_b.set(p.x,p.y,p.z);c.p.lerpVectors(_a,_b,blend);_b.fromArray(p.v);c.p.addScaledVector(_b,age);c.q.fromArray(previous.q).normalize();_q1.fromArray(p.q).normalize();c.q.slerp(_q1,blend);c.v.copy(_b);if(p.w?.length===3)c.w.fromArray(p.w);if(p.n?.length===3)c.n.fromArray(p.n);c.boost=p.boost;c.ground=p.ground;c.bst=p.boosting?1:0;c.color=p.color||PALETTE[c.team];c.touches=p.touches||0;c.goals=p.goals||0;c.topSpeed=p.topSpeed||0;c.boostUsed=p.boostUsed||0;Object.assign(c.inp,p.input||Z);c.frameP.copy(c.p);c.frameQ.copy(c.q);c.prevP.copy(c.p);c.prevQ.copy(c.q)}
-function applyMultiplayer(dt,snap=false){if(MP.role!=='guest'||!MP.snapshot)return;let a=MP.snapshot,b=a,blend=1,age=0;const target=performance.now()-100,buf=MP.buffer;if(!snap&&a.phase==='PLAY'&&buf.length){a=b=buf[0].state;for(let k=1;k<buf.length;k++){if(buf[k].at>=target){a=buf[k-1].state;b=buf[k].state;blend=cl((target-buf[k-1].at)/Math.max(1,buf[k].at-buf[k-1].at),0,1);break}a=b=buf[k].state}if(target>buf[buf.length-1].at)age=Math.min(.05,(target-buf[buf.length-1].at)/1000)}for(let k=0;k<cars.length;k++)if(!DED.active||snap||k!==MP.slot)mpReadCar(cars[k],b.cars[k],blend,age,a.cars[k]);if(a.ball?.p?.length===3&&b.ball?.p?.length===3){_a.fromArray(a.ball.p);_b.fromArray(b.ball.p);ball.p.lerpVectors(_a,_b,blend);ball.v.fromArray(b.ball.v);ball.p.addScaledVector(ball.v,age);ball.w.fromArray(b.ball.w);ball.last=b.ball.last;ball.lastPlayer=b.ball.lastPlayer;ball.color=b.ball.color;ball.frameP.copy(ball.p);ball.prevP.copy(ball.p)}}
+function applyMultiplayer(dt,snap=false){if(MP.role!=='guest'||!MP.snapshot)return;let a=MP.snapshot,b=a,blend=1,age=0;const target=performance.now()-100,buf=MP.buffer;if(!snap&&a.phase==='PLAY'&&buf.length){a=b=buf[0].state;for(let k=1;k<buf.length;k++){if(buf[k].at>=target){a=buf[k-1].state;b=buf[k].state;blend=cl((target-buf[k-1].at)/Math.max(1,buf[k].at-buf[k-1].at),0,1);break}a=b=buf[k].state}if(target>buf[buf.length-1].at)age=Math.min(.05,(target-buf[buf.length-1].at)/1000)}for(let k=0;k<cars.length;k++)if(!DED.active||snap||k!==MP.slot)mpReadCar(cars[k],b.cars[k],blend,age,a.cars[k]);if((!DED.active||snap)&&a.ball?.p?.length===3&&b.ball?.p?.length===3){_a.fromArray(a.ball.p);_b.fromArray(b.ball.p);ball.p.lerpVectors(_a,_b,blend);ball.v.fromArray(b.ball.v);ball.p.addScaledVector(ball.v,age);ball.w.fromArray(b.ball.w);ball.last=b.ball.last;ball.lastPlayer=b.ball.lastPlayer;ball.color=b.ball.color;ball.frameP.copy(ball.p);ball.prevP.copy(ball.p)}}
 function publishMatch(){MP.force=true}
 function handleRemoteMatch(s){if(!MP.loaded||MP.role!=='guest')return;const changed=st!==s.phase,roundChanged=MP.round!==s.round;heat.server=Number.isInteger(s.serve)?s.serve:-1;MP.round=s.round;MP.endReason=s.endReason||'';tl=s.clock;cnt=s.count;gt=s.goalTime;ot=s.overtime?1:0;MP.matchBegun=s.phase!=='WAIT';if(Array.isArray(s.score)){score[0]=s.score[0];score[1]=s.score[1];$('s0').textContent=score[0];$('s1').textContent=score[1]}if(s.pads)for(let k=0;k<PADS.length;k++)PADS[k].t=s.pads[k]||0;if(roundChanged){kickoff(false);MP.round=s.round;mpClearInput();$('end').classList.remove('on');$('hud').style.display='block'}if(s.phase==='PAUSE'){applyMultiplayer(0,true);ps_=s.resume;mpFreeze('MATCH PAUSED')}else if(MP.localPaused){mpFreeze('PAUSE REQUESTED')}else{st=s.phase;$('pause').classList.remove('on');if(changed||roundChanged){mpClearInput();applyMultiplayer(0,true);if(st==='PLAY')msg('GO!',.8,'#4f8');if(st==='GOAL'){goalPulse=1;msg('GOAL!',3.2,'#fff')}if(st==='END')endMatch(false)}}audioReceive(s);updateServeHint();if(st==='COUNT')msg(Math.max(1,Math.ceil(cnt)),.2,'#fff');mpStatus('LIVE · PLAYER '+(MP.slot+1),'good')}
 async function mpLoaded(){if(DED.active)return dedLoaded();if(multiplayerStore?.readyRoom)await multiplayerStore.readyRoom(MP.code);MP.loaded=true;MP.localPaused=false;kickoff(false);st='WAIT';mpClearInput();$('copy-status').textContent='';mpLobby();MP.force=true;await MP.room.child('presence/'+MP.session).set({ready:true,paused:false,connected:true});if(MP.role==='guest'&&MP.snapshot)handleRemoteMatch(MP.snapshot)}
@@ -1754,7 +1754,7 @@ function kickoff(newRound=true){
 
 }
 
-function hitFx(c,x,y,z){graphicsBurst(ball.p,c,ball.color||0xffffff);const n=Math.min(18,c*.9|0),col=ball.color||0xdceeff;for(let k=0;k<n;k++)emit(x,y,z,(Math.random()-.5)*8,Math.random()*5,(Math.random()-.5)*8,.5,((col>>16)&255)/255,((col>>8)&255)/255,(col&255)/255);impactSound('hit',c,ball.p);flash=Math.min(.2,flash+c*.005);$('flash').style.background='#'+col.toString(16).padStart(6,'0')}
+function hitFx(c,x,y,z){if(DED.replaying)return;const feedback=$('touch-feedback');if(feedback){feedback.classList.remove('pop');void feedback.offsetWidth;feedback.classList.add('pop');feedback.textContent=c>15?'POWER HIT':'BALL CONTACT'}graphicsBurst(ball.p,c,ball.color||0xffffff);const n=Math.min(18,c*.9|0),col=ball.color||0xdceeff;for(let k=0;k<n;k++)emit(x,y,z,(Math.random()-.5)*8,Math.random()*5,(Math.random()-.5)*8,.5,((col>>16)&255)/255,((col>>8)&255)/255,(col&255)/255);impactSound('hit',c,ball.p);flash=Math.min(.2,flash+c*.005);$('flash').style.background='#'+col.toString(16).padStart(6,'0')}
 
 function bumpFx(v){if(v>1.5)impactSound('bump',v)}
 
@@ -1791,7 +1791,7 @@ async function startGame(){
 
 function startOfflineGame(training=false){if(starting||mpBusy||SOC.searching||SOC.busy)return;if(training!==true&&st==='MENU'&&menuScreen==='home'){showMenuScreen('play');return}if(training!==true&&st==='MENU'&&(playRoute==='online'||playRoute==='quick'))return;sandbox=training===true||playRoute==='training';if(MP.active)mpReset();startGame()}
 
-function finishQuit(){if(SOC.searching)cancelQuickMatch();st='MENU';syncMenuSettings();if(MP.active)mpReset();learnFlush();learnUI();['pause','end'].forEach(x=>$(x).classList.remove('on'));$('menu').classList.add('on');showMenuScreen('home');$('training-hud').hidden=true;$('hud').style.display='none';$('msg').style.opacity=0;audioSilence()}
+function finishQuit(){mt=0;$('msg').style.opacity=0;if(SOC.searching)cancelQuickMatch();st='MENU';syncMenuSettings();if(MP.active)mpReset();learnFlush();learnUI();['pause','end'].forEach(x=>$(x).classList.remove('on'));$('menu').classList.add('on');showMenuScreen('home');$('training-hud').hidden=true;$('hud').style.display='none';$('msg').style.opacity=0;audioSilence()}
 
 async function quit(){
  if(LOADING.active)return;const transition=loadingBegin('BACK TO THE LOBBY','Saving your session and returning to the lobby',true);
@@ -2380,7 +2380,7 @@ function render(dt){
 
    if(c.bst){renderEffect.copy(renderForward).multiplyScalar(-.58).add(c.p);for(let j=0;j<(cfg.hi?3:1);j++)emit(renderEffect.x,renderEffect.y,renderEffect.z,c.v.x*.5+(Math.random()-.5)*2,c.v.y*.5+(Math.random()-.5),c.v.z*.5+(Math.random()-.5)*2,.35,((c.color>>16)&255)/255,((c.color>>8)&255)/255,(c.color&255)/255)}}
 
- bm.position.lerpVectors(ball.frameP,ball.p,alpha);const sp=ball.v.length(),wl=ball.w.length();if(wl>.01){spinAxis.copy(ball.w).divideScalar(wl);spinQ.setFromAxisAngle(spinAxis,wl*dt*(st=='GOAL'?.3:1));bm.quaternion.premultiply(spinQ).normalize()}
+ bm.position.lerpVectors(ball.frameP,ball.p,alpha);if(DED.active)bm.position.add(DED.ballOffset);const sp=ball.v.length(),wl=ball.w.length();if(wl>.01){spinAxis.copy(ball.w).divideScalar(wl);spinQ.setFromAxisAngle(spinAxis,wl*dt*(st=='GOAL'?.3:1));bm.quaternion.premultiply(spinQ).normalize()}
 
  for(let k=0;k<cars.length+1;k++){const shadow=contactShadows[k],p=k<cars.length?cm[k].position:bm.position,height=Math.max(0,p.y-(k<cars.length?.485:BR));
 
@@ -2456,10 +2456,11 @@ const spinAxis=new V3(),spinQ=new Qn();let DBG=0,last=0,acc=0;
 function frame(t){requestAnimationFrame(frame);const dt=cl((t-last)/1000||0,0,.1);last=t;pollController();introFrame(dt);
  if(LOADING.active){acc=0;if(inited&&!ENGINE.status.warming)render(dt);return}
 
+ if(mt>0&&(mt-=dt)<=0)$('msg').style.opacity=0;
  if(DED.active){dedFrame(dt);return}
  if(MP.active){mpPauseGate();if(MP.role==='guest'){if(st!=='PAUSE')applyMultiplayer(dt);acc=0;publishMultiplayer(dt);updateAudio();render(dt);return}}
 
- if(mt>0&&(mt-=dt)<=0)$('msg').style.opacity=0;
+ 
 
  updateServeHint();if(st=='COUNT'){const n=Math.ceil(cnt);cnt-=dt;const m=Math.ceil(cnt);if(cnt<=0){st='PLAY';msg('GO!',.8,'#4f8')}else if(m!=n||!mt){msg(m,1,'#fff')}}
 

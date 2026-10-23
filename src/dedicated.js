@@ -1,5 +1,5 @@
 // Direct Phoenix match transport. No database writes in the gameplay loop.
-const DED={enabled:!window.__TEVIN_SERVER__,url:'wss://tevin-161-153-26-154.sslip.io/play',ws:null,connecting:null,active:false,owner:'',requests:new Map(),request:0,entering:null,history:[],outbox:[],seq:0,lastJump:0,replaying:false,offset:new V3(),rtt:0,pingAt:0,lastPacket:0};
+const DED={enabled:!window.__TEVIN_SERVER__,url:'wss://tevin-161-153-26-154.sslip.io/play',ws:null,connecting:null,active:false,owner:'',requests:new Map(),request:0,entering:null,history:[],outbox:[],seq:0,lastJump:0,replaying:false,offset:new V3(),ballOffset:new V3(),rtt:0,pingAt:0,lastPacket:0};
 const DRIVER_SCALARS=['jt','jl','jAge','jumped','jHoldTime','canJ','canD','dT','dcd','aT','cT','wy','grip','wasG','ground','bs','bt','bst','sk','un','righting','clearance','wheelsOn','hullContact'];
 function packDriver(c){const s={};for(const k of DRIVER_SCALARS)if(Number.isFinite(c[k])||typeof c[k]==='boolean')s[k]=c[k];return{s,jdir:c.jdir.toArray(),flipAxis:c.flipAxis.toArray()}}
 function readDriver(c,p){if(!p)return;for(const k of DRIVER_SCALARS)if(Number.isFinite(p.s?.[k])||typeof p.s?.[k]==='boolean')c[k]=p.s[k];if(finiteVector(p.jdir,3,1.01))c.jdir.fromArray(p.jdir);if(finiteVector(p.flipAxis,3,1.01))c.flipAxis.fromArray(p.flipAxis)}
@@ -28,7 +28,7 @@ function dedConnect(){
   };
  }).finally(()=>DED.connecting=null);return DED.connecting;
 }
-function dedReset(){if(DED.active)dedSend({type:'leave'});DED.active=false;DED.owner='';DED.history.length=DED.outbox.length=0;DED.offset.set(0,0,0);DED.seq=DED.lastJump=0}
+function dedReset(){if(DED.active)dedSend({type:'leave'});DED.active=false;DED.owner='';DED.history.length=DED.outbox.length=0;DED.offset.set(0,0,0);DED.seq=DED.lastJump=0;DED.ballOffset.set(0,0,0)}
 async function dedJoined(m){
  if(previewJob)await previewJob;mpReset(false);sandbox=false;applySettings(m.settings);
  DED.active=true;DED.owner=m.owner;DED.seq=DED.lastJump=0;DED.history.length=DED.outbox.length=0;DED.offset.set(0,0,0);
@@ -48,25 +48,27 @@ function dedState(m){
  const phaseChanged=MP.snapshot?.phase!==s.phase||MP.round!==s.round;
  MP.received=s.seq;MP.lastSnapshot=performance.now();if(phaseChanged)MP.buffer.length=0;MP.snapshot=s;MP.buffer.push({at:MP.lastSnapshot,state:s});if(MP.buffer.length>10)MP.buffer.shift();
  if(!MP.loaded)return;
- const c=localPlayer(),before=c.p.clone().add(DED.offset);
+ const c=localPlayer(),before=c.p.clone().add(DED.offset),ballBefore=ball.p.clone().add(DED.ballOffset);
  handleRemoteMatch(s);
  if(phaseChanged){DED.history.length=DED.outbox.length=0;DED.offset.set(0,0,0);DED.lastJump=MP.jump;acc=0}
  mpReadCar(c,s.cars[MP.slot],1,0);readDriver(c,m.driver);
+ ball.p.fromArray(s.ball.p);ball.v.fromArray(s.ball.v);ball.w.fromArray(s.ball.w);ball.last=s.ball.last;ball.lastPlayer=s.ball.lastPlayer;ball.color=s.ball.color;
  DED.history=DED.history.filter(f=>f.seq>m.ack&&f.round===s.round);
- if(s.phase==='PLAY'&&!MP.localPaused){DED.replaying=true;try{for(const f of DED.history){Object.assign(c.inp,f.controls);c.jp=f.edge?1:0;c.jh=f.held?1:0;stepCar(c,DT);resolveArenaCar(c)}}finally{DED.replaying=false}}
+ if(s.phase==='PLAY'&&!MP.localPaused){DED.replaying=true;try{for(const f of DED.history){Object.assign(c.inp,f.controls);c.jp=f.edge?1:0;c.jh=f.held?1:0;stepCar(c,DT);resolveArenaCar(c);ballSub(DT,true)}}finally{DED.replaying=false}}
  c.frameP.copy(c.p);c.frameQ.copy(c.q);c.prevP.copy(c.p);c.prevQ.copy(c.q);
  if(!phaseChanged){DED.offset.copy(before).sub(c.p);if(DED.offset.length()>5)DED.offset.set(0,0,0)}
+ ball.frameP.copy(ball.p);ball.prevP.copy(ball.p);DED.ballOffset.copy(ballBefore).sub(ball.p);if(phaseChanged||DED.ballOffset.length()>3)DED.ballOffset.set(0,0,0);
  mpStatus('PHOENIX · '+(DED.rtt?DED.rtt+' ms':'CONNECTED'),'good');
 }
 function dedFrame(dt){
  if(!MP.loaded)return;const now=performance.now();
  if(MP.closed||MP.lastSnapshot&&now-MP.lastSnapshot>2500){mpFreeze('CONNECTION INTERRUPTED');return}
  if(now-DED.pingAt>2000){DED.pingAt=now;dedSend({type:'ping',id:Math.round(now)})}
- applyMultiplayer(dt);DED.offset.multiplyScalar(Math.exp(-dt*12));
+ applyMultiplayer(dt);DED.offset.multiplyScalar(Math.exp(-dt*12));DED.ballOffset.multiplyScalar(Math.exp(-dt*18));
  if(st==='PLAY'&&!MP.localPaused){acc+=dt;let steps=0;const c=localPlayer();human(c);
   while(acc>=DT&&steps++<12){acc-=DT;const edge=MP.jump>DED.lastJump;DED.lastJump=MP.jump;
    const f={seq:++DED.seq,round:MP.round,jump:MP.jump,held:!!c.jh,paused:false,controls:{...c.inp},edge};c.frameP.copy(c.p);c.frameQ.copy(c.q);c.jp=edge?1:0;
-   stepCar(c,DT);resolveArenaCar(c);DED.history.push(f);DED.outbox.push(f);
+   stepCar(c,DT);resolveArenaCar(c);ball.frameP.copy(ball.p);ballSub(DT,true);DED.history.push(f);DED.outbox.push(f);
   }
   if(acc>=DT)acc%=DT;if(DED.history.length>120)DED.history.splice(0,DED.history.length-120);
  }else acc=0;

@@ -43,3 +43,15 @@
 @media(max-width:700px){#intro .intro-title{top:17vh}#intro .intro-title h1{font-size:clamp(66px,15vw,108px)}#intro .intro-controls{bottom:24vh}#intro .intro-track{bottom:13vh}#intro .intro-options{left:7vw;right:5vw;bottom:4vh;max-width:none;justify-content:flex-start}#intro #music-visualizer{opacity:.36}#menu #play-panel{padding:20px}#menu #mode-rows{grid-template-columns:1fr}#menu #play-panel .destination-tabs{grid-template-columns:repeat(2,1fr)}#menu #play-panel .destination-tabs button{min-height:78px}}
 @media(max-height:580px) and (min-width:701px){#intro .intro-title{top:20vh}#intro .intro-title h1{font-size:76px}#intro .intro-controls{left:auto;right:6vw;bottom:27vh;width:330px}#intro .intro-options{bottom:4vh}#intro .intro-track{bottom:4vh}}
 @media(prefers-reduced-motion:reduce){#intro #intro-stage{transform:none!important;filter:none!important}#loading-screen,#loading-screen.cached,#loading-screen .loading-art,#loading-screen .loading-track:after{animation:none!important;transition:none!important}#menu #play-panel .destination-tabs button{transition:none;transform:none}}
+/* Clear selection and keyboard focus, with lightweight match feedback. */
+#menu button:focus-visible{outline:3px solid #ffd478;outline-offset:5px}
+#menu .home-actions button{transition:transform .16s ease,background .16s ease}
+#menu .home-actions button:hover{transform:translateX(6px)}
+#menu #play-panel .destination-tabs button[aria-pressed=true]:after{content:'SELECTED ✓';position:absolute;top:12px;left:14px;font-size:10px;font-weight:900;letter-spacing:1.5px}
+#menu #play-panel .destination-tabs button:hover{border-color:#bdeaff}
+#nettag{border-left:3px solid #60e5bc;padding:5px 9px;background:#041827b8;border-radius:3px}
+#touch-feedback{position:fixed;left:50%;top:65%;transform:translateX(-50%);font-size:12px;font-weight:800;letter-spacing:3px;color:#bdefff;text-shadow:0 2px 5px #001622;pointer-events:none;opacity:0}
+#touch-feedback.pop{animation:contact-pop .55s ease-out both}
+@keyframes contact-pop{0%{opacity:0;transform:translate(-50%,8px)}20%{opacity:1;transform:translate(-50%,0)}65%{opacity:1}100%{opacity:0;transform:translate(-50%,-10px)}}
+#msg{pointer-events:none;text-shadow:0 3px 2px #00152788,0 0 26px #6bdaff55}
+@media(prefers-reduced-motion:reduce){#menu .home-actions button{transition:none}#menu .home-actions button:hover{transform:none}#touch-feedback.pop{animation:none}}
