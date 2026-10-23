@@ -1540,7 +1540,7 @@ function applyArenaTheme(){
  for(let k=0;k<WM.length;k++){const m=WM[k],fresh=wallMat(teamHex(k===2?1:0)),old=m.map;m.map=fresh.map;m.emissiveMap=fresh.emissiveMap;m.needsUpdate=true;old?.dispose();fresh.dispose()}
  for(const l of goalLights)l.color.setHex(teamPalette[l.userData.team]);
  scene.traverse(o=>{const m=o.material;if(!m||Array.isArray(m))return;
-  if(m.name==='Championship turf'){const fresh=ENGINE.pitchMaterial(ren,teamPalette);m.map?.dispose();m.map=fresh.map;fresh.normalMap?.dispose();fresh.dispose();m.needsUpdate=true;}
+  if(m.name==='Championship turf'){const fresh=arenaPitchMaterial();m.map?.dispose();m.map=fresh.map;fresh.normalMap?.dispose();fresh.dispose();m.needsUpdate=true;}
   if(m.userData.team!==undefined)m.color.setHex(teamPalette[m.userData.team]);
  });
 }
@@ -1886,14 +1886,14 @@ function addSpectators(){
   const side=k%4,row=Math.floor(k/4)%8,along=(Math.floor(k/32)+.5)/Math.ceil(count/32)*2-1,end=side>1,sign=side%2?1:-1;
   const distance=(end?HZ+GD+11:HX+11)+row*2.3,len=(end?2*HX-8:2*HZ-8)+row*1.2;
   const x=end?along*len*.48:sign*distance,y=3.05+row*1.5,z=end?sign*distance:along*len*.48;
-  matrix.makeTranslation(x,y,z);bodies.setMatrixAt(k,matrix);bodies.setColorAt(k,color.setHex(palette[(k*7+row)%6]));
+  matrix.makeTranslation(x,y,z);bodies.setMatrixAt(k,matrix);bodies.setColorAt(k,color.setHex(palette[(k%5===0)?2:(z<0?0:1)]));
   matrix.makeTranslation(x,y+.36,z);heads.setMatrixAt(k,matrix);heads.setColorAt(k,color.setHex(skins[(k+row)%4]));
-  matrix.makeRotationZ((k%3-1)*.65);matrix.setPosition(x+.22,y+.22+(k%3)*.08,z);arms.setMatrixAt(k,matrix);arms.setColorAt(k,color.setHex(palette[(k*7+row)%6]));
+  matrix.makeRotationZ((k%3-1)*.65);matrix.setPosition(x+.22,y+.22+(k%3)*.08,z);arms.setMatrixAt(k,matrix);arms.setColorAt(k,color.setHex(palette[(k%5===0)?2:(z<0?0:1)]));
  }
  for(const mesh of [bodies,heads,arms]){mesh.instanceMatrix.needsUpdate=true;mesh.instanceColor.needsUpdate=true;mesh.computeBoundingSphere();scene.add(mesh)}
  // Silhouettes, roof beacons and trees give the skyline depth without shadow maps.
- const city=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshStandardMaterial({color:0x40556b,roughness:.9}),48);
- const trees=new THREE.InstancedMesh(new THREE.ConeGeometry(1,1,5),new THREE.MeshStandardMaterial({color:0x254e45,roughness:1}),64);
+ const city=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshStandardMaterial({color:0x335779,roughness:.9}),48);
+ const trees=new THREE.InstancedMesh(new THREE.ConeGeometry(1,1,5),new THREE.MeshStandardMaterial({color:0x21664f,roughness:1}),64);
  const pos=new V3(),q=new THREE.Quaternion(),scale=new V3();
  for(let k=0;k<48;k++){const t=k/48*Math.PI*2,h=12+(k*17%29);pos.set(Math.cos(t)*(140+k%3*12),h/2-3,Math.sin(t)*(152+k%4*10));scale.set(6+k%5,h,7+k%7);matrix.compose(pos,q,scale);city.setMatrixAt(k,matrix)}
  for(let k=0;k<64;k++){const t=k/64*Math.PI*2,h=5+k%5;pos.set(Math.cos(t)*108,h/2,Math.sin(t)*121);scale.set(2.5,h,2.5);matrix.compose(pos,q,scale);trees.setMatrixAt(k,matrix)}
@@ -1945,12 +1945,13 @@ function wallMat(col){
  // Fine safety net above low, solid advertising boards: stands stay visible.
  g.strokeStyle='rgba(145,177,192,.15)';g.lineWidth=1;
  for(let y=0;y<512;y+=24)for(let x=0;x<1080;x+=42){const cx=x+(y%48?21:0);g.beginPath();for(let k=0;k<6;k++){const a=k*Math.PI/3;g[k?'lineTo':'moveTo'](cx+Math.cos(a)*23,y+Math.sin(a)*23)}g.closePath();g.stroke()}
- g.fillStyle='#182b35';g.fillRect(0,444,1024,68);g.fillStyle='#07131e';g.fillRect(0,454,1024,37);
+ g.fillStyle='#12456b';g.fillRect(0,444,1024,68);g.fillStyle='#071c37';g.fillRect(0,454,1024,37);
  g.font='italic 800 24px sans-serif';g.fillStyle='#dbe7e9';for(let x=18;x<1024;x+=256)g.fillText('TEVIN LEAGUE',x,480);
- g.fillStyle=col;g.fillRect(0,442,1024,3);g.fillRect(0,501,1024,4);for(let x=230;x<1024;x+=256)g.fillRect(x,460,4,22);
- const t=tex(c);return new THREE.MeshStandardMaterial({map:t,emissive:0xffffff,emissiveMap:t,emissiveIntensity:.1,roughness:.82,metalness:.08,transparent:true,depthWrite:false});
+ g.fillStyle=col;g.fillRect(0,440,1024,6);g.fillRect(0,498,1024,7);for(let x=230;x<1024;x+=256)g.fillRect(x,460,4,22);
+ const t=tex(c);return new THREE.MeshStandardMaterial({map:t,emissive:0xffffff,emissiveMap:t,emissiveIntensity:.28,roughness:.82,metalness:.08,transparent:true,depthWrite:false});
 }
-function floorMat(){return ENGINE.pitchMaterial(ren,teamPalette)}
+// INLINE:arena-style.js
+function floorMat(){return arenaPitchMaterial()}
 
 let GT,GU;const glowTex=()=>{if(GT)return GT;const c=cvs(64,64),g=c.getContext('2d'),r=g.createRadialGradient(32,32,0,32,32,32);r.addColorStop(0,'rgba(255,255,255,.9)');r.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=r;g.fillRect(0,0,64,64);return GT=new THREE.CanvasTexture(c)};
 
@@ -2203,22 +2204,22 @@ async function build3d(forceGL){
 
  // Static filtered environment avoids the periodic six-pass cube-camera hitch.
 
-  ren.outputColorSpace=THREE.SRGBColorSpace;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=1.05;ren.shadowMap.enabled=!!cfg.hi;ren.shadowMap.type=THREE.PCFShadowMap;ren.shadowMap.autoUpdate=false;ren.shadowMap.needsUpdate=!!cfg.hi;
+  ren.outputColorSpace=THREE.SRGBColorSpace;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=1.12;ren.shadowMap.enabled=!!cfg.hi;ren.shadowMap.type=THREE.PCFShadowMap;ren.shadowMap.autoUpdate=false;ren.shadowMap.needsUpdate=!!cfg.hi;
 
- scene=new THREE.Scene();scene.background=new THREE.Color(0x34526c);scene.fog=new THREE.Fog(0x516775,125,360);
+ scene=new THREE.Scene();scene.background=new THREE.Color(0x5caee5);scene.fog=new THREE.Fog(0x8ac7e6,165,440);
 
  cam=new THREE.PerspectiveCamera(77,innerWidth/innerHeight,.1,700);
 
  await loadingStage(28,'Preparing stadium lighting');
- const et=ENGINE.stadiumEnvironment();envTarget=await ENGINE.environment(ren,et);scene.environment=envTarget.texture;et.dispose();
+ const et=arenaSky(true);envTarget=await ENGINE.environment(ren,et);scene.environment=envTarget.texture;et.dispose();
 
- scene.add(new THREE.HemisphereLight(0xd5e7ff,0x596247,1.65));
+ scene.add(new THREE.HemisphereLight(0xa9d9ff,0x305244,1.4));
 
- sun=new THREE.DirectionalLight(0xffeed8,2.2);sun.castShadow=!!cfg.hi;sun.shadow.autoUpdate=false;sun.shadow.needsUpdate=!!cfg.hi;sun.shadow.mapSize.set(2048,2048);const sc=sun.shadow.camera;sc.left=sc.bottom=-76;sc.right=sc.top=76;sc.near=1;sc.far=200;sun.shadow.bias=-.00015;sun.shadow.normalBias=.018;scene.add(sun,sun.target);
+ sun=new THREE.DirectionalLight(0xffe4b8,2.8);sun.castShadow=!!cfg.hi;sun.shadow.autoUpdate=false;sun.shadow.needsUpdate=!!cfg.hi;sun.shadow.mapSize.set(2048,2048);const sc=sun.shadow.camera;sc.left=sc.bottom=-76;sc.right=sc.top=76;sc.near=1;sc.far=200;sun.shadow.bias=-.00015;sun.shadow.normalBias=.018;scene.add(sun,sun.target);
 
- const fill=new THREE.DirectionalLight(0xc3dbff,.85);fill.position.set(-35,28,-35);scene.add(fill);
+ const fill=new THREE.DirectionalLight(0x8ec7ff,1.05);fill.position.set(-35,28,-35);scene.add(fill);
 
- const rim=new THREE.DirectionalLight(0xe4efff,.7);rim.position.set(40,16,-35);scene.add(rim);
+ const rim=new THREE.DirectionalLight(0xffc58b,.85);rim.position.set(40,16,-35);scene.add(rim);
 
  [[0x2060ff,-1],[0xff7a20,1]].forEach(([c,s])=>{const l=new THREE.PointLight(c,32,28,2);l.position.set(0,8,s*(HZ-3));l.userData.team=s<0?0:1;l.userData.base=32;goalLights.push(l);scene.add(l);
 
@@ -2329,9 +2330,9 @@ async function build3d(forceGL){
 
  // The roof is open over the pitch, with a coherent sky behind the stadium.
 
- scene.add(new THREE.Mesh(new THREE.SphereGeometry(500,48,24),new THREE.MeshBasicMaterial({map:ENGINE.stadiumSky(),side:THREE.BackSide,fog:false,toneMapped:false})));
+ scene.add(new THREE.Mesh(new THREE.SphereGeometry(500,48,24),new THREE.MeshBasicMaterial({map:arenaSky(),side:THREE.BackSide,fog:false,toneMapped:false})));
 
- const stadium=ENGINE.championshipStadium(ren,teamPalette,cfg.hi);batchMeshes(stadium);stadium.traverse(o=>o.castShadow=false);scene.add(stadium);addSpectators();
+ const stadium=ENGINE.championshipStadium(ren,teamPalette,cfg.hi);styleChampionshipStadium(stadium);batchMeshes(stadium);stadium.traverse(o=>o.castShadow=false);scene.add(stadium);addSpectators();
 
  cm.forEach(m=>m.traverse(o=>{o.castShadow=!!o.isMesh&&!o.material.transparent}));
 

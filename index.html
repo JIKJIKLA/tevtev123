@@ -10463,7 +10463,7 @@ function applyArenaTheme(){
  for(let k=0;k<WM.length;k++){const m=WM[k],fresh=wallMat(teamHex(k===2?1:0)),old=m.map;m.map=fresh.map;m.emissiveMap=fresh.emissiveMap;m.needsUpdate=true;old?.dispose();fresh.dispose()}
  for(const l of goalLights)l.color.setHex(teamPalette[l.userData.team]);
  scene.traverse(o=>{const m=o.material;if(!m||Array.isArray(m))return;
-  if(m.name==='Championship turf'){const fresh=ENGINE.pitchMaterial(ren,teamPalette);m.map?.dispose();m.map=fresh.map;fresh.normalMap?.dispose();fresh.dispose();m.needsUpdate=true;}
+  if(m.name==='Championship turf'){const fresh=arenaPitchMaterial();m.map?.dispose();m.map=fresh.map;fresh.normalMap?.dispose();fresh.dispose();m.needsUpdate=true;}
   if(m.userData.team!==undefined)m.color.setHex(teamPalette[m.userData.team]);
  });
 }
@@ -10834,14 +10834,14 @@ function addSpectators(){
   const side=k%4,row=Math.floor(k/4)%8,along=(Math.floor(k/32)+.5)/Math.ceil(count/32)*2-1,end=side>1,sign=side%2?1:-1;
   const distance=(end?HZ+GD+11:HX+11)+row*2.3,len=(end?2*HX-8:2*HZ-8)+row*1.2;
   const x=end?along*len*.48:sign*distance,y=3.05+row*1.5,z=end?sign*distance:along*len*.48;
-  matrix.makeTranslation(x,y,z);bodies.setMatrixAt(k,matrix);bodies.setColorAt(k,color.setHex(palette[(k*7+row)%6]));
+  matrix.makeTranslation(x,y,z);bodies.setMatrixAt(k,matrix);bodies.setColorAt(k,color.setHex(palette[(k%5===0)?2:(z<0?0:1)]));
   matrix.makeTranslation(x,y+.36,z);heads.setMatrixAt(k,matrix);heads.setColorAt(k,color.setHex(skins[(k+row)%4]));
-  matrix.makeRotationZ((k%3-1)*.65);matrix.setPosition(x+.22,y+.22+(k%3)*.08,z);arms.setMatrixAt(k,matrix);arms.setColorAt(k,color.setHex(palette[(k*7+row)%6]));
+  matrix.makeRotationZ((k%3-1)*.65);matrix.setPosition(x+.22,y+.22+(k%3)*.08,z);arms.setMatrixAt(k,matrix);arms.setColorAt(k,color.setHex(palette[(k%5===0)?2:(z<0?0:1)]));
  }
  for(const mesh of [bodies,heads,arms]){mesh.instanceMatrix.needsUpdate=true;mesh.instanceColor.needsUpdate=true;mesh.computeBoundingSphere();scene.add(mesh)}
  // Silhouettes, roof beacons and trees give the skyline depth without shadow maps.
- const city=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshStandardMaterial({color:0x40556b,roughness:.9}),48);
- const trees=new THREE.InstancedMesh(new THREE.ConeGeometry(1,1,5),new THREE.MeshStandardMaterial({color:0x254e45,roughness:1}),64);
+ const city=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshStandardMaterial({color:0x335779,roughness:.9}),48);
+ const trees=new THREE.InstancedMesh(new THREE.ConeGeometry(1,1,5),new THREE.MeshStandardMaterial({color:0x21664f,roughness:1}),64);
  const pos=new V3(),q=new THREE.Quaternion(),scale=new V3();
  for(let k=0;k<48;k++){const t=k/48*Math.PI*2,h=12+(k*17%29);pos.set(Math.cos(t)*(140+k%3*12),h/2-3,Math.sin(t)*(152+k%4*10));scale.set(6+k%5,h,7+k%7);matrix.compose(pos,q,scale);city.setMatrixAt(k,matrix)}
  for(let k=0;k<64;k++){const t=k/64*Math.PI*2,h=5+k%5;pos.set(Math.cos(t)*108,h/2,Math.sin(t)*121);scale.set(2.5,h,2.5);matrix.compose(pos,q,scale);trees.setMatrixAt(k,matrix)}
@@ -10893,12 +10893,89 @@ function wallMat(col){
  // Fine safety net above low, solid advertising boards: stands stay visible.
  g.strokeStyle='rgba(145,177,192,.15)';g.lineWidth=1;
  for(let y=0;y<512;y+=24)for(let x=0;x<1080;x+=42){const cx=x+(y%48?21:0);g.beginPath();for(let k=0;k<6;k++){const a=k*Math.PI/3;g[k?'lineTo':'moveTo'](cx+Math.cos(a)*23,y+Math.sin(a)*23)}g.closePath();g.stroke()}
- g.fillStyle='#182b35';g.fillRect(0,444,1024,68);g.fillStyle='#07131e';g.fillRect(0,454,1024,37);
+ g.fillStyle='#12456b';g.fillRect(0,444,1024,68);g.fillStyle='#071c37';g.fillRect(0,454,1024,37);
  g.font='italic 800 24px sans-serif';g.fillStyle='#dbe7e9';for(let x=18;x<1024;x+=256)g.fillText('TEVIN LEAGUE',x,480);
- g.fillStyle=col;g.fillRect(0,442,1024,3);g.fillRect(0,501,1024,4);for(let x=230;x<1024;x+=256)g.fillRect(x,460,4,22);
- const t=tex(c);return new THREE.MeshStandardMaterial({map:t,emissive:0xffffff,emissiveMap:t,emissiveIntensity:.1,roughness:.82,metalness:.08,transparent:true,depthWrite:false});
+ g.fillStyle=col;g.fillRect(0,440,1024,6);g.fillRect(0,498,1024,7);for(let x=230;x<1024;x+=256)g.fillRect(x,460,4,22);
+ const t=tex(c);return new THREE.MeshStandardMaterial({map:t,emissive:0xffffff,emissiveMap:t,emissiveIntensity:.28,roughness:.82,metalness:.08,transparent:true,depthWrite:false});
 }
-function floorMat(){return ENGINE.pitchMaterial(ren,teamPalette)}
+// Skyline arena: baked color and shared geometry, with no extra light/shadow passes.
+function arenaSky(reflection=false){
+ const c=cvs(reflection?1024:2048,reflection?512:1024),g=c.getContext('2d'),w=c.width,h=c.height;
+ const sky=g.createLinearGradient(0,0,0,h);
+ for(const [at,color] of [[0,'#112e76'],[.23,'#246db6'],[.43,'#75c9ed'],[.5,'#c3e9ee'],[.56,'#ffc996'],[.64,'#244b68'],[1,'#102d27']])sky.addColorStop(at,color);
+ g.fillStyle=sky;g.fillRect(0,0,w,h);
+ // A broad, warm horizon and wispy clouds keep the open roof from looking flat.
+ const glow=g.createRadialGradient(w*.68,h*.48,0,w*.68,h*.48,w*.2);
+ glow.addColorStop(0,'rgba(255,232,181,.65)');glow.addColorStop(.25,'rgba(255,207,140,.2)');glow.addColorStop(1,'rgba(255,208,140,0)');
+ g.fillStyle=glow;g.fillRect(0,0,w,h);
+ for(let i=0;i<26;i++){
+  const x=((i*619)%2048)/2048*w,y=(.25+(i*7%17)*.009)*h,r=(.018+(i%4)*.009)*w;
+  for(const wrap of [-w,0,w]){g.save();g.translate(x+wrap,y);g.scale(3,.28);const cloud=g.createRadialGradient(0,0,0,0,0,r);cloud.addColorStop(0,'rgba(242,251,255,.24)');cloud.addColorStop(1,'rgba(242,251,255,0)');g.fillStyle=cloud;g.fillRect(-r,-r,r*2,r*2);g.restore()}
+ }
+ if(reflection){for(let i=0;i<4;i++){g.fillStyle='#eefaff';g.fillRect(i*256+28,84,164,24)}g.fillStyle='#329aff';g.fillRect(20,240,220,24);g.fillStyle='#ff9636';g.fillRect(532,240,220,24)}
+ const t=tex(c);if(reflection)t.mapping=THREE.EquirectangularReflectionMapping;return t;
+}
+
+function arenaPitchMaterial(){
+ // Retain the existing normal map and field UVs, replacing only the painted surface.
+ const m=ENGINE.pitchMaterial(ren,teamPalette),c=m.map.image,g=c.getContext('2d'),w=c.width,h=c.height;
+ g.fillStyle='#246342';g.fillRect(0,0,w,h);
+ for(let i=0;i<18;i++){g.fillStyle=i%2?'#30764a':'#246342';g.fillRect(0,i*h/18,w,h/18+1)}
+ // Deterministic fine grain is baked once; no noise shader or per-frame canvas work.
+ let seed=4271;const rand=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
+ for(let i=0;i<85000;i++){g.fillStyle=i%2?'rgba(190,221,134,.11)':'rgba(9,37,29,.13)';g.fillRect(rand()*w,rand()*h,.6+rand(),1+rand()*4)}
+ g.save();g.translate(w/2,h/2);g.scale(w/82,h/102);
+ const paint=(team,alpha)=>{const n=teamPalette[team];return `rgba(${n>>16&255},${n>>8&255},${n&255},${alpha})`};
+ for(const s of [-1,1]){
+  const team=s<0?0:1;g.fillStyle=paint(team,.72);g.fillRect(-18,s<0?-47:31,36,16);
+  g.fillStyle=paint(team,.92);g.fillRect(-37,s<0?-47:45.6,74,1.4);
+  // Broad goal-line wings and midfield arrows make each half readable while moving.
+  for(const side of [-1,1]){g.beginPath();g.moveTo(side*18,s*47);g.lineTo(side*37,s*47);g.lineTo(side*37,s*36);g.lineTo(side*28,s*31);g.lineTo(side*18,s*31);g.closePath();g.fillStyle=paint(team,.32);g.fill();}
+  g.strokeStyle=paint(team,.86);g.lineWidth=.7;
+  for(const x of [-29,29])for(let j=0;j<3;j++){const z=s*(10+j*4);g.beginPath();g.moveTo(x-1.7,z-s*1.3);g.lineTo(x,z);g.lineTo(x+1.7,z-s*1.3);g.stroke()}
+  g.beginPath();g.arc(0,0,10.65,team?0:Math.PI,team?Math.PI:Math.PI*2);g.stroke();
+ }
+ g.strokeStyle='rgba(239,255,241,.88)';g.lineWidth=.15;g.strokeRect(-37,-47,74,94);
+ g.beginPath();g.moveTo(-37,0);g.lineTo(37,0);g.stroke();g.beginPath();g.arc(0,0,10,0,Math.PI*2);g.stroke();
+ for(const s of [-1,1]){g.strokeRect(-18,s<0?-47:31,36,16);g.strokeRect(-9,s<0?-47:40,18,7)}
+ g.fillStyle='#d9f6e5';g.beginPath();g.arc(0,0,.23,0,Math.PI*2);g.fill();
+ g.font='italic 900 2px sans-serif';g.textAlign='center';g.fillStyle='rgba(223,250,239,.24)';g.fillText('T E V I N',0,4);g.restore();
+ m.map.needsUpdate=true;m.roughness=.9;return m;
+}
+
+function styleChampionshipStadium(stadium){
+ const matrix=new THREE.Matrix4(),p=new V3(),color=new THREE.Color();
+ stadium.traverse(o=>{
+  if(!o.isMesh)return;
+  if(o.isInstancedMesh){
+   // Seat colors follow their actual goal half instead of a gray checkerboard.
+   o.material.color.setHex(0xffffff);
+   for(let i=0;i<o.count;i++){o.getMatrixAt(i,matrix);p.setFromMatrixPosition(matrix);color.setHex(teamPalette[p.z<0?0:1]).multiplyScalar(.48+(i%7)*.065);if(i%19===0)color.setHex(0xc3edff);o.setColorAt(i,color)}
+   o.instanceColor.needsUpdate=true;
+  }else if(o.material?.isMeshStandardMaterial&&!o.material.userData.team){
+   // Deep indigo structure supplies contrast without the old charcoal haze.
+   o.material.color.lerp(new THREE.Color(0x173758),.3);
+  }
+ });
+ const trim=teamPalette.map((c,t)=>{const m=new THREE.MeshBasicMaterial({color:c,toneMapped:false});m.userData.team=t;return m});
+ const dark=new THREE.MeshBasicMaterial({color:0x071a35,toneMapped:false});
+ const box=(x,y,z,w,h,d,mat)=>{const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);mesh.position.set(x,y,z);stadium.add(mesh);return mesh};
+ for(let t=0;t<2;t++){
+  const sign=t?1:-1;
+  // Saturated fascia and a bright, thin roofline frame the two halves.
+  for(const x of [-47.2,47.2]){box(x,6.1,sign*27,.15,.65,50,trim[t]);box(x,27.7,sign*33,.18,.13,66,trim[t]);}
+  box(0,7.2,sign*65,70,.65,.18,trim[t]);
+  for(const x of [-30,30]){box(x,13,sign*65,5,11,.25,dark);for(let j=0;j<3;j++){const slash=box(x,10+j*2.4,sign*64.8,3.8,.35,.12,trim[t]);slash.rotation.z=.28*sign}}
+  // End screens are designed in canvas and remain legible in performance mode.
+  const c=cvs(1024,256),g=c.getContext('2d'),hex='#'+teamPalette[t].toString(16).padStart(6,'0');
+  const grad=g.createLinearGradient(0,0,1024,256);grad.addColorStop(0,hex);grad.addColorStop(1,'#081a38');g.fillStyle=grad;g.fillRect(0,0,1024,256);
+  g.fillStyle='rgba(255,255,255,.09)';for(let i=-3;i<14;i++){g.beginPath();g.moveTo(i*110,0);g.lineTo(i*110+90,0);g.lineTo(i*110-80,256);g.lineTo(i*110-170,256);g.fill()}
+  g.fillStyle='#fff';g.textAlign='center';g.font='italic 900 72px sans-serif';g.fillText('TEVIN LEAGUE',512,119);g.font='700 27px sans-serif';g.fillStyle='#d8f5ff';g.fillText('SKYLINE  /  CHAMPIONSHIP ARENA',512,179);
+  const screen=new THREE.Mesh(new THREE.PlaneGeometry(25,6.25),new THREE.MeshBasicMaterial({map:tex(c),toneMapped:false}));screen.position.set(0,20,sign*68.38);if(sign>0)screen.rotation.y=Math.PI;stadium.add(screen);
+ }
+}
+
+function floorMat(){return arenaPitchMaterial()}
 
 let GT,GU;const glowTex=()=>{if(GT)return GT;const c=cvs(64,64),g=c.getContext('2d'),r=g.createRadialGradient(32,32,0,32,32,32);r.addColorStop(0,'rgba(255,255,255,.9)');r.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=r;g.fillRect(0,0,64,64);return GT=new THREE.CanvasTexture(c)};
 
@@ -11151,22 +11228,22 @@ async function build3d(forceGL){
 
  // Static filtered environment avoids the periodic six-pass cube-camera hitch.
 
-  ren.outputColorSpace=THREE.SRGBColorSpace;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=1.05;ren.shadowMap.enabled=!!cfg.hi;ren.shadowMap.type=THREE.PCFShadowMap;ren.shadowMap.autoUpdate=false;ren.shadowMap.needsUpdate=!!cfg.hi;
+  ren.outputColorSpace=THREE.SRGBColorSpace;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=1.12;ren.shadowMap.enabled=!!cfg.hi;ren.shadowMap.type=THREE.PCFShadowMap;ren.shadowMap.autoUpdate=false;ren.shadowMap.needsUpdate=!!cfg.hi;
 
- scene=new THREE.Scene();scene.background=new THREE.Color(0x34526c);scene.fog=new THREE.Fog(0x516775,125,360);
+ scene=new THREE.Scene();scene.background=new THREE.Color(0x5caee5);scene.fog=new THREE.Fog(0x8ac7e6,165,440);
 
  cam=new THREE.PerspectiveCamera(77,innerWidth/innerHeight,.1,700);
 
  await loadingStage(28,'Preparing stadium lighting');
- const et=ENGINE.stadiumEnvironment();envTarget=await ENGINE.environment(ren,et);scene.environment=envTarget.texture;et.dispose();
+ const et=arenaSky(true);envTarget=await ENGINE.environment(ren,et);scene.environment=envTarget.texture;et.dispose();
 
- scene.add(new THREE.HemisphereLight(0xd5e7ff,0x596247,1.65));
+ scene.add(new THREE.HemisphereLight(0xa9d9ff,0x305244,1.4));
 
- sun=new THREE.DirectionalLight(0xffeed8,2.2);sun.castShadow=!!cfg.hi;sun.shadow.autoUpdate=false;sun.shadow.needsUpdate=!!cfg.hi;sun.shadow.mapSize.set(2048,2048);const sc=sun.shadow.camera;sc.left=sc.bottom=-76;sc.right=sc.top=76;sc.near=1;sc.far=200;sun.shadow.bias=-.00015;sun.shadow.normalBias=.018;scene.add(sun,sun.target);
+ sun=new THREE.DirectionalLight(0xffe4b8,2.8);sun.castShadow=!!cfg.hi;sun.shadow.autoUpdate=false;sun.shadow.needsUpdate=!!cfg.hi;sun.shadow.mapSize.set(2048,2048);const sc=sun.shadow.camera;sc.left=sc.bottom=-76;sc.right=sc.top=76;sc.near=1;sc.far=200;sun.shadow.bias=-.00015;sun.shadow.normalBias=.018;scene.add(sun,sun.target);
 
- const fill=new THREE.DirectionalLight(0xc3dbff,.85);fill.position.set(-35,28,-35);scene.add(fill);
+ const fill=new THREE.DirectionalLight(0x8ec7ff,1.05);fill.position.set(-35,28,-35);scene.add(fill);
 
- const rim=new THREE.DirectionalLight(0xe4efff,.7);rim.position.set(40,16,-35);scene.add(rim);
+ const rim=new THREE.DirectionalLight(0xffc58b,.85);rim.position.set(40,16,-35);scene.add(rim);
 
  [[0x2060ff,-1],[0xff7a20,1]].forEach(([c,s])=>{const l=new THREE.PointLight(c,32,28,2);l.position.set(0,8,s*(HZ-3));l.userData.team=s<0?0:1;l.userData.base=32;goalLights.push(l);scene.add(l);
 
@@ -11277,9 +11354,9 @@ async function build3d(forceGL){
 
  // The roof is open over the pitch, with a coherent sky behind the stadium.
 
- scene.add(new THREE.Mesh(new THREE.SphereGeometry(500,48,24),new THREE.MeshBasicMaterial({map:ENGINE.stadiumSky(),side:THREE.BackSide,fog:false,toneMapped:false})));
+ scene.add(new THREE.Mesh(new THREE.SphereGeometry(500,48,24),new THREE.MeshBasicMaterial({map:arenaSky(),side:THREE.BackSide,fog:false,toneMapped:false})));
 
- const stadium=ENGINE.championshipStadium(ren,teamPalette,cfg.hi);batchMeshes(stadium);stadium.traverse(o=>o.castShadow=false);scene.add(stadium);addSpectators();
+ const stadium=ENGINE.championshipStadium(ren,teamPalette,cfg.hi);styleChampionshipStadium(stadium);batchMeshes(stadium);stadium.traverse(o=>o.castShadow=false);scene.add(stadium);addSpectators();
 
  cm.forEach(m=>m.traverse(o=>{o.castShadow=!!o.isMesh&&!o.material.transparent}));
 
