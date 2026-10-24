@@ -15,9 +15,10 @@ function dedConnect(){
    if(m.request&&DED.requests.has(m.request)){const p=DED.requests.get(m.request);clearTimeout(p.timer);DED.requests.delete(m.request);m.type==='error'?p.reject(Error(m.message)):p.resolve(m);return}
    if(m.type==='error'){SOC.error=m.message;socialUI();mpStatus(m.message,'bad');return}
    if(m.type==='joined'){DED.entering=dedJoined(m).catch(e=>{mpReset();mpFailure(e)});return}
-   if(m.type==='lobby'){DED.owner=m.owner;MP.seats=m.seats||{};if(MP.loaded)mpApplySeats();mpLobby();return}
+   if(m.type==='lobby'){DED.owner=m.owner;MP.seats=m.seats||{};if(st==='END')updateRematchUI();if(MP.loaded)mpApplySeats();mpLobby();return}
    if(m.type==='state'){dedState(m);return}
    if(m.type==='pong'){DED.rtt=Math.round(performance.now()-m.id);return}
+   if(m.type==='chat'){receiveQuickChat(m);return}
    if(m.type==='party'){SOC.party=m.code?{dedicated:true}:null;SOC.partyCode=m.code;SOC.partyData=m.data;SOC.ready=!!m.data?.members?.[SOC.id]?.ready;socialUI();return}
    if(m.type==='queue'){SOC.searching=!!m.searching;SOC.since=m.since||Date.now();SOC.queueData={tickets:{phoenix:{seen:Date.now(),members:Array(m.count||0).fill({})}}};socialUI()}
   };
@@ -30,7 +31,7 @@ function dedConnect(){
 }
 function dedReset(){if(DED.active)dedSend({type:'leave'});DED.active=false;DED.owner='';DED.history.length=DED.outbox.length=0;DED.offset.set(0,0,0);DED.seq=DED.lastJump=0;DED.ballOffset.set(0,0,0)}
 async function dedJoined(m){
- if(previewJob)await previewJob;mpReset(false);sandbox=false;applySettings(m.settings);
+ if(RIVALS.practiceJob)await RIVALS.practiceJob;RIVALS.queuePractice=false;if(previewJob)await previewJob;mpReset(false);sandbox=false;applySettings(m.settings);
  DED.active=true;DED.owner=m.owner;DED.seq=DED.lastJump=0;DED.history.length=DED.outbox.length=0;DED.offset.set(0,0,0);
  Object.assign(MP,{active:true,role:'guest',slot:m.slot,session:m.session,code:m.code,seats:m.seats,quick:m.quick?'phoenix':'',transport:true,closed:false});
  SOC.searching=false;SOC.entering=false;SOC.ready=false;socialUI();$('room-code').value=m.code;
@@ -52,13 +53,13 @@ function dedState(m){
  handleRemoteMatch(s);
  if(phaseChanged){DED.history.length=DED.outbox.length=0;DED.offset.set(0,0,0);DED.lastJump=MP.jump;acc=0}
  mpReadCar(c,s.cars[MP.slot],1,0);readDriver(c,m.driver);
- ball.p.fromArray(s.ball.p);ball.v.fromArray(s.ball.v);ball.w.fromArray(s.ball.w);ball.last=s.ball.last;ball.lastPlayer=s.ball.lastPlayer;ball.color=s.ball.color;
+ readHeatState(s.heat);ball.p.fromArray(s.ball.p);ball.v.fromArray(s.ball.v);ball.w.fromArray(s.ball.w);ball.last=s.ball.last;ball.lastPlayer=s.ball.lastPlayer;ball.color=s.ball.color;
  DED.history=DED.history.filter(f=>f.seq>m.ack&&f.round===s.round);
- if(s.phase==='PLAY'&&!MP.localPaused){DED.replaying=true;try{for(const f of DED.history){Object.assign(c.inp,f.controls);c.jp=f.edge?1:0;c.jh=f.held?1:0;stepCar(c,DT);resolveArenaCar(c);ballSub(DT,true)}}finally{DED.replaying=false}}
+ if(s.phase==='PLAY'&&!MP.localPaused){DED.replaying=true;try{for(const f of DED.history){Object.assign(c.inp,f.controls);c.jp=f.edge?1:0;c.jh=f.held?1:0;stepCar(c,DT);resolveArenaCar(c);predictLocalBall(DT)}}finally{DED.replaying=false}}
  c.frameP.copy(c.p);c.frameQ.copy(c.q);c.prevP.copy(c.p);c.prevQ.copy(c.q);
  if(!phaseChanged){DED.offset.copy(before).sub(c.p);if(DED.offset.length()>5)DED.offset.set(0,0,0)}
  ball.frameP.copy(ball.p);ball.prevP.copy(ball.p);DED.ballOffset.copy(ballBefore).sub(ball.p);if(phaseChanged||DED.ballOffset.length()>3)DED.ballOffset.set(0,0,0);
- mpStatus('PHOENIX · '+(DED.rtt?DED.rtt+' ms':'CONNECTED'),'good');
+ if(s.phase==='PLAY')replayRecord(s);if(s.phase==='END')updateRematchUI();mpStatus('PHOENIX · '+(DED.rtt?DED.rtt+' ms':'CONNECTED'),'good');
 }
 function dedFrame(dt){
  if(!MP.loaded)return;const now=performance.now();
@@ -68,7 +69,7 @@ function dedFrame(dt){
  if(st==='PLAY'&&!MP.localPaused){acc+=dt;let steps=0;const c=localPlayer();human(c);
   while(acc>=DT&&steps++<12){acc-=DT;const edge=MP.jump>DED.lastJump;DED.lastJump=MP.jump;
    const f={seq:++DED.seq,round:MP.round,jump:MP.jump,held:!!c.jh,paused:false,controls:{...c.inp},edge};c.frameP.copy(c.p);c.frameQ.copy(c.q);c.jp=edge?1:0;
-   stepCar(c,DT);resolveArenaCar(c);ball.frameP.copy(ball.p);ballSub(DT,true);DED.history.push(f);DED.outbox.push(f);
+   stepCar(c,DT);resolveArenaCar(c);ball.frameP.copy(ball.p);predictLocalBall(DT);DED.history.push(f);DED.outbox.push(f);
   }
   if(acc>=DT)acc%=DT;if(DED.history.length>120)DED.history.splice(0,DED.history.length-120);
  }else acc=0;

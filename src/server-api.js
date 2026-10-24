@@ -5,12 +5,13 @@ if(window.__TEVIN_SERVER__){
   initialize(settings){
    applySettings(settings);cfg.hi=0;sandbox=false;configureCars();
    Object.assign(MP,{active:true,role:'host',loaded:true,round:0,seq:0,seats:{},inputs:{},seenJumps:{}});
-   score=[0,0];tl=cfg.len;ot=0;kickoff(false);st='WAIT';
+   rivalsStart();seriesStart(true);score=[0,0];tl=cfg.len;ot=0;kickoff(false);st='WAIT';
    return matchSettings();
   },
   seats(seats){MP.seats=seats;const sessions=new Set(Object.values(seats).map(s=>s.session));for(const id of Object.keys(MP.inputs))if(!sessions.has(id)){delete MP.inputs[id];delete MP.seenJumps[id]}mpApplySeats()},
   input(session,packet){MP.inputs[session]=packet},
-  start(){if(st!=='WAIT'&&st!=='END')return false;score=[0,0];tl=cfg.len;ot=0;MP.matchBegun=true;kickoff();return true},
+  teamIntent(slot,phrase){if(phrase===0)RIVALS.claim={slot,team:cars[slot]?.team,until:simTime+2}},
+  start(){if(st!=='WAIT'&&st!=='END')return false;seriesStart(st==='WAIT');rivalsStart();for(const c of cars)c.goals=c.touches=c.topSpeed=c.boostUsed=0;score=[0,0];tl=cfg.len;ot=0;MP.matchBegun=true;kickoff();return true},
   step(){
    const dt=DT;
    if(st==='COUNT'){cnt-=dt;if(cnt<=0)st='PLAY'}

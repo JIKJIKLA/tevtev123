@@ -58,7 +58,7 @@ function styleChampionshipStadium(stadium){
   }
  });
  const trim=teamPalette.map((c,t)=>{const m=new THREE.MeshBasicMaterial({color:c,toneMapped:false});m.userData.team=t;return m});
- const dark=new THREE.MeshBasicMaterial({color:0x071a35,toneMapped:false});
+ RIVALS.trim=trim;const dark=new THREE.MeshBasicMaterial({color:0x071a35,toneMapped:false});
  const box=(x,y,z,w,h,d,mat)=>{const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);mesh.position.set(x,y,z);stadium.add(mesh);return mesh};
  for(let t=0;t<2;t++){
   const sign=t?1:-1;

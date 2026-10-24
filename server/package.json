@@ -1,0 +1,8 @@
+{
+ "name":"tevin-match-server",
+ "version":"0.1.0",
+ "private":true,
+ "engines":{"node":">=24"},
+ "scripts":{"start":"node main.cjs","test":"node --test test/*.test.cjs"},
+ "dependencies":{"linkedom":"0.18.12","ws":"8.22.0"}
+}
