@@ -1741,7 +1741,7 @@ function setupSocial(){try{SOC.name=localStorage.getItem('tevin.driverName')||'D
 
 const matchStats={touches:0,topSpeed:0,boost:0,lastTouch:-1e9};
 
-const msg=(t,s,col='#fff')=>{const m=$('msg');m.textContent=t;m.style.color=col;m.style.opacity=1;mt=s};
+const msg=(t,s,col='#fff')=>{const m=$('msg');if(m.textContent!==t||mt<=0)cinemaMessage(m);m.textContent=t;m.style.color=col;m.style.opacity=1;mt=s};
 
 function kickoff(newRound=true){
 
@@ -2476,6 +2476,7 @@ function frame(t){requestAnimationFrame(frame);const dt=cl((t-last)/1000||0,0,.1
  publishMultiplayer(dt);updateAudio();render(dt)}
 
 // INLINE:rivals.js
+// INLINE:cinematics.js
 // INLINE:preload.js
 // INLINE:server-api.js
 // INLINE:test-hooks.js
