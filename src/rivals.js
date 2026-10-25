@@ -45,14 +45,14 @@ function replayRecord(snapshot){
 }
 function renderGoalReplay(dt){
  const r=RIVALS.replay;if(!r||st!=='GOAL'||MP.localPaused)return false;r.elapsed+=dt;
- const time=r.frames[0].t+Math.min(r.duration,r.elapsed*r.duration/2.65);let a=r.frames[0],b=a;
+ const time=replayPlaybackTime(r);let a=r.frames[0],b=a;
  for(let i=1;i<r.frames.length;i++){b=r.frames[i];if(b.t>=time)break;a=b}
  const f=cl((time-a.t)/Math.max(.001,b.t-a.t),0,1);
  for(let i=0;i<cm.length;i++){const m=cm[i];m.visible=cars[i].enabled;if(!a.cars[i]||!b.cars[i])continue;m.position.fromArray(a.cars[i].p).lerp(new V3().fromArray(b.cars[i].p),f);m.quaternion.fromArray(a.cars[i].q).slerp(new Qn().fromArray(b.cars[i].q),f);if(m.userData.f)m.userData.f.visible=false;}
  bm.visible=true;bm.position.fromArray(a.ball).lerp(new V3().fromArray(b.ball),f);const anchor=cm[r.scorer]?.position||bm.position;
  const target=new V3().lerpVectors(anchor,bm.position,.65),motion=cinemaMotion(),ease=motion?cinemaEase(r.elapsed/2.8):0;document.body.classList.toggle('cinema-replay',motion);cam.position.copy(target).add(new V3(9-ease*2,5-ease*.65,(r.team?-1:1)*(10+ease)));cam.lookAt(target);cam.fov=65-ease*6;cam.updateProjectionMatrix();
  pts.count=0;if(FX)FX.group.visible=false;contactShadows.forEach(s=>s.visible=false);if(RIVALS.visuals)RIVALS.visuals.group.visible=false;$('flash').style.opacity=0;pipeline.render();
- $('replay-label').textContent='GOAL REPLAY · RECORDED PLAY';if(r.elapsed>2.8)stopReplay();return true;
+ $('replay-label').textContent='GOAL REPLAY · SLOW MOTION';if(r.elapsed>2.8)stopReplay();return true;
 }
 function rivalsFinish(){
  if(window.__TEVIN_SERVER__||sandbox||RIVALS.recorded||!score.every(Number.isFinite)||score[0]===score[1])return;

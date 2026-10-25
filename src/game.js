@@ -665,7 +665,7 @@ function planBot(c){
 
  // Merely facing the ball from its side was producing repeated clears into the wall.
 
- const canChallenge=approach>.85&&side<cl(dist*.12,1,2)||dist<3&&approach>.25||stopped&&dist<10&&approach>.65&&side<1.5;
+ const canChallenge=approach>.58&&side<cl(dist*.24,1.6,4)||dist<4.5&&approach>.15||stopped&&dist<12&&approach>.45;
 
  // A distant diagonal kickoff must aim AT the ball. A long goal-axis follow-through
 
@@ -681,7 +681,7 @@ function planBot(c){
 
  if(lv>0&&!stopped&&!kick&&!urgent&&ai.commit<=0&&enemyNear&&p.z*atk<-10&&dist>15&&ai.mode!=='ROTATE'){
 
-  ai.pressure=(ai.pressure||0)+(lv===0?.16:lv===1?.09:.065);if(ai.pressure<.9){ai.mode='DEFEND';ai.target.set(cl(p.x*.75,-GX+2,GX-2),0,ownZ+(p.z-ownZ)*.6)}
+  ai.pressure=(ai.pressure||0)+(lv===0?.16:lv===1?.09:.065);if(ai.pressure<.24){ai.mode='DEFEND';ai.target.set(cl(p.x*.75,-GX+2,GX-2),0,ownZ+(p.z-ownZ)*.6)}
 
  }else ai.pressure=0;
 
@@ -693,7 +693,7 @@ function planBot(c){
 
  boostManagement.tick(b);
 
- teamPlan(c);respectTeamClaim(c);c.tgt=ai.target;
+ teamPlan(c);possessionPlan(c,kick,urgent);respectTeamClaim(c);arenaBotTarget(c);c.tgt=ai.target;
 
 }
 
@@ -721,9 +721,10 @@ function bot(c){
 
  if((ai.mode==='APPROACH'||ai.mode==='ROTATE')&&to<10)desired=Math.min(desired,cl(to*1.4+4,5.5,14));
 
+ if(ai.control)desired=cl(ball.v.length()+Math.max(2,flat*.8),5,12);
  i.thr=spd>desired+2?-.5:1;if(!attack&&to<2&&spd>5)i.thr=-.65;
 
- i.ps=Math.abs(ang)>.75&&spd>7?1:0;i.boost=lv>0&&c.boost>0&&to>tune.boostRange&&Math.abs(ang)<tune.boostAngle&&ai.mode!=='DEFEND'?1:0;
+ i.ps=Math.abs(ang)>.75&&spd>7?1:0;i.boost=!ai.control&&lv>0&&c.boost>0&&to>tune.boostRange&&Math.abs(ang)<tune.boostAngle&&ai.mode!=='DEFEND'?1:0;
 
  i.pitch=i.yaw=i.roll=0;c.jh=0;
 
@@ -735,7 +736,7 @@ function bot(c){
 
  const contactTime=Math.max(0,flat-BR-1.05)/Math.max(1,closing);
 
- const groundStrike=lv>0&&attack&&ball.p.y<1.7&&flat>2.2&&flat<tune.dodgeDistance&&closing>5&&contactTime>.09&&contactTime<.27&&Math.abs(angB)<.18&&spd>8&&c.n.y>.85;
+ const groundStrike=!ai.control&&lv>0&&attack&&ball.p.y<1.7&&flat>2.2&&flat<tune.dodgeDistance&&closing>5&&contactTime>.09&&contactTime<.27&&Math.abs(angB)<.18&&spd>8&&c.n.y>.85;
 
  const high=ai.intercept.y>2.6&&ai.intercept.y<(lv===2?8:5.7),aerial=lv>0&&high&&flat>3&&flat<(lv===2?18:12)&&Math.abs(angB)<.4&&spd>5&&c.boost>24&&c.n.y>.85;
 
@@ -1603,7 +1604,7 @@ function setupModesUI(){
  for(const name of ['play','garage','training'])$('nav-'+name).onclick=()=>{$('garage-panel').hidden=name!=='garage';$('play-panel').hidden=name==='garage';$('sandbox-start').classList.toggle('featured',name==='training');$('menu-caption').textContent=name==='garage'?'YOUR CAR. YOUR SIGNATURE.':name==='training'?'BUILD YOUR OWN PLAYGROUND.':'FIND YOUR NEXT MATCH.';};
 }
 function paintCar(id){const m=cm[id],c=cars[id];if(!m||!c||m.userData.paintColor===c.color)return;m.userData.paintColor=c.color;for(const mat of m.userData.paintMaterials||[])mat.color.setHex(c.color);m.userData.f?.traverse(o=>{if(o.material?.color)o.material.color.setHex(c.color)});}
-function preparePaint(m,color){const mats=new Set();m.traverse(o=>{for(const mat of (Array.isArray(o.material)?o.material:[o.material]))if(mat?.color&&mat.color.getHex()===color)mats.add(mat)});m.userData.paintMaterials=[...mats];for(const mat of mats){mat.roughness=.3;mat.metalness=.3;mat.envMapIntensity=1.25;}}
+function preparePaint(m,color){const mats=new Set();m.traverse(o=>{for(const mat of (Array.isArray(o.material)?o.material:[o.material]))if(mat?.color&&mat.color.getHex()===color)mats.add(mat)});m.userData.paintMaterials=[...mats];for(const mat of mats){mat.roughness=.86;mat.metalness=.04;mat.envMapIntensity=.32;if('clearcoat' in mat)mat.clearcoat=0;}}
 function showPodium(){const winner=score[0]>score[1]?0:1;$('end').setAttribute('data-winner',winner?'orange':'blue');$('winner-team').textContent=(winner?'ORANGE':'BLUE')+' TEAM';$('winner-team').style.color=teamHex(winner);$('end').style.setProperty('--winner-color',teamHex(winner));$('podium-cards').innerHTML='';const winning=cars.filter(c=>c.enabled&&c.team===winner);for(const c of winning){const card=document.createElement('div');card.className='podium-card';card.style.borderColor='#'+c.color.toString(16).padStart(6,'0');const humanPlayer=MP.active?!!MP.seats[c.id]:c===P1;card.textContent=(c===localPlayer()?'YOU':humanPlayer?(MP.seats[c.id]?.name||'PLAYER '+(c.id+1)):'AI '+(c.id+1))+' · '+c.goals+' GOALS · '+c.touches+' TOUCHES';$('podium-cards').appendChild(card)}}
 // INLINE:showroom.js
 
@@ -1981,7 +1982,7 @@ function batchMeshes(group){
 
 function carMesh2(col,acc){
 
- const g=new THREE.Group(),paint=ENGINE.physicalMaterial(ren,{color:new THREE.Color(col),metalness:.3,roughness:.32,clearcoat:1,clearcoatRoughness:.12,envMapIntensity:.75}),
+ const g=new THREE.Group(),paint=ENGINE.physicalMaterial(ren,{color:new THREE.Color(col),metalness:.04,roughness:.86,clearcoat:0,clearcoatRoughness:1,envMapIntensity:.32}),
 
  trim=new THREE.MeshStandardMaterial({color:0x131b25,metalness:.45,roughness:.5}),glass=new THREE.MeshStandardMaterial({color:0x254963,metalness:.65,roughness:.15}),
 
@@ -2206,20 +2207,20 @@ async function build3d(forceGL){
 
  // Static filtered environment avoids the periodic six-pass cube-camera hitch.
 
-  ren.outputColorSpace=THREE.SRGBColorSpace;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=1.12;ren.shadowMap.enabled=!!cfg.hi;ren.shadowMap.type=THREE.PCFShadowMap;ren.shadowMap.autoUpdate=false;ren.shadowMap.needsUpdate=!!cfg.hi;
+  ren.outputColorSpace=THREE.SRGBColorSpace;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=.94;ren.shadowMap.enabled=!!cfg.hi;ren.shadowMap.type=THREE.PCFShadowMap;ren.shadowMap.autoUpdate=false;ren.shadowMap.needsUpdate=!!cfg.hi;
 
- scene=new THREE.Scene();scene.background=new THREE.Color(0x5caee5);scene.fog=new THREE.Fog(0x8ac7e6,165,440);
+ scene=new THREE.Scene();scene.background=new THREE.Color(0x5caee5);scene.fog=new THREE.Fog(0x5599bc,190,460);
 
  cam=new THREE.PerspectiveCamera(77,innerWidth/innerHeight,.1,700);
 
  await loadingStage(28,'Preparing stadium lighting');
- const et=arenaSky(true);envTarget=await ENGINE.environment(ren,et);scene.environment=envTarget.texture;et.dispose();
+ const et=arenaSky(true);envTarget=await ENGINE.environment(ren,et);scene.environment=envTarget.texture;scene.environmentIntensity=.65;et.dispose();
 
- scene.add(new THREE.HemisphereLight(0xa9d9ff,0x305244,1.4));
+ scene.add(new THREE.HemisphereLight(0x8ecbff,0x264b39,1.15));
 
- sun=new THREE.DirectionalLight(0xffe4b8,2.8);sun.castShadow=!!cfg.hi;sun.shadow.autoUpdate=false;sun.shadow.needsUpdate=!!cfg.hi;sun.shadow.mapSize.set(2048,2048);const sc=sun.shadow.camera;sc.left=sc.bottom=-76;sc.right=sc.top=76;sc.near=1;sc.far=200;sun.shadow.bias=-.00015;sun.shadow.normalBias=.018;scene.add(sun,sun.target);
+ sun=new THREE.DirectionalLight(0xffd6a0,2.15);sun.castShadow=!!cfg.hi;sun.shadow.autoUpdate=false;sun.shadow.needsUpdate=!!cfg.hi;sun.shadow.mapSize.set(2048,2048);const sc=sun.shadow.camera;sc.left=sc.bottom=-76;sc.right=sc.top=76;sc.near=1;sc.far=200;sun.shadow.bias=-.00015;sun.shadow.normalBias=.018;scene.add(sun,sun.target);
 
- const fill=new THREE.DirectionalLight(0x8ec7ff,1.05);fill.position.set(-35,28,-35);scene.add(fill);
+ const fill=new THREE.DirectionalLight(0x6caaff,.8);fill.position.set(-35,28,-35);scene.add(fill);
 
  const rim=new THREE.DirectionalLight(0xffc58b,.85);rim.position.set(40,16,-35);scene.add(rim);
 
@@ -2477,6 +2478,7 @@ function frame(t){requestAnimationFrame(frame);const dt=cl((t-last)/1000||0,0,.1
 
 // INLINE:rivals.js
 // INLINE:cinematics.js
+// INLINE:possession.js
 // INLINE:preload.js
 // INLINE:server-api.js
 // INLINE:test-hooks.js
