@@ -1,4 +1,17 @@
-// Skyline arena: baked color and shared geometry, with no extra light/shadow passes.
+// Skyline arena: cached photography, baked color and shared geometry.
+async function loadStadiumSky(){
+ let visible;
+ try{visible=await new THREE.TextureLoader().loadAsync('SKY:stadium');}
+ catch(error){console.warn('Photographic sky unavailable; using built-in sky',error);visible=arenaSky();}
+ visible.colorSpace=THREE.SRGBColorSpace;visible.mapping=THREE.EquirectangularReflectionMapping;
+ // Use the photograph for both the visible sky and diffuse environment. Replace
+ // its mirrored lower hemisphere with the field's green bounce before filtering.
+ const c=cvs(1024,512),g=c.getContext('2d');g.drawImage(visible.image,0,0,1024,512);
+ const ground=g.createLinearGradient(0,245,0,512);ground.addColorStop(0,'rgba(128,156,137,0)');ground.addColorStop(.24,'#789579');ground.addColorStop(1,'#334a35');
+ g.fillStyle=ground;g.fillRect(0,245,1024,267);
+ const lighting=tex(c);lighting.mapping=THREE.EquirectangularReflectionMapping;
+ return {visible,lighting};
+}
 function arenaSky(reflection=false){
  const c=cvs(reflection?1024:2048,reflection?512:1024),g=c.getContext('2d'),w=c.width,h=c.height;
  const sky=g.createLinearGradient(0,0,0,h);
@@ -19,8 +32,8 @@ function arenaSky(reflection=false){
 function arenaPitchMaterial(){
  // Retain the existing normal map and field UVs, replacing only the painted surface.
  const m=ENGINE.pitchMaterial(ren,teamPalette),c=m.map.image,g=c.getContext('2d'),w=c.width,h=c.height;
- g.fillStyle='#246342';g.fillRect(0,0,w,h);
- for(let i=0;i<18;i++){g.fillStyle=i%2?'#30764a':'#246342';g.fillRect(0,i*h/18,w,h/18+1)}
+ g.fillStyle='#39723e';g.fillRect(0,0,w,h);
+ for(let i=0;i<18;i++){g.fillStyle=i%2?'#488147':'#39723e';g.fillRect(0,i*h/18,w,h/18+1)}
  // Deterministic fine grain is baked once; no noise shader or per-frame canvas work.
  let seed=4271;const rand=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
  for(let i=0;i<85000;i++){g.fillStyle=i%2?'rgba(190,221,134,.11)':'rgba(9,37,29,.13)';g.fillRect(rand()*w,rand()*h,.6+rand(),1+rand()*4)}
@@ -53,13 +66,21 @@ function styleChampionshipStadium(stadium){
    for(let i=0;i<o.count;i++){o.getMatrixAt(i,matrix);p.setFromMatrixPosition(matrix);color.setHex(teamPalette[p.z<0?0:1]).multiplyScalar(.48+(i%7)*.065);if(i%19===0)color.setHex(0xc3edff);o.setColorAt(i,color)}
    o.instanceColor.needsUpdate=true;
   }else if(o.material?.isMeshStandardMaterial&&!o.material.userData.team){
-   // Deep indigo structure supplies contrast without the old charcoal haze.
-   o.material.color.lerp(new THREE.Color(0x173758),.3);
+   // Neutral blue-gray structure keeps saturated team colors distinct.
+   o.material.color.lerp(new THREE.Color(0x53687b),.16);
   }
  });
  const trim=teamPalette.map((c,t)=>{const m=new THREE.MeshBasicMaterial({color:c,toneMapped:false});m.userData.team=t;return m});
  RIVALS.trim=trim;const dark=new THREE.MeshBasicMaterial({color:0x071a35,toneMapped:false});
  const box=(x,y,z,w,h,d,mat)=>{const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);mesh.position.set(x,y,z);stadium.add(mesh);return mesh};
+ // These merge with the stadium at build time: no new dynamic lights or shadows.
+ const steel=new THREE.MeshStandardMaterial({color:0x536579,roughness:.88,metalness:.04});
+ const lamps=new THREE.MeshBasicMaterial({color:0xffe6bf,toneMapped:false});
+ for(const side of [-1,1])for(const z of [-45,-27,-9,9,27,45]){
+  box(side*49,27.35,z,13,.22,.3,steel);
+  box(side*43.5,26.7,z,1.5,.25,4,steel);
+  for(let j=0;j<4;j++)box(side*43.45,26.5,z-1.35+j*.9,1.15,.08,.5,lamps);
+ }
  for(let t=0;t<2;t++){
   const sign=t?1:-1;
   // Saturated fascia and a bright, thin roofline frame the two halves.

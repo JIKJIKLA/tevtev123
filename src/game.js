@@ -1604,7 +1604,7 @@ function setupModesUI(){
  for(const name of ['play','garage','training'])$('nav-'+name).onclick=()=>{$('garage-panel').hidden=name!=='garage';$('play-panel').hidden=name==='garage';$('sandbox-start').classList.toggle('featured',name==='training');$('menu-caption').textContent=name==='garage'?'YOUR CAR. YOUR SIGNATURE.':name==='training'?'BUILD YOUR OWN PLAYGROUND.':'FIND YOUR NEXT MATCH.';};
 }
 function paintCar(id){const m=cm[id],c=cars[id];if(!m||!c||m.userData.paintColor===c.color)return;m.userData.paintColor=c.color;for(const mat of m.userData.paintMaterials||[])mat.color.setHex(c.color);m.userData.f?.traverse(o=>{if(o.material?.color)o.material.color.setHex(c.color)});}
-function preparePaint(m,color){const mats=new Set();m.traverse(o=>{for(const mat of (Array.isArray(o.material)?o.material:[o.material]))if(mat?.color&&mat.color.getHex()===color)mats.add(mat)});m.userData.paintMaterials=[...mats];for(const mat of mats){mat.roughness=.86;mat.metalness=.04;mat.envMapIntensity=.32;if('clearcoat' in mat)mat.clearcoat=0;}}
+function preparePaint(m,color){const mats=new Set();m.traverse(o=>{for(const mat of (Array.isArray(o.material)?o.material:[o.material]))if(mat?.color&&mat.color.getHex()===color)mats.add(mat)});m.userData.paintMaterials=[...mats];for(const mat of mats){mat.roughness=.72;mat.metalness=.04;mat.envMapIntensity=.5;if('clearcoat' in mat)mat.clearcoat=0;}}
 function showPodium(){const winner=score[0]>score[1]?0:1;$('end').setAttribute('data-winner',winner?'orange':'blue');$('winner-team').textContent=(winner?'ORANGE':'BLUE')+' TEAM';$('winner-team').style.color=teamHex(winner);$('end').style.setProperty('--winner-color',teamHex(winner));$('podium-cards').innerHTML='';const winning=cars.filter(c=>c.enabled&&c.team===winner);for(const c of winning){const card=document.createElement('div');card.className='podium-card';card.style.borderColor='#'+c.color.toString(16).padStart(6,'0');const humanPlayer=MP.active?!!MP.seats[c.id]:c===P1;card.textContent=(c===localPlayer()?'YOU':humanPlayer?(MP.seats[c.id]?.name||'PLAYER '+(c.id+1)):'AI '+(c.id+1))+' · '+c.goals+' GOALS · '+c.touches+' TOUCHES';$('podium-cards').appendChild(card)}}
 // INLINE:showroom.js
 
@@ -1946,7 +1946,7 @@ function face(a,sg,mat,skip){
 function wallMat(col){
  const c=cvs(1024,512),g=c.getContext('2d');g.clearRect(0,0,1024,512);
  // Fine safety net above low, solid advertising boards: stands stay visible.
- g.strokeStyle='rgba(145,177,192,.15)';g.lineWidth=1;
+ g.strokeStyle='rgba(145,177,192,.075)';g.lineWidth=1;
  for(let y=0;y<512;y+=24)for(let x=0;x<1080;x+=42){const cx=x+(y%48?21:0);g.beginPath();for(let k=0;k<6;k++){const a=k*Math.PI/3;g[k?'lineTo':'moveTo'](cx+Math.cos(a)*23,y+Math.sin(a)*23)}g.closePath();g.stroke()}
  g.fillStyle='#12456b';g.fillRect(0,444,1024,68);g.fillStyle='#071c37';g.fillRect(0,454,1024,37);
  g.font='italic 800 24px sans-serif';g.fillStyle='#dbe7e9';for(let x=18;x<1024;x+=256)g.fillText('TEVIN LEAGUE',x,480);
@@ -1982,7 +1982,7 @@ function batchMeshes(group){
 
 function carMesh2(col,acc){
 
- const g=new THREE.Group(),paint=ENGINE.physicalMaterial(ren,{color:new THREE.Color(col),metalness:.04,roughness:.86,clearcoat:0,clearcoatRoughness:1,envMapIntensity:.32}),
+ const g=new THREE.Group(),paint=ENGINE.physicalMaterial(ren,{color:new THREE.Color(col),metalness:.04,roughness:.72,clearcoat:0,clearcoatRoughness:1,envMapIntensity:.5}),
 
  trim=new THREE.MeshStandardMaterial({color:0x131b25,metalness:.45,roughness:.5}),glass=new THREE.MeshStandardMaterial({color:0x254963,metalness:.65,roughness:.15}),
 
@@ -2097,6 +2097,8 @@ function makeGrass(){
  const N=cfg.hi?24000:9000,bg=new THREE.BufferGeometry(),off=new Float32Array(N*3);
 
  bg.setAttribute('position',new THREE.Float32BufferAttribute([-.012,0,0,.012,0,0,-.008,.5,0,.008,.5,0,0,1,0,0,0,-.012,0,0,.012,0,.5,-.008,0,.5,.008,0,.9,0],3));bg.setIndex([0,1,2,1,3,2,2,3,4,5,6,7,6,8,7,7,8,9]);
+ // Short, fine turf cards read as maintained grass on both rendering backends.
+ const blade=bg.getAttribute('position');for(let i=0;i<blade.count;i++)blade.setXYZ(i,blade.getX(i)*.6,blade.getY(i)*.55,blade.getZ(i)*.6);
 
  const columns=Math.ceil(Math.sqrt(N)),rows=Math.ceil(N/columns);
 
@@ -2178,6 +2180,7 @@ function dispose3d(){
 
  if(scene)scene.traverse(o=>{if(o.geometry)geos.add(o.geometry);for(const m of (Array.isArray(o.material)?o.material:[o.material]))if(m){mats.add(m);for(const v of Object.values(m))if(v&&v.isTexture)textures.add(v)}});
 
+ if(scene?.background?.isTexture)textures.add(scene.background);
  geos.forEach(g=>g.dispose());mats.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());
 
   if(envTarget)envTarget.dispose();if(sun&&sun.shadow.map)sun.shadow.map.dispose();
@@ -2207,22 +2210,22 @@ async function build3d(forceGL){
 
  // Static filtered environment avoids the periodic six-pass cube-camera hitch.
 
-  ren.outputColorSpace=THREE.SRGBColorSpace;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=.94;ren.shadowMap.enabled=!!cfg.hi;ren.shadowMap.type=THREE.PCFShadowMap;ren.shadowMap.autoUpdate=false;ren.shadowMap.needsUpdate=!!cfg.hi;
+  ren.outputColorSpace=THREE.SRGBColorSpace;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=1.08;ren.shadowMap.enabled=!!cfg.hi;ren.shadowMap.type=THREE.PCFShadowMap;ren.shadowMap.autoUpdate=false;ren.shadowMap.needsUpdate=!!cfg.hi;
 
- scene=new THREE.Scene();scene.background=new THREE.Color(0x5caee5);scene.fog=new THREE.Fog(0x5599bc,190,460);
+ scene=new THREE.Scene();scene.background=new THREE.Color(0x5caee5);scene.fog=new THREE.Fog(0xb5cbd0,210,480);
 
  cam=new THREE.PerspectiveCamera(77,innerWidth/innerHeight,.1,700);
 
  await loadingStage(28,'Preparing stadium lighting');
- const et=arenaSky(true);envTarget=await ENGINE.environment(ren,et);scene.environment=envTarget.texture;scene.environmentIntensity=.65;et.dispose();
+ const sky=await loadStadiumSky();envTarget=await ENGINE.environment(ren,sky.lighting);scene.environment=envTarget.texture;scene.environmentIntensity=1.05;sky.lighting.dispose();scene.background=sky.visible;scene.backgroundIntensity=1;document.body.dataset.arenaLight='daylight-1';
 
- scene.add(new THREE.HemisphereLight(0x8ecbff,0x264b39,1.15));
+ scene.add(new THREE.HemisphereLight(0xc5e2fa,0x597347,1.65));
 
- sun=new THREE.DirectionalLight(0xffd6a0,2.15);sun.castShadow=!!cfg.hi;sun.shadow.autoUpdate=false;sun.shadow.needsUpdate=!!cfg.hi;sun.shadow.mapSize.set(2048,2048);const sc=sun.shadow.camera;sc.left=sc.bottom=-76;sc.right=sc.top=76;sc.near=1;sc.far=200;sun.shadow.bias=-.00015;sun.shadow.normalBias=.018;scene.add(sun,sun.target);
+ sun=new THREE.DirectionalLight(0xffe5bc,2.2);sun.castShadow=!!cfg.hi;sun.shadow.autoUpdate=false;sun.shadow.needsUpdate=!!cfg.hi;sun.shadow.mapSize.set(2048,2048);const sc=sun.shadow.camera;sc.left=sc.bottom=-76;sc.right=sc.top=76;sc.near=1;sc.far=200;sun.shadow.bias=-.00015;sun.shadow.normalBias=.018;scene.add(sun,sun.target);
 
- const fill=new THREE.DirectionalLight(0x6caaff,.8);fill.position.set(-35,28,-35);scene.add(fill);
+ const fill=new THREE.DirectionalLight(0xc0dcf5,1.05);fill.position.set(-35,28,-35);scene.add(fill);
 
- const rim=new THREE.DirectionalLight(0xffc58b,.85);rim.position.set(40,16,-35);scene.add(rim);
+ const rim=new THREE.DirectionalLight(0xffd7aa,.65);rim.position.set(40,16,-35);scene.add(rim);
 
  [[0x2060ff,-1],[0xff7a20,1]].forEach(([c,s])=>{const l=new THREE.PointLight(c,32,28,2);l.position.set(0,8,s*(HZ-3));l.userData.team=s<0?0:1;l.userData.base=32;goalLights.push(l);scene.add(l);
 
@@ -2333,7 +2336,7 @@ async function build3d(forceGL){
 
  // The roof is open over the pitch, with a coherent sky behind the stadium.
 
- scene.add(new THREE.Mesh(new THREE.SphereGeometry(500,48,24),new THREE.MeshBasicMaterial({map:arenaSky(),side:THREE.BackSide,fog:false,toneMapped:false})));
+ // Photographic sky is a scene background, so it has no clipping sphere or parallax.
 
  const stadium=ENGINE.championshipStadium(ren,teamPalette,cfg.hi);styleChampionshipStadium(stadium);batchMeshes(stadium);stadium.traverse(o=>o.castShadow=false);scene.add(stadium);addSpectators();
 
@@ -2341,7 +2344,7 @@ async function build3d(forceGL){
 
  pipeline=ENGINE.createPipeline(ren,scene,cam,cfg.hi);pipeline.resize(innerWidth,innerHeight,pixelRatio());
 
- const lp=localPlayer();cam.position.copy(cpos);cam.lookAt(lookPos);sun.position.set(35,55,22);sun.target.position.set(0,0,0);
+ const lp=localPlayer();cam.position.copy(cpos);cam.lookAt(lookPos);sun.position.set(42,48,29);sun.target.position.set(0,0,0);
 
  await loadingStage(90,'Compiling materials and effects');
  await ENGINE.prewarm(ren,scene,cam,pipeline,cm,pts);

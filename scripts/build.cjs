@@ -10,6 +10,7 @@ for(const file of ['bootstrap.js','engine.bundle.js','game.js']) {
  // Keep it byte-for-byte: it is also the release recovery copy.
  let code=file==='engine.bundle.js'?[...read('legacy-8.2.html').matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)][1][1]:read(file);
  code=code.replace(/\/\/ INLINE:([\w.-]+\.js)/g,(_,part)=>read(part));
+ code=code.replace('SKY:stadium',()=> 'data:image/jpeg;base64,'+fs.readFileSync(path.join(root,'src/assets/stadium-clouds-2k.jpg')).toString('base64'));
  new vm.Script(code,{filename:file});
  html=html.replace('<!-- INLINE:'+file+' -->',()=>code);
 }
