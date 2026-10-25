@@ -129,13 +129,13 @@ function renderCareer(){
 function garagePreset(index,save){
  if(MP.active||SOC.searching)return false;
  if(save){CAREER.presets[index]={name:BODY_NAMES[cfg.body]+' / '+COLOR_NAMES[cfg.color],body:cfg.body,color:cfg.color,celebration:RIVAL_PREF.celebration};saveRivals();extraCue('rivalDrill');}
- else{const p=CAREER.presets[index];if(!p||!Number.isInteger(p.body)||p.body<0||p.body>2||!Number.isInteger(p.color)||p.color<0||p.color>7)return false;cfg.body=p.body;cfg.color=p.color;RIVAL_PREF.celebration=['pulse','comet','quiet'].includes(p.celebration)?p.celebration:'pulse';configureCars();savePresentation();saveRivals();syncMenuSettings();if(inited)refreshCarModels();$('goal-style').value=RIVAL_PREF.celebration;}
+ else{const p=CAREER.presets[index];if(!p||!Number.isInteger(p.body)||p.body<0||p.body>2||!Number.isInteger(p.color)||p.color<0||p.color>7)return false;cfg.body=p.body;cfg.color=p.color;RIVAL_PREF.celebration=['pulse','comet','quiet'].includes(p.celebration)?p.celebration:'pulse';configureCars();savePresentation();saveRivals();syncMenuSettings();for(const [i,b] of Array.from($('body-options').children).entries())b.setAttribute('aria-pressed',String(cfg.body===i));$('swatches').querySelectorAll('button').forEach((b,i)=>b.classList.toggle('on',cfg.color===i));$('paint-name').textContent=COLOR_NAMES[cfg.color];updateMatchSummary();if(inited){refreshCarModels();paintCar(0)}$('garage-status').textContent=BODY_NAMES[cfg.body]+' · '+COLOR_NAMES[cfg.color]+(inited?' · READY':'');$('goal-style').value=RIVAL_PREF.celebration;}
  renderCareer();return true;
 }
 async function queuePractice(){
  if(!SOC.searching||MP.active||starting||LOADING.active)return;
  RIVALS.queuePractice=true;sandbox=true;const allies=cfg.allies,enemies=cfg.enemies;cfg.allies=cfg.enemies=0;
- RIVALS.practiceJob=startGame();try{await RIVALS.practiceJob;if(!MP.active){trainingSetup('free');}}finally{RIVALS.practiceJob=null;cfg.allies=allies;cfg.enemies=enemies;}
+ RIVALS.practiceJob=startGame();try{const ready=await RIVALS.practiceJob;if(!ready){RIVALS.queuePractice=false;sandbox=false;return}if(!MP.active){trainingSetup('free');}}finally{RIVALS.practiceJob=null;cfg.allies=allies;cfg.enemies=enemies;}
 }
 function setupRivals(){
  for(const [id,key] of [['option-replays','replays'],['option-markers','markers'],['option-motion','motion'],['option-cues','extraSounds']]){const el=$(id);el.checked=RIVAL_PREF[key];el.onchange=()=>{RIVAL_PREF[key]=el.checked;saveRivals()};}

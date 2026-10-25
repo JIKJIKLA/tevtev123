@@ -51,3 +51,10 @@ test('full menu exposes usable settings, seven drills and three preset slots',()
 test('damaged local history cannot prevent menu startup',()=>{
  const g=load({full:true,storage:{'tevin.rivals.v1':JSON.stringify({career:{history:[null,1,{}, {result:'WIN',size:1,score:'1–0',mode:'Soccar'}]}})}});assert.equal(g.api.CAREER.history.length,1);
 });
+test('preset restore synchronizes every visible body and paint label',()=>{
+ const g=load({full:true}),a=g.api;a.garagePreset(0,true);a.cfg.body=2;a.cfg.color=4;a.garagePreset(0,false);
+ assert.equal(g.document.querySelector('#body-options button').getAttribute('aria-pressed'),'true');assert.equal(g.document.getElementById('paint-name').textContent,'Cobalt');assert.match(g.document.getElementById('menu-context').textContent,/Octane · Cobalt/);assert.match(g.document.getElementById('garage-status').textContent,/Octane · Cobalt/);
+});
+test('returning from training clears sandbox state before garage reconfiguration',async()=>{
+ const g=load({full:true});g.window.setTimeout=fn=>{fn();return 0};g.api.setState({st:'PLAY',sandbox:true});await g.api.quit();g.api.configureCars();assert.equal(g.api.getState().sandbox,false);assert.equal(g.document.getElementById('training-hud').hidden,true);
+});
