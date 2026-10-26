@@ -300,6 +300,18 @@ body.device-touch #training-open{min-height:44px;padding:10px;font-size:9px}
 body.device-phone #matchtag{top:112px!important;max-width:155px}
 body.device-phone #rival-title{top:163px!important}
 @media(max-height:500px) and (orientation:landscape){body.device-phone #menu .menu-top{display:flex;flex-wrap:nowrap;height:64px;min-height:64px;padding:10px 16px}body.device-touch #training-hud{top:59px;bottom:auto}body.device-phone #matchtag{top:15px!important}body.device-phone #rival-title{display:none}}
+/* One native scroll surface; the primary match action stays outside it. */
+body:is(.device-phone,.device-tablet) #menu:not([data-screen=home]) .menu-pages{pointer-events:auto;overflow-y:auto!important;overflow-x:hidden!important;max-height:none!important;touch-action:pan-y pinch-zoom;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;scroll-padding:16px}
+body:is(.device-phone,.device-tablet) #menu .menu-pages>section{max-height:none!important;overflow:visible!important;min-height:0}
+body.mobile-match-menu #menu .menu-pages{bottom:calc(110px + env(safe-area-inset-bottom))!important}
+body.mobile-match-menu #menu .menu-footer{display:none}
+body:is(.device-phone,.device-tablet) #menu #play-panel .destination-tabs button{min-height:90px;padding:45px 12px 12px;transform:none;font-size:15px;touch-action:pan-y}
+body:is(.device-phone,.device-tablet) #menu #play-panel .destination-tabs button:before{font-size:36px;top:2px;right:12px}
+#mobile-playbar{position:fixed;z-index:9;left:max(12px,env(safe-area-inset-left));right:max(12px,env(safe-area-inset-right));bottom:max(8px,env(safe-area-inset-bottom));padding:9px 12px;background:#071c30;border:1px solid #82d9f5;border-radius:7px;box-shadow:0 -8px 24px #00101b80;pointer-events:auto;box-sizing:border-box}
+#mobile-play-summary{display:block;font:700 10px Arial,sans-serif;letter-spacing:1px;color:#b8dcec;margin:0 0 7px;text-align:center}
+#menu #mobile-play{display:block;width:100%;min-height:50px;padding:12px;border:1px solid #e5faff;border-radius:4px;background:linear-gradient(100deg,#d9f8ff,#61ceee);color:#06263a;font:900 17px Arial,sans-serif;letter-spacing:1px;cursor:pointer;touch-action:manipulation}
+#menu #mobile-play:disabled{opacity:.5;cursor:wait}
+@media(max-height:500px) and (orientation:landscape){body.mobile-match-menu #menu .menu-pages{bottom:calc(82px + env(safe-area-inset-bottom))!important}#mobile-playbar{display:flex;align-items:center;gap:12px;padding:8px 12px}#mobile-play-summary{flex:1;margin:0;text-align:left}#menu #mobile-play{width:45%;min-height:46px}}
 
 
 
@@ -12114,8 +12126,28 @@ function touchTap(kind){
  if(kind==='camera'&&deviceCanPlay(true)){ballCam=!ballCam;renderBindings();}
  if(kind==='fullscreen'){try{const job=document.fullscreenElement?document.exitFullscreen?.():document.documentElement.requestFullscreen?.();job?.catch?.(()=>{});}catch(_){} }
 }
+function mobilePlayTarget(){
+ if(playRoute==='quick')return SOC.searching?['quick-cancel','CANCEL SEARCH']:['quick-find','FIND ONLINE MATCH'];
+ if(playRoute==='online')return privateAction==='join'?['join-match','JOIN PRIVATE MATCH']:['host-match','CREATE PRIVATE MATCH'];
+ return playRoute==='training'?['sandbox-start','PLAY SANDBOX']:['go','PLAY VS AI'];
+}
+function updateMobilePlaybar(){
+ const bar=$('mobile-playbar');if(!bar)return;
+ const show=['phone','tablet'].includes(DEVICE.form)&&st==='MENU'&&menuScreen==='play'&&!MP.active&&!INTRO.active&&!LOADING.active;
+ bar.hidden=!show;document.body.classList.toggle('mobile-match-menu',show);if(!show)return;
+ const [id,label]=mobilePlayTarget(),target=$(id),button=$('mobile-play'),summary=$('mobile-play-summary');
+ if(button.textContent!==label)button.textContent=label;button.disabled=!target||target.disabled;
+ const text=playRoute==='online'&&privateAction==='join'?'ENTER YOUR FRIEND’S MATCH CODE':(cfg.mode?'HEATSEEKER':'SOCCAR')+' · '+cfg.size+'v'+cfg.size+' · '+(playRoute==='training'?'FREE PRACTICE':playRoute==='offline'?'VS AI':playRoute==='online'?'PRIVATE MATCH':'ONLINE');
+ if(summary.textContent!==text)summary.textContent=text;
+}
+function setupMobilePlaybar(){
+ const bar=document.createElement('div');bar.id='mobile-playbar';bar.hidden=true;bar.setAttribute('aria-label','Start selected match');
+ bar.innerHTML='<span id="mobile-play-summary"></span><button id="mobile-play" type="button">PLAY</button>';$('menu').appendChild(bar);
+ $('mobile-play').onclick=()=>{const [id]=mobilePlayTarget(),target=$(id);if(!target||target.disabled)return;if(id==='join-match'&&!$('room-code').value.trim()){$('room-code').scrollIntoView?.({block:'center'});$('room-code').focus?.();return;}target.click();updateMobilePlaybar();};
+}
 function updateDeviceUI(){
  if(!DEVICE.ready)return;
+ updateMobilePlaybar();
  if(DEVICE.preference==='auto'&&padInput.connected&&(Math.abs(padInput.thr)+Math.abs(padInput.steer)+Math.abs(padInput.pitch)+Math.abs(padInput.roll)+padInput.boost+padInput.ps+(padInput.jump?1:0)>.15))setDeviceInput('controller');
  const show=DEVICE.input==='touch'&&deviceCanPlay(true);
  if(!show&&(touchInput.active||DEVICE.pointers.size))clearTouchInput();
@@ -12137,7 +12169,7 @@ function setupDevice(){
  addEventListener('pointerup',e=>{if(DEVICE.wordmarkHold?.id===e.pointerId)cancelDeviceSecretHold();touchRelease(e);});addEventListener('pointercancel',e=>{if(DEVICE.wordmarkHold?.id===e.pointerId)cancelDeviceSecretHold();touchRelease(e,true);});panel.addEventListener('lostpointercapture',e=>touchRelease(e,true));
  const wordmark=document.querySelector('.wordmark');if(wordmark)wordmark.addEventListener('pointerdown',deviceSecretHoldStart);addEventListener('pointermove',deviceSecretHoldMove);
  addEventListener('blur',clearTouchInput);addEventListener('resize',()=>{clearTouchInput();updateDeviceProfile();});addEventListener('orientationchange',()=>{clearTouchInput();updateDeviceProfile();});document.addEventListener('visibilitychange',()=>{if(document.hidden)clearTouchInput();});
- DEVICE.ready=true;deviceClasses();updateDeviceUI();
+ setupMobilePlaybar();DEVICE.ready=true;deviceClasses();updateDeviceUI();
 }
 
 // Bounded presentation only: no match, car or ball physics is changed here.

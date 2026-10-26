@@ -70,8 +70,28 @@ function touchTap(kind){
  if(kind==='camera'&&deviceCanPlay(true)){ballCam=!ballCam;renderBindings();}
  if(kind==='fullscreen'){try{const job=document.fullscreenElement?document.exitFullscreen?.():document.documentElement.requestFullscreen?.();job?.catch?.(()=>{});}catch(_){} }
 }
+function mobilePlayTarget(){
+ if(playRoute==='quick')return SOC.searching?['quick-cancel','CANCEL SEARCH']:['quick-find','FIND ONLINE MATCH'];
+ if(playRoute==='online')return privateAction==='join'?['join-match','JOIN PRIVATE MATCH']:['host-match','CREATE PRIVATE MATCH'];
+ return playRoute==='training'?['sandbox-start','PLAY SANDBOX']:['go','PLAY VS AI'];
+}
+function updateMobilePlaybar(){
+ const bar=$('mobile-playbar');if(!bar)return;
+ const show=['phone','tablet'].includes(DEVICE.form)&&st==='MENU'&&menuScreen==='play'&&!MP.active&&!INTRO.active&&!LOADING.active;
+ bar.hidden=!show;document.body.classList.toggle('mobile-match-menu',show);if(!show)return;
+ const [id,label]=mobilePlayTarget(),target=$(id),button=$('mobile-play'),summary=$('mobile-play-summary');
+ if(button.textContent!==label)button.textContent=label;button.disabled=!target||target.disabled;
+ const text=playRoute==='online'&&privateAction==='join'?'ENTER YOUR FRIEND’S MATCH CODE':(cfg.mode?'HEATSEEKER':'SOCCAR')+' · '+cfg.size+'v'+cfg.size+' · '+(playRoute==='training'?'FREE PRACTICE':playRoute==='offline'?'VS AI':playRoute==='online'?'PRIVATE MATCH':'ONLINE');
+ if(summary.textContent!==text)summary.textContent=text;
+}
+function setupMobilePlaybar(){
+ const bar=document.createElement('div');bar.id='mobile-playbar';bar.hidden=true;bar.setAttribute('aria-label','Start selected match');
+ bar.innerHTML='<span id="mobile-play-summary"></span><button id="mobile-play" type="button">PLAY</button>';$('menu').appendChild(bar);
+ $('mobile-play').onclick=()=>{const [id]=mobilePlayTarget(),target=$(id);if(!target||target.disabled)return;if(id==='join-match'&&!$('room-code').value.trim()){$('room-code').scrollIntoView?.({block:'center'});$('room-code').focus?.();return;}target.click();updateMobilePlaybar();};
+}
 function updateDeviceUI(){
  if(!DEVICE.ready)return;
+ updateMobilePlaybar();
  if(DEVICE.preference==='auto'&&padInput.connected&&(Math.abs(padInput.thr)+Math.abs(padInput.steer)+Math.abs(padInput.pitch)+Math.abs(padInput.roll)+padInput.boost+padInput.ps+(padInput.jump?1:0)>.15))setDeviceInput('controller');
  const show=DEVICE.input==='touch'&&deviceCanPlay(true);
  if(!show&&(touchInput.active||DEVICE.pointers.size))clearTouchInput();
@@ -93,5 +113,5 @@ function setupDevice(){
  addEventListener('pointerup',e=>{if(DEVICE.wordmarkHold?.id===e.pointerId)cancelDeviceSecretHold();touchRelease(e);});addEventListener('pointercancel',e=>{if(DEVICE.wordmarkHold?.id===e.pointerId)cancelDeviceSecretHold();touchRelease(e,true);});panel.addEventListener('lostpointercapture',e=>touchRelease(e,true));
  const wordmark=document.querySelector('.wordmark');if(wordmark)wordmark.addEventListener('pointerdown',deviceSecretHoldStart);addEventListener('pointermove',deviceSecretHoldMove);
  addEventListener('blur',clearTouchInput);addEventListener('resize',()=>{clearTouchInput();updateDeviceProfile();});addEventListener('orientationchange',()=>{clearTouchInput();updateDeviceProfile();});document.addEventListener('visibilitychange',()=>{if(document.hidden)clearTouchInput();});
- DEVICE.ready=true;deviceClasses();updateDeviceUI();
+ setupMobilePlaybar();DEVICE.ready=true;deviceClasses();updateDeviceUI();
 }

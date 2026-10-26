@@ -53,3 +53,15 @@ body.device-touch #training-open{min-height:44px;padding:10px;font-size:9px}
 body.device-phone #matchtag{top:112px!important;max-width:155px}
 body.device-phone #rival-title{top:163px!important}
 @media(max-height:500px) and (orientation:landscape){body.device-phone #menu .menu-top{display:flex;flex-wrap:nowrap;height:64px;min-height:64px;padding:10px 16px}body.device-touch #training-hud{top:59px;bottom:auto}body.device-phone #matchtag{top:15px!important}body.device-phone #rival-title{display:none}}
+/* One native scroll surface; the primary match action stays outside it. */
+body:is(.device-phone,.device-tablet) #menu:not([data-screen=home]) .menu-pages{pointer-events:auto;overflow-y:auto!important;overflow-x:hidden!important;max-height:none!important;touch-action:pan-y pinch-zoom;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;scroll-padding:16px}
+body:is(.device-phone,.device-tablet) #menu .menu-pages>section{max-height:none!important;overflow:visible!important;min-height:0}
+body.mobile-match-menu #menu .menu-pages{bottom:calc(110px + env(safe-area-inset-bottom))!important}
+body.mobile-match-menu #menu .menu-footer{display:none}
+body:is(.device-phone,.device-tablet) #menu #play-panel .destination-tabs button{min-height:90px;padding:45px 12px 12px;transform:none;font-size:15px;touch-action:pan-y}
+body:is(.device-phone,.device-tablet) #menu #play-panel .destination-tabs button:before{font-size:36px;top:2px;right:12px}
+#mobile-playbar{position:fixed;z-index:9;left:max(12px,env(safe-area-inset-left));right:max(12px,env(safe-area-inset-right));bottom:max(8px,env(safe-area-inset-bottom));padding:9px 12px;background:#071c30;border:1px solid #82d9f5;border-radius:7px;box-shadow:0 -8px 24px #00101b80;pointer-events:auto;box-sizing:border-box}
+#mobile-play-summary{display:block;font:700 10px Arial,sans-serif;letter-spacing:1px;color:#b8dcec;margin:0 0 7px;text-align:center}
+#menu #mobile-play{display:block;width:100%;min-height:50px;padding:12px;border:1px solid #e5faff;border-radius:4px;background:linear-gradient(100deg,#d9f8ff,#61ceee);color:#06263a;font:900 17px Arial,sans-serif;letter-spacing:1px;cursor:pointer;touch-action:manipulation}
+#menu #mobile-play:disabled{opacity:.5;cursor:wait}
+@media(max-height:500px) and (orientation:landscape){body.mobile-match-menu #menu .menu-pages{bottom:calc(82px + env(safe-area-inset-bottom))!important}#mobile-playbar{display:flex;align-items:center;gap:12px;padding:8px 12px}#mobile-play-summary{flex:1;margin:0;text-align:left}#menu #mobile-play{width:45%;min-height:46px}}
