@@ -1,9 +1,11 @@
-# Tevin League 9.7 — Momentum
+# Tevin League 9.8 — Championship
 
 Browser car soccer with Soccar and Heatseeker, 1v1/2v2/3v3, AI, sandbox, private rooms and public matchmaking. [Play on GitHub Pages](https://jikjikla.github.io/tevtev123/) or [Bunny CDN](https://tevtev123.b-cdn.net/). Online play uses the Phoenix dedicated server. The portable `index.html` also supports offline AI and practice.
 
 ## Controls and new features
 
+- Online countdowns animate once per number. Remote cars use the server tick timeline with a 50–100 ms adaptive interpolation delay instead of a fixed 100 ms arrival-time buffer; local steering corrections blend visually while authority stays unchanged.
+- Championship stadium adds rounded multicolored fans, continuous concourse displays, roof undersides/ribs, hospitality boxes and pennants. Balanced warm sun/cool fill and baked turf-edge shading preserve the existing photographic sky and matte cars.
 - Phones/tablets automatically get a left thumbstick, hold-to-boost, jump/dodge, slide, air roll, ball-camera, pause and fullscreen controls. Settings → Screen & Controls can override detection. Keyboard/controller input switches automatically on hybrid devices.
 - Garage supports a full RGB picker, hue slider and eight extra quick paints. Paint saves with garage presets and travels through multiplayer; scoreboard digits choose a readable contrast against each captain's actual paint.
 - Boost uses twin flame cores and bounded trails. Goals add scorer-colored shockwaves, ribbons and a stinger; the 7.2-second celebration includes a longer slow-motion replay. Quiet/reduced-motion settings remain available.
@@ -33,4 +35,4 @@ Edit `src/` and run `node scripts/build.cjs` to regenerate the portable HTML. `s
 
 The recovered Supabase source remains for archival compatibility; current gameplay uses the dedicated WebSocket transport. No server credentials belong in the repository.
 
-[Persistent product vision](docs/PRODUCT-VISION.md) · [9.7 release scope](docs/RELEASE-9.7.md) · [New sound licenses](docs/AUDIO-9.6.md) · [Physics references](docs/ACCURACY.md)
+[Persistent product vision](docs/PRODUCT-VISION.md) · [9.8 release scope](docs/RELEASE-9.8.md) · [New sound licenses](docs/AUDIO-9.6.md) · [Physics references](docs/ACCURACY.md)

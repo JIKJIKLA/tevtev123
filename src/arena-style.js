@@ -54,14 +54,16 @@ function arenaPitchMaterial(){
  for(const s of [-1,1]){g.strokeRect(-18,s<0?-47:31,36,16);g.strokeRect(-9,s<0?-47:40,18,7)}
  g.fillStyle='#d9f6e5';g.beginPath();g.arc(0,0,.23,0,Math.PI*2);g.fill();
  g.font='italic 900 2px sans-serif';g.textAlign='center';g.fillStyle='rgba(223,250,239,.24)';g.fillText('T E V I N',0,4);g.restore();
- PITCH_TEXTURE=m.map;m.map.needsUpdate=true;m.roughness=.98;if(m.normalScale)m.normalScale.set(.35,.35);return m;
+ // A soft baked roof shadow grounds the perimeter without another shadow pass.
+ const shade=g.createRadialGradient(w/2,h/2,w*.3,w/2,h/2,w*.68);shade.addColorStop(0,'rgba(5,24,17,0)');shade.addColorStop(1,'rgba(5,24,17,.28)');g.fillStyle=shade;g.fillRect(0,0,w,h);
+ PITCH_TEXTURE=m.map;m.map.needsUpdate=true;m.roughness=.96;if(m.normalScale)m.normalScale.set(.55,.55);return m;
 }
 
 function arenaPanelMaterial(color=0x536579){
  const c=cvs(512,512),g=c.getContext('2d');g.fillStyle='#8995a0';g.fillRect(0,0,512,512);
  for(let y=0;y<560;y+=32)for(let x=-32;x<560;x+=55){const cx=x+(y%64?27.5:0);g.beginPath();for(let k=0;k<6;k++){const a=k*Math.PI/3;g[k?'lineTo':'moveTo'](cx+Math.cos(a)*31,y+Math.sin(a)*31)}g.closePath();g.fillStyle=(x+y)%3?'#7e8c98':'#8b97a2';g.fill();g.strokeStyle='#465664';g.lineWidth=2;g.stroke();}
  g.strokeStyle='#c2cbd0';g.lineWidth=3;g.strokeRect(5,5,502,502);for(const x of [16,496])for(const y of [16,496]){g.fillStyle='#2b3d4c';g.beginPath();g.arc(x,y,4,0,7);g.fill();}
- return new THREE.MeshStandardMaterial({color,map:tex(c),roughness:.88,metalness:.12,envMapIntensity:.45});
+ return new THREE.MeshStandardMaterial({color,map:tex(c),normalMap:arenaSurfaceNormal(c),normalScale:new THREE.Vector2(.6,.6),roughness:.86,metalness:.12,envMapIntensity:.45});
 }
 function decorateArenaGoals(){
  const structure=arenaPanelMaterial(0x718799),backing=arenaPanelMaterial(0x3c5362);
@@ -90,19 +92,22 @@ function decorateArenaGoals(){
 }
 
 function styleChampionshipStadium(stadium){
- const matrix=new THREE.Matrix4(),p=new V3(),color=new THREE.Color();
+ const matrix=new THREE.Matrix4(),p=new V3(),color=new THREE.Color(),fanGeometry=new THREE.SphereGeometry(.38,6,3).scale(1,1.25,.9),oldGeometry=new Set();
  stadium.traverse(o=>{
   if(!o.isMesh)return;
   if(o.isInstancedMesh){
-   // Seat colors follow their actual goal half instead of a gray checkerboard.
-   o.material.color.setHex(0xffffff);
-   for(let i=0;i<o.count;i++){o.getMatrixAt(i,matrix);p.setFromMatrixPosition(matrix);color.setHex(teamPalette[p.z<0?0:1]).multiplyScalar(.48+(i%7)*.065);if(i%19===0)color.setHex(0xc3edff);o.setColorAt(i,color)}
+   // Rounded, multicolored fans replace the oversized gray seat blocks.
+   oldGeometry.add(o.geometry);o.geometry=fanGeometry;o.material.color.setHex(0xffffff);o.material.roughness=1;
+   const crowdColors=[0xe7dcb4,0x81a368,0xd59965,0x969faa,0xe4e9e8,0xa34c61];
+   for(let i=0;i<o.count;i++){o.getMatrixAt(i,matrix);p.setFromMatrixPosition(matrix);const seed=(Math.imul(i+1,1664525)>>>0)%19;color.setHex(seed<9?teamPalette[p.z<0?0:1]:crowdColors[seed%crowdColors.length]).multiplyScalar(.55+(i%5)*.07);o.setColorAt(i,color)}
    o.instanceColor.needsUpdate=true;
-  }else if(o.material?.isMeshStandardMaterial&&!o.material.userData.team){
+   if(!RIVALS.crowd)RIVALS.crowd={mesh:o,y:Array.from({length:o.count},(_,i)=>o.instanceMatrix.array[i*16+13])};
+  }else if(o.material?.isMeshStandardMaterial&&o.material.userData.team===undefined){
    // Neutral blue-gray structure keeps saturated team colors distinct.
    o.material.color.lerp(new THREE.Color(0x53687b),.16);
   }
  });
+ for(const geometry of oldGeometry)geometry.dispose();
  const trim=teamPalette.map((c,t)=>{const m=new THREE.MeshBasicMaterial({color:c,toneMapped:false});m.userData.team=t;return m});
  RIVALS.trim=trim;const dark=new THREE.MeshBasicMaterial({color:0x071a35,toneMapped:false});
  const box=(x,y,z,w,h,d,mat)=>{const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);mesh.position.set(x,y,z);stadium.add(mesh);return mesh};
@@ -127,4 +132,5 @@ function styleChampionshipStadium(stadium){
   g.fillStyle='#fff';g.textAlign='center';g.font='italic 900 72px sans-serif';g.fillText('TEVIN LEAGUE',512,119);g.font='700 27px sans-serif';g.fillStyle='#d8f5ff';g.fillText('SKYLINE  /  CHAMPIONSHIP ARENA',512,179);
   const screen=new THREE.Mesh(new THREE.PlaneGeometry(25,6.25),new THREE.MeshBasicMaterial({map:tex(c),toneMapped:false}));screen.position.set(0,20,sign*68.38);if(sign>0)screen.rotation.y=Math.PI;stadium.add(screen);
  }
+ refineStadiumStructure(stadium);
 }

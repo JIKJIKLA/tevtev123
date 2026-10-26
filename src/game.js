@@ -2,7 +2,7 @@
 try {
 
 
-/* Tevin League 9.7 — Momentum. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
+/* Tevin League 9.8 — Championship. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
 window.tevinBoot.stage='game script';
 
 const ENGINE=TevinEngine;
@@ -1463,7 +1463,7 @@ function emit(x,y,z,vx,vy,vz,l,r,g,b){const k=particleCount<NP?particleCount++:p
 
 // ---------- match flow ----------
 
-let st='MENU',ps_,score=[0,0],tl=300,ot=0,cnt=0,gt=0,mt=0,simTime=0,kickoffAge=0;
+let st='MENU',ps_,score=[0,0],tl=300,ot=0,cnt=0,gt=0,mt=0,msgDeadline=0,simTime=0,kickoffAge=0;
 
 // ---------- Supabase authenticated Realtime multiplayer ----------
 
@@ -1512,9 +1512,9 @@ function publishMultiplayer(dt){if(!MP.active||!MP.loaded||!MP.room||MP.closed)r
 function mpRemoteControls(c){const seat=MP.seats[c.id];if(!seat){bot(c);return}const p=MP.inputs[seat.session];Object.assign(c.inp,Z);c.jp=c.jh=0;if(!p||p.round!==MP.round||p.paused)return;for(const key in Z)c.inp[key]=cl(Number(p.controls?.[key])||0,-1,1);c.jp=p.jump>(MP.seenJumps[seat.session]||0)?1:0;MP.seenJumps[seat.session]=p.jump;c.jh=p.held?1:0}
 function packetValid(p){return p&&[p.x,p.y,p.z].every(x=>Number.isFinite(x)&&Math.abs(x)<=1000)&&Number.isFinite(p.boost)&&p.boost>=0&&p.boost<=100&&finiteVector(p.q,4,1.01)&&p.q.reduce((sum,x)=>sum+x*x,0)>.5&&finiteVector(p.v,3,100)&&finiteVector(p.w,3,100)&&finiteVector(p.n,3,1.01)}
 function mpReadCar(c,p,blend,age,previous=p){if(!packetValid(p)||!packetValid(previous))return;_a.set(previous.x,previous.y,previous.z);_b.set(p.x,p.y,p.z);c.p.lerpVectors(_a,_b,blend);_b.fromArray(p.v);c.p.addScaledVector(_b,age);c.q.fromArray(previous.q).normalize();_q1.fromArray(p.q).normalize();c.q.slerp(_q1,blend);c.v.copy(_b);if(p.w?.length===3)c.w.fromArray(p.w);if(p.n?.length===3)c.n.fromArray(p.n);c.boost=p.boost;c.ground=p.ground;c.bst=p.boosting?1:0;c.color=validPaint(p.color)?p.color:PALETTE[c.team];c.touches=p.touches||0;c.goals=p.goals||0;c.topSpeed=p.topSpeed||0;c.boostUsed=p.boostUsed||0;Object.assign(c.inp,p.input||Z);c.frameP.copy(c.p);c.frameQ.copy(c.q);c.prevP.copy(c.p);c.prevQ.copy(c.q);if(c.id<2)updateScorePaint()}
-function applyMultiplayer(dt,snap=false){if(MP.role!=='guest'||!MP.snapshot)return;let a=MP.snapshot,b=a,blend=1,age=0;const target=performance.now()-100,buf=MP.buffer;if(!snap&&a.phase==='PLAY'&&buf.length){a=b=buf[0].state;for(let k=1;k<buf.length;k++){if(buf[k].at>=target){a=buf[k-1].state;b=buf[k].state;blend=cl((target-buf[k-1].at)/Math.max(1,buf[k].at-buf[k-1].at),0,1);break}a=b=buf[k].state}if(target>buf[buf.length-1].at)age=Math.min(.05,(target-buf[buf.length-1].at)/1000)}for(let k=0;k<cars.length;k++)if(!DED.active||snap||k!==MP.slot)mpReadCar(cars[k],b.cars[k],blend,age,a.cars[k]);if((!DED.active||snap)&&a.ball?.p?.length===3&&b.ball?.p?.length===3){_a.fromArray(a.ball.p);_b.fromArray(b.ball.p);ball.p.lerpVectors(_a,_b,blend);ball.v.fromArray(b.ball.v);ball.p.addScaledVector(ball.v,age);ball.w.fromArray(b.ball.w);ball.last=b.ball.last;ball.lastPlayer=b.ball.lastPlayer;ball.color=b.ball.color;ball.frameP.copy(ball.p);ball.prevP.copy(ball.p)}}
+function applyMultiplayer(dt,snap=false){if(MP.role!=='guest'||!MP.snapshot)return;let a=MP.snapshot,b=a,blend=1,age=0;const target=DED.active?dedRenderTime(performance.now(),dt):performance.now()-100,buf=MP.buffer,stamp=item=>DED.active?(item.time??item.at):item.at;if(!snap&&a.phase==='PLAY'&&buf.length){a=b=buf[0].state;for(let k=1;k<buf.length;k++){if(stamp(buf[k])>=target){a=buf[k-1].state;b=buf[k].state;blend=cl((target-stamp(buf[k-1]))/Math.max(1,stamp(buf[k])-stamp(buf[k-1])),0,1);break}a=b=buf[k].state}if(target>stamp(buf[buf.length-1]))age=Math.min(.05,(target-stamp(buf[buf.length-1]))/1000)}for(let k=0;k<cars.length;k++)if(!DED.active||snap||k!==MP.slot)mpReadCar(cars[k],b.cars[k],blend,age,a.cars[k]);if((!DED.active||snap)&&a.ball?.p?.length===3&&b.ball?.p?.length===3){_a.fromArray(a.ball.p);_b.fromArray(b.ball.p);ball.p.lerpVectors(_a,_b,blend);ball.v.fromArray(b.ball.v);ball.p.addScaledVector(ball.v,age);ball.w.fromArray(b.ball.w);ball.last=b.ball.last;ball.lastPlayer=b.ball.lastPlayer;ball.color=b.ball.color;ball.frameP.copy(ball.p);ball.prevP.copy(ball.p)}}
 function publishMatch(){MP.force=true}
-function handleRemoteMatch(s){if(!MP.loaded||MP.role!=='guest')return;const changed=st!==s.phase,roundChanged=MP.round!==s.round;heat.server=Number.isInteger(s.serve)?s.serve:-1;readHeatState(s.heat);if(s.series&&[1,3,5].includes(s.series.bestOf)&&Array.isArray(s.series.wins)&&s.series.wins.length===2&&s.series.wins.every(n=>Number.isInteger(n)&&n>=0&&n<=3))Object.assign(SERIES,s.series);MP.round=s.round;MP.endReason=s.endReason||'';tl=s.clock;cnt=s.count;gt=s.goalTime;ot=s.overtime?1:0;MP.matchBegun=s.phase!=='WAIT';if(Array.isArray(s.score)){score[0]=s.score[0];score[1]=s.score[1];$('s0').textContent=score[0];$('s1').textContent=score[1]}if(s.pads)for(let k=0;k<PADS.length;k++)PADS[k].t=s.pads[k]||0;if(roundChanged){if(s.score[0]===0&&s.score[1]===0){RIVALS.recorded=false;SERIES.counted=false;RIVALS.goalSeen='';}kickoff(false);MP.round=s.round;mpClearInput();$('end').classList.remove('on');$('hud').style.display='block'}if(s.phase==='PAUSE'){applyMultiplayer(0,true);ps_=s.resume;mpFreeze('MATCH PAUSED')}else if(MP.localPaused){mpFreeze('PAUSE REQUESTED')}else{st=s.phase;$('pause').classList.remove('on');if(changed||roundChanged){mpClearInput();applyMultiplayer(0,true);if(st==='PLAY')msg('GO!',.8,'#4f8');if(st==='GOAL'){goalPulse=1;msg('GOAL!',3.2,'#fff');rivalsGoal(s.goal||{team:score[0]>score[1]?0:1,scorer:s.ball.lastPlayer,assist:-1,speed:Math.round(Math.hypot(...s.ball.v)*3.6)})}if(st==='END')endMatch(false)}}audioReceive(s);updateServeHint();if(st==='COUNT')msg(Math.max(1,Math.ceil(cnt)),.2,'#fff');mpStatus('LIVE · PLAYER '+(MP.slot+1),'good')}
+function handleRemoteMatch(s){if(!MP.loaded||MP.role!=='guest')return;const changed=st!==s.phase,roundChanged=MP.round!==s.round;heat.server=Number.isInteger(s.serve)?s.serve:-1;readHeatState(s.heat);if(s.series&&[1,3,5].includes(s.series.bestOf)&&Array.isArray(s.series.wins)&&s.series.wins.length===2&&s.series.wins.every(n=>Number.isInteger(n)&&n>=0&&n<=3))Object.assign(SERIES,s.series);MP.round=s.round;MP.endReason=s.endReason||'';tl=s.clock;cnt=s.count;gt=s.goalTime;ot=s.overtime?1:0;MP.matchBegun=s.phase!=='WAIT';if(Array.isArray(s.score)){score[0]=s.score[0];score[1]=s.score[1];$('s0').textContent=score[0];$('s1').textContent=score[1]}if(s.pads)for(let k=0;k<PADS.length;k++)PADS[k].t=s.pads[k]||0;if(roundChanged){if(s.score[0]===0&&s.score[1]===0){RIVALS.recorded=false;SERIES.counted=false;RIVALS.goalSeen='';}kickoff(false);MP.round=s.round;mpClearInput();$('end').classList.remove('on');$('hud').style.display='block'}if(s.phase==='PAUSE'){applyMultiplayer(0,true);ps_=s.resume;mpFreeze('MATCH PAUSED')}else if(MP.localPaused){mpFreeze('PAUSE REQUESTED')}else{st=s.phase;$('pause').classList.remove('on');if(changed||roundChanged){mpClearInput();applyMultiplayer(0,true);if(st==='PLAY')msg('GO!',.8,'#4f8');if(st==='GOAL'){goalPulse=1;msg('GOAL!',3.2,'#fff');rivalsGoal(s.goal||{team:score[0]>score[1]?0:1,scorer:s.ball.lastPlayer,assist:-1,speed:Math.round(Math.hypot(...s.ball.v)*3.6)})}if(st==='END')endMatch(false)}}audioReceive(s);updateServeHint();if(st==='COUNT')msg(Math.max(1,Math.ceil(cnt)),1.2,'#fff');mpStatus('LIVE · PLAYER '+(MP.slot+1),'good')}
 async function mpLoaded(){if(DED.active)return dedLoaded();if(multiplayerStore?.readyRoom)await multiplayerStore.readyRoom(MP.code);MP.loaded=true;MP.localPaused=false;kickoff(false);st='WAIT';mpClearInput();$('copy-status').textContent='';mpLobby();MP.force=true;await MP.room.child('presence/'+MP.session).set({ready:true,paused:false,connected:true});if(MP.role==='guest'&&MP.snapshot)handleRemoteMatch(MP.snapshot)}
 
 
@@ -1543,7 +1543,7 @@ function applyArenaTheme(){
  for(const l of goalLights)l.color.setHex(teamPalette[l.userData.team]);
  scene.traverse(o=>{const m=o.material;if(!m||Array.isArray(m))return;
   if(m.name==='Championship turf'){const fresh=arenaPitchMaterial();if(m.map){m.map.image=fresh.map.image;m.map.needsUpdate=true;PITCH_TEXTURE=m.map;if(GU?.paint)GU.paint.value=m.map;fresh.map.dispose()}else m.map=fresh.map;fresh.normalMap?.dispose();fresh.dispose();m.needsUpdate=true;}
-  if(m.userData.team!==undefined)m.color.setHex(teamPalette[m.userData.team]);
+  if(m.userData.team!==undefined){m.color.setHex(teamPalette[m.userData.team]);if(m.emissive&&(m.emissive.getHex()||m.userData.teamGlow)){m.userData.teamGlow=true;m.emissive.setHex(teamPalette[m.userData.team]);}}
  });
 }
 // Only authority draws a server. Guests receive its ID and all poses in the same
@@ -1742,7 +1742,7 @@ function setupSocial(){try{SOC.name=localStorage.getItem('tevin.driverName')||'D
 
 const matchStats={touches:0,topSpeed:0,boost:0,lastTouch:-1e9};
 
-const msg=(t,s,col='#fff')=>{const m=$('msg');if(m.textContent!==t||mt<=0)cinemaMessage(m);m.textContent=t;m.style.color=col;m.style.opacity=1;mt=s};
+const msg=(t,s,col='#fff')=>{const m=$('msg'),label=String(t);if(m.textContent!==label||mt<=0)cinemaMessage(m);m.textContent=label;m.style.color=col;m.style.opacity=1;mt=s;msgDeadline=performance.now()+s*1000};
 
 function kickoff(newRound=true){clearCelebration();secretReset();
 
@@ -1878,22 +1878,7 @@ function uploadParticles(){
 }
 
 function addSpectators(){
- // Three shared geometries keep a fuller crowd inexpensive on integrated graphics.
- const count=cfg.hi?1800:900,mat=new THREE.MeshStandardMaterial({roughness:1});
- const bodies=new THREE.InstancedMesh(new THREE.BoxGeometry(.32,.48,.24),mat,count);
- const heads=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(.14,0),mat,count);
- const arms=new THREE.InstancedMesh(new THREE.BoxGeometry(.09,.43,.09),mat,count);
- const matrix=new THREE.Matrix4(),color=new THREE.Color(),palette=[0x3979df,0xff862f,0xdce7ed,0x405078,0xeabc54,0xac4352],skins=[0xe0ac83,0x985f40,0x613e30,0xc38a61];
- for(let k=0;k<count;k++){
-  const side=k%4,row=Math.floor(k/4)%8,along=(Math.floor(k/32)+.5)/Math.ceil(count/32)*2-1,end=side>1,sign=side%2?1:-1;
-  const distance=(end?HZ+GD+11:HX+11)+row*2.3,len=(end?2*HX-8:2*HZ-8)+row*1.2;
-  const x=end?along*len*.48:sign*distance,y=3.05+row*1.5,z=end?sign*distance:along*len*.48;
-  matrix.makeTranslation(x,y,z);bodies.setMatrixAt(k,matrix);bodies.setColorAt(k,color.setHex(palette[(k%5===0)?2:(z<0?0:1)]));
-  matrix.makeTranslation(x,y+.36,z);heads.setMatrixAt(k,matrix);heads.setColorAt(k,color.setHex(skins[(k+row)%4]));
-  matrix.makeRotationZ((k%3-1)*.65);matrix.setPosition(x+.22,y+.22+(k%3)*.08,z);arms.setMatrixAt(k,matrix);arms.setColorAt(k,color.setHex(palette[(k%5===0)?2:(z<0?0:1)]));
- }
- for(const mesh of [bodies,heads,arms]){mesh.instanceMatrix.needsUpdate=true;mesh.instanceColor.needsUpdate=true;mesh.computeBoundingSphere();scene.add(mesh)}
- RIVALS.crowd={mesh:arms,y:Array.from({length:count},(_,i)=>arms.instanceMatrix.array[i*16+13])};
+ const matrix=new THREE.Matrix4();
  // Silhouettes, roof beacons and trees give the skyline depth without shadow maps.
  const city=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshStandardMaterial({color:0x335779,roughness:.9}),48);
  const trees=new THREE.InstancedMesh(new THREE.ConeGeometry(1,1,5),new THREE.MeshStandardMaterial({color:0x21664f,roughness:1}),64);
@@ -1946,14 +1931,15 @@ function face(a,sg,mat,skip){
 function wallMat(col){
  const c=cvs(1024,512),g=c.getContext('2d');g.clearRect(0,0,1024,512);
  // Fine safety net above low, solid advertising boards: stands stay visible.
- g.strokeStyle='rgba(145,177,192,.075)';g.lineWidth=1;
+ g.strokeStyle='rgba(145,177,192,.105)';g.lineWidth=1;
  for(let y=0;y<512;y+=24)for(let x=0;x<1080;x+=42){const cx=x+(y%48?21:0);g.beginPath();for(let k=0;k<6;k++){const a=k*Math.PI/3;g[k?'lineTo':'moveTo'](cx+Math.cos(a)*23,y+Math.sin(a)*23)}g.closePath();g.stroke()}
- g.fillStyle='#12456b';g.fillRect(0,444,1024,68);g.fillStyle='#071c37';g.fillRect(0,454,1024,37);
+ g.fillStyle='#15394d';g.fillRect(0,444,1024,68);g.fillStyle='#061422';g.fillRect(0,454,1024,37);
  g.font='italic 800 24px sans-serif';g.fillStyle='#dbe7e9';for(let x=18;x<1024;x+=256)g.fillText('TEVIN LEAGUE',x,480);
  g.fillStyle=col;g.fillRect(0,440,1024,6);g.fillRect(0,498,1024,7);for(let x=230;x<1024;x+=256)g.fillRect(x,460,4,22);
- const t=tex(c);return new THREE.MeshStandardMaterial({map:t,emissive:0xffffff,emissiveMap:t,emissiveIntensity:.28,roughness:.82,metalness:.08,transparent:true,depthWrite:false});
+ const t=tex(c);return new THREE.MeshStandardMaterial({map:t,emissive:0xffffff,emissiveMap:t,emissiveIntensity:.2,roughness:.94,metalness:.03,transparent:true,depthWrite:false});
 }
 // INLINE:arena-style.js
+// INLINE:stadium-detail.js
 function floorMat(){return arenaPitchMaterial()}
 
 let GT,GU;const glowTex=()=>{if(GT)return GT;const c=cvs(64,64),g=c.getContext('2d'),r=g.createRadialGradient(32,32,0,32,32,32);r.addColorStop(0,'rgba(255,255,255,.9)');r.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=r;g.fillRect(0,0,64,64);return GT=new THREE.CanvasTexture(c)};
@@ -2142,22 +2128,22 @@ async function build3d(forceGL){
 
  // Static filtered environment avoids the periodic six-pass cube-camera hitch.
 
-  ren.outputColorSpace=THREE.SRGBColorSpace;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=1.08;ren.shadowMap.enabled=!!cfg.hi;ren.shadowMap.type=THREE.PCFShadowMap;ren.shadowMap.autoUpdate=false;ren.shadowMap.needsUpdate=!!cfg.hi;
+  ren.outputColorSpace=THREE.SRGBColorSpace;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=1.02;ren.shadowMap.enabled=!!cfg.hi;ren.shadowMap.type=THREE.PCFShadowMap;ren.shadowMap.autoUpdate=false;ren.shadowMap.needsUpdate=!!cfg.hi;
 
- scene=new THREE.Scene();scene.background=new THREE.Color(0x5caee5);scene.fog=new THREE.Fog(0xb5cbd0,210,480);
+ scene=new THREE.Scene();scene.background=new THREE.Color(0x5caee5);scene.fog=new THREE.Fog(0xabcbd4,230,540);
 
  cam=new THREE.PerspectiveCamera(77,innerWidth/innerHeight,.1,700);
 
  await loadingStage(28,'Preparing stadium lighting');
- const sky=await loadStadiumSky();envTarget=await ENGINE.environment(ren,sky.lighting);scene.environment=envTarget.texture;scene.environmentIntensity=1.05;sky.lighting.dispose();scene.background=sky.visible;scene.backgroundIntensity=1;document.body.dataset.arenaLight='daylight-1';
+ const sky=await loadStadiumSky();envTarget=await ENGINE.environment(ren,sky.lighting);scene.environment=envTarget.texture;scene.environmentIntensity=.82;sky.lighting.dispose();scene.background=sky.visible;scene.backgroundIntensity=1;document.body.dataset.arenaLight='daylight-2';
 
- scene.add(new THREE.HemisphereLight(0xc5e2fa,0x597347,1.65));
+ scene.add(new THREE.HemisphereLight(0xc7e5ff,0x526e3d,1.2));
 
- sun=new THREE.DirectionalLight(0xffe5bc,2.2);sun.castShadow=!!cfg.hi;sun.shadow.autoUpdate=false;sun.shadow.needsUpdate=!!cfg.hi;sun.shadow.mapSize.set(2048,2048);const sc=sun.shadow.camera;sc.left=sc.bottom=-76;sc.right=sc.top=76;sc.near=1;sc.far=200;sun.shadow.bias=-.00015;sun.shadow.normalBias=.018;scene.add(sun,sun.target);
+ sun=new THREE.DirectionalLight(0xfff0d6,2.5);sun.castShadow=!!cfg.hi;sun.shadow.autoUpdate=false;sun.shadow.needsUpdate=!!cfg.hi;sun.shadow.mapSize.set(2048,2048);const sc=sun.shadow.camera;sc.left=sc.bottom=-76;sc.right=sc.top=76;sc.near=1;sc.far=200;sun.shadow.bias=-.00015;sun.shadow.normalBias=.018;scene.add(sun,sun.target);
 
- const fill=new THREE.DirectionalLight(0xc0dcf5,1.05);fill.position.set(-35,28,-35);scene.add(fill);
+ const fill=new THREE.DirectionalLight(0xa9d6ff,.55);fill.position.set(-35,28,-35);scene.add(fill);
 
- const rim=new THREE.DirectionalLight(0xffd7aa,.65);rim.position.set(40,16,-35);scene.add(rim);
+ const rim=new THREE.DirectionalLight(0xffd7aa,.3);rim.position.set(40,16,-35);scene.add(rim);
 
  [[0x2060ff,-1],[0xff7a20,1]].forEach(([c,s])=>{const l=new THREE.PointLight(c,32,28,2);l.position.set(0,8,s*(HZ-3));l.userData.team=s<0?0:1;l.userData.base=32;goalLights.push(l);scene.add(l);
 
@@ -2309,7 +2295,7 @@ function render(dt){
 
  if(!inited||st==='PAUSE')return;updateGraphicsEffects(dt);if(renderGoalReplay(dt))return;if(st==='MENU'||st==='END'){renderShowcase(dt);return}bm.visible=true;garageStage.visible=false;grassM.visible=true;if(cam.view?.enabled)cam.clearViewOffset();const alpha=cl(acc/SIM_DT,0,1);
 
- for(let k=0;k<cars.length;k++){const c=cars[k],m=cm[k];m.visible=c.enabled;if(!c.enabled)continue;paintCar(k);m.position.lerpVectors(c.frameP,c.p,alpha);m.quaternion.copy(c.frameQ).slerp(c.q,alpha);if(DED.active&&k===MP.slot)m.position.add(DED.offset);
+ for(let k=0;k<cars.length;k++){const c=cars[k],m=cm[k];m.visible=c.enabled;if(!c.enabled)continue;paintCar(k);m.position.lerpVectors(c.frameP,c.p,alpha);m.quaternion.copy(c.frameQ).slerp(c.q,alpha);if(DED.active&&k===MP.slot){m.position.add(DED.offset);m.quaternion.multiply(DED.rotationOffset);}
 
    renderForward.set(1,0,0).applyQuaternion(c.q);renderRight.set(0,0,1).applyQuaternion(c.q);const roll=c.v.dot(renderForward)*dt/.24;
 
@@ -2395,7 +2381,7 @@ const spinAxis=new V3(),spinQ=new Qn();let DBG=0,last=0,acc=0;
 function frame(t){requestAnimationFrame(frame);const dt=cl((t-last)/1000||0,0,.1);last=t;pollController();updateDeviceUI();introFrame(dt);
  if(LOADING.active){acc=0;if(inited&&!ENGINE.status.warming)render(dt);return}
 
- rivalsTick(dt);if(mt>0&&(mt-=dt)<=0)$('msg').style.opacity=0;
+ rivalsTick(dt);if(mt>0){mt=Math.max(0,(msgDeadline-t)/1000);if(!mt)$('msg').style.opacity=0;}
  if(DED.active){dedFrame(dt);return}
  if(MP.active){mpPauseGate();if(MP.role==='guest'){if(st!=='PAUSE')applyMultiplayer(dt);acc=0;publishMultiplayer(dt);updateAudio();render(dt);return}}
 
@@ -2425,7 +2411,7 @@ setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();se
 
 window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:120,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,multiplayer:DED.active?'Phoenix dedicated':'offline',rtt:DED.rtt,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
 
-window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.7 · MOMENTUM · Ready to play');
+window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.8 · CHAMPIONSHIP · Ready to play');
 
 
 } catch(error) { window.tevinBoot.error=String(error.message||error);window.tevinBoot.show("Startup failed at "+window.tevinBoot.stage+": "+window.tevinBoot.error);console.error(error); }
