@@ -12,6 +12,9 @@ Browser car soccer with Soccar and Heatseeker, 1v1/2v2/3v3, AI, sandbox, private
 - Garage has three saved body/paint/celebration slots and earned titles. Custom rules has best-of-three/five series for AI/private matches.
 - Public matchmaking offers practice while searching. Public queues require real players; empty private seats use AI.
 
+- Secret arcade: type `secret`, enter `spellingbeewinner`, then use the X / minus / Restore Lab controls. Twelve powers work offline and through the multiplayer server; online uses are announced to every player. [Details](docs/SECRET-ARCADE.md).
+- Stadium has a photographic sky, mown pitch panels and textured team-colored goal surrounds. Resting overturned cars recover automatically; neutral air controls damp unwanted spin.
+
 ## Development
 
 Node.js 24+, pnpm 11.25.0:

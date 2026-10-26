@@ -73,6 +73,13 @@ function createService(options={}){
    return;
   }
   const r=c.room;if(!r)throw Error('Join a match first.');
+  if(m.type==='ability'){
+   if(m.code!=='spellingbeewinner')throw Error('Incorrect secret passcode.');
+   if(!c.ready||r.api.phase()!=='PLAY')throw Error('Powers are available during live play.');
+   const now=performance.now();if(now-(c.abilityAt??-1000)<350)throw Error('One power at a time.');
+   if(!r.api.ability(c.slot,m.ability))throw Error('Power unavailable.');c.abilityAt=now;
+   for(const player of r.members.values())send(player,{type:'ability',slot:c.slot,name:c.profile.name,ability:m.ability});return;
+  }
   if(m.type==='chat'){
    if(!c.ready||!['PLAY','COUNT'].includes(r.api.phase()))return;
    if(!Number.isInteger(m.phrase)||m.phrase<0||m.phrase>3)throw Error('Choose a preset team message.');

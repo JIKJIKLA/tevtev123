@@ -10,7 +10,7 @@ function saveRivals(){try{localStorage.setItem('tevin.rivals.v1',JSON.stringify(
 function extraCue(key,volume=.28){if(RIVAL_PREF.extraSounds&&!window.__TEVIN_SERVER__)audioSample(key,volume)}
 function driverName(id){return id===localPlayer().id?'YOU':MP.active&&MP.seats[id]?MP.seats[id].name||'PLAYER '+(id+1):'AI '+(id+1)}
 function earnedTitles(){const list=['ROOKIE'];if(CAREER.drills>=5)list.push('TRAINING GROUND');if(CAREER.goals>=10)list.push('FINISHER');if(CAREER.matches>=10)list.push('ARENA REGULAR');if(CAREER.wins>=10)list.push('MATCH WINNER');return list}
-function rivalsStart(){RIVALS.claim=null;RIVALS.recorded=false;RIVALS.ring.length=0;RIVALS.goal=null;RIVALS.touches.length=0;RIVALS.goalSeen='';RIVALS.replay=null;RIVALS.messages.length=0;RIVALS.boost=33;RIVALS.fast=false;DRILL.active=false;DRILL.kind='free';DRILL.attempts=DRILL.successes=0;}
+function rivalsStart(){secretReset();RIVALS.claim=null;RIVALS.recorded=false;RIVALS.ring.length=0;RIVALS.goal=null;RIVALS.touches.length=0;RIVALS.goalSeen='';RIVALS.replay=null;RIVALS.messages.length=0;RIVALS.boost=33;RIVALS.fast=false;DRILL.active=false;DRILL.kind='free';DRILL.attempts=DRILL.successes=0;}
 function rivalsTouch(c,strength){
  if(DED.replaying)return;
  if(!MP.active||MP.role==='host'){
@@ -114,7 +114,7 @@ function sendQuickChat(index){
  if(DED.active)dedSend({type:'chat',phrase:index});else{receiveQuickChat({name:'YOU',text:QUICK_CHAT[index]});if(!MP.active){for(const c of cars)if(c.enabled&&c.team===localPlayer().team&&c!==localPlayer())c.ai.yieldUntil=index===0?simTime+2:0;}}
 }
 function rivalsTick(dt){
- syncCinema();RIVALS.time+=dt;trainingTick(dt);if(st!=='GOAL'){stopReplay();if($('goal-detail'))$('goal-detail').hidden=true;}if(st!=='PLAY'){for(const el of RIVALS.visuals?.labels||[])el.hidden=true;if(RIVALS.visuals)RIVALS.visuals.group.visible=false;}
+ secretTick();syncCinema();RIVALS.time+=dt;trainingTick(dt);if(st!=='GOAL'){stopReplay();if($('goal-detail'))$('goal-detail').hidden=true;}if(st!=='PLAY'){for(const el of RIVALS.visuals?.labels||[])el.hidden=true;if(RIVALS.visuals)RIVALS.visuals.group.visible=false;}
  if(!DED.active&&st==='PLAY'&&(RIVALS.clock+=dt)>=1/30){RIVALS.clock%=1/30;replayRecord();}
  const c=localPlayer();if($('rival-title').textContent!==RIVAL_PREF.title)$('rival-title').textContent=RIVAL_PREF.title;if(st==='PLAY'){
   if(c.boost-RIVALS.boost>5){RIVALS.pickupUntil=RIVALS.time+.65;$('boost-feedback').textContent='+'+Math.round(c.boost-RIVALS.boost)+' BOOST'}RIVALS.boost=c.boost;

@@ -32,11 +32,12 @@ function arenaSky(reflection=false){
 function arenaPitchMaterial(){
  // Retain the existing normal map and field UVs, replacing only the painted surface.
  const m=ENGINE.pitchMaterial(ren,teamPalette),c=m.map.image,g=c.getContext('2d'),w=c.width,h=c.height;
- g.fillStyle='#39723e';g.fillRect(0,0,w,h);
- for(let i=0;i<18;i++){g.fillStyle=i%2?'#488147':'#39723e';g.fillRect(0,i*h/18,w,h/18+1)}
+ g.fillStyle='#285d35';g.fillRect(0,0,w,h);
+ // Alternating mowing directions form broad checker panels like a sports pitch.
+ for(let y=0;y<12;y++)for(let x=0;x<8;x++){g.fillStyle=(x+y)%2?'#326b3e':'#285d35';g.fillRect(x*w/8,y*h/12,w/8+1,h/12+1);}
  // Deterministic fine grain is baked once; no noise shader or per-frame canvas work.
  let seed=4271;const rand=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
- for(let i=0;i<85000;i++){g.fillStyle=i%2?'rgba(190,221,134,.11)':'rgba(9,37,29,.13)';g.fillRect(rand()*w,rand()*h,.6+rand(),1+rand()*4)}
+ for(let i=0;i<110000;i++){g.strokeStyle=i%2?'rgba(184,211,124,.15)':'rgba(7,30,21,.17)';const x=rand()*w,y=rand()*h;g.beginPath();g.moveTo(x,y);g.lineTo(x+(rand()-.5)*2,y+1+rand()*3);g.stroke();}
  g.save();g.translate(w/2,h/2);g.scale(w/82,h/102);
  const paint=(team,alpha)=>{const n=teamPalette[team];return `rgba(${n>>16&255},${n>>8&255},${n&255},${alpha})`};
  for(const s of [-1,1]){
@@ -53,7 +54,39 @@ function arenaPitchMaterial(){
  for(const s of [-1,1]){g.strokeRect(-18,s<0?-47:31,36,16);g.strokeRect(-9,s<0?-47:40,18,7)}
  g.fillStyle='#d9f6e5';g.beginPath();g.arc(0,0,.23,0,Math.PI*2);g.fill();
  g.font='italic 900 2px sans-serif';g.textAlign='center';g.fillStyle='rgba(223,250,239,.24)';g.fillText('T E V I N',0,4);g.restore();
- m.map.needsUpdate=true;m.roughness=.9;return m;
+ PITCH_TEXTURE=m.map;m.map.needsUpdate=true;m.roughness=.98;if(m.normalScale)m.normalScale.set(.35,.35);return m;
+}
+
+function arenaPanelMaterial(color=0x536579){
+ const c=cvs(512,512),g=c.getContext('2d');g.fillStyle='#8995a0';g.fillRect(0,0,512,512);
+ for(let y=0;y<560;y+=32)for(let x=-32;x<560;x+=55){const cx=x+(y%64?27.5:0);g.beginPath();for(let k=0;k<6;k++){const a=k*Math.PI/3;g[k?'lineTo':'moveTo'](cx+Math.cos(a)*31,y+Math.sin(a)*31)}g.closePath();g.fillStyle=(x+y)%3?'#7e8c98':'#8b97a2';g.fill();g.strokeStyle='#465664';g.lineWidth=2;g.stroke();}
+ g.strokeStyle='#c2cbd0';g.lineWidth=3;g.strokeRect(5,5,502,502);for(const x of [16,496])for(const y of [16,496]){g.fillStyle='#2b3d4c';g.beginPath();g.arc(x,y,4,0,7);g.fill();}
+ return new THREE.MeshStandardMaterial({color,map:tex(c),roughness:.88,metalness:.12,envMapIntensity:.45});
+}
+function decorateArenaGoals(){
+ const structure=arenaPanelMaterial(0x718799),backing=arenaPanelMaterial(0x3c5362);
+ const group=new THREE.Group();group.name='Championship goal surrounds';
+ const box=(x,y,z,w,h,d,mat)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);group.add(m);return m;};
+ for(const sign of [-1,1]){
+  const color=teamPalette[sign<0?0:1],strip=new THREE.MeshStandardMaterial({color,emissive:color,emissiveIntensity:.65,roughness:.7,metalness:.03});strip.userData.team=sign<0?0:1;
+  const z=sign*(HZ+.1);
+  // The full collision opening stays clear; every new surround sits outside it.
+  for(const side of [-1,1]){
+   box(side*(GX+.62),GH/2+.2,z,1.05,GH+1.25,1.05,structure);
+   box(side*(GX+.27),GH/2+.1,z-sign*.56,.09,GH+.25,.08,strip);
+   const pylon=box(side*(GX+1.8),GH*.48,z+sign*.35,1.3,GH*1.1,1.4,backing);pylon.rotation.z=-side*.12;
+   for(let i=0;i<5;i++)box(side*(GX+1.72),.8+i, z-sign*.39,.85,.07,.07,strip);
+  }
+  box(0,GH+.66,z,2*GX+2.25,1.05,1.05,structure);
+  box(0,GH+.26,z-sign*.56,2*GX+.65,.09,.08,strip);
+  box(0,GH/2,sign*(HZ+GD+.12),2*GX,GH,.16,backing);
+  for(const side of [-1,1])box(side*(GX-.08),GH/2,sign*(HZ+GD*.56),.12,GH,GD*.85,backing);
+  // Directional chevrons connect the end boards to the goal mouth.
+  for(const side of [-1,1])for(let j=0;j<4;j++)for(const half of [-1,1]){
+   const chevron=box(side*(GX+4+j*2),2.7+half*.24,sign*(HZ+.5),.12,.8,.09,strip);chevron.rotation.z=side*half*.65;
+  }
+ }
+ batchMeshes(group);group.traverse(o=>o.castShadow=false);scene.add(group);
 }
 
 function styleChampionshipStadium(stadium){

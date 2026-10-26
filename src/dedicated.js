@@ -19,6 +19,7 @@ function dedConnect(){
    if(m.type==='state'){dedState(m);return}
    if(m.type==='pong'){DED.rtt=Math.round(performance.now()-m.id);return}
    if(m.type==='chat'){receiveQuickChat(m);return}
+   if(m.type==='ability'){secretNotice(m.name,m.ability);return}
    if(m.type==='party'){SOC.party=m.code?{dedicated:true}:null;SOC.partyCode=m.code;SOC.partyData=m.data;SOC.ready=!!m.data?.members?.[SOC.id]?.ready;socialUI();return}
    if(m.type==='queue'){SOC.searching=!!m.searching;SOC.since=m.since||Date.now();SOC.queueData={tickets:{phoenix:{seen:Date.now(),members:Array(m.count||0).fill({})}}};socialUI()}
   };
@@ -53,7 +54,7 @@ function dedState(m){
  handleRemoteMatch(s);
  if(phaseChanged){DED.history.length=DED.outbox.length=0;DED.offset.set(0,0,0);DED.lastJump=MP.jump;acc=0}
  mpReadCar(c,s.cars[MP.slot],1,0);readDriver(c,m.driver);
- readHeatState(s.heat);ball.p.fromArray(s.ball.p);ball.v.fromArray(s.ball.v);ball.w.fromArray(s.ball.w);ball.last=s.ball.last;ball.lastPlayer=s.ball.lastPlayer;ball.color=s.ball.color;
+ readSecretState(s.arcade);readHeatState(s.heat);ball.p.fromArray(s.ball.p);ball.v.fromArray(s.ball.v);ball.w.fromArray(s.ball.w);ball.last=s.ball.last;ball.lastPlayer=s.ball.lastPlayer;ball.color=s.ball.color;
  DED.history=DED.history.filter(f=>f.seq>m.ack&&f.round===s.round);
  if(s.phase==='PLAY'&&!MP.localPaused){DED.replaying=true;try{for(const f of DED.history){Object.assign(c.inp,f.controls);c.jp=f.edge?1:0;c.jh=f.held?1:0;stepCar(c,DT);resolveArenaCar(c);predictLocalBall(DT)}}finally{DED.replaying=false}}
  c.frameP.copy(c.p);c.frameQ.copy(c.q);c.prevP.copy(c.p);c.prevQ.copy(c.q);

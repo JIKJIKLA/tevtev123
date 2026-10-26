@@ -35,3 +35,8 @@ Owner request: 2026-10-23. This file is the durable end-result specification for
 
 ## Release tracking
 Implementation and validation status for each deliverable is maintained in RELEASE-9.6.md. Features not validated must be labeled honestly, not advertised as complete.
+
+## Secret arcade request (2026-10-25)
+The owner explicitly requested a hidden arcade overlay opened by typing secret and unlocked with the exact case-sensitive code spellingbeewinner. Include close/minimize/restore, twelve humorous powers and authoritative use in offline, private and quick matches. Online use is announced to all players; the code is a public client-side easter egg, not admin access. See SECRET-ARCADE.md.
+
+The grass follow-up uses the same field texture on all blade roots so team paint covers the turf itself. Three curved/tapered leaves per tuft, broad wind gusts and vehicle wakes are the intended art direction, inspired by the user's Chapter 4 Season 1 grass reference. This is an original lightweight implementation, not Fortnite assets or engine features.

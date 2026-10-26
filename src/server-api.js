@@ -25,6 +25,7 @@ if(window.__TEVIN_SERVER__){
     }
    }
   },
+  ability(slot,key){return secretApply(slot,key)},
   state(){return mpSnapshot()},
   driver(slot){return packDriver(cars[slot])},
   phase(){return st},

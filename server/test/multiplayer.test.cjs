@@ -75,3 +75,14 @@ test('party matchmaking keeps teammates together and cancellation clears every m
  const joined=await Promise.all(peers.map(p=>p.next('joined')));assert.equal(new Set(joined.map(m=>m.code)).size,1);assert.equal(joined[0].slot%2,joined[1].slot%2);assert.notEqual(joined[0].slot%2,joined[2].slot%2);
  for(const p of peers)p.send({type:'ready'});await a.next('state',m=>m.state.phase==='COUNT');
 });
+
+test('secret powers validate the exact code, use the sender seat and synchronize both clients',async t=>{
+ const app=createService();app.server.listen(0,'127.0.0.1');await once(app.server,'listening');t.after(()=>app.close());const port=app.server.address().port,a=connect(port),b=connect(port);await Promise.all([a.next('hello'),b.next('hello')]);
+ a.send({type:'create',wire:WIRE,settings:{size:1},profile:{name:'ALPHA'}});const room=await a.next('joined');b.send({type:'join',wire:WIRE,code:room.code,profile:{name:'BRAVO'}});await b.next('joined');a.send({type:'ready'});b.send({type:'ready'});await a.next('lobby',m=>Object.values(m.seats).every(s=>s.ready));a.send({type:'start'});await b.next('state',m=>m.state.phase==='PLAY');
+ a.send({type:'ability',code:'Spellingbeewinner',ability:'freeze'});assert.match((await a.next('error')).message,/passcode/);
+ a.send({type:'ability',code:'spellingbeewinner',ability:'__proto__'});assert.match((await a.next('error')).message,/unavailable/);
+ b.send({type:'ability',code:'spellingbeewinner',ability:'freeze',slot:0,name:'SPOOF'});const [eventA,eventB]=await Promise.all([a.next('ability'),b.next('ability')]);assert.equal(eventA.name,'BRAVO');assert.equal(eventB.slot,1);
+ const frozen=await a.next('state',m=>m.state.arcade.freeze>2.5);assert.equal(Math.hypot(...frozen.state.ball.v),0);
+ a.send({type:'ability',code:'spellingbeewinner',ability:'boost',slot:1});await b.next('ability',m=>m.ability==='boost');const buff=await b.next('state',m=>m.state.arcade.boost[0]>14);assert.equal(buff.state.arcade.boost[1],0);
+ a.send({type:'ability',code:'spellingbeewinner',ability:'chaos'});assert.match((await a.next('error')).message,/One power/);
+});

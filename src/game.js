@@ -107,11 +107,11 @@ const PHYS={
 
  air:{throttleF:120,reverseF:60,T:{roll:380,yaw:680,pitch:780},wmax:5.5,damp:1.2,damp0:5},                            // control torques, max spin, damping (active / released)
 
-  surf:{align:20,tol:.10,retain:.035,rest:.015,spring:120,damping:21,adhesion:40,hullFric:.6,rightDelay:.45,rightRate:4,rightSpeed:3}, // retain is grounded-only wheel reach hysteresis, disabled by jump lock and sharp goal corners
+  surf:{align:20,tol:.10,retain:.035,rest:.015,spring:120,damping:21,adhesion:40,hullFric:.6,rightDelay:.35,rightRate:6,rightSpeed:4.2}, // retain is grounded-only wheel reach hysteresis, disabled by jump lock and sharp goal corners
 
  ball:{mass:30,e:.6,mu:.25,roll:.05,drag:.030562,max:60,maxSpin:6,sub:.35},                               // restitution, surface friction, rolling decay, air drag, speed cap, substep length
 
-  hit:{e0:.35,e1:.82,vref:23,mu:.24,recoil:.72,carSpin:.3}                                    // speed-dependent bounce, tangential grip, recoil and spin
+  hit:{e0:.35,e1:.82,vref:23,mu:.24,recoil:.72,carSpin:.16}                                    // speed-dependent bounce, tangential grip, recoil and spin
 
 };
 
@@ -195,7 +195,7 @@ function sampleCarSupport(c){
 
 function stepCar(c,dt){
 
- if(!c.enabled)return;if(cfg.unlimited)c.boost=100;
+ if(!c.enabled)return;secretCarStep(c,dt);if(cfg.unlimited)c.boost=100;
 
  const i=c.inp,q=c.q,P=PHYS,Gd=P.ground,B=P.boost,J=P.jump,A=P.air,CI=bodyPhysics(c).inertia;
 
@@ -227,9 +227,9 @@ function stepCar(c,dt){
 
   // Only a small tangential scrape on the roof/sides; never erase uphill velocity on a wheel miss.
 
-  if(c.hullContact&&!c.wheelsOn){const vn=c.v.dot(c.n);c.v.addScaledVector(c.n,-vn).multiplyScalar(Math.exp(-P.surf.hullFric*dt)).addScaledVector(c.n,vn)}
+  if(c.hullContact&&!c.wheelsOn){c.w.multiplyScalar(Math.exp(-8*dt));const vn=c.v.dot(c.n);c.v.addScaledVector(c.n,-vn).multiplyScalar(Math.exp(-P.surf.hullFric*dt)).addScaledVector(c.n,vn)}
 
-  if((c.jp||c.righting)&&c.cT>P.surf.rightDelay&&c.v.length()<P.surf.rightSpeed){c.righting=1;rightCar(c,c.n,P.surf.rightRate,dt)}
+  if((c.jp||c.righting||c.cT>1.1&&Math.abs(c.n.y)>.8)&&c.cT>P.surf.rightDelay&&c.v.length()<P.surf.rightSpeed){c.righting=1;rightCar(c,c.n,P.surf.rightRate,dt)}
 
  }
 
@@ -308,7 +308,8 @@ function stepCar(c,dt){
 
   else{const ws=c.w;ws.x=airRotation(ws.x,i.roll,38.34,4.76,dt,true);ws.y=airRotation(ws.y,-i.yaw,9.11,1.90,dt);ws.z=airRotation(ws.z,-i.pitch,12.46,2.86,dt);if(ws.lengthSq()>A.wmax*A.wmax)ws.setLength(A.wmax)}
 
-  const m=c.w.length();if(m>1e-4&&!flipping){_a.copy(c.w).divideScalar(m);q.multiply(_q1.setFromAxisAngle(_a,m*dt))}c.v.multiplyScalar(Math.exp(-Gd.drag*c.v.length()*dt*.5));
+  if(!flipping&&Math.max(Math.abs(i.pitch),Math.abs(i.yaw),Math.abs(i.roll))<.08)c.w.multiplyScalar(Math.exp(-2.2*dt));
+ const m=c.w.length();if(m>1e-4&&!flipping){_a.copy(c.w).divideScalar(m);q.multiply(_q1.setFromAxisAngle(_a,m*dt))}c.v.multiplyScalar(Math.exp(-Gd.drag*c.v.length()*dt*.5));
 
  }
 
@@ -397,7 +398,7 @@ function carBall(c){
 
 function ballSub(dt,predicted=false){
 
- const b=ball,B=PHYS.ball;heat.cooldown=Math.max(0,heat.cooldown-dt);if(cfg.mode===1)heatSteer(b.p,b.v,dt,heat.target,heat.speed);
+ const b=ball,B=PHYS.ball;if(secretBallStep(dt))return;heat.cooldown=Math.max(0,heat.cooldown-dt);if(cfg.mode===1)heatSteer(b.p,b.v,dt,heat.target,heat.speed);
 
  b.v.y-=PHYS.g*dt;b.v.multiplyScalar(Math.exp(-B.drag*dt));b.p.addScaledVector(b.v,dt);
 
@@ -1208,7 +1209,7 @@ const keys={};let ballCam=true;
 // INLINE:controls.js
 // INLINE:gauges.js
 
-addEventListener('keydown',e=>{if(captureBinding(e))return;if(LOADING.active){e.preventDefault();return}if(!e.repeat)unlockAudio();
+addEventListener('keydown',e=>{if(SECRET.open&&!SECRET.minimized)return;if(captureBinding(e))return;if(LOADING.active){e.preventDefault();return}if(!e.repeat)unlockAudio();
  if(INTRO.active){if(!INTRO.started&&!INTRO.manualPause&&e.key!=='Escape')introStart();if(e.key==='Enter'&&!e.repeat&&!(e.target instanceof HTMLButtonElement)){e.preventDefault();introPlay()}if(e.key==='Escape'){e.preventDefault();introPlay()}return}
 
  // Text entry must never feed driving controls or the global offline shortcut.
@@ -1506,7 +1507,7 @@ async function joinMatch(){if(DED.enabled)return dedPrivate('join');if(mpBusy||s
  const res=await mpTimeout(room.child('meta').transaction(m=>{if(m===null)return null;if(m.host!==meta.host||m.protocol!==PROTOCOL||m.locked)return;const count=cl(Number(m.settings?.size)||1,1,3)*2;m.seats=m.seats||{};for(let k=1;k<count;k++)if(!m.seats[k]){m.seats[k]={session,color:cfg.color,body:cfg.body};return m}},undefined,false),'Join room');const joined=res.snapshot?.val(),entry=Object.entries(joined?.seats||{}).find(([,seat])=>seat.session===session);if(!res.committed||!entry)throw Error('Room full or match already started. Ask the host for a new lobby.');applySettings(joined.settings);Object.assign(MP,{active:true,role:'guest',slot:Number(entry[0]),session,room,code,seats:joined.seats});attachRoomListeners();await startGame()}catch(e){mpReset();mpFailure(e)}finally{mpBusyUI(false)}}
 function carPacket(c){return{x:c.p.x,y:c.p.y,z:c.p.z,q:c.q.toArray(),v:c.v.toArray(),w:c.w.toArray(),n:c.n.toArray(),boost:c.boost,ground:!!c.ground,input:{...c.inp},boosting:!!c.bst,color:c.color,touches:c.touches,goals:c.goals,topSpeed:c.topSpeed,boostUsed:c.boostUsed}}
 function ballPacket(){return{p:ball.p.toArray(),v:ball.v.toArray(),w:ball.w.toArray(),last:ball.last,lastPlayer:ball.lastPlayer??-1,color:ball.color||0xdceeff}}
-function mpSnapshot(){return{heat:{target:heat.target,speed:heat.speed,cooldown:heat.cooldown},goal:RIVALS.goal,series:{...SERIES,wins:[...SERIES.wins]},serve:heat.server,audio:audioPacket(),seq:++MP.seq,round:MP.round,phase:st,resume:ps_||'COUNT',endReason:MP.endReason||'',clock:tl,count:cnt,goalTime:gt,overtime:!!ot,score:[...score],cars:cars.map(carPacket),ball:ballPacket(),pads:PADS.map(p=>p.t)}}
+function mpSnapshot(){return{arcade:secretSnapshot(),heat:{target:heat.target,speed:heat.speed,cooldown:heat.cooldown},goal:RIVALS.goal,series:{...SERIES,wins:[...SERIES.wins]},serve:heat.server,audio:audioPacket(),seq:++MP.seq,round:MP.round,phase:st,resume:ps_||'COUNT',endReason:MP.endReason||'',clock:tl,count:cnt,goalTime:gt,overtime:!!ot,score:[...score],cars:cars.map(carPacket),ball:ballPacket(),pads:PADS.map(p=>p.t)}}
 function publishMultiplayer(dt){if(!MP.active||!MP.loaded||!MP.room||MP.closed)return;MP.publishClock+=dt;if(MP.pending>=4||(!MP.force&&MP.publishClock<.05))return;MP.publishClock=0;MP.force=false;MP.pending++;const session=MP.session;let path,value;if(MP.role==='host'){path='state';value=mpSnapshot()}else{human(localPlayer());path='inputs/'+session;value={seq:++MP.seq,round:MP.round,paused:MP.localPaused,jump:MP.jump,held:!!localPlayer().jh,controls:{...localPlayer().inp}}}MP.room.child(path).set(value).catch(e=>{if(MP.session===session)mpFailure(e)}).finally(()=>{if(MP.session===session)MP.pending--})}
 function mpRemoteControls(c){const seat=MP.seats[c.id];if(!seat){bot(c);return}const p=MP.inputs[seat.session];Object.assign(c.inp,Z);c.jp=c.jh=0;if(!p||p.round!==MP.round||p.paused)return;for(const key in Z)c.inp[key]=cl(Number(p.controls?.[key])||0,-1,1);c.jp=p.jump>(MP.seenJumps[seat.session]||0)?1:0;MP.seenJumps[seat.session]=p.jump;c.jh=p.held?1:0}
 function packetValid(p){return p&&[p.x,p.y,p.z].every(x=>Number.isFinite(x)&&Math.abs(x)<=1000)&&Number.isFinite(p.boost)&&p.boost>=0&&p.boost<=100&&finiteVector(p.q,4,1.01)&&p.q.reduce((sum,x)=>sum+x*x,0)>.5&&finiteVector(p.v,3,100)&&finiteVector(p.w,3,100)&&finiteVector(p.n,3,1.01)}
@@ -1744,7 +1745,7 @@ const matchStats={touches:0,topSpeed:0,boost:0,lastTouch:-1e9};
 
 const msg=(t,s,col='#fff')=>{const m=$('msg');if(m.textContent!==t||mt<=0)cinemaMessage(m);m.textContent=t;m.style.color=col;m.style.opacity=1;mt=s};
 
-function kickoff(newRound=true){
+function kickoff(newRound=true){secretReset();
 
  kickoffAge=0;stopReplay();RIVALS.ring.length=0;RIVALS.touches.length=0;learnKickoff();AUDIO.countKey='';AUDIO.events.length=0;
 
@@ -2092,79 +2093,11 @@ function carMesh2(col,acc){
 
 let windFlags=[];
 
-function makeGrass(){
-
- const N=cfg.hi?24000:9000,bg=new THREE.BufferGeometry(),off=new Float32Array(N*3);
-
- bg.setAttribute('position',new THREE.Float32BufferAttribute([-.012,0,0,.012,0,0,-.008,.5,0,.008,.5,0,0,1,0,0,0,-.012,0,0,.012,0,.5,-.008,0,.5,.008,0,.9,0],3));bg.setIndex([0,1,2,1,3,2,2,3,4,5,6,7,6,8,7,7,8,9]);
- // Short, fine turf cards read as maintained grass on both rendering backends.
- const blade=bg.getAttribute('position');for(let i=0;i<blade.count;i++)blade.setXYZ(i,blade.getX(i)*.6,blade.getY(i)*.55,blade.getZ(i)*.6);
-
- const columns=Math.ceil(Math.sqrt(N)),rows=Math.ceil(N/columns);
-
- for(let i=0;i<N;i++){off[i*3]=((i%columns+Math.random())/columns)*28;off[i*3+1]=((Math.floor(i/columns)+Math.random())/rows)*28;off[i*3+2]=Math.random()}
-
- // Upward-facing shading normals match the turf's diffuse response while the
-
- // crossed cards provide silhouette. Both backends use standard PBR lighting.
-
- const normals=new Float32Array(30);for(let k=1;k<30;k+=3)normals[k]=1;bg.setAttribute('normal',new THREE.BufferAttribute(normals,3));
-
- bg.setAttribute('off',new THREE.InstancedBufferAttribute(off,3));bg.instanceCount=N;
-
- GU={t:{value:0},pc:{value:new V3()}};
-
- for(let k=0;k<7;k++){GU['c'+k]={value:new V3(1000,1000,1000)};GU['v'+k]={value:new V3()}}
-
- const deformation=`float r=off.z;vec2 w=mod(off.xy-cameraPosition.xz+14.,28.)+cameraPosition.xz-14.;float fade=(1.-smoothstep(6.,13.,length(cameraPosition.xz-w)))*step(abs(w.x),36.8)*step(abs(w.y),46.8);float ht=(.07+.055*r)*fade,h=position.y;
-
- float a=r*6.2831;vec3 p=vec3(w.x+(position.x*cos(a)-position.z*sin(a))*fade,.008+h*ht,w.y+(position.x*sin(a)+position.z*cos(a))*fade);
-
- float s=sin(t*1.4+w.x*.35+w.y*.29)*.18+sin(t*2.4+w.y*.8+r*9.)*.05;float bend=s*h*h*ht*3.;p.x+=bend;p.z+=bend*.6;
-
- vec3 ob[7];ob[0]=c0;ob[1]=c1;ob[2]=c2;ob[3]=c3;ob[4]=c4;ob[5]=c5;ob[6]=c6;
-
- vec3 vel[7];vel[0]=v0;vel[1]=v1;vel[2]=v2;vel[3]=v3;vel[4]=v4;vel[5]=v5;vel[6]=v6;
-
- for(int i=0;i<7;i++){vec2 q=w-ob[i].xz;float nearGround=1.-smoothstep(.6,2.,ob[i].y);float f=(1.-smoothstep(.2,1.5,length(q)))*nearGround;vec2 dir=vel[i].xz/max(length(vel[i].xz),.001);float along=dot(q,dir),side=length(q-dir*along);float wake=(1.-smoothstep(.4,1.5,side))*smoothstep(-6.,-1.,along)*(1.-smoothstep(-.2,.6,along))*min(length(vel[i].xz)/23.,1.)*nearGround;
-
- p.xz+=(normalize(q+vec2(.0001))*f*.16+dir*wake*.23)*h*h;p.y-=(f*.65+wake*.25)*h*ht;}
-
- float band=mod(floor((51.-w.y)/(102./18.)),2.);col=mix(vec3(.035,.085,.015),vec3(.08,.16,.03),h)*(.9+.2*r)*(1.+.14*band);transformed=p;`;
-
- const material=ren.isWebGPURenderer?ENGINE.nodeGrass(GU):new THREE.MeshStandardMaterial({side:THREE.DoubleSide,roughness:.96,metalness:0,envMapIntensity:.25});
-
- if(!ren.isWebGPURenderer){material.onBeforeCompile=shader=>{
-
-  Object.assign(shader.uniforms,GU);
-
-  shader.vertexShader='attribute vec3 off;uniform float t;uniform vec3 c0,c1,c2,c3,c4,c5,c6,v0,v1,v2,v3,v4,v5,v6;varying vec3 col;\n'+shader.vertexShader;
-
-  shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>','vec3 transformed=vec3(position);'+deformation);
-
-  shader.fragmentShader='varying vec3 col;\n'+shader.fragmentShader;
-
-  // Leaf cards use upward diffuse normals on both faces, avoiding black backfaces.
-
-  shader.fragmentShader=shader.fragmentShader.replace('#include <normal_fragment_begin>','#include <normal_fragment_begin>\n normal=normalize(vNormal);');
-
-  shader.fragmentShader=shader.fragmentShader.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\n totalEmissiveRadiance += col * .12;');
-
-  shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>','#include <color_fragment>\n diffuseColor.rgb *= col;');
-
- };material.customProgramCacheKey=()=>'tevin-lit-grass-v80';}
-
- const m=new THREE.InstancedMesh(bg,material,N),matrix=new THREE.Matrix4();for(let j=0;j<N;j++)m.setMatrixAt(j,matrix);m.instanceMatrix.needsUpdate=true;m.frustumCulled=false;m.userData.skipAO=true;m.receiveShadow=true;grassM=m;scene.add(m);
-
- // Small cloth banners use fixed vertex buffers, updated without allocations.
-
- for(const side of [-1,1])for(const z of [-30,30]){const g=new THREE.PlaneGeometry(3,1.3,12,3),mat=ENGINE.standardMaterial(ren,{color:side<0?0x559eff:0xf5a34c,side:THREE.DoubleSide,roughness:.85});mat.userData.team=side<0?0:1;const flag=new THREE.Mesh(g,mat);flag.position.set(side*40,7,z);flag.rotation.y=side*Math.PI/2;scene.add(flag);windFlags.push(g.attributes.position)}
-
-}
+// INLINE:grass.js
 
 function updateWind(dt,showcase=false){
 
- GU.t.value+=dt;GU.pc.value.copy(showcase?cm[0].position:localPlayer().p);
+ const windAllowed=RIVAL_PREF.motion&&!matchMedia('(prefers-reduced-motion: reduce)').matches;GU.wind.value=windAllowed?1:0;if(windAllowed)GU.t.value+=dt;
 
  for(let k=0;k<7;k++){const p=GU['c'+k].value,v=GU['v'+k].value;if(showcase){if(k===0)p.copy(cm[0].position);else p.set(1000,1000,1000);v.set(0,0,0)}else if(k<cars.length&&k<6&&cars[k].enabled!==false){p.copy(cars[k].p);v.copy(cars[k].v)}else if(k===6){p.copy(ball.p);v.copy(ball.v)}else {p.set(1000,1000,1000);v.set(0,0,0)}}
 
@@ -2247,7 +2180,7 @@ async function build3d(forceGL){
 
  const pl=(g,mat,x,y,z,rx,ry)=>{const o=new THREE.Mesh(g,mat);o.position.set(x,y,z);o.rotation.set(rx,ry,0);scene.add(o);return o};
 
- [-1,1].forEach(s=>{const col=teamPalette[s<0?0:1],zc=s*(HZ+GD/2),pm=new THREE.MeshBasicMaterial({color:0xffffff,toneMapped:false});
+ [-1,1].forEach(s=>{const col=teamPalette[s<0?0:1],zc=s*(HZ+GD/2),pm=arenaPanelMaterial(0x65798b);
 
   pl(new THREE.PlaneGeometry(2*GX,GH),netM(col,32,12),0,GH/2,s*(HZ+GD),0,0);                                   // back net
 
@@ -2261,7 +2194,7 @@ async function build3d(forceGL){
 
   const cb=pl(new THREE.CylinderGeometry(.2,.2,2*GX,12),pm,0,GH+.2,s*(HZ+.2),0,0);cb.rotation.z=Math.PI/2});
 
- makeGrass();
+ decorateArenaGoals();makeGrass();
 
  await loadingStage(55,'Loading car models and textures');
  const importedTextures=assetTextures=cfg.models?await ENGINE.loadImportedTextures():null;
@@ -2482,10 +2415,11 @@ function frame(t){requestAnimationFrame(frame);const dt=cl((t-last)/1000||0,0,.1
 // INLINE:rivals.js
 // INLINE:cinematics.js
 // INLINE:possession.js
+// INLINE:secret.js
 // INLINE:preload.js
 // INLINE:server-api.js
 // INLINE:test-hooks.js
-setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();setupGraphicsUI();configureCars();kickoff();st='MENU';setupIntro();setupShowroomControls();setupGauges();setupRivals();requestAnimationFrame(frame);if(!window.__TEVIN_TEST__)setTimeout(preloadArena,0);
+setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();setupGraphicsUI();configureCars();kickoff();st='MENU';setupIntro();setupShowroomControls();setupGauges();setupRivals();setupSecret();requestAnimationFrame(frame);if(!window.__TEVIN_TEST__)setTimeout(preloadArena,0);
 
 window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:120,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,multiplayer:DED.active?'Phoenix dedicated':'offline',rtt:DED.rtt,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
 
