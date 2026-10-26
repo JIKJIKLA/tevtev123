@@ -6,7 +6,7 @@ function controls(value){
  if(!value||typeof value!=='object'||Array.isArray(value))throw Error('Invalid controls');
  const result={};for(const key of KEYS){const v=value[key]??0;if(typeof v!=='number'||!Number.isFinite(v)||Math.abs(v)>1)throw Error('Invalid control value');result[key]=v}return result;
 }
-function profile(value={}){return{name:String(value.name||'DRIVER').replace(/[^\w .-]/g,'').slice(0,20)||'DRIVER',body:Math.min(2,Math.max(0,Number(value.body)|0)),color:Math.min(7,Math.max(0,Number(value.color)|0))}}
+function profile(value={}){if(!value||typeof value!=='object'||Array.isArray(value))value={};return{paint:Number.isInteger(value.paint)&&value.paint>=0&&value.paint<=0xffffff?value.paint:null,name:String(value.name||'DRIVER').replace(/[^\w .-]/g,'').slice(0,20)||'DRIVER',body:Math.min(2,Math.max(0,Number(value.body)|0)),color:Math.min(7,Math.max(0,Number(value.color)|0))}}
 function roomCode(){const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return Array.from({length:6},()=>alphabet[randomInt(alphabet.length)]).join('')}
 function createService(options={}){
  const rooms=new Map(),clients=new Set(),parties=new Map(),queue=new Map(),origins=new Set(options.origins||['https://jikjikla.github.io','https://tevtev123.b-cdn.net']);
@@ -102,7 +102,7 @@ function createService(options={}){
   }
   throw Error('Unknown message type');
  }
- const server=http.createServer((req,res)=>{res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');if(req.url==='/health'){res.setHeader('Content-Type','application/json');res.end(JSON.stringify({ok:true,service:'tevin-match-server',wire:WIRE,region:'Phoenix',build:'9.6',physicsHz:120,snapshotHz:30,rooms:rooms.size,capacity:maxRooms,droppedTicks}));}else{res.writeHead(404);res.end('Not found')}});
+ const server=http.createServer((req,res)=>{res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');if(req.url==='/health'){res.setHeader('Content-Type','application/json');res.end(JSON.stringify({ok:true,service:'tevin-match-server',wire:WIRE,region:'Phoenix',build:'9.7',physicsHz:120,snapshotHz:30,rooms:rooms.size,capacity:maxRooms,droppedTicks}));}else{res.writeHead(404);res.end('Not found')}});
  const wss=new WebSocketServer({noServer:true,maxPayload:4096,perMessageDeflate:false});
  server.on('upgrade',(req,socket,head)=>{
   if(req.url!=='/play'||!origins.has(req.headers.origin)||clients.size>=maxClients){socket.end('HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n');return}

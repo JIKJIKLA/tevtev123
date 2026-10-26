@@ -59,11 +59,11 @@ function pollController(){
 addEventListener('focus',()=>{inputFocused=true});
 function human(c){if(SECRET.open&&!SECRET.minimized){Object.assign(c.inp,Z);c.jp=c.jh=0;return;}
  const k=keys,w=k.w||k.arrowup?1:0,s=k.s||k.arrowdown?1:0,a=k.a||k.arrowleft?1:0,d=k.d||k.arrowright?1:0,i=c.inp;
- const combine=(digital,analog)=>digital||analog;
- i.thr=combine(w-s,padInput.thr);i.pitch=combine(w-s,padInput.pitch);i.steer=i.yaw=combine(d-a,padInput.steer);
- i.roll=combine((k.e?1:0)-(k.q?1:0),padInput.roll);i.boost=k.shift||k.mouseBoost||padInput.boost?1:0;i.ps=k.control||padInput.ps?1:0;c.jh=k[' ']||padInput.jump?1:0;
+ const combine=(digital,touch,analog)=>digital||(touchInput.active?touch:analog);
+ i.thr=combine(w-s,touchInput.thr,padInput.thr);i.pitch=combine(w-s,touchInput.pitch,padInput.pitch);i.steer=combine(d-a,touchInput.steer,padInput.steer);i.yaw=combine(d-a,touchInput.yaw,padInput.yaw);
+ i.roll=combine((k.e?1:0)-(k.q?1:0),touchInput.roll,padInput.roll);i.boost=k.shift||k.mouseBoost||touchInput.boost||padInput.boost?1:0;i.ps=k.control||touchInput.ps||padInput.ps?1:0;c.jh=k[' ']||touchInput.jump||padInput.jump?1:0;
 }
-addEventListener('pointerdown',e=>{if(e.button===0&&e.target?.id==='cv'&&st==='PLAY'&&!LOADING.active){keys.mouseBoost=1;e.preventDefault();}});
+addEventListener('pointerdown',e=>{if(e.pointerType!=='touch'&&e.button===0&&e.target?.id==='cv'&&st==='PLAY'&&!LOADING.active){keys.mouseBoost=1;e.preventDefault();}});
 addEventListener('pointerup',e=>{if(e.button===0)keys.mouseBoost=0;});
 addEventListener('pointercancel',()=>{keys.mouseBoost=0;});
 function setupDriverSettings(){

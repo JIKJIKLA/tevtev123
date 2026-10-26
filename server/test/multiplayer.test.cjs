@@ -1,6 +1,6 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 const {once}=require('node:events'),{WebSocket}=require('ws');
-const {createService,controls,WIRE}=require('../main.cjs');
+const {createService,controls,profile,WIRE}=require('../main.cjs');
 const createPhysics=require('../physics.cjs');
 function connect(port,origin='https://jikjikla.github.io'){
  const ws=new WebSocket(`ws://127.0.0.1:${port}/play`,{origin}),messages=[];ws.on('message',raw=>messages.push(JSON.parse(raw)));
@@ -12,7 +12,7 @@ for(const mode of [0,1])for(const size of [1,2,3])test(`Rivals lifecycle: ${mode
  const world=p.inspect();const advance=()=>{for(let i=0;i<500&&p.phase()!=='PLAY';i++)p.step();assert.equal(p.phase(),'PLAY')};advance();
  const initialRound=p.state().round;
  // Server-only placement creates a deterministic scoring fixture; it is not a client command.
- const scoreGoal=()=>{for(const c of world.cars)c.enabled=false;world.ball.lastPlayer=0;world.ball.p.set(0,1,53);world.ball.v.set(0,0,5);p.step();assert.equal(p.phase(),'GOAL');assert.equal(p.state().goal.scorer,0);assert.ok(p.state().heat.speed>=18);for(let i=0;i<430&&p.phase()==='GOAL';i++)p.step()};
+ const scoreGoal=()=>{for(const c of world.cars)c.enabled=false;world.ball.lastPlayer=0;world.ball.p.set(0,1,53);world.ball.v.set(0,0,5);p.step();assert.equal(p.phase(),'GOAL');assert.equal(p.state().goal.scorer,0);assert.ok(p.state().heat.speed>=18);for(let i=0;i<900&&p.phase()==='GOAL';i++)p.step()};
  scoreGoal();assert.equal(p.phase(),'COUNT');advance();assert.ok(p.state().round>initialRound);
  if(mode){for(let goal=1;goal<7;goal++){scoreGoal();if(goal<6)advance()}}else{world.ball.p.set(0,1,0);world.ball.v.set(0,0,0);for(let i=0;i<15000&&p.phase()!=='END';i++)p.step()}
  assert.equal(p.phase(),'END');const ended=p.state();assert.equal(ended.series.wins[0],1);assert.equal(ended.cars.length,size*2);for(const c of ended.cars)assert.ok([c.x,c.y,c.z,...c.v,...c.q].every(Number.isFinite));
@@ -36,7 +36,12 @@ test('shared solver runs boost, jump, goals and clock without a browser',()=>{
  p.input('driver',{seq:2,round:s.round,jump:1,held:true,controls:{thr:1,boost:0}});for(let i=0;i<24;i++)p.step();assert.ok(p.state().cars[0].y>before.y+.5);
  // Place a ball just beyond a valid goal plane; score must be owned by solver.
  const {ball}=p.inspect();ball.p.set(0,1,53);ball.v.set(0,0,5);p.step();assert.equal(p.state().phase,'GOAL');assert.equal(p.state().score.reduce((a,b)=>a+b),1);
- for(let i=0;i<430;i++)p.step();assert.equal(p.phase(),'COUNT');assert.ok(p.state().round>s.round);
+ const goalClock=p.state().clock;assert.ok(Number.isFinite(goalClock));for(let i=0;i<420;i++)p.step();assert.equal(p.phase(),'GOAL');assert.equal(p.state().clock,goalClock);for(let i=0;i<480;i++)p.step();assert.equal(p.phase(),'COUNT');assert.ok(p.state().round>s.round);
+});
+test('RGB profiles validate custom paint and preserve black without breaking older clients',()=>{
+ assert.equal(profile({paint:0}).paint,0);assert.equal(profile({paint:0xff43b5}).paint,0xff43b5);
+ for(const paint of [-1,0x1000000,Infinity,1.5,'#abcdef',null,undefined])assert.equal(profile({paint}).paint,null);
+ assert.equal(profile().paint,null);assert.equal(profile(null).paint,null);assert.equal(profile([]).paint,null);
 });
 test('malformed controls cannot inject forces or nonfinite values',()=>{
  for(const controlsValue of [{boost:Infinity},{thr:2},{steer:'1'},null])assert.throws(()=>controls(controlsValue));
@@ -45,11 +50,11 @@ test('malformed controls cannot inject forces or nonfinite values',()=>{
 test('two sockets join, ready, start, receive authoritative motion and survive leader departure',async t=>{
  const app=createService();app.server.listen(0,'127.0.0.1');await once(app.server,'listening');t.after(()=>app.close());
  const port=app.server.address().port,a=connect(port),b=connect(port);await Promise.all([a.next('hello'),b.next('hello')]);
- a.send({type:'create',wire:WIRE,settings:{size:1},profile:{name:'A'}});const roomA=await a.next('joined');
- b.send({type:'join',wire:WIRE,code:roomA.code,profile:{name:'B'}});const roomB=await b.next('joined');assert.equal(roomB.slot,1);assert.notEqual(roomA.session,roomB.session);
+ a.send({type:'create',wire:WIRE,settings:{size:1},profile:{name:'A',paint:0}});const roomA=await a.next('joined');
+ b.send({type:'join',wire:WIRE,code:roomA.code,profile:{name:'B',paint:0xff43b5}});const roomB=await b.next('joined');assert.equal(roomB.slot,1);assert.notEqual(roomA.session,roomB.session);
  b.send({type:'start'});assert.match((await b.next('error')).message,/leader/);
  a.send({type:'ready'});b.send({type:'ready'});await a.next('lobby',m=>Object.values(m.seats).length===2&&Object.values(m.seats).every(s=>s.ready));
- a.send({type:'start'});const play=await a.next('state',m=>m.state.phase==='PLAY');
+ a.send({type:'start'});const play=await a.next('state',m=>m.state.phase==='PLAY');assert.equal(play.state.cars[0].color,0);assert.equal(play.state.cars[1].color,0xff43b5);
  let seq=0;const sender=setInterval(()=>a.send({type:'input',seq:++seq,round:play.state.round,jump:0,held:false,controls:{thr:1,boost:1},position:{x:999}}),16);t.after(()=>clearInterval(sender));
  const moved=await b.next('state',m=>m.state.cars[0].boost<25);assert.ok(Math.hypot(...moved.state.cars[0].v)>2);assert.ok(Math.abs(moved.state.cars[0].x)<100);clearInterval(sender);
  const released=await b.next('state',m=>m.tick>moved.tick+40&&m.state.cars[0].input.boost===0);assert.ok(released.tick>moved.tick);

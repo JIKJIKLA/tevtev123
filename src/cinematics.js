@@ -21,7 +21,7 @@ function positionDriverTag(el,position,camera,project,width,height){
 
 function replayPlaybackTime(r){
  // Show the final approach in real time, then the final contact at half speed.
- const span=Math.min(r.duration,1.85),t=cl(r.elapsed,0,2.65);
- const progress=t<=1.05?t:(1.05+(t-1.05)*.5);
- return r.frames.at(-1).t-span+span*cl(progress/1.85,0,1);
+ const span=Math.min(r.duration,2.8),t=cl(r.elapsed,0,PRESENTATION_TIMING.replayDuration);
+ const progress=t<=1.2?t:(1.2+(t-1.2)*.5);
+ return r.frames.at(-1).t-span+span*cl(progress/2.8,0,1);
 }

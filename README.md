@@ -1,9 +1,12 @@
-# Tevin League 9.6 — Rivals
+# Tevin League 9.7 — Momentum
 
 Browser car soccer with Soccar and Heatseeker, 1v1/2v2/3v3, AI, sandbox, private rooms and public matchmaking. [Play on GitHub Pages](https://jikjikla.github.io/tevtev123/) or [Bunny CDN](https://tevtev123.b-cdn.net/). Online play uses the Phoenix dedicated server. The portable `index.html` also supports offline AI and practice.
 
 ## Controls and new features
 
+- Phones/tablets automatically get a left thumbstick, hold-to-boost, jump/dodge, slide, air roll, ball-camera, pause and fullscreen controls. Settings → Screen & Controls can override detection. Keyboard/controller input switches automatically on hybrid devices.
+- Garage supports a full RGB picker, hue slider and eight extra quick paints. Paint saves with garage presets and travels through multiplayer; scoreboard digits choose a readable contrast against each captain's actual paint.
+- Boost uses twin flame cores and bounded trails. Goals add scorer-colored shockwaves, ribbons and a stinger; the 7.2-second celebration includes a longer slow-motion replay. Quiet/reduced-motion settings remain available.
 - W/S: drive and air pitch; A/D: steer/yaw; Space: jump/dodge; Shift: boost; Q/E: air roll; C: powerslide; B: ball camera.
 - Escape: pause; F2: practice menu; R: repeat the current drill/reset the ball; T: recover the car.
 - 1–4: preset team chat, unless those keys are remapped. The HUD also has clickable chat buttons.
@@ -30,4 +33,4 @@ Edit `src/` and run `node scripts/build.cjs` to regenerate the portable HTML. `s
 
 The recovered Supabase source remains for archival compatibility; current gameplay uses the dedicated WebSocket transport. No server credentials belong in the repository.
 
-[Persistent product vision](docs/PRODUCT-VISION.md) · [9.6 release scope](docs/RELEASE-9.6.md) · [New sound licenses](docs/AUDIO-9.6.md) · [Physics references](docs/ACCURACY.md)
+[Persistent product vision](docs/PRODUCT-VISION.md) · [9.7 release scope](docs/RELEASE-9.7.md) · [New sound licenses](docs/AUDIO-9.6.md) · [Physics references](docs/ACCURACY.md)

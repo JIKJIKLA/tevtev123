@@ -31,10 +31,10 @@ function rivalsGoal(info){
  if(!info||!Number.isInteger(info.team)||info.team<0||info.team>1)return;
  RIVALS.goal=info;
  if(window.__TEVIN_SERVER__)return;
- const key=MP.round+':'+score.join(':');if(RIVALS.goalSeen===key)return;RIVALS.goalSeen=key;
+ const key=MP.round+':'+score.join(':');if(RIVALS.goalSeen===key)return;RIVALS.goalSeen=key;triggerCelebration(info);
  const e=$('goal-detail');if(e){e.textContent=(info.team?'ORANGE':'BLUE')+' GOAL · '+(info.scorer>=0?driverName(info.scorer):'OWN GOAL')+(info.assist>=0?' · ASSIST '+driverName(info.assist):'')+' · '+info.speed+' KM/H';e.style.setProperty('--goal-color',teamHex(info.team));e.hidden=false;}
  if(sandbox&&DRILL.active&&DRILL.kind==='shoot'&&DRILL.touched&&info.team===0)finishDrill();
- if(RIVAL_PREF.replays&&!sandbox&&RIVALS.ring.length>=12){const frames=RIVALS.ring.slice(-120);RIVALS.replay={frames,elapsed:0,duration:Math.max(.1,frames.at(-1).t-frames[0].t),scorer:info.scorer,team:info.team};$('replay-controls').hidden=false;}
+ if(RIVAL_PREF.replays&&!sandbox&&RIVALS.ring.length>=12){const frames=RIVALS.ring.slice(-120);RIVALS.replay={frames,elapsed:-PRESENTATION_TIMING.replayDelay,duration:Math.max(.1,frames.at(-1).t-frames[0].t),scorer:info.scorer,team:info.team};$('replay-controls').hidden=false;}
  if(DED.active){goalPulse=1;const col=teamPalette[info.team];graphicsBurst(ball.p,28,col);}
 }
 function stopReplay(){document.body.classList.remove('cinema-replay');if(RIVALS.replay)cameraAnchorReady=false;RIVALS.replay=null;if($('replay-controls'))$('replay-controls').hidden=true;}
@@ -44,15 +44,15 @@ function replayRecord(snapshot){
  RIVALS.ring.push(frame);if(RIVALS.ring.length>150)RIVALS.ring.shift();
 }
 function renderGoalReplay(dt){
- const r=RIVALS.replay;if(!r||st!=='GOAL'||MP.localPaused)return false;r.elapsed+=dt;
+ const r=RIVALS.replay;if(!r||st!=='GOAL'||MP.localPaused)return false;r.elapsed+=dt;if(r.elapsed<0)return false;
  const time=replayPlaybackTime(r);let a=r.frames[0],b=a;
  for(let i=1;i<r.frames.length;i++){b=r.frames[i];if(b.t>=time)break;a=b}
  const f=cl((time-a.t)/Math.max(.001,b.t-a.t),0,1);
  for(let i=0;i<cm.length;i++){const m=cm[i];m.visible=cars[i].enabled;if(!a.cars[i]||!b.cars[i])continue;m.position.fromArray(a.cars[i].p).lerp(new V3().fromArray(b.cars[i].p),f);m.quaternion.fromArray(a.cars[i].q).slerp(new Qn().fromArray(b.cars[i].q),f);if(m.userData.f)m.userData.f.visible=false;}
  bm.visible=true;bm.position.fromArray(a.ball).lerp(new V3().fromArray(b.ball),f);const anchor=cm[r.scorer]?.position||bm.position;
- const target=new V3().lerpVectors(anchor,bm.position,.65),motion=cinemaMotion(),ease=motion?cinemaEase(r.elapsed/2.8):0;document.body.classList.toggle('cinema-replay',motion);cam.position.copy(target).add(new V3(9-ease*2,5-ease*.65,(r.team?-1:1)*(10+ease)));cam.lookAt(target);cam.fov=65-ease*6;cam.updateProjectionMatrix();
- pts.count=0;if(FX)FX.group.visible=false;contactShadows.forEach(s=>s.visible=false);if(RIVALS.visuals)RIVALS.visuals.group.visible=false;$('flash').style.opacity=0;pipeline.render();
- $('replay-label').textContent='GOAL REPLAY · SLOW MOTION';if(r.elapsed>2.8)stopReplay();return true;
+ const target=new V3().lerpVectors(anchor,bm.position,.65),motion=cinemaMotion(),ease=motion?cinemaEase(r.elapsed/PRESENTATION_TIMING.replayDuration):0;document.body.classList.toggle('cinema-replay',motion);cam.position.copy(target).add(new V3(9-ease*2,5-ease*.65,(r.team?-1:1)*(10+ease)));cam.lookAt(target);cam.fov=65-ease*6;cam.updateProjectionMatrix();
+ pts.count=0;if(FX)FX.group.visible=false;contactShadows.forEach(s=>s.visible=false);if(RIVALS.visuals)RIVALS.visuals.group.visible=false;$('flash').style.opacity=0;updateCelebrations(dt);pipeline.render();
+ $('replay-label').textContent='GOAL REPLAY · SLOW MOTION';if(r.elapsed>PRESENTATION_TIMING.replayDuration)stopReplay();return true;
 }
 function rivalsFinish(){
  if(window.__TEVIN_SERVER__||sandbox||RIVALS.recorded||!score.every(Number.isFinite)||score[0]===score[1])return;
@@ -133,8 +133,8 @@ function renderCareer(){
 }
 function garagePreset(index,save){
  if(MP.active||SOC.searching)return false;
- if(save){CAREER.presets[index]={name:BODY_NAMES[cfg.body]+' / '+COLOR_NAMES[cfg.color],body:cfg.body,color:cfg.color,celebration:RIVAL_PREF.celebration};saveRivals();extraCue('rivalDrill');}
- else{const p=CAREER.presets[index];if(!p||!Number.isInteger(p.body)||p.body<0||p.body>2||!Number.isInteger(p.color)||p.color<0||p.color>7)return false;cfg.body=p.body;cfg.color=p.color;RIVAL_PREF.celebration=['pulse','comet','quiet'].includes(p.celebration)?p.celebration:'pulse';configureCars();savePresentation();saveRivals();syncMenuSettings();for(const [i,b] of Array.from($('body-options').children).entries())b.setAttribute('aria-pressed',String(cfg.body===i));$('swatches').querySelectorAll('button').forEach((b,i)=>b.classList.toggle('on',cfg.color===i));$('paint-name').textContent=COLOR_NAMES[cfg.color];updateMatchSummary();if(inited){refreshCarModels();paintCar(0)}$('garage-status').textContent=BODY_NAMES[cfg.body]+' · '+COLOR_NAMES[cfg.color]+(inited?' · READY':'');$('goal-style').value=RIVAL_PREF.celebration;}
+ if(save){CAREER.presets[index]={name:BODY_NAMES[cfg.body]+' / '+paintName(cfg),body:cfg.body,color:cfg.color,paint:normalizedPaint(cfg.paint),celebration:RIVAL_PREF.celebration};saveRivals();extraCue('rivalDrill');}
+ else{const p=CAREER.presets[index];if(!p||!Number.isInteger(p.body)||p.body<0||p.body>2||!Number.isInteger(p.color)||p.color<0||p.color>7)return false;cfg.body=p.body;cfg.color=p.color;cfg.paint=normalizedPaint(p.paint);RIVAL_PREF.celebration=['pulse','comet','quiet'].includes(p.celebration)?p.celebration:'pulse';configureCars();savePresentation();saveRivals();syncMenuSettings();for(const [i,b] of Array.from($('body-options').children).entries())b.setAttribute('aria-pressed',String(cfg.body===i));$('swatches').querySelectorAll('button').forEach((b,i)=>b.classList.toggle('on',cfg.color===i));$('paint-name').textContent=paintName(cfg);updateMatchSummary();if(inited){refreshCarModels();paintCar(0)}$('garage-status').textContent=BODY_NAMES[cfg.body]+' · '+paintName(cfg)+(inited?' · READY':'');$('goal-style').value=RIVAL_PREF.celebration;syncPaintUI();}
  renderCareer();return true;
 }
 async function queuePractice(){

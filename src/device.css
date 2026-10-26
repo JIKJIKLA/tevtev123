@@ -1,0 +1,55 @@
+/* Capability-driven layouts and independent pointer controls. */
+#touch-controls{position:fixed;inset:0;z-index:12;pointer-events:none;user-select:none;-webkit-user-select:none;touch-action:none;font-family:Arial,sans-serif}
+#touch-controls button,#touch-stick{pointer-events:auto;touch-action:none;-webkit-tap-highlight-color:transparent}
+#touch-controls button{position:absolute;border:1px solid #b5e3ff91;background:linear-gradient(145deg,#174969b8,#071829c9);color:#edfaff;font:800 11px Arial,sans-serif;text-shadow:0 1px 2px #0009;box-shadow:0 3px 12px #0005,inset 0 0 0 3px #a1d9ff12;cursor:pointer}
+#touch-controls button.pressed,#touch-controls button:active{background:#52b9e9dc;border-color:#e8faff;box-shadow:0 0 18px #55bbff66,inset 0 0 0 3px #dff5ff55;color:#032238}
+#touch-controls button:focus-visible{outline:3px solid #e7f6ff;outline-offset:3px}
+#touch-stick{position:absolute;left:max(20px,env(safe-area-inset-left));bottom:max(22px,env(safe-area-inset-bottom));width:150px;height:150px;border-radius:50%;border:1px solid #a4d5ee60;background:radial-gradient(circle,#16486835 0 37%,#081c3280 38% 68%,#99d8ff15 69% 70%,transparent 71%);box-shadow:inset 0 0 35px #00102533}
+#touch-stick i{position:absolute;inset:35%;border:1px dashed #d0edff6b;border-radius:50%}
+#touch-stick-label{position:absolute;left:0;right:0;bottom:17px;text-align:center;color:#bfdff2c9;font-size:9px;font-weight:bold;letter-spacing:1.2px}
+#touch-knob{position:absolute;left:calc(50% - 25px);top:calc(50% - 25px);width:50px;height:50px;border:1px solid #c3ebffbf;border-radius:50%;background:radial-gradient(circle at 30% 25%,#c7efffa1,#469acb8c 60%,#1b4c72c9);box-shadow:0 4px 16px #00162c66;pointer-events:none;will-change:transform}
+#touch-toolbar{position:absolute;top:max(80px,calc(env(safe-area-inset-top) + 64px));right:max(12px,env(safe-area-inset-right));display:flex;gap:7px}
+#touch-toolbar button{position:relative;min-width:42px;height:40px;padding:0 11px;border-radius:7px;font-size:11px;background:#071a30b3}
+#touch-toolbar #touch-pause,#touch-toolbar #touch-fullscreen{font-size:20px;padding:0 9px}
+#touch-boost{right:max(20px,env(safe-area-inset-right));bottom:max(22px,env(safe-area-inset-bottom));width:80px;height:80px;border-radius:50%;font-size:13px!important;border-color:#ffd68eb3!important;background:linear-gradient(145deg,#bc6b23a6,#432d1fbd)!important;color:#ffe8b5!important}
+#touch-jump{right:max(111px,calc(env(safe-area-inset-right) + 99px));bottom:max(78px,calc(env(safe-area-inset-bottom) + 58px));width:68px;height:68px;border-radius:50%}
+#touch-slide{right:max(117px,calc(env(safe-area-inset-right) + 105px));bottom:max(20px,env(safe-area-inset-bottom));width:53px;height:45px;border-radius:13px;font-size:9px!important}
+#touch-air{position:absolute;right:max(20px,env(safe-area-inset-right));bottom:max(148px,calc(env(safe-area-inset-bottom) + 126px));width:96px;height:54px;display:flex;justify-content:space-between;opacity:.45}
+#touch-air button{position:relative;width:44px;height:44px;border-radius:50%;font-size:22px;line-height:1}
+#touch-air span{position:absolute;top:47px;left:0;right:0;text-align:center;color:#bed8ee;font-size:7px;letter-spacing:.8px;white-space:nowrap}
+#touch-controls.airborne #touch-air{opacity:1}
+#touch-landscape-hint{position:absolute;left:50%;top:calc(env(safe-area-inset-top) + 66px);transform:translateX(-50%);color:#cbe9f5a6;font:700 8px Arial,sans-serif;letter-spacing:.8px;white-space:nowrap}
+#device-settings{border-top:1px solid #86b3cf33;margin-top:20px;padding-top:12px}#device-settings h3{color:#d9f0ff;font-size:13px}#device-settings label{display:block;color:#adc9de;font-size:10px;letter-spacing:1px;margin:14px 0 6px}#device-settings select{box-sizing:border-box;width:100%;padding:12px;color:#e6f6ff;background:#102940;border:1px solid #779bb65c;border-radius:4px;font-size:12px}#device-settings p{color:#9ab9d0;font-size:11px;line-height:1.6}
+body.device-touch #bo{width:115px!important;height:115px!important;top:109px!important;bottom:auto!important;right:8px!important}
+body.device-touch #spd{width:90px!important;height:90px!important;top:122px!important;bottom:auto!important;right:126px!important}
+body.device-touch #camtag{display:none!important}
+body.device-touch #quick-chat{left:14px;bottom:195px}
+body.device-touch #rival-title{top:101px;left:14px;font-size:8px}
+body.device-touch #replay-controls{bottom:calc(env(safe-area-inset-bottom) + 24px);max-width:90vw;flex-wrap:wrap;justify-content:center}
+body.device-touch #goal-detail{max-width:92vw;font-size:10px}
+body.device-phone #menu button,body.device-phone #menu input,body.device-phone #menu select,body.device-tablet #menu button{min-height:44px}
+body.device-phone #menu .menu-top{display:grid;grid-template-columns:minmax(0,1fr) auto auto;height:100px;min-height:100px;padding:10px 12px;gap:6px}
+body.device-phone #menu #party-toggle{grid-column:1/-1;justify-self:end;margin:0}
+body.device-phone #menu .wordmark{font-size:21px}body.device-phone #menu .wordmark small{font-size:6px;letter-spacing:3px}
+body.device-phone #menu #menu-music{font-size:8px;padding:7px;min-width:0;min-height:34px}body.device-phone #menu #party-toggle{font-size:8px;padding:7px 9px;min-width:0;min-height:34px}
+body.device-phone #menu .menu-pages{top:108px!important;bottom:58px!important;left:12px!important;right:12px!important;width:auto!important;max-width:none!important;transform:none!important;overflow:auto;overscroll-behavior:contain}
+body.device-phone #menu .menu-pages>section{padding:18px 16px}
+body.device-phone #menu .menu-pages h2{font-size:25px}
+body.device-phone #menu .home-actions{left:16px;top:auto;bottom:30px;width:min(215px,54vw);gap:7px}
+body.device-phone #menu .home-actions button{padding:12px 16px;min-height:46px}body.device-phone #menu .home-actions button b{font-size:20px}
+body.device-phone #menu footer{font-size:7px;letter-spacing:.3px;padding:11px 12px}
+body.device-phone #intro .intro-title h1{font-size:clamp(54px,15vw,100px)}body.device-phone #intro .intro-title{top:25%}
+body.device-phone #intro .intro-controls{bottom:25%}body.device-phone #intro #intro-play{min-height:60px;font-size:20px;padding:13px 18px}
+body.device-phone #intro .intro-track{font-size:9px;left:16px;bottom:8%}body.device-phone #intro .intro-options{right:16px;bottom:2%}
+body.device-phone #secret-panel{right:8px;top:72px;max-height:calc(100dvh - 90px);width:calc(100vw - 16px)}
+body.device-phone #secret-restore{top:70px;right:8px}
+body.device-phone #pause .btn,body.device-phone #end .btn{min-height:48px}
+@media(max-width:650px){body.device-touch #sb{top:max(10px,env(safe-area-inset-top));font-size:24px;max-width:92vw}body.device-touch #sb>div{min-width:46px;padding:9px}body.device-touch #tm{min-width:80px;padding:9px}body.device-touch #matchtag{top:94px;left:12px;max-width:150px;font-size:8px}body.device-touch #bo{width:100px!important;height:100px!important;top:117px!important}body.device-touch #spd{width:78px!important;height:78px!important;top:130px!important;right:110px!important}body.device-touch #quick-chat{bottom:185px}#touch-stick{left:14px;bottom:max(20px,env(safe-area-inset-bottom));width:138px;height:138px}#touch-boost{right:14px;width:73px;height:73px}#touch-jump{right:98px;width:62px;height:62px}#touch-slide{right:104px}#touch-air{right:12px}#touch-toolbar{top:max(70px,calc(env(safe-area-inset-top) + 62px))}#touch-toolbar button{height:36px;font-size:9px;padding:0 8px}}
+@media(max-height:500px) and (orientation:landscape){body.device-touch #bo{top:80px!important;width:92px!important;height:92px!important}body.device-touch #spd{top:93px!important;width:70px!important;height:70px!important;right:103px!important}body.device-touch #matchtag{top:15px;left:12px;font-size:8px}body.device-touch #rival-title{display:none}#touch-stick{width:125px;height:125px;left:max(14px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom))}#touch-knob{width:44px;height:44px;left:calc(50% - 22px);top:calc(50% - 22px)}#touch-toolbar{top:15px}#touch-boost{width:70px;height:70px;bottom:max(13px,env(safe-area-inset-bottom))}#touch-jump{width:59px;height:59px;bottom:62px;right:100px}#touch-slide{bottom:10px;right:107px;height:42px;width:47px}#touch-air{bottom:130px;right:16px}body.device-touch #quick-chat{left:12px;bottom:155px}body.device-phone #menu .home-actions{bottom:8px;gap:3px}body.device-phone #menu .home-actions button{min-height:39px;padding:8px 14px}body.device-phone #menu .menu-pages{top:72px!important;bottom:45px!important}}
+@media(prefers-reduced-motion:reduce){#touch-knob{will-change:auto}}
+/* Keep practice tools clear of the steering thumb, and reserve header rows. */
+body.device-touch #training-hud{top:216px;bottom:auto;left:12px;max-width:160px;gap:5px;font-size:8px;letter-spacing:.5px}
+body.device-touch #training-open{min-height:44px;padding:10px;font-size:9px}
+body.device-phone #matchtag{top:112px!important;max-width:155px}
+body.device-phone #rival-title{top:163px!important}
+@media(max-height:500px) and (orientation:landscape){body.device-phone #menu .menu-top{display:flex;flex-wrap:nowrap;height:64px;min-height:64px;padding:10px 16px}body.device-touch #training-hud{top:59px;bottom:auto}body.device-phone #matchtag{top:15px!important}body.device-phone #rival-title{display:none}}

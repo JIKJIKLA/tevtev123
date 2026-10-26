@@ -1,5 +1,6 @@
 // Reference measurements are linked in docs/ACCURACY.md. Metres, seconds; Y up.
-const BUILD='9.6';
+const BUILD='9.7';
+const PRESENTATION_TIMING=Object.freeze({goalHold:7.2,replayDelay:1.5,replayDuration:4.4});
 const PROTOCOL=4;
 function airRotation(velocity,input,acceleration,damping,dt,roll=false){return velocity+(input*acceleration-damping*(roll?1:1-Math.abs(input))*velocity)*dt;}
 function throttleAcceleration(speed){

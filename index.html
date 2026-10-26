@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="color-scheme" content="dark">
-<title>Tevin League 9.6 — Rivals</title>
+<title>Tevin League 9.7 — Momentum</title>
 <script>
 // Independent bootstrap diagnostics remain available even if the engine fails.
 window.tevinBoot={ready:false,error:'',stage:'engine bundle not reached'};
@@ -215,6 +215,92 @@ body.cinema-replay #cv{filter:saturate(1.12) contrast(1.04)}
 #secret-notice{position:fixed;z-index:8;left:50%;top:92px;transform:translateX(-50%);padding:8px 15px;color:#f1e9ff;background:#281b47ed;border:1px solid #b9a1ff;border-radius:4px;font:bold 11px Arial,sans-serif;pointer-events:none;text-align:center;max-width:80vw}
 @media(max-width:600px){#secret-panel{right:8px;top:70px;max-height:calc(100dvh - 85px)}#secret-restore{right:10px;top:70px}}
 
+/* Score panels inherit the effective captain paint, including custom RGB and black. */
+#sb #s0,#sb #s1{background:var(--team-color)!important;box-shadow:inset 0 1px #ffffff30,inset 0 -1px #0003}
+#sb #s0::after,#sb #s1::after{display:none!important;background:none!important}
+#custom-paint{margin:16px 0 20px;padding:15px;border:1px solid #7eafcd35;background:#07172580;border-radius:5px}
+#custom-paint .paint-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+#custom-paint label{font:700 10px/1.3 Arial,sans-serif;letter-spacing:1.3px;color:#bdd3e1}
+#paint-value{display:flex;gap:7px;align-items:center;font:700 11px Arial,sans-serif;color:#d7eaf6;font-variant-numeric:tabular-nums}
+#paint-value::before{content:'';display:inline-block;width:15px;height:15px;border-radius:3px;border:1px solid #e7f5ff66;background:var(--paint-preview)}
+#custom-paint .paint-pick-row{display:flex;align-items:center;gap:14px}#custom-paint .paint-pick-row>div{flex:1;min-width:0}
+#paint-picker{width:55px;height:44px;border:1px solid #89a8c1;padding:3px;background:#142c42;border-radius:4px;cursor:pointer}
+#paint-hue{display:block;width:100%;height:15px;margin:10px 0 5px;border-radius:10px;appearance:none;background:linear-gradient(90deg,#f44,#ff4,#4f4,#4ff,#44f,#f4f,#f44);cursor:pointer}
+#paint-hue::-webkit-slider-thumb{appearance:none;width:20px;height:20px;border:3px solid white;border-radius:50%;background:#1a2a3c;box-shadow:0 1px 5px #0008}
+#paint-hue::-moz-range-thumb{width:15px;height:15px;border:3px solid white;border-radius:50%;background:#1a2a3c}
+#extra-paints{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:14px}#extra-paints button{min-height:35px;border:1px solid #ffffff40;border-radius:3px;color:white;text-shadow:0 1px 3px black;font:bold 9px Arial,sans-serif;background:linear-gradient(#0000,#0005),var(--paint-preview);cursor:pointer;padding:5px 2px}
+#extra-paints button[aria-pressed=true]{outline:2px solid #dcf5ff;outline-offset:1px}#paint-palette{width:100%;padding:8px;margin-top:12px;border:1px solid #789eb455;background:#203a50;color:#d9edf9;border-radius:3px;font:bold 9px Arial,sans-serif;cursor:pointer}#paint-palette:disabled{opacity:.45;cursor:default}
+#custom-paint p{font:10px/1.6 Arial,sans-serif;color:#9fbaca;margin:9px 0 0}#custom-paint input:focus-visible,#custom-paint button:focus-visible{outline:2px solid #d2f4ff;outline-offset:3px}
+@media(max-width:520px){#custom-paint{padding:12px}#extra-paints button{min-height:39px}}
+
+#goal-spectacle{position:fixed;z-index:7;left:50%;top:23vh;transform:translateX(-50%);pointer-events:none;text-align:center;color:#fff;min-width:280px;max-width:90vw;font-family:Arial,sans-serif;text-shadow:0 2px 4px #0008,0 0 28px var(--celebration-color,#60baff)}
+#goal-spectacle .goal-spectacle-kicker{display:block;font-size:clamp(11px,1.3vw,18px);font-weight:900;letter-spacing:6px;color:var(--celebration-color,#60baff);text-shadow:0 1px 3px #000,0 0 16px currentColor}
+#goal-spectacle strong{display:block;font-size:clamp(50px,9vw,132px);font-weight:900;font-style:italic;line-height:.98;letter-spacing:-5px;margin:9px 0;-webkit-text-stroke:1px #ffffff70}
+#goal-spectacle .goal-spectacle-detail{display:block;font-size:clamp(11px,1.5vw,19px);font-weight:700;letter-spacing:2px;padding:9px 18px;background:linear-gradient(90deg,transparent,#061529d9 25%,#061529d9 75%,transparent)}
+body.cinema-motion #goal-spectacle:not([hidden]):not(.still){animation:goal-stinger .55s cubic-bezier(.13,.8,.2,1) both}
+body.goal-impact #cv{filter:saturate(1.14) contrast(1.03)}
+body.goal-presentation #msg,body.goal-presentation #goal-detail{visibility:hidden}
+body.boost-thrust #bo{filter:drop-shadow(0 0 9px #ffb24966)!important}
+@keyframes goal-stinger{0%{opacity:0;scale:1.3}35%{opacity:1;scale:.97}65%{scale:1.025}100%{opacity:1;scale:1}}
+@media(max-width:650px){#goal-spectacle{top:24vh;min-width:230px}#goal-spectacle strong{letter-spacing:-2px}.goal-spectacle-kicker{letter-spacing:3px!important}}
+@media(prefers-reduced-motion:reduce){#goal-spectacle{animation:none!important}body.goal-impact #cv{filter:none}body.boost-thrust #bo{filter:none!important}}
+
+/* Capability-driven layouts and independent pointer controls. */
+#touch-controls{position:fixed;inset:0;z-index:12;pointer-events:none;user-select:none;-webkit-user-select:none;touch-action:none;font-family:Arial,sans-serif}
+#touch-controls button,#touch-stick{pointer-events:auto;touch-action:none;-webkit-tap-highlight-color:transparent}
+#touch-controls button{position:absolute;border:1px solid #b5e3ff91;background:linear-gradient(145deg,#174969b8,#071829c9);color:#edfaff;font:800 11px Arial,sans-serif;text-shadow:0 1px 2px #0009;box-shadow:0 3px 12px #0005,inset 0 0 0 3px #a1d9ff12;cursor:pointer}
+#touch-controls button.pressed,#touch-controls button:active{background:#52b9e9dc;border-color:#e8faff;box-shadow:0 0 18px #55bbff66,inset 0 0 0 3px #dff5ff55;color:#032238}
+#touch-controls button:focus-visible{outline:3px solid #e7f6ff;outline-offset:3px}
+#touch-stick{position:absolute;left:max(20px,env(safe-area-inset-left));bottom:max(22px,env(safe-area-inset-bottom));width:150px;height:150px;border-radius:50%;border:1px solid #a4d5ee60;background:radial-gradient(circle,#16486835 0 37%,#081c3280 38% 68%,#99d8ff15 69% 70%,transparent 71%);box-shadow:inset 0 0 35px #00102533}
+#touch-stick i{position:absolute;inset:35%;border:1px dashed #d0edff6b;border-radius:50%}
+#touch-stick-label{position:absolute;left:0;right:0;bottom:17px;text-align:center;color:#bfdff2c9;font-size:9px;font-weight:bold;letter-spacing:1.2px}
+#touch-knob{position:absolute;left:calc(50% - 25px);top:calc(50% - 25px);width:50px;height:50px;border:1px solid #c3ebffbf;border-radius:50%;background:radial-gradient(circle at 30% 25%,#c7efffa1,#469acb8c 60%,#1b4c72c9);box-shadow:0 4px 16px #00162c66;pointer-events:none;will-change:transform}
+#touch-toolbar{position:absolute;top:max(80px,calc(env(safe-area-inset-top) + 64px));right:max(12px,env(safe-area-inset-right));display:flex;gap:7px}
+#touch-toolbar button{position:relative;min-width:42px;height:40px;padding:0 11px;border-radius:7px;font-size:11px;background:#071a30b3}
+#touch-toolbar #touch-pause,#touch-toolbar #touch-fullscreen{font-size:20px;padding:0 9px}
+#touch-boost{right:max(20px,env(safe-area-inset-right));bottom:max(22px,env(safe-area-inset-bottom));width:80px;height:80px;border-radius:50%;font-size:13px!important;border-color:#ffd68eb3!important;background:linear-gradient(145deg,#bc6b23a6,#432d1fbd)!important;color:#ffe8b5!important}
+#touch-jump{right:max(111px,calc(env(safe-area-inset-right) + 99px));bottom:max(78px,calc(env(safe-area-inset-bottom) + 58px));width:68px;height:68px;border-radius:50%}
+#touch-slide{right:max(117px,calc(env(safe-area-inset-right) + 105px));bottom:max(20px,env(safe-area-inset-bottom));width:53px;height:45px;border-radius:13px;font-size:9px!important}
+#touch-air{position:absolute;right:max(20px,env(safe-area-inset-right));bottom:max(148px,calc(env(safe-area-inset-bottom) + 126px));width:96px;height:54px;display:flex;justify-content:space-between;opacity:.45}
+#touch-air button{position:relative;width:44px;height:44px;border-radius:50%;font-size:22px;line-height:1}
+#touch-air span{position:absolute;top:47px;left:0;right:0;text-align:center;color:#bed8ee;font-size:7px;letter-spacing:.8px;white-space:nowrap}
+#touch-controls.airborne #touch-air{opacity:1}
+#touch-landscape-hint{position:absolute;left:50%;top:calc(env(safe-area-inset-top) + 66px);transform:translateX(-50%);color:#cbe9f5a6;font:700 8px Arial,sans-serif;letter-spacing:.8px;white-space:nowrap}
+#device-settings{border-top:1px solid #86b3cf33;margin-top:20px;padding-top:12px}#device-settings h3{color:#d9f0ff;font-size:13px}#device-settings label{display:block;color:#adc9de;font-size:10px;letter-spacing:1px;margin:14px 0 6px}#device-settings select{box-sizing:border-box;width:100%;padding:12px;color:#e6f6ff;background:#102940;border:1px solid #779bb65c;border-radius:4px;font-size:12px}#device-settings p{color:#9ab9d0;font-size:11px;line-height:1.6}
+body.device-touch #bo{width:115px!important;height:115px!important;top:109px!important;bottom:auto!important;right:8px!important}
+body.device-touch #spd{width:90px!important;height:90px!important;top:122px!important;bottom:auto!important;right:126px!important}
+body.device-touch #camtag{display:none!important}
+body.device-touch #quick-chat{left:14px;bottom:195px}
+body.device-touch #rival-title{top:101px;left:14px;font-size:8px}
+body.device-touch #replay-controls{bottom:calc(env(safe-area-inset-bottom) + 24px);max-width:90vw;flex-wrap:wrap;justify-content:center}
+body.device-touch #goal-detail{max-width:92vw;font-size:10px}
+body.device-phone #menu button,body.device-phone #menu input,body.device-phone #menu select,body.device-tablet #menu button{min-height:44px}
+body.device-phone #menu .menu-top{display:grid;grid-template-columns:minmax(0,1fr) auto auto;height:100px;min-height:100px;padding:10px 12px;gap:6px}
+body.device-phone #menu #party-toggle{grid-column:1/-1;justify-self:end;margin:0}
+body.device-phone #menu .wordmark{font-size:21px}body.device-phone #menu .wordmark small{font-size:6px;letter-spacing:3px}
+body.device-phone #menu #menu-music{font-size:8px;padding:7px;min-width:0;min-height:34px}body.device-phone #menu #party-toggle{font-size:8px;padding:7px 9px;min-width:0;min-height:34px}
+body.device-phone #menu .menu-pages{top:108px!important;bottom:58px!important;left:12px!important;right:12px!important;width:auto!important;max-width:none!important;transform:none!important;overflow:auto;overscroll-behavior:contain}
+body.device-phone #menu .menu-pages>section{padding:18px 16px}
+body.device-phone #menu .menu-pages h2{font-size:25px}
+body.device-phone #menu .home-actions{left:16px;top:auto;bottom:30px;width:min(215px,54vw);gap:7px}
+body.device-phone #menu .home-actions button{padding:12px 16px;min-height:46px}body.device-phone #menu .home-actions button b{font-size:20px}
+body.device-phone #menu footer{font-size:7px;letter-spacing:.3px;padding:11px 12px}
+body.device-phone #intro .intro-title h1{font-size:clamp(54px,15vw,100px)}body.device-phone #intro .intro-title{top:25%}
+body.device-phone #intro .intro-controls{bottom:25%}body.device-phone #intro #intro-play{min-height:60px;font-size:20px;padding:13px 18px}
+body.device-phone #intro .intro-track{font-size:9px;left:16px;bottom:8%}body.device-phone #intro .intro-options{right:16px;bottom:2%}
+body.device-phone #secret-panel{right:8px;top:72px;max-height:calc(100dvh - 90px);width:calc(100vw - 16px)}
+body.device-phone #secret-restore{top:70px;right:8px}
+body.device-phone #pause .btn,body.device-phone #end .btn{min-height:48px}
+@media(max-width:650px){body.device-touch #sb{top:max(10px,env(safe-area-inset-top));font-size:24px;max-width:92vw}body.device-touch #sb>div{min-width:46px;padding:9px}body.device-touch #tm{min-width:80px;padding:9px}body.device-touch #matchtag{top:94px;left:12px;max-width:150px;font-size:8px}body.device-touch #bo{width:100px!important;height:100px!important;top:117px!important}body.device-touch #spd{width:78px!important;height:78px!important;top:130px!important;right:110px!important}body.device-touch #quick-chat{bottom:185px}#touch-stick{left:14px;bottom:max(20px,env(safe-area-inset-bottom));width:138px;height:138px}#touch-boost{right:14px;width:73px;height:73px}#touch-jump{right:98px;width:62px;height:62px}#touch-slide{right:104px}#touch-air{right:12px}#touch-toolbar{top:max(70px,calc(env(safe-area-inset-top) + 62px))}#touch-toolbar button{height:36px;font-size:9px;padding:0 8px}}
+@media(max-height:500px) and (orientation:landscape){body.device-touch #bo{top:80px!important;width:92px!important;height:92px!important}body.device-touch #spd{top:93px!important;width:70px!important;height:70px!important;right:103px!important}body.device-touch #matchtag{top:15px;left:12px;font-size:8px}body.device-touch #rival-title{display:none}#touch-stick{width:125px;height:125px;left:max(14px,env(safe-area-inset-left));bottom:max(12px,env(safe-area-inset-bottom))}#touch-knob{width:44px;height:44px;left:calc(50% - 22px);top:calc(50% - 22px)}#touch-toolbar{top:15px}#touch-boost{width:70px;height:70px;bottom:max(13px,env(safe-area-inset-bottom))}#touch-jump{width:59px;height:59px;bottom:62px;right:100px}#touch-slide{bottom:10px;right:107px;height:42px;width:47px}#touch-air{bottom:130px;right:16px}body.device-touch #quick-chat{left:12px;bottom:155px}body.device-phone #menu .home-actions{bottom:8px;gap:3px}body.device-phone #menu .home-actions button{min-height:39px;padding:8px 14px}body.device-phone #menu .menu-pages{top:72px!important;bottom:45px!important}}
+@media(prefers-reduced-motion:reduce){#touch-knob{will-change:auto}}
+/* Keep practice tools clear of the steering thumb, and reserve header rows. */
+body.device-touch #training-hud{top:216px;bottom:auto;left:12px;max-width:160px;gap:5px;font-size:8px;letter-spacing:.5px}
+body.device-touch #training-open{min-height:44px;padding:10px;font-size:9px}
+body.device-phone #matchtag{top:112px!important;max-width:155px}
+body.device-phone #rival-title{top:163px!important}
+@media(max-height:500px) and (orientation:landscape){body.device-phone #menu .menu-top{display:flex;flex-wrap:nowrap;height:64px;min-height:64px;padding:10px 16px}body.device-touch #training-hud{top:59px;bottom:auto}body.device-phone #matchtag{top:15px!important}body.device-phone #rival-title{display:none}}
+
 
 
 </style></head><body>
@@ -231,7 +317,7 @@ body.cinema-replay #cv{filter:saturate(1.12) contrast(1.04)}
 <div id="msg"></div>
 <div id="menu" class="ov on" data-screen="home"><section id="intro" aria-label="Tevin League title screen">
  <canvas id="music-visualizer" aria-hidden="true"></canvas><div id="intro-stage" aria-hidden="true"><div class="intro-art"></div><div class="stadium-design"><div class="stadium-orbit orbit-one"></div><div class="stadium-orbit orbit-two"></div><div class="stadium-beam beam-blue"></div><div class="stadium-beam beam-orange"></div><div class="stadium-stands"></div><div class="stadium-pitch"><div class="pitch-center"></div><div class="pitch-box box-blue"></div><div class="pitch-box box-orange"></div><div class="pitch-goal goal-blue"></div><div class="pitch-goal goal-orange"></div></div><div class="match-ball"><svg viewBox="0 0 200 200" aria-hidden="true"><defs><radialGradient id="ball-light" cx="32%" cy="25%" r="75%"><stop stop-color="#f2fcff"/><stop offset=".55" stop-color="#9ebfce"/><stop offset="1" stop-color="#233d55"/></radialGradient><clipPath id="ball-edge"><circle cx="100" cy="100" r="94"/></clipPath></defs><circle cx="100" cy="100" r="94" fill="url(#ball-light)"/><g clip-path="url(#ball-edge)" fill="#112b40" stroke="#4c7186" stroke-width="2"><path d="M91 61 126 78 120 116 81 122 63 87Z"/><path d="M8 66 34 43 54 57 49 89 20 99Z"/><path d="M131 9 164 25 159 49 135 52 119 31Z"/><path d="M159 116 193 100 209 133 192 161 162 151Z"/><path d="M67 158 98 148 119 170 108 197 72 198Z"/></g><g fill="none" stroke="#456577" stroke-width="2"><path d="M91 61 83 30 119 31M126 78 159 49M120 116 159 116M81 122 67 158M63 87 49 89M54 57 83 30 62 13M20 99 26 134 67 158M26 134 9 147M98 148 120 116M162 151 119 170"/></g></svg></div><div class="stadium-coordinate">CHAMPIONSHIP FIELD / 01<br><span>BLUE SIDE × ORANGE SIDE</span></div></div><div class="intro-horizon"></div></div>
- <div class="intro-top"><span>TEVIN / CHAMPIONSHIP SERIES</span><span>SEASON 09.6</span></div>
+ <div class="intro-top"><span>TEVIN / CHAMPIONSHIP SERIES</span><span>SEASON 09.7</span></div>
  <div class="intro-title"><p>THE ARENA IS YOURS</p><h1>TEVIN<span>LEAGUE</span></h1><div class="intro-rule"></div><p class="intro-tagline">ONE MORE MATCH. ONE GREAT MOMENT.</p></div>
  <div class="intro-controls"><button id="intro-start" hidden>ENABLE SOUND <small>YOUR BROWSER NEEDS A CLICK</small></button><button id="intro-play">START <span>ENTER THE ARENA →</span></button><button id="intro-skip">SETTINGS</button><p id="intro-status" role="status" aria-live="polite">Loading game engine…</p></div>
  <div class="intro-track"><div id="intro-spectrum" aria-hidden="true"></div><div><small>NOW PLAYING / YOUR SOUNDTRACK</small><strong>LUV U NEED U</strong><span>Slushii · Monstercat</span></div></div>
@@ -239,7 +325,7 @@ body.cinema-replay #cv{filter:saturate(1.12) contrast(1.04)}
 </section>
 
 
- <header class="menu-top"><div class="wordmark">TEVIN<span>LEAGUE</span><small>RIVALS / 09.6</small></div><button id="menu-back" hidden>← BACK</button><button id="menu-music" aria-label="Toggle lobby music">MUSIC ON / OFF</button><button id="party-toggle">QUICK MATCH PARTY</button><span id="menu-location">HOME</span></header>
+ <header class="menu-top"><div class="wordmark">TEVIN<span>LEAGUE</span><small>MOMENTUM / 09.7</small></div><button id="menu-back" hidden>← BACK</button><button id="menu-music" aria-label="Toggle lobby music">MUSIC ON / OFF</button><button id="party-toggle">QUICK MATCH PARTY</button><span id="menu-location">HOME</span></header>
 
  <div id="car-inspect" tabindex="0" role="region" aria-label="Rotate car preview. Drag left or right, use arrow keys, or scroll to zoom."><span>DRAG TO ROTATE · SCROLL TO ZOOM</span></div><div id="home-panel"><div class="hero-copy"><p class="eyebrow">YOUR NEXT GREAT TOUCH</p><h1>TEVIN<br><em>LEAGUE.</em></h1><p>Arena soccer. Full-throttle freedom.</p></div><nav class="home-actions" aria-label="Main menu"><button id="nav-play" class="main-action"><b>PLAY</b><span>Quick Match, friends or free play</span><i>↗</i></button><button id="nav-garage"><b>GARAGE</b><span>Your car. Your colors.</span><i>→</i></button><button id="nav-training"><b>TRAINING</b><span>Practice on the pitch</span></button><button id="nav-settings"><b>SETTINGS</b><span>Sound, graphics and keyboard controls</span><i>→</i></button></nav><div class="home-caption">SOCCAR / HEATSEEKER <span>1v1 — 3v3</span></div></div>
 
@@ -278,7 +364,7 @@ body.cinema-replay #cv{filter:saturate(1.12) contrast(1.04)}
 </div>
 
 <section id="loading-screen" hidden role="dialog" aria-modal="true" aria-labelledby="loading-title" aria-describedby="loading-detail">
- <div class="loading-art" aria-hidden="true"></div><header><strong>TEVIN<span>LEAGUE</span></strong><span>CHAMPIONSHIP SERIES / 09.6</span></header>
+ <div class="loading-art" aria-hidden="true"></div><header><strong>TEVIN<span>LEAGUE</span></strong><span>CHAMPIONSHIP SERIES / 09.7</span></header>
  <main><p id="loading-cache">PREPARING YOUR NEXT SESSION</p><h1 id="loading-title" tabindex="-1">ENTER THE ARENA</h1><p id="loading-detail">Preparing your game</p><div class="loading-track" id="loading-meter" role="progressbar" aria-label="Loading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="loading-fill"></div></div><div class="loading-readout"><span id="loading-phase" role="status" aria-live="polite">Preparing assets</span><strong id="loading-percent">0%</strong></div></main>
  <footer><span>YOUR NEXT GREAT TOUCH IS WAITING.</span><span>W / S DRIVE &nbsp; · &nbsp; SHIFT BOOST &nbsp; · &nbsp; SPACE JUMP</span></footer>
 </section>
@@ -8685,7 +8771,7 @@ window.THREE=TevinEngine.THREE;
 try {
 
 
-/* Tevin League 9.6 — Rivals. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
+/* Tevin League 9.7 — Momentum. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
 window.tevinBoot.stage='game script';
 
 const ENGINE=TevinEngine;
@@ -8727,7 +8813,7 @@ const HX=40.96,HZ=51.2,HH=20.48,R=4,GX=8.92755,GH=6.42775,GD=8.8,G=6.5,DT=1/120,
 
 const cl=(v,a,b)=>Math.max(a,Math.min(b,v)),IN=new V3(HX-R,HH/2-R,HZ-R),SN=new V3(),Y3=new V3(0,1,0);let SS=0;
 
-const cfg={lvl:1,len:300,hi:0,models:1,body:0,mode:0,series:1,size:1,speed:1,gravity:1,unlimited:false,teamColors:true,color:0,allies:0,enemies:1};
+const cfg={lvl:1,len:300,hi:0,models:1,body:0,mode:0,series:1,size:1,speed:1,gravity:1,unlimited:false,teamColors:true,color:0,paint:null,allies:0,enemies:1};
 
 try{const pref=JSON.parse(localStorage.getItem('tevin.presentation.v6')||'null');if(pref){cfg.hi=0;cfg.models=1;cfg.body=cl(Math.round(Number(pref.body)||0),0,2);cfg.color=cl(Math.round(Number(pref.color)||0),0,7);cfg.teamColors=pref.teamColors!==false}}catch(_){}
 
@@ -8779,7 +8865,8 @@ function surf(p){
 }
 
 // Reference measurements are linked in docs/ACCURACY.md. Metres, seconds; Y up.
-const BUILD='9.6';
+const BUILD='9.7';
+const PRESENTATION_TIMING=Object.freeze({goalHold:7.2,replayDelay:1.5,replayDuration:4.4});
 const PROTOCOL=4;
 function airRotation(velocity,input,acceleration,damping,dt,roll=false){return velocity+(input*acceleration-damping*(roll?1:1-Math.abs(input))*velocity)*dt;}
 function throttleAcceleration(speed){
@@ -10033,11 +10120,11 @@ function pollController(){
 addEventListener('focus',()=>{inputFocused=true});
 function human(c){if(SECRET.open&&!SECRET.minimized){Object.assign(c.inp,Z);c.jp=c.jh=0;return;}
  const k=keys,w=k.w||k.arrowup?1:0,s=k.s||k.arrowdown?1:0,a=k.a||k.arrowleft?1:0,d=k.d||k.arrowright?1:0,i=c.inp;
- const combine=(digital,analog)=>digital||analog;
- i.thr=combine(w-s,padInput.thr);i.pitch=combine(w-s,padInput.pitch);i.steer=i.yaw=combine(d-a,padInput.steer);
- i.roll=combine((k.e?1:0)-(k.q?1:0),padInput.roll);i.boost=k.shift||k.mouseBoost||padInput.boost?1:0;i.ps=k.control||padInput.ps?1:0;c.jh=k[' ']||padInput.jump?1:0;
+ const combine=(digital,touch,analog)=>digital||(touchInput.active?touch:analog);
+ i.thr=combine(w-s,touchInput.thr,padInput.thr);i.pitch=combine(w-s,touchInput.pitch,padInput.pitch);i.steer=combine(d-a,touchInput.steer,padInput.steer);i.yaw=combine(d-a,touchInput.yaw,padInput.yaw);
+ i.roll=combine((k.e?1:0)-(k.q?1:0),touchInput.roll,padInput.roll);i.boost=k.shift||k.mouseBoost||touchInput.boost||padInput.boost?1:0;i.ps=k.control||touchInput.ps||padInput.ps?1:0;c.jh=k[' ']||touchInput.jump||padInput.jump?1:0;
 }
-addEventListener('pointerdown',e=>{if(e.button===0&&e.target?.id==='cv'&&st==='PLAY'&&!LOADING.active){keys.mouseBoost=1;e.preventDefault();}});
+addEventListener('pointerdown',e=>{if(e.pointerType!=='touch'&&e.button===0&&e.target?.id==='cv'&&st==='PLAY'&&!LOADING.active){keys.mouseBoost=1;e.preventDefault();}});
 addEventListener('pointerup',e=>{if(e.button===0)keys.mouseBoost=0;});
 addEventListener('pointercancel',()=>{keys.mouseBoost=0;});
 function setupDriverSettings(){
@@ -10490,13 +10577,13 @@ function validNumber(v){return typeof v==='number'&&Number.isFinite(v)}
 function mpReset(removeRoom=true){dedReset();AUDIO.received=0;AUDIO.events.length=0;const room=MP.room,role=MP.role,session=MP.session,slot=MP.slot;for(const l of MP.listeners)l.ref.off(l.event,l.handler);MP.listeners.length=0;for(const d of MP.disconnects)d.cancel().catch(()=>{});MP.disconnects.length=0;
  if(room&&removeRoom){if(role==='host')room.remove().catch(()=>{});else{room.child('meta').transaction(m=>{if(m===null)return null;if(m.seats?.[slot]?.session!==session)return;delete m.seats[slot];return m},undefined,false).catch(()=>{});room.child('presence/'+session).remove().catch(()=>{});room.child('inputs/'+session).remove().catch(()=>{})}}
  Object.assign(MP,{active:false,quick:'',endReason:'',role:'',slot:0,code:'',room:null,loaded:false,session:'',seats:{},presence:{},inputs:{},lastInputs:{},seenJumps:{},localPaused:false,transport:false,seq:0,received:-1,round:0,publishClock:0,pending:0,lastSnapshot:0,snapshot:null,buffer:[],jump:0,matchBegun:false,force:true,closed:false,startRequested:false});mpStatus('Host a private room or enter a six-character code.')}
-function mpClearInput(){for(const k in keys)keys[k]=0;for(const c of cars){c.jp=c.jh=0;Object.assign(c.inp,Z)}for(const s in MP.inputs)MP.seenJumps[s]=MP.inputs[s].jump||0;acc=0}
+function mpClearInput(){clearTouchInput();for(const k in keys)keys[k]=0;for(const c of cars){c.jp=c.jh=0;Object.assign(c.inp,Z)}for(const s in MP.inputs)MP.seenJumps[s]=MP.inputs[s].jump||0;acc=0}
 function mpFreeze(reason){if(!MP.loaded)return;if(st!=='PAUSE'){ps_=st;st='PAUSE';mpClearInput()}audioSilence();$('msg').style.opacity=0;$('pause').classList.add('on');$('pause-title').textContent=reason;$('res').disabled=!MP.localPaused;$('res').textContent=MP.localPaused?'RESUME':'WAITING FOR PLAYERS'}
 function mpSetPause(value){if(DED.active)return dedPause(value);if(!MP.active||!MP.room)return;MP.localPaused=!!value;const p=MP.presence[MP.session]||{};p.paused=!!value;MP.presence[MP.session]=p;if(value)mpFreeze('MATCH PAUSED');else{mpClearInput();if(ps_==='WAIT'){st='WAIT';$('pause').classList.remove('on');mpLobby()}}MP.room.child('presence/'+MP.session+'/paused').set(!!value).catch(mpFailure);MP.force=true}
 function mpPlayersReady(){for(const k in MP.seats){const seat=MP.seats[k],p=MP.presence[seat.session];if(!p?.ready||!p.connected||p.paused)return false;if(+k!==0&&!MP.inputs[seat.session])return false}return !!MP.presence[MP.session]?.ready}
 async function mpStartMatch(){if(DED.active)return dedStart();if(!MP.active||MP.role!=='host'||MP.startRequested||MP.matchBegun)return;if(!mpPlayersReady()){mpStatus('Waiting for every player to load and resume.');return}MP.startRequested=true;mpLobby();try{const result=await MP.room.child('meta').transaction(m=>{if(m===null)return null;if(m.host!==MP.session)return;if(Object.values(m.seats||{}).some(seat=>!MP.presence[seat.session]?.ready||!MP.presence[seat.session]?.connected||MP.presence[seat.session]?.paused))return;m.locked=true;return m},undefined,false);if(!result.committed||!result.snapshot.val()?.locked)throw Error('A player is still loading. Try Start again.');MP.matchBegun=true;kickoff();mpStatus('LIVE · PLAYER 1','good');MP.force=true}catch(e){mpStatus(e.message,'bad')}finally{MP.startRequested=false;mpLobby()}}
 function mpPauseGate(){if(!MP.active||!MP.loaded)return;if(MP.role==='guest'){if(MP.closed||!MP.transport||MP.lastSnapshot&&performance.now()-MP.lastSnapshot>2200)mpFreeze('CONNECTION INTERRUPTED');return}if(!MP.matchBegun){if(MP.localPaused)mpFreeze('LOBBY PAUSED');else{st='WAIT';$('pause').classList.remove('on')}$('msg').style.opacity=0;mpLobby();if(Object.keys(MP.seats).length===cfg.size*2&&mpPlayersReady())mpStartMatch();return}let blocked=MP.closed||!MP.transport,stale=blocked;for(const k in MP.seats){const s=MP.seats[k].session,p=MP.presence[s];if(!p?.ready||!p.connected)blocked=stale=true;if(p?.paused)blocked=true;if(+k!==0&&performance.now()-(MP.lastInputs[s]||0)>2200)blocked=stale=true}if(blocked)mpFreeze(stale?'CONNECTION INTERRUPTED':'MATCH PAUSED');else if(st==='PAUSE'){st=ps_||'COUNT';mpClearInput();$('pause').classList.remove('on');MP.force=true}mpLobby()}
-function mpApplySeats(){for(let k=0;k<cars.length;k++){cars[k].color=PALETTE[cl(Math.round(Number(MP.seats[k]?.color??k%2)),0,PALETTE.length-1)];cars[k].body=cl(Math.round(Number(MP.seats[k]?.body??k%3)),0,2);cars[k].enabled=true}applyTeamColors();refreshCarModels()}
+function mpApplySeats(){for(let k=0;k<cars.length;k++){cars[k].color=driverPaint(MP.seats[k],k%2);cars[k].body=cl(Math.round(Number(MP.seats[k]?.body??k%3)),0,2);cars[k].enabled=true}applyTeamColors();refreshCarModels()}
 function attachRoomListeners(){const room=MP.room;mpListen(room.child('presence'),'value',s=>{MP.presence=s.val()||{};if(MP.loaded&&MP.matchBegun&&Object.values(MP.seats).some(x=>MP.presence[x.session]?.paused))mpFreeze('MATCH PAUSED');MP.force=true});
  mpListen(room.child('meta'),'value',s=>{const m=s.val();if(!m?.host){if(MP.quick&&MP.loaded){MP.closed=true;quit();chooseRoute('quick');showMenuScreen('play');SOC.error='The host left. Your party is still together; find another match.';socialUI();return}MP.closed=true;if(MP.loaded){mpFreeze('ROOM CLOSED');mpStatus('The host left. Quit to make or join another room.','bad')}return}const previousSeats=MP.seats;MP.seats=m.seats||{};if(MP.quick&&MP.role==='host'&&MP.matchBegun&&st!=='END'){const departed=Object.keys(previousSeats).find(k=>!MP.seats[k]);if(departed!==undefined){const winner=1-(Number(departed)%2);score[winner]=Math.max(score[0],score[1])+1;MP.endReason='MATCH FORFEIT · A PLAYER LEFT';$('s0').textContent=score[0];$('s1').textContent=score[1];endMatch();mpStatus('MATCH ENDED · PLAYER LEFT','good')}}if(MP.seats[MP.slot]?.session!==MP.session){MP.closed=true;mpFreeze('SEAT CLOSED');return}applySettings(m.settings);mpApplySeats();mpLobby()});
  if(MP.role==='host')mpListen(room.child('inputs'),'value',s=>{const values=s.val()||{};for(const id in values){const v=values[id];if(Number.isInteger(v.seq)&&v.seq>(MP.inputs[id]?.seq??-1)){MP.inputs[id]=v;MP.lastInputs[id]=performance.now()}}});
@@ -10511,7 +10598,7 @@ function mpSnapshot(){return{arcade:secretSnapshot(),heat:{target:heat.target,sp
 function publishMultiplayer(dt){if(!MP.active||!MP.loaded||!MP.room||MP.closed)return;MP.publishClock+=dt;if(MP.pending>=4||(!MP.force&&MP.publishClock<.05))return;MP.publishClock=0;MP.force=false;MP.pending++;const session=MP.session;let path,value;if(MP.role==='host'){path='state';value=mpSnapshot()}else{human(localPlayer());path='inputs/'+session;value={seq:++MP.seq,round:MP.round,paused:MP.localPaused,jump:MP.jump,held:!!localPlayer().jh,controls:{...localPlayer().inp}}}MP.room.child(path).set(value).catch(e=>{if(MP.session===session)mpFailure(e)}).finally(()=>{if(MP.session===session)MP.pending--})}
 function mpRemoteControls(c){const seat=MP.seats[c.id];if(!seat){bot(c);return}const p=MP.inputs[seat.session];Object.assign(c.inp,Z);c.jp=c.jh=0;if(!p||p.round!==MP.round||p.paused)return;for(const key in Z)c.inp[key]=cl(Number(p.controls?.[key])||0,-1,1);c.jp=p.jump>(MP.seenJumps[seat.session]||0)?1:0;MP.seenJumps[seat.session]=p.jump;c.jh=p.held?1:0}
 function packetValid(p){return p&&[p.x,p.y,p.z].every(x=>Number.isFinite(x)&&Math.abs(x)<=1000)&&Number.isFinite(p.boost)&&p.boost>=0&&p.boost<=100&&finiteVector(p.q,4,1.01)&&p.q.reduce((sum,x)=>sum+x*x,0)>.5&&finiteVector(p.v,3,100)&&finiteVector(p.w,3,100)&&finiteVector(p.n,3,1.01)}
-function mpReadCar(c,p,blend,age,previous=p){if(!packetValid(p)||!packetValid(previous))return;_a.set(previous.x,previous.y,previous.z);_b.set(p.x,p.y,p.z);c.p.lerpVectors(_a,_b,blend);_b.fromArray(p.v);c.p.addScaledVector(_b,age);c.q.fromArray(previous.q).normalize();_q1.fromArray(p.q).normalize();c.q.slerp(_q1,blend);c.v.copy(_b);if(p.w?.length===3)c.w.fromArray(p.w);if(p.n?.length===3)c.n.fromArray(p.n);c.boost=p.boost;c.ground=p.ground;c.bst=p.boosting?1:0;c.color=p.color||PALETTE[c.team];c.touches=p.touches||0;c.goals=p.goals||0;c.topSpeed=p.topSpeed||0;c.boostUsed=p.boostUsed||0;Object.assign(c.inp,p.input||Z);c.frameP.copy(c.p);c.frameQ.copy(c.q);c.prevP.copy(c.p);c.prevQ.copy(c.q)}
+function mpReadCar(c,p,blend,age,previous=p){if(!packetValid(p)||!packetValid(previous))return;_a.set(previous.x,previous.y,previous.z);_b.set(p.x,p.y,p.z);c.p.lerpVectors(_a,_b,blend);_b.fromArray(p.v);c.p.addScaledVector(_b,age);c.q.fromArray(previous.q).normalize();_q1.fromArray(p.q).normalize();c.q.slerp(_q1,blend);c.v.copy(_b);if(p.w?.length===3)c.w.fromArray(p.w);if(p.n?.length===3)c.n.fromArray(p.n);c.boost=p.boost;c.ground=p.ground;c.bst=p.boosting?1:0;c.color=validPaint(p.color)?p.color:PALETTE[c.team];c.touches=p.touches||0;c.goals=p.goals||0;c.topSpeed=p.topSpeed||0;c.boostUsed=p.boostUsed||0;Object.assign(c.inp,p.input||Z);c.frameP.copy(c.p);c.frameQ.copy(c.q);c.prevP.copy(c.p);c.prevQ.copy(c.q);if(c.id<2)updateScorePaint()}
 function applyMultiplayer(dt,snap=false){if(MP.role!=='guest'||!MP.snapshot)return;let a=MP.snapshot,b=a,blend=1,age=0;const target=performance.now()-100,buf=MP.buffer;if(!snap&&a.phase==='PLAY'&&buf.length){a=b=buf[0].state;for(let k=1;k<buf.length;k++){if(buf[k].at>=target){a=buf[k-1].state;b=buf[k].state;blend=cl((target-buf[k-1].at)/Math.max(1,buf[k].at-buf[k-1].at),0,1);break}a=b=buf[k].state}if(target>buf[buf.length-1].at)age=Math.min(.05,(target-buf[buf.length-1].at)/1000)}for(let k=0;k<cars.length;k++)if(!DED.active||snap||k!==MP.slot)mpReadCar(cars[k],b.cars[k],blend,age,a.cars[k]);if((!DED.active||snap)&&a.ball?.p?.length===3&&b.ball?.p?.length===3){_a.fromArray(a.ball.p);_b.fromArray(b.ball.p);ball.p.lerpVectors(_a,_b,blend);ball.v.fromArray(b.ball.v);ball.p.addScaledVector(ball.v,age);ball.w.fromArray(b.ball.w);ball.last=b.ball.last;ball.lastPlayer=b.ball.lastPlayer;ball.color=b.ball.color;ball.frameP.copy(ball.p);ball.prevP.copy(ball.p)}}
 function publishMatch(){MP.force=true}
 function handleRemoteMatch(s){if(!MP.loaded||MP.role!=='guest')return;const changed=st!==s.phase,roundChanged=MP.round!==s.round;heat.server=Number.isInteger(s.serve)?s.serve:-1;readHeatState(s.heat);if(s.series&&[1,3,5].includes(s.series.bestOf)&&Array.isArray(s.series.wins)&&s.series.wins.length===2&&s.series.wins.every(n=>Number.isInteger(n)&&n>=0&&n<=3))Object.assign(SERIES,s.series);MP.round=s.round;MP.endReason=s.endReason||'';tl=s.clock;cnt=s.count;gt=s.goalTime;ot=s.overtime?1:0;MP.matchBegun=s.phase!=='WAIT';if(Array.isArray(s.score)){score[0]=s.score[0];score[1]=s.score[1];$('s0').textContent=score[0];$('s1').textContent=score[1]}if(s.pads)for(let k=0;k<PADS.length;k++)PADS[k].t=s.pads[k]||0;if(roundChanged){if(s.score[0]===0&&s.score[1]===0){RIVALS.recorded=false;SERIES.counted=false;RIVALS.goalSeen='';}kickoff(false);MP.round=s.round;mpClearInput();$('end').classList.remove('on');$('hud').style.display='block'}if(s.phase==='PAUSE'){applyMultiplayer(0,true);ps_=s.resume;mpFreeze('MATCH PAUSED')}else if(MP.localPaused){mpFreeze('PAUSE REQUESTED')}else{st=s.phase;$('pause').classList.remove('on');if(changed||roundChanged){mpClearInput();applyMultiplayer(0,true);if(st==='PLAY')msg('GO!',.8,'#4f8');if(st==='GOAL'){goalPulse=1;msg('GOAL!',3.2,'#fff');rivalsGoal(s.goal||{team:score[0]>score[1]?0:1,scorer:s.ball.lastPlayer,assist:-1,speed:Math.round(Math.hypot(...s.ball.v)*3.6)})}if(st==='END')endMatch(false)}}audioReceive(s);updateServeHint();if(st==='COUNT')msg(Math.max(1,Math.ceil(cnt)),.2,'#fff');mpStatus('LIVE · PLAYER '+(MP.slot+1),'good')}
@@ -10528,13 +10615,12 @@ let arenaThemeKey='';
 function teamHex(team){return '#'+teamPalette[team].toString(16).padStart(6,'0')}
 function applyTeamColors(){
  for(let t=0;t<2;t++){
-  const index=MP.active?cl(Math.round(Number(MP.seats[t]?.color??t)),0,7):t===0?cfg.color:1;
-  teamPalette[t]=PALETTE[index];
+  teamPalette[t]=MP.active?driverPaint(MP.seats[t],t):t===0?driverPaint(cfg):PALETTE[1];
  }
  // Equal captain paints still need two clearly distinguishable goal ends.
  if(teamPalette[0]===teamPalette[1])teamPalette[1]=teamPalette[0]===PALETTE[1]?PALETTE[0]:PALETTE[1];
- for(const c of cars){const personal=MP.active?PALETTE[cl(Math.round(Number(MP.seats[c.id]?.color??c.team)),0,7)]:c.id===0?PALETTE[cfg.color]:PALETTE[c.team];c.color=cfg.teamColors?teamPalette[c.team]:personal;if(inited)paintCar(c.id)}
- for(let t=0;t<2;t++){$('s'+t).style.background=teamHex(t);$('s'+t).style.setProperty('--team-color',teamHex(t));$('s'+t).style.color='#fff';$('s'+t).style.textShadow='0 2px 4px #000';}
+ for(const c of cars){const personal=MP.active?driverPaint(MP.seats[c.id],c.team):c.id===0?driverPaint(cfg):PALETTE[c.team];c.color=cfg.teamColors?teamPalette[c.team]:personal;if(inited)paintCar(c.id)}
+ updateScorePaint();
  applyArenaTheme();
 }
 function applyArenaTheme(){
@@ -10543,7 +10629,7 @@ function applyArenaTheme(){
  for(let k=0;k<WM.length;k++){const m=WM[k],fresh=wallMat(teamHex(k===2?1:0)),old=m.map;m.map=fresh.map;m.emissiveMap=fresh.emissiveMap;m.needsUpdate=true;old?.dispose();fresh.dispose()}
  for(const l of goalLights)l.color.setHex(teamPalette[l.userData.team]);
  scene.traverse(o=>{const m=o.material;if(!m||Array.isArray(m))return;
-  if(m.name==='Championship turf'){const fresh=arenaPitchMaterial();m.map?.dispose();m.map=fresh.map;fresh.normalMap?.dispose();fresh.dispose();m.needsUpdate=true;}
+  if(m.name==='Championship turf'){const fresh=arenaPitchMaterial();if(m.map){m.map.image=fresh.map.image;m.map.needsUpdate=true;PITCH_TEXTURE=m.map;if(GU?.paint)GU.paint.value=m.map;fresh.map.dispose()}else m.map=fresh.map;fresh.normalMap?.dispose();fresh.dispose();m.needsUpdate=true;}
   if(m.userData.team!==undefined)m.color.setHex(teamPalette[m.userData.team]);
  });
 }
@@ -10567,7 +10653,7 @@ function configureCars(){
  for(let k=0;k<count;k++){const c=cars[k];c.id=k;c.body=k%3;c.color=PALETTE[c.team];c.enabled=true;c.touches=c.goals=c.topSpeed=c.boostUsed=0;
   if(sandbox&&!MP.active)c.enabled=k===0||(c.team===0?k/2<=cfg.allies:(k-1)/2<cfg.enemies);
  }
- const local=localPlayer();local.color=PALETTE[cfg.color];local.body=cfg.body;if(MP.active)mpApplySeats();else applyTeamColors();
+ const local=localPlayer();local.color=driverPaint(cfg);local.body=cfg.body;if(MP.active)mpApplySeats();else applyTeamColors();
  PHYS.g=6.5*cfg.gravity;PHYS.car.maxSpeed=23*cfg.speed;PHYS.ground.engineF=3060*cfg.speed;PHYS.ground.engineKnee=14*cfg.speed;PHYS.ground.engineVmax=14.1*cfg.speed;PHYS.boost.F=1908*cfg.speed;PHYS.boost.softFrom=21*cfg.speed;
  $('training-hud').hidden=!sandbox||MP.active;$('match-kind').textContent=(sandbox?'SANDBOX · ':'')+(cfg.mode?'HEATSEEKER':'SOCCAR')+' · '+cfg.size+'v'+cfg.size;$('match-label').textContent=(cfg.mode?'HEATSEEKER':'SOCCAR')+' · '+cfg.size+'V'+cfg.size;
 }
@@ -10594,7 +10680,7 @@ function setupModesUI(){
  $('team-colors').checked=cfg.teamColors;$('team-colors').onchange=()=>{if(MP.active||SOC.searching){$('team-colors').checked=cfg.teamColors;return}cfg.teamColors=$('team-colors').checked;savePresentation();applyTeamColors();};
  const options=[['size','TEAM SIZE',['1v1','2v2','3v3'],[1,2,3]],['mode','PLAYLIST',['SOCCAR','HEATSEEKER'],[0,1]],['series','MATCH SERIES',['SINGLE','BEST OF 3','BEST OF 5'],[1,3,5]],['speed','CAR SPEED',['1×','1.5×','2×'],[1,1.5,2]],['gravity','GRAVITY',['LOW','NORMAL','HIGH'],[.5,1,1.5]],['unlimited','BOOST',['NORMAL','UNLIMITED'],[false,true]]];
  for(const [key,label,names,values] of options){const row=document.createElement('div');row.className='row';const title=document.createElement('label');title.textContent=label;row.appendChild(title);names.forEach((name,i)=>{const button=document.createElement('button');button.className='seg'+(cfg[key]===values[i]?' on':'');button.textContent=name;button.setAttribute('aria-pressed',String(cfg[key]===values[i]));settingButtons.push({button,key,value:values[i]});button.onclick=()=>{cfg[key]=values[i];for(let n=0;n<names.length;n++){const b=row.children[n+1];b.classList.toggle('on',n===i);b.setAttribute('aria-pressed',String(n===i))}cfg.allies=cfg.size-1;cfg.enemies=cfg.size;updateMatchSummary();$('playlist-note').textContent=cfg.mode?'HEATSEEKER · First to 7. Touch to redirect. Backboards return fire.':'SOCCAR · Timed match. Highest score wins. Sudden-death overtime.'};row.appendChild(button)});$(['mode','size'].includes(key)?'mode-rows':'mutator-rows').appendChild(row)}
- PALETTE.forEach((color,i)=>{const button=document.createElement('button');button.className='swatch'+(i===cfg.color?' on':'');button.style.background='#'+color.toString(16).padStart(6,'0');button.textContent=COLOR_NAMES[i];button.setAttribute('aria-label',COLOR_NAMES[i]+' car paint');button.onclick=()=>{cfg.color=i;P1.color=color;applyTeamColors();savePresentation();updateMatchSummary();$('paint-name').textContent=COLOR_NAMES[i];$('swatches').querySelectorAll('button').forEach((b,j)=>b.classList.toggle('on',i===j));if(inited)paintCar(0);};$('swatches').appendChild(button)});
+ PALETTE.forEach((color,i)=>{const button=document.createElement('button');button.className='swatch'+(i===cfg.color?' on':'');button.style.background='#'+color.toString(16).padStart(6,'0');button.textContent=COLOR_NAMES[i];button.setAttribute('aria-label',COLOR_NAMES[i]+' car paint');button.onclick=()=>{cfg.color=i;cfg.paint=null;P1.color=color;applyTeamColors();savePresentation();updateMatchSummary();$('paint-name').textContent=COLOR_NAMES[i];$('swatches').querySelectorAll('button').forEach((b,j)=>b.classList.toggle('on',i===j));if(inited)paintCar(0);syncPaintUI();};$('swatches').appendChild(button)});
  $('sandbox-start').onclick=()=>{sandbox=true;cfg.allies=cfg.size-1;cfg.enemies=cfg.size;startOfflineGame(true)};
  $('preview-car').onclick=async()=>{if(starting)return;starting=true;$('preview-car').disabled=true;try{configureCars();await init3d();$('menu').classList.add('live-preview')}catch(e){$('start-status').textContent='Car preview unavailable: '+e.message}finally{starting=false;$('preview-car').disabled=false}};
  $('training-reset-ball').onclick=()=>resetTraining('ball');$('training-reset-car').onclick=()=>resetTraining('car');
@@ -10649,8 +10735,8 @@ function updateServeHint(){
 // host-owned match rules remain separate from those saved presentation preferences.
 let menuScreen='home',playRoute='quick',previewJob=null,privateAction='create',partyAction='create',partyReturn='home';
 const BODY_NAMES=['Octane','Fennec','Dominus'],BODY_IDS=['octane','fennec','dominus'];
-function savePresentation(){try{localStorage.setItem('tevin.presentation.v6',JSON.stringify({performance:!cfg.hi,body:cfg.body,color:cfg.color,teamColors:cfg.teamColors}))}catch(_){}}
-function updateMatchSummary(){$('match-summary').textContent=(cfg.mode?'HEATSEEKER':'SOCCAR')+'  /  '+cfg.size+'v'+cfg.size+'  /  '+(playRoute==='quick'?'PUBLIC QUEUE':playRoute==='online'?'PRIVATE ROOM':playRoute==='training'?'FREE PRACTICE':'OFFLINE');$('menu-context').textContent=BODY_NAMES[cfg.body]+' · '+COLOR_NAMES[cfg.color]+' · '+(cfg.hi?'DETAIL':'CHROMEBOOK');}
+function savePresentation(){try{localStorage.setItem('tevin.presentation.v6',JSON.stringify({performance:!cfg.hi,body:cfg.body,color:cfg.color,paint:normalizedPaint(cfg.paint),teamColors:cfg.teamColors}))}catch(_){}}
+function updateMatchSummary(){$('match-summary').textContent=(cfg.mode?'HEATSEEKER':'SOCCAR')+'  /  '+cfg.size+'v'+cfg.size+'  /  '+(playRoute==='quick'?'PUBLIC QUEUE':playRoute==='online'?'PRIVATE ROOM':playRoute==='training'?'FREE PRACTICE':'OFFLINE');$('menu-context').textContent=BODY_NAMES[cfg.body]+' · '+paintName(cfg)+' · '+(cfg.hi?'DETAIL':'CHROMEBOOK');}
 // Private matches and public-queue parties are separate destinations. Joining
 // a private match uses the host's rules, so hide local settings on that path.
 function privateMenuUI(){const online=playRoute==='online',joining=online&&privateAction==='join';$('private-actions').hidden=!online;$('team-colors-control').hidden=joining;$('private-create').setAttribute('aria-pressed',String(privateAction==='create'));$('private-join').setAttribute('aria-pressed',String(privateAction==='join'));for(const id of ['mode-rows','playlist-note','match-summary'])$(id).hidden=joining;$('custom-rules').hidden=playRoute==='quick'||joining;$('host-match').hidden=privateAction!=='create';$('private-join-form').hidden=privateAction!=='join';$('private-help').textContent=privateAction==='create'?'Choose your rules below, create the match, then share its MATCH CODE.':'Enter your friend’s MATCH CODE. Their playlist, team size and rules load automatically.';$('private-party-note').hidden=!SOC.party;}
@@ -10660,7 +10746,7 @@ function menuBack(){audioSample('uiBack',.38);showMenuScreen(menuScreen==='party
 function chooseRoute(route){if(typeof SOC!=='undefined'&&SOC.searching&&route!=='quick')cancelQuickMatch();playRoute=route;$('quick-panel').hidden=route!=='quick';for(const name of ['quick','offline','online','training'])$('choose-'+name).setAttribute('aria-pressed',String(name===route));$('go').hidden=route!=='offline';$('sandbox-start').hidden=route!=='training';$('mp-panel').hidden=route!=='online';$('mp-status').hidden=route!=='online';$('route-help').textContent=route==='quick'?'Play against other people online. Search solo or with a party on your team.':route==='online'?'Play in an invite-only match. Friends join individually with a match code.':route==='training'?'Endless practice. Change AI and boost with F2; reset the ball with R.':'Play a complete match with AI teammates and opponents.';updateMatchSummary();socialUI();privateMenuUI()}
 function showMenuScreen(screen){if(screen==='party'&&menuScreen!=='party')partyReturn=menuScreen;menuScreen=screen;for(const name of ['home','play','garage','settings','party'])$(name+'-panel').hidden=name!==screen;$('menu').setAttribute('data-screen',screen);$('menu-back').hidden=screen==='home';$('menu-back').textContent=screen==='party'&&partyReturn!=='home'?'← BACK TO '+partyReturn.toUpperCase():'← HOME';$('menu-location').textContent=screen==='home'?'HOME':screen==='party'?'QUICK MATCH / PARTY':'HOME / '+screen.toUpperCase();$('menu').classList.toggle('live-preview',!!inited);$('start-status').textContent='';if(screen==='play')chooseRoute(playRoute);if(screen==='garage')previewGarage();updateMatchSummary();socialUI()}
 async function previewGarage(){if(previewJob)return previewJob;if(starting)return;starting=true;$('go').disabled=$('sandbox-start').disabled=true;$('preview-car').disabled=true;$('garage-status').textContent='Preparing your '+BODY_NAMES[cfg.body]+'…';
- previewJob=(async()=>{let transition;try{configureCars();transition=await loadingBegin('YOUR GARAGE',BODY_NAMES[cfg.body]+' · Preparing your car',graphicsReady());await init3d();const changed=cm.some((m,i)=>m.userData.body!==(cars[i].body||0)||m.userData.simple===!!cfg.models);refreshCarModels();if(changed&&ren?.compileAsync){await loadingStage(94,'Preparing your selected car');ENGINE.status.warming=true;try{await ren.compileAsync(scene,cam)}finally{ENGINE.status.warming=false}}if(menuScreen==='garage')$('menu').classList.add('live-preview');$('garage-status').textContent=BODY_NAMES[cfg.body]+' · '+COLOR_NAMES[cfg.color]+' · READY';await loadingEnd(transition);$('preview-car').focus?.()}catch(e){loadingAbort(transition);try{dispose3d()}catch(_){}$('menu').classList.remove('live-preview');$('garage-status').textContent='Preview unavailable. Try Performance mode in Settings.';console.warn('Garage preview',e)}finally{starting=false;$('go').disabled=$('sandbox-start').disabled=false;$('preview-car').disabled=false;previewJob=null}})();return previewJob;
+ previewJob=(async()=>{let transition;try{configureCars();transition=await loadingBegin('YOUR GARAGE',BODY_NAMES[cfg.body]+' · Preparing your car',graphicsReady());await init3d();const changed=cm.some((m,i)=>m.userData.body!==(cars[i].body||0)||m.userData.simple===!!cfg.models);refreshCarModels();if(changed&&ren?.compileAsync){await loadingStage(94,'Preparing your selected car');ENGINE.status.warming=true;try{await ren.compileAsync(scene,cam)}finally{ENGINE.status.warming=false}}if(menuScreen==='garage')$('menu').classList.add('live-preview');$('garage-status').textContent=BODY_NAMES[cfg.body]+' · '+paintName(cfg)+' · READY';await loadingEnd(transition);$('preview-car').focus?.()}catch(e){loadingAbort(transition);try{dispose3d()}catch(_){}$('menu').classList.remove('live-preview');$('garage-status').textContent='Preview unavailable. Try Performance mode in Settings.';console.warn('Garage preview',e)}finally{starting=false;$('go').disabled=$('sandbox-start').disabled=false;$('preview-car').disabled=false;previewJob=null}})();return previewJob;
 }
 function setupMenu(){
  $('nav-play').onclick=()=>{if(!INTRO.manualPause)introStart();openPlaySelection()};$('nav-garage').onclick=()=>showMenuScreen('garage');$('nav-settings').onclick=()=>showMenuScreen('settings');$('nav-training').onclick=()=>{chooseRoute('training');showMenuScreen('play')};$('menu-back').onclick=menuBack;$('preview-car').onclick=previewGarage;
@@ -10668,7 +10754,7 @@ function setupMenu(){
  for(const name of ['quick','offline','online','training'])$('choose-'+name).onclick=()=>chooseRoute(name);
  BODY_NAMES.forEach((name,i)=>{const b=document.createElement('button');b.textContent=name.toUpperCase();b.setAttribute('aria-pressed',String(cfg.body===i));b.onclick=()=>{cfg.body=i;P1.body=i;for(const [j,button] of Array.from($('body-options').children).entries())button.setAttribute('aria-pressed',String(i===j));savePresentation();updateMatchSummary();previewGarage()};$('body-options').appendChild(b)});
  $('performance-mode').checked=!cfg.hi;$('performance-mode').onchange=()=>{cfg.hi=$('performance-mode').checked?0:1;cfg.models=1;try{localStorage.setItem("tevin.graphics.v9",cfg.hi?"detail":"chromebook")}catch(_){}savePresentation();$('quality-description').textContent=cfg.hi?'DETAIL · Richer shadows and turf. Best on faster devices.':'CHROMEBOOK · Detailed cars, lighter turf and crisp native resolution. Built for smooth play.';$('garage-performance').hidden=true;updateMatchSummary()};$('performance-mode').onchange();
- $('paint-name').textContent=COLOR_NAMES[cfg.color];chooseRoute('offline');showMenuScreen('home');
+ $('paint-name').textContent=paintName(cfg);chooseRoute('offline');showMenuScreen('home');
 }
 function createCarVisual(c){const visual=cfg.models?ENGINE.importedCar(ren,BODY_IDS[c.body||0],c.color,assetTextures):carMesh2('#'+c.color.toString(16).padStart(6,'0'),'#d9efff');const m=fitCarVisual(visual,c);m.userData.body=c.body||0;m.userData.simple=!cfg.models;preparePaint(m,c.color);m.traverse(o=>{o.castShadow=!!o.isMesh&&!o.material.transparent});return m}
 function fitCarVisual(visual,c){
@@ -10685,7 +10771,7 @@ const SOC={id:'',name:'',offset:0,connected:true,ready:false,party:null,partyCod
  reservation:null,queue:null,queueListener:null,ticket:'',owner:false,searching:false,matching:false,entering:false,entered:false,epoch:0,since:0,queueData:null,busy:false,error:'',pulseBusy:false};
 function socialNow(){return Date.now()+SOC.offset}
 function socialName(){return ($('player-name').value||SOC.name||'DRIVER').trim().replace(/[<>\u0000-\u001f]/g,'').slice(0,20)||'DRIVER'}
-function socialProfile(){return{protocol:PROTOCOL,session:SOC.id,name:socialName(),body:cfg.body,color:cfg.color,teamColors:cfg.teamColors}}
+function socialProfile(){return{protocol:PROTOCOL,session:SOC.id,name:socialName(),body:cfg.body,color:cfg.color,paint:normalizedPaint(cfg.paint),teamColors:cfg.teamColors}}
 function partyMembers(p=SOC.partyData){return Object.entries(p?.members||{}).filter(([,m])=>m&&typeof m.name==='string'&&Number.isFinite(m.joined)).sort((a,b)=>a[1].joined-b[1].joined||a[0].localeCompare(b[0]))}
 function memberLive(m,now=socialNow()){return m.connected!==false&&now-m.seen<SOCIAL_LEASE}
 function partyLeader(){return !SOC.party||SOC.partyData?.leader===SOC.id}
@@ -10770,7 +10856,7 @@ const matchStats={touches:0,topSpeed:0,boost:0,lastTouch:-1e9};
 
 const msg=(t,s,col='#fff')=>{const m=$('msg');if(m.textContent!==t||mt<=0)cinemaMessage(m);m.textContent=t;m.style.color=col;m.style.opacity=1;mt=s};
 
-function kickoff(newRound=true){secretReset();
+function kickoff(newRound=true){clearCelebration();secretReset();
 
  kickoffAge=0;stopReplay();RIVALS.ring.length=0;RIVALS.touches.length=0;learnKickoff();AUDIO.countKey='';AUDIO.events.length=0;
 
@@ -10786,7 +10872,7 @@ function hitFx(c,x,y,z){if(DED.replaying)return;graphicsBurst(ball.p,c,ball.colo
 
 function bumpFx(v){if(v>1.5)impactSound('bump',v)}
 
-function goal(t){if(MP.active&&MP.role==='guest')return;goalPulse=1;if(!MP.active)learnGoal(t);st='GOAL';gt=3.5;score[t]++;if(ball.lastPlayer>=0&&cars[ball.lastPlayer]?.team===t)cars[ball.lastPlayer].goals++;$('s0').textContent=score[0];$('s1').textContent=score[1];
+function goal(t){if(MP.active&&MP.role==='guest')return;goalPulse=1;if(!MP.active)learnGoal(t);st='GOAL';gt=PRESENTATION_TIMING.goalHold;score[t]++;if(ball.lastPlayer>=0&&cars[ball.lastPlayer]?.team===t)cars[ball.lastPlayer].goals++;$('s0').textContent=score[0];$('s1').textContent=score[1];
 
   rivalsGoal(goalDetails(t));msg('GOAL!',3.2,teamHex(t));flash=.52;shake=.28;$('flash').style.background=teamHex(t);
 
@@ -10819,7 +10905,7 @@ async function startGame(){
 
 function startOfflineGame(training=false){if(starting||mpBusy||SOC.searching||SOC.busy)return;if(training!==true&&st==='MENU'&&menuScreen==='home'){showMenuScreen('play');return}if(training!==true&&st==='MENU'&&(playRoute==='online'||playRoute==='quick'))return;sandbox=training===true||playRoute==='training';if(MP.active)mpReset();startGame()}
 
-function finishQuit(){stopReplay();sandbox=false;RIVALS.queuePractice=false;DRILL.active=false;mt=0;$('msg').style.opacity=0;if(SOC.searching)cancelQuickMatch();st='MENU';syncMenuSettings();if(MP.active)mpReset();learnFlush();learnUI();['pause','end'].forEach(x=>$(x).classList.remove('on'));$('menu').classList.add('on');showMenuScreen('home');$('training-hud').hidden=true;$('hud').style.display='none';$('msg').style.opacity=0;audioSilence()}
+function finishQuit(){clearCelebration();stopReplay();sandbox=false;RIVALS.queuePractice=false;DRILL.active=false;mt=0;$('msg').style.opacity=0;if(SOC.searching)cancelQuickMatch();st='MENU';syncMenuSettings();if(MP.active)mpReset();learnFlush();learnUI();['pause','end'].forEach(x=>$(x).classList.remove('on'));$('menu').classList.add('on');showMenuScreen('home');$('training-hud').hidden=true;$('hud').style.display='none';$('msg').style.opacity=0;audioSilence()}
 
 async function quit(){
  if(LOADING.active)return;const transition=loadingBegin('BACK TO THE LOBBY','Saving your session and returning to the lobby',true);
@@ -11312,7 +11398,7 @@ function dispose3d(){
 
  const old=$('cv');old.replaceWith(old.cloneNode(false));if(pipeline){pipeline.dispose();pipeline=null}if(ren){ren.dispose();if(ren.forceContextLoss)ren.forceContextLoss()}
 
-  FX=null;garageStage=null;RIVALS.visuals=null;RIVALS.trim=null;RIVALS.crowd=null;$('driver-markers').replaceChildren();scene=ren=cam=sun=grassM=GT=GU=envTarget=bigPillars=padOff=null;cm=[];padM=[];WM=[];windFlags=[];contactShadows=[];goalLights=[];inited=0;graphicsPreset=-1;
+  resetCelebrationEffects();FX=null;garageStage=null;RIVALS.visuals=null;RIVALS.trim=null;RIVALS.crowd=null;$('driver-markers').replaceChildren();scene=ren=cam=sun=grassM=GT=GU=envTarget=bigPillars=padOff=null;cm=[];padM=[];WM=[];windFlags=[];contactShadows=[];goalLights=[];inited=0;graphicsPreset=-1;
 
 }
 
@@ -11447,7 +11533,7 @@ async function build3d(forceGL){
 
   smallPads.instanceMatrix.needsUpdate=bigPads.instanceMatrix.needsUpdate=bigPillars.instanceMatrix.needsUpdate=true;
 
-  await createGraphicsEffects();
+  await createGraphicsEffects();createCelebrationEffects();
 
  // Instanced camera-facing quads preserve the soft additive particle appearance.
 
@@ -11506,7 +11592,7 @@ function render(dt){
 
    renderForward.set(1,0,0).applyQuaternion(c.q);renderRight.set(0,0,1).applyQuaternion(c.q);const roll=c.v.dot(renderForward)*dt/.24;
 
-   for(const w of m.userData.wheels){w.rotation.z-=roll;w.parent.rotation.y=w.parent.userData.front?-c.inp.steer*.38:0}m.userData.f.visible=!!c.bst;if(c.bst)m.userData.f.scale.set(1,.7+Math.random()*.7,1);
+   for(const w of m.userData.wheels){w.rotation.z-=roll;w.parent.rotation.y=w.parent.userData.front?-c.inp.steer*.38:0}m.userData.f.visible=!!c.bst&&!CELEBRATION.group;if(c.bst)m.userData.f.scale.set(1,.7+Math.random()*.7,1);
 
    if(c.ground&&c.v.lengthSq()>49&&(c.inp.ps||Math.abs(c.v.dot(renderRight))>2)&&Math.random()<Math.min(1,dt*35)){renderEffect.set(-.5,-.38,Math.random()<.5?-.4:.4).applyQuaternion(c.q).add(c.p);emit(renderEffect.x,renderEffect.y,renderEffect.z,(Math.random()-.5)*1.5,1+Math.random()*1.5,(Math.random()-.5)*1.5,.5,.18,.4,.1)}
 
@@ -11562,7 +11648,7 @@ function render(dt){
 
  for(let k=0;k<goalLights.length;k++)goalLights[k].intensity=goalLights[k].userData.base*(1+goalPulse*.7);
 
- updateRivalVisuals(dt);animateArenaAccents(dt);uploadParticles();pipeline.render();
+ updateRivalVisuals(dt);animateArenaAccents(dt);uploadParticles();updateCelebrations(dt);pipeline.render();
 
   if(st==='PLAY'){perfEMA+=(dt-perfEMA)*.03;perfTimer+=dt;if(perfTimer>4){perfTimer=0;const next=1;if(next!==renderScale){renderScale=next;ren.setPixelRatio(pixelRatio());pipeline.resize(innerWidth,innerHeight,pixelRatio())}}}
 
@@ -11585,7 +11671,7 @@ function render(dt){
 const cameraAnchor=new V3(),camAnchorDelta=new V3();let cameraAnchorReady=false;
 const spinAxis=new V3(),spinQ=new Qn();let DBG=0,last=0,acc=0;
 
-function frame(t){requestAnimationFrame(frame);const dt=cl((t-last)/1000||0,0,.1);last=t;pollController();introFrame(dt);
+function frame(t){requestAnimationFrame(frame);const dt=cl((t-last)/1000||0,0,.1);last=t;pollController();updateDeviceUI();introFrame(dt);
  if(LOADING.active){acc=0;if(inited&&!ENGINE.status.warming)render(dt);return}
 
  rivalsTick(dt);if(mt>0&&(mt-=dt)<=0)$('msg').style.opacity=0;
@@ -11637,10 +11723,10 @@ function rivalsGoal(info){
  if(!info||!Number.isInteger(info.team)||info.team<0||info.team>1)return;
  RIVALS.goal=info;
  if(window.__TEVIN_SERVER__)return;
- const key=MP.round+':'+score.join(':');if(RIVALS.goalSeen===key)return;RIVALS.goalSeen=key;
+ const key=MP.round+':'+score.join(':');if(RIVALS.goalSeen===key)return;RIVALS.goalSeen=key;triggerCelebration(info);
  const e=$('goal-detail');if(e){e.textContent=(info.team?'ORANGE':'BLUE')+' GOAL · '+(info.scorer>=0?driverName(info.scorer):'OWN GOAL')+(info.assist>=0?' · ASSIST '+driverName(info.assist):'')+' · '+info.speed+' KM/H';e.style.setProperty('--goal-color',teamHex(info.team));e.hidden=false;}
  if(sandbox&&DRILL.active&&DRILL.kind==='shoot'&&DRILL.touched&&info.team===0)finishDrill();
- if(RIVAL_PREF.replays&&!sandbox&&RIVALS.ring.length>=12){const frames=RIVALS.ring.slice(-120);RIVALS.replay={frames,elapsed:0,duration:Math.max(.1,frames.at(-1).t-frames[0].t),scorer:info.scorer,team:info.team};$('replay-controls').hidden=false;}
+ if(RIVAL_PREF.replays&&!sandbox&&RIVALS.ring.length>=12){const frames=RIVALS.ring.slice(-120);RIVALS.replay={frames,elapsed:-PRESENTATION_TIMING.replayDelay,duration:Math.max(.1,frames.at(-1).t-frames[0].t),scorer:info.scorer,team:info.team};$('replay-controls').hidden=false;}
  if(DED.active){goalPulse=1;const col=teamPalette[info.team];graphicsBurst(ball.p,28,col);}
 }
 function stopReplay(){document.body.classList.remove('cinema-replay');if(RIVALS.replay)cameraAnchorReady=false;RIVALS.replay=null;if($('replay-controls'))$('replay-controls').hidden=true;}
@@ -11650,15 +11736,15 @@ function replayRecord(snapshot){
  RIVALS.ring.push(frame);if(RIVALS.ring.length>150)RIVALS.ring.shift();
 }
 function renderGoalReplay(dt){
- const r=RIVALS.replay;if(!r||st!=='GOAL'||MP.localPaused)return false;r.elapsed+=dt;
+ const r=RIVALS.replay;if(!r||st!=='GOAL'||MP.localPaused)return false;r.elapsed+=dt;if(r.elapsed<0)return false;
  const time=replayPlaybackTime(r);let a=r.frames[0],b=a;
  for(let i=1;i<r.frames.length;i++){b=r.frames[i];if(b.t>=time)break;a=b}
  const f=cl((time-a.t)/Math.max(.001,b.t-a.t),0,1);
  for(let i=0;i<cm.length;i++){const m=cm[i];m.visible=cars[i].enabled;if(!a.cars[i]||!b.cars[i])continue;m.position.fromArray(a.cars[i].p).lerp(new V3().fromArray(b.cars[i].p),f);m.quaternion.fromArray(a.cars[i].q).slerp(new Qn().fromArray(b.cars[i].q),f);if(m.userData.f)m.userData.f.visible=false;}
  bm.visible=true;bm.position.fromArray(a.ball).lerp(new V3().fromArray(b.ball),f);const anchor=cm[r.scorer]?.position||bm.position;
- const target=new V3().lerpVectors(anchor,bm.position,.65),motion=cinemaMotion(),ease=motion?cinemaEase(r.elapsed/2.8):0;document.body.classList.toggle('cinema-replay',motion);cam.position.copy(target).add(new V3(9-ease*2,5-ease*.65,(r.team?-1:1)*(10+ease)));cam.lookAt(target);cam.fov=65-ease*6;cam.updateProjectionMatrix();
- pts.count=0;if(FX)FX.group.visible=false;contactShadows.forEach(s=>s.visible=false);if(RIVALS.visuals)RIVALS.visuals.group.visible=false;$('flash').style.opacity=0;pipeline.render();
- $('replay-label').textContent='GOAL REPLAY · SLOW MOTION';if(r.elapsed>2.8)stopReplay();return true;
+ const target=new V3().lerpVectors(anchor,bm.position,.65),motion=cinemaMotion(),ease=motion?cinemaEase(r.elapsed/PRESENTATION_TIMING.replayDuration):0;document.body.classList.toggle('cinema-replay',motion);cam.position.copy(target).add(new V3(9-ease*2,5-ease*.65,(r.team?-1:1)*(10+ease)));cam.lookAt(target);cam.fov=65-ease*6;cam.updateProjectionMatrix();
+ pts.count=0;if(FX)FX.group.visible=false;contactShadows.forEach(s=>s.visible=false);if(RIVALS.visuals)RIVALS.visuals.group.visible=false;$('flash').style.opacity=0;updateCelebrations(dt);pipeline.render();
+ $('replay-label').textContent='GOAL REPLAY · SLOW MOTION';if(r.elapsed>PRESENTATION_TIMING.replayDuration)stopReplay();return true;
 }
 function rivalsFinish(){
  if(window.__TEVIN_SERVER__||sandbox||RIVALS.recorded||!score.every(Number.isFinite)||score[0]===score[1])return;
@@ -11739,8 +11825,8 @@ function renderCareer(){
 }
 function garagePreset(index,save){
  if(MP.active||SOC.searching)return false;
- if(save){CAREER.presets[index]={name:BODY_NAMES[cfg.body]+' / '+COLOR_NAMES[cfg.color],body:cfg.body,color:cfg.color,celebration:RIVAL_PREF.celebration};saveRivals();extraCue('rivalDrill');}
- else{const p=CAREER.presets[index];if(!p||!Number.isInteger(p.body)||p.body<0||p.body>2||!Number.isInteger(p.color)||p.color<0||p.color>7)return false;cfg.body=p.body;cfg.color=p.color;RIVAL_PREF.celebration=['pulse','comet','quiet'].includes(p.celebration)?p.celebration:'pulse';configureCars();savePresentation();saveRivals();syncMenuSettings();for(const [i,b] of Array.from($('body-options').children).entries())b.setAttribute('aria-pressed',String(cfg.body===i));$('swatches').querySelectorAll('button').forEach((b,i)=>b.classList.toggle('on',cfg.color===i));$('paint-name').textContent=COLOR_NAMES[cfg.color];updateMatchSummary();if(inited){refreshCarModels();paintCar(0)}$('garage-status').textContent=BODY_NAMES[cfg.body]+' · '+COLOR_NAMES[cfg.color]+(inited?' · READY':'');$('goal-style').value=RIVAL_PREF.celebration;}
+ if(save){CAREER.presets[index]={name:BODY_NAMES[cfg.body]+' / '+paintName(cfg),body:cfg.body,color:cfg.color,paint:normalizedPaint(cfg.paint),celebration:RIVAL_PREF.celebration};saveRivals();extraCue('rivalDrill');}
+ else{const p=CAREER.presets[index];if(!p||!Number.isInteger(p.body)||p.body<0||p.body>2||!Number.isInteger(p.color)||p.color<0||p.color>7)return false;cfg.body=p.body;cfg.color=p.color;cfg.paint=normalizedPaint(p.paint);RIVAL_PREF.celebration=['pulse','comet','quiet'].includes(p.celebration)?p.celebration:'pulse';configureCars();savePresentation();saveRivals();syncMenuSettings();for(const [i,b] of Array.from($('body-options').children).entries())b.setAttribute('aria-pressed',String(cfg.body===i));$('swatches').querySelectorAll('button').forEach((b,i)=>b.classList.toggle('on',cfg.color===i));$('paint-name').textContent=paintName(cfg);updateMatchSummary();if(inited){refreshCarModels();paintCar(0)}$('garage-status').textContent=BODY_NAMES[cfg.body]+' · '+paintName(cfg)+(inited?' · READY':'');$('goal-style').value=RIVAL_PREF.celebration;syncPaintUI();}
  renderCareer();return true;
 }
 async function queuePractice(){
@@ -11813,9 +11899,9 @@ function positionDriverTag(el,position,camera,project,width,height){
 
 function replayPlaybackTime(r){
  // Show the final approach in real time, then the final contact at half speed.
- const span=Math.min(r.duration,1.85),t=cl(r.elapsed,0,2.65);
- const progress=t<=1.05?t:(1.05+(t-1.05)*.5);
- return r.frames.at(-1).t-span+span*cl(progress/1.85,0,1);
+ const span=Math.min(r.duration,2.8),t=cl(r.elapsed,0,PRESENTATION_TIMING.replayDuration);
+ const progress=t<=1.2?t:(1.2+(t-1.2)*.5);
+ return r.frames.at(-1).t-span+span*cl(progress/2.8,0,1);
 }
 
 // The first attacker wins playable touches; teammates retain passing/cover lanes.
@@ -11912,6 +11998,228 @@ function setupSecret(){
  $('secret-minimize').onclick=()=>secretClose(true);$('secret-close').onclick=()=>secretClose();restore.onclick=secretOpen;addEventListener('keydown',secretKey,true);
 }
 
+// Personal paint is a packed RGB integer; null keeps the original named palette.
+const EXTRA_PAINTS=[['Hot Pink',0xff43b5],['Mint',0x63f2b0],['Arctic',0x73caff],['Royal',0x7044e8],['Scarlet',0xdf352c],['Copper',0xc8783f],['Graphite',0x263140],['Black',0x000000]];
+let paintPending=null;
+function validPaint(value){return Number.isInteger(value)&&value>=0&&value<=0xffffff;}
+function normalizedPaint(value){return validPaint(value)?value:null;}
+function driverPaint(profile={},fallbackIndex=0){const paint=normalizedPaint(profile?.paint);if(paint!==null)return paint;const index=Number.isInteger(profile?.color)?cl(profile.color,0,PALETTE.length-1):Number.isInteger(fallbackIndex)?cl(fallbackIndex,0,PALETTE.length-1):0;return PALETTE[index];}
+function paintHex(value){return '#'+(validPaint(value)?value:PALETTE[0]).toString(16).padStart(6,'0');}
+function paintName(profile=cfg){return validPaint(profile?.paint)?'Custom '+paintHex(profile.paint).toUpperCase():COLOR_NAMES[Number.isInteger(profile?.color)?cl(profile.color,0,COLOR_NAMES.length-1):0];}
+function huePaint(degrees){const h=((Number(degrees)||0)%360+360)%360/60,c=.82*.9,x=c*(1-Math.abs(h%2-1)),m=.55-c/2;const rgb=h<1?[c,x,0]:h<2?[x,c,0]:h<3?[0,c,x]:h<4?[0,x,c]:h<5?[x,0,c]:[c,0,x];return rgb.reduce((n,v)=>n*256+Math.round((v+m)*255),0);}
+function paintHue(value){const r=(value>>16&255)/255,g=(value>>8&255)/255,b=(value&255)/255,max=Math.max(r,g,b),min=Math.min(r,g,b),d=max-min;if(d<1e-5)return 0;return Math.round(((max===r?(g-b)/d+(g<b?6:0):max===g?(b-r)/d+2:(r-g)/d+4)*60)%360);}
+function paintForeground(value){const linear=n=>{n/=255;return n<=.04045?n/12.92:((n+.055)/1.055)**2.4};const l=.2126*linear(value>>16&255)+.7152*linear(value>>8&255)+.0722*linear(value&255);return l>.2?'#06111f':'#ffffff';}
+function updateScorePaint(){
+ for(let team=0;team<2;team++){
+  const el=$('s'+team);if(!el)continue;const captain=cars[team]?.enabled!==false?cars[team]:cars.find(c=>c.enabled&&c.team===team);
+  const value=validPaint(captain?.color)?captain.color:teamPalette[team],hex=paintHex(value);if(el.dataset.paint===hex)continue;el.dataset.paint=hex;
+  el.style.setProperty('--team-color',hex);el.style.background=hex;el.style.color=paintForeground(value);el.style.textShadow=paintForeground(value)==='#ffffff'?'0 1px 3px #0008':'none';el.setAttribute('aria-label',(team?'Orange':'Blue')+' team score · car paint '+hex);
+ }
+}
+function commitPaint(){if(paintPending!==null){clearTimeout(paintPending);paintPending=null;}applyTeamColors();updateScorePaint();}
+function setCustomPaint(value,commit=true){
+ if(MP.active||SOC.searching)return false;const rgb=typeof value==='string'&&/^#[\da-f]{6}$/i.test(value)?parseInt(value.slice(1),16):value;if(!validPaint(rgb))return false;
+ cfg.paint=rgb;const c=localPlayer();c.color=rgb;if(inited)paintCar(c.id);savePresentation();syncPaintUI();updateMatchSummary();updateScorePaint();
+ if(commit)commitPaint();else if(paintPending===null)paintPending=setTimeout(()=>{paintPending=null;commitPaint();},110);return true;
+}
+function syncPaintUI(){
+ const value=driverPaint(cfg),hex=paintHex(value),picker=$('paint-picker'),hue=$('paint-hue'),output=$('paint-value');
+ if(picker)picker.value=hex;if(hue)hue.value=paintHue(value);if(output){output.textContent=hex.toUpperCase();output.style.setProperty('--paint-preview',hex);}
+ if($('paint-name'))$('paint-name').textContent=paintName();
+ $('swatches')?.querySelectorAll('button').forEach((button,index)=>button.classList.toggle('on',!validPaint(cfg.paint)&&index===cfg.color));
+ $('extra-paints')?.querySelectorAll('button').forEach(button=>{const selected=validPaint(cfg.paint)&&Number(button.dataset.paint)===cfg.paint;button.setAttribute('aria-pressed',String(selected));});
+ if($('paint-palette'))$('paint-palette').disabled=!validPaint(cfg.paint);
+}
+function setupPaint(){
+ if($('custom-paint'))return;const section=document.createElement('section');section.id='custom-paint';section.setAttribute('aria-label','Custom car paint');
+ section.innerHTML='<div class="paint-heading"><label for="paint-picker">YOUR COLOR</label><output id="paint-value"></output></div><div class="paint-pick-row"><input id="paint-picker" type="color" aria-label="Custom car paint color"><div><label for="paint-hue">HUE</label><input id="paint-hue" type="range" min="0" max="359" step="1" aria-label="Car paint hue"></div></div><div id="extra-paints" aria-label="More car paint colors"></div><button id="paint-palette" type="button">USE NAMED PALETTE COLOR</button><p>Choose any color. Your paint also colors your boost and team scoreboard.</p>';
+ const name=$('paint-name');name.parentNode.insertBefore(section,name.nextSibling);
+ for(const [name,value] of EXTRA_PAINTS){const button=document.createElement('button');button.type='button';button.title=name;button.setAttribute('aria-label',name+' custom car paint');button.dataset.paint=value;button.style.setProperty('--paint-preview',paintHex(value));button.textContent=name;button.onclick=()=>setCustomPaint(value);$('extra-paints').appendChild(button);}
+ $('paint-picker').oninput=()=>setCustomPaint($('paint-picker').value,false);$('paint-picker').onchange=()=>setCustomPaint($('paint-picker').value,true);
+ $('paint-hue').oninput=()=>setCustomPaint(huePaint($('paint-hue').value),false);$('paint-hue').onchange=()=>setCustomPaint(huePaint($('paint-hue').value),true);
+ $('paint-palette').onclick=()=>{if(MP.active||SOC.searching)return;cfg.paint=null;commitPaint();savePresentation();syncPaintUI();updateMatchSummary();};
+ syncPaintUI();updateScorePaint();
+}
+try{const pref=JSON.parse(localStorage.getItem('tevin.presentation.v6')||'null');cfg.paint=normalizedPaint(pref?.paint);}catch(_){cfg.paint=null;}
+
+// Screen and input capabilities only. No user-agent/device fingerprint is collected.
+const DEVICE={form:'desktop',input:'keyboard',lastInput:'keyboard',preference:'auto',touchCapable:false,portrait:false,compact:false,stickId:null,pointers:new Map(),shown:false,ready:false,wordmarkHold:null};
+const touchInput={active:false,thr:0,steer:0,pitch:0,yaw:0,roll:0,boost:0,ps:0,jump:false};
+try{const value=JSON.parse(localStorage.getItem('tevin.device.v1')||'null');if(['auto','touch','keyboard'].includes(value?.input))DEVICE.preference=value.input;}catch(_){}
+function deviceCanPlay(count=false){
+ return !window.__TEVIN_SERVER__&&inputFocused&&!document.hidden&&!LOADING.active&&!INTRO.active&&!MP.localPaused&&!(SECRET.open&&!SECRET.minimized)&&(st==='PLAY'||count&&st==='COUNT');
+}
+function setDeviceInput(kind){
+ if(!['keyboard','touch','controller'].includes(kind))return;
+ const newTouch=kind==='touch'&&!DEVICE.touchCapable;DEVICE.lastInput=kind;if(kind==='touch')DEVICE.touchCapable=true;
+ DEVICE.input=DEVICE.preference==='auto'?kind:DEVICE.preference==='touch'?'touch':'keyboard';
+ if(DEVICE.input!=='touch')clearTouchInput();
+ if(DEVICE.ready){if(newTouch||DEVICE.preference==='touch')updateDeviceProfile();else deviceClasses();}
+}
+function updateDeviceProfile(){
+ let coarse=false;try{coarse=matchMedia('(pointer: coarse)').matches;}catch(_){}
+ DEVICE.touchCapable=DEVICE.touchCapable||coarse||Number(navigator.maxTouchPoints)>0;
+ DEVICE.portrait=innerHeight>innerWidth;DEVICE.compact=innerWidth<900;
+ DEVICE.form=DEVICE.touchCapable||DEVICE.preference==='touch'?(Math.min(innerWidth,innerHeight)<680?'phone':'tablet'):'desktop';
+ if(!DEVICE.ready){const initial=coarse?'touch':'keyboard';DEVICE.lastInput=initial;DEVICE.input=DEVICE.preference==='touch'?'touch':DEVICE.preference==='keyboard'?'keyboard':initial;}
+ if(DEVICE.ready)deviceClasses();
+}
+function deviceClasses(){
+ const body=document.body;body.dataset.device=DEVICE.form;body.dataset.input=DEVICE.input;body.classList.toggle('device-phone',DEVICE.form==='phone');body.classList.toggle('device-tablet',DEVICE.form==='tablet');body.classList.toggle('device-touch',DEVICE.input==='touch');body.classList.toggle('device-portrait',DEVICE.portrait);body.classList.toggle('device-compact',DEVICE.compact);
+ const practice=$('training-open');if(practice)practice.textContent=DEVICE.input==='touch'?'TRAINING SETTINGS':'TRAINING SETTINGS · F2';const tip=document.querySelector('#loading-screen footer span:last-child');if(tip)tip.textContent=DEVICE.input==='touch'?'LEFT STICK DRIVE · BOOST + JUMP TO FLY':DEVICE.input==='controller'?'RT DRIVE · B BOOST · A JUMP':'W / S DRIVE · SHIFT BOOST · SPACE JUMP';const status=$('device-status');if(status){const text=(DEVICE.form==='phone'?'PHONE':DEVICE.form==='tablet'?'TABLET':'DESKTOP')+' · '+(DEVICE.input==='touch'?'TOUCH CONTROLS':DEVICE.input==='controller'?'CONTROLLER':'KEYBOARD / MOUSE')+(DEVICE.portrait?' · PORTRAIT':' · LANDSCAPE');if(status.textContent!==text)status.textContent=text;}
+}
+function clearTouchInput(){
+ cancelDeviceSecretHold();
+ const hadJump=touchInput.jump;Object.assign(touchInput,{active:false,thr:0,steer:0,pitch:0,yaw:0,roll:0,boost:0,ps:0,jump:false});DEVICE.stickId=null;
+ for(const state of DEVICE.pointers.values()){state.element?.classList.remove('pressed');try{state.element?.releasePointerCapture?.(state.id);}catch(_){}}
+ DEVICE.pointers.clear();Object.assign(touchInput,{active:false,thr:0,steer:0,pitch:0,yaw:0,roll:0,boost:0,ps:0,jump:false});const knob=$('touch-knob');if(knob)knob.style.transform='translate3d(0,0,0)';
+ if(hadJump){const c=localPlayer();c.jp=c.jh=0;}
+}
+function cancelDeviceSecretHold(){if(DEVICE.wordmarkHold){clearTimeout(DEVICE.wordmarkHold.timer);DEVICE.wordmarkHold=null;}}
+function deviceSecretHoldStart(e){
+ if(e.pointerType!=='touch')return;cancelDeviceSecretHold();
+ const hold={id:e.pointerId,x:e.clientX,y:e.clientY,timer:0};DEVICE.wordmarkHold=hold;
+ hold.timer=setTimeout(()=>{if(DEVICE.wordmarkHold!==hold)return;DEVICE.wordmarkHold=null;clearTouchInput();secretOpen();},900);
+}
+function deviceSecretHoldMove(e){const hold=DEVICE.wordmarkHold;if(hold&&e.pointerId===hold.id&&Math.hypot(e.clientX-hold.x,e.clientY-hold.y)>12)cancelDeviceSecretHold();}
+function touchHoldState(){
+ const held=kind=>Array.from(DEVICE.pointers.values()).some(p=>p.kind===kind);
+ touchInput.boost=held('boost')?1:0;touchInput.ps=held('slide')?1:0;touchInput.jump=held('jump');touchInput.roll=(held('roll-right')?1:0)-(held('roll-left')?1:0);touchInput.active=DEVICE.pointers.size>0;
+}
+function touchStickMove(e){
+ const state=DEVICE.pointers.get(e.pointerId);if(!state||state.kind!=='stick'||!deviceCanPlay(true))return;
+ e.preventDefault?.();const radius=Math.max(30,Math.min(state.bounds.width,state.bounds.height)*.34),cx=state.bounds.left+state.bounds.width/2,cy=state.bounds.top+state.bounds.height/2;
+ let x=(e.clientX-cx)/radius,y=(e.clientY-cy)/radius;const length=Math.hypot(x,y),clampTo=Math.max(1,length);x/=clampTo;y/=clampTo;
+ const axis=v=>Math.abs(v)<.12?0:Math.sign(v)*(Math.abs(v)-.12)/.88;
+ touchInput.steer=touchInput.yaw=axis(x);touchInput.thr=touchInput.pitch=-axis(y);touchInput.active=true;
+ const knob=$('touch-knob');if(knob)knob.style.transform='translate3d('+(x*radius).toFixed(1)+'px,'+(y*radius).toFixed(1)+'px,0)';
+}
+function touchStickStart(e,bounds){
+ if(!deviceCanPlay(true)||DEVICE.stickId!==null)return;e.preventDefault?.();setDeviceInput('touch');
+ const element=e.currentTarget||$('touch-stick');bounds=bounds||element.getBoundingClientRect();DEVICE.stickId=e.pointerId;DEVICE.pointers.set(e.pointerId,{id:e.pointerId,kind:'stick',element,bounds});element.classList.add('pressed');try{element.setPointerCapture?.(e.pointerId);}catch(_){}touchStickMove(e);
+}
+function touchRelease(e,cancel=false){
+ const state=DEVICE.pointers.get(e.pointerId);if(!state)return;
+ DEVICE.pointers.delete(e.pointerId);if(!Array.from(DEVICE.pointers.values()).some(p=>p.element===state.element))state.element?.classList.remove('pressed');try{state.element?.releasePointerCapture?.(e.pointerId);}catch(_){}
+ if(state.kind==='stick'){DEVICE.stickId=null;touchInput.thr=touchInput.steer=touchInput.pitch=touchInput.yaw=0;const knob=$('touch-knob');if(knob)knob.style.transform='translate3d(0,0,0)';}
+ touchHoldState();if(cancel&&state.kind==='jump'&&!touchInput.jump){const c=localPlayer();c.jp=c.jh=0;}
+}
+function touchActionStart(kind,e){
+ if(!deviceCanPlay(true)||DEVICE.pointers.has(e.pointerId))return;e.preventDefault?.();setDeviceInput('touch');
+ const element=e.currentTarget,wasJump=touchInput.jump;DEVICE.pointers.set(e.pointerId,{id:e.pointerId,kind,element});element?.classList.add('pressed');try{element?.setPointerCapture?.(e.pointerId);}catch(_){}touchHoldState();
+ if(kind==='jump'&&!wasJump&&deviceCanPlay()){localPlayer().jp=1;if(MP.active&&MP.role==='guest')MP.jump++;}
+}
+function touchTap(kind){
+ if(kind==='pause'){if(['PLAY','COUNT'].includes(st)&&!LOADING.active&&!(SECRET.open&&!SECRET.minimized))pause();return;}
+ if(kind==='camera'&&deviceCanPlay(true)){ballCam=!ballCam;renderBindings();}
+ if(kind==='fullscreen'){try{const job=document.fullscreenElement?document.exitFullscreen?.():document.documentElement.requestFullscreen?.();job?.catch?.(()=>{});}catch(_){} }
+}
+function updateDeviceUI(){
+ if(!DEVICE.ready)return;
+ if(DEVICE.preference==='auto'&&padInput.connected&&(Math.abs(padInput.thr)+Math.abs(padInput.steer)+Math.abs(padInput.pitch)+Math.abs(padInput.roll)+padInput.boost+padInput.ps+(padInput.jump?1:0)>.15))setDeviceInput('controller');
+ const show=DEVICE.input==='touch'&&deviceCanPlay(true);
+ if(!show&&(touchInput.active||DEVICE.pointers.size))clearTouchInput();
+ const panel=$('touch-controls');if(panel.hidden===show)panel.hidden=!show;DEVICE.shown=show;
+ const airborne=show&&!localPlayer().ground;panel.classList.toggle('airborne',airborne);
+ const hint=$('touch-landscape-hint');hint.hidden=!show||!DEVICE.portrait;
+}
+function setupDevice(){
+ if(DEVICE.ready||window.__TEVIN_SERVER__)return;updateDeviceProfile();
+ const panel=document.createElement('div');panel.id='touch-controls';panel.hidden=true;panel.setAttribute('aria-label','Touch driving controls');
+ panel.innerHTML='<div id="touch-stick" role="group" aria-label="Drive and air steer joystick"><span id="touch-stick-label">DRIVE / AIR</span><i></i><span id="touch-knob"></span></div><div id="touch-toolbar"><button id="touch-camera" aria-label="Toggle ball camera">BALL CAM</button><button id="touch-fullscreen" aria-label="Toggle fullscreen">⛶</button><button id="touch-pause" aria-label="Pause game">Ⅱ</button></div><button id="touch-boost" aria-label="Hold boost">BOOST</button><button id="touch-jump" aria-label="Jump or dodge">JUMP</button><button id="touch-slide" aria-label="Hold powerslide">SLIDE</button><div id="touch-air"><button id="touch-roll-left" aria-label="Hold air roll left">↶</button><span>AIR ROLL</span><button id="touch-roll-right" aria-label="Hold air roll right">↷</button></div><span id="touch-landscape-hint" hidden>ROTATE FOR A WIDER VIEW</span>';
+ document.body.appendChild(panel);const stick=$('touch-stick');stick.addEventListener('pointerdown',touchStickStart);stick.addEventListener('pointermove',touchStickMove);
+ for(const kind of ['boost','jump','slide','roll-left','roll-right']){const button=$('touch-'+kind);button.addEventListener('pointerdown',e=>touchActionStart(kind,e));button.addEventListener('contextmenu',e=>e.preventDefault());}
+ for(const kind of ['camera','pause','fullscreen']){const button=$('touch-'+kind);button.addEventListener('pointerdown',e=>{e.preventDefault();setDeviceInput('touch');touchTap(kind);});button.addEventListener('click',e=>{if(e.detail===0)touchTap(kind);});}
+ const settings=document.createElement('section');settings.id='device-settings';settings.innerHTML='<h3>SCREEN & CONTROLS</h3><p id="device-status"></p><label for="device-controls">CONTROL LAYOUT</label><select id="device-controls"><option value="auto">Automatic — follow my input</option><option value="touch">Show touch controls</option><option value="keyboard">Keyboard / controller</option></select><p>Touch: drag the left stick to drive and air steer. Hold boost or slide while steering. Tap jump twice to dodge; use air-roll buttons in flight.</p>';$('settings-panel').insertBefore(settings,$('settings-panel').querySelector('h2')?.nextSibling||null);
+ $('device-controls').value=DEVICE.preference;$('device-controls').onchange=()=>{DEVICE.preference=$('device-controls').value;try{localStorage.setItem('tevin.device.v1',JSON.stringify({input:DEVICE.preference}));}catch(_){}setDeviceInput(DEVICE.lastInput);updateDeviceUI();};
+ addEventListener('pointerdown',e=>{if(e.pointerType==='touch')setDeviceInput('touch');else if(e.pointerType==='mouse')setDeviceInput('keyboard');},true);
+ addEventListener('keydown',e=>{if(!e.ctrlKey&&!e.metaKey&&!['INPUT','TEXTAREA','SELECT'].includes(e.target?.tagName)&&!e.target?.isContentEditable)setDeviceInput('keyboard');},true);
+ addEventListener('pointerup',e=>{if(DEVICE.wordmarkHold?.id===e.pointerId)cancelDeviceSecretHold();touchRelease(e);});addEventListener('pointercancel',e=>{if(DEVICE.wordmarkHold?.id===e.pointerId)cancelDeviceSecretHold();touchRelease(e,true);});panel.addEventListener('lostpointercapture',e=>touchRelease(e,true));
+ const wordmark=document.querySelector('.wordmark');if(wordmark)wordmark.addEventListener('pointerdown',deviceSecretHoldStart);addEventListener('pointermove',deviceSecretHoldMove);
+ addEventListener('blur',clearTouchInput);addEventListener('resize',()=>{clearTouchInput();updateDeviceProfile();});addEventListener('orientationchange',()=>{clearTouchInput();updateDeviceProfile();});document.addEventListener('visibilitychange',()=>{if(document.hidden)clearTouchInput();});
+ DEVICE.ready=true;deviceClasses();updateDeviceUI();
+}
+
+// Bounded presentation only: no match, car or ball physics is changed here.
+const CELEBRATION={group:null,boostOuter:null,boostCore:null,trail:null,shards:null,rings:[],boostClock:[],clock:0,age:99,team:0,color:0x2a6bff,key:'',origin:new V3(),nextTrail:0,
+ trailLife:new Float32Array(96),trailTotal:new Float32Array(96),trailPosition:new Float32Array(96*3),trailVelocity:new Float32Array(96*3),trailColor:new Uint32Array(96),shardDirection:[],shardSpeed:[],ui:null};
+const ceMatrix=new THREE.Matrix4(),cePosition=new V3(),ceScale=new V3(),ceDirection=new V3(),ceColor=new THREE.Color(),ceRotation=new Qn(),ceZ=new V3(0,0,1);
+function celebrationMotion(){return RIVAL_PREF.motion&&!matchMedia('(prefers-reduced-motion: reduce)').matches;}
+function celebrationEnvelope(age){return age<0||age>2.8?0:Math.min(1,age/.09)*Math.pow(Math.max(0,1-age/2.8),1.45);}
+function celebrationAccent(color){const r=color>>16&255,g=color>>8&255,b=color&255,max=Math.max(r,g,b);if(max>=96)return color;if(!max)return 0x7ebde6;const boost=128/max;return Math.max(10,Math.round(r*boost))<<16|Math.max(10,Math.round(g*boost))<<8|Math.max(10,Math.round(b*boost));}
+function celebrationPaint(info){return Number.isInteger(cars[info.scorer]?.color)?cars[info.scorer].color:teamPalette[info.team];}
+function createCelebrationEffects(){
+ if(window.__TEVIN_SERVER__||!scene)return false;
+ const e=CELEBRATION;if(e.group?.parent===scene)return true;
+ const group=new THREE.Group();group.name='Pooled boost and goal spectacle';scene.add(group);e.group=group;e.boostClock=Array(6).fill(0);e.rings=[];e.shardDirection=[];e.shardSpeed=[];
+ const additive=extra=>new THREE.MeshBasicMaterial({transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false,...extra});
+ const nozzle=new THREE.ConeGeometry(1,1,8,1,true).rotateZ(Math.PI/2).translate(-.5,0,0);
+ e.boostOuter=new THREE.InstancedMesh(nozzle,additive({opacity:.55,side:THREE.DoubleSide}),12);
+ e.boostCore=new THREE.InstancedMesh(nozzle,additive({opacity:.9,side:THREE.DoubleSide}),12);
+ e.trail=new THREE.InstancedMesh(new THREE.PlaneGeometry(1,1),additive({map:FX?.maps?.soft||glowTex(),opacity:.65}),96);
+ e.shards=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),additive({opacity:.9}),72);
+ for(const mesh of [e.boostOuter,e.boostCore,e.trail,e.shards]){mesh.count=0;mesh.frustumCulled=false;mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);mesh.setColorAt(0,ceColor.setHex(0xffffff));mesh.instanceColor.setUsage(THREE.DynamicDrawUsage);mesh.userData.skipAO=true;group.add(mesh);}
+ for(let i=0;i<3;i++){const ring=new THREE.Mesh(new THREE.RingGeometry(i===2?.97:.9,1,64),additive({side:THREE.DoubleSide,opacity:0}));ring.name='Goal shockwave '+i;ring.frustumCulled=false;ring.userData.skipAO=true;group.add(ring);e.rings.push(ring);}
+ for(let i=0;i<72;i++){const angle=i*2.399963,spread=.24+(i%9)/9*.75;e.shardDirection.push(new V3(Math.cos(angle)*spread,.15+(i*13%23)/23*.9,Math.sin(angle)*spread).normalize());e.shardSpeed.push(6+(i*17%23)*.45);}
+ clearCelebration();for(const ring of e.rings){ring.visible=true;ring.material.opacity=0;}return true;
+}
+function setupCelebrationUI(){
+ if(CELEBRATION.ui)return CELEBRATION.ui;
+ const el=document.createElement('div');el.id='goal-spectacle';el.hidden=true;el.setAttribute('aria-live','polite');
+ const kicker=document.createElement('span'),title=document.createElement('strong'),detail=document.createElement('small');kicker.className='goal-spectacle-kicker';title.textContent='GOOOAL!';detail.className='goal-spectacle-detail';el.append(kicker,title,detail);document.body.appendChild(el);CELEBRATION.ui={el,kicker,title,detail};return CELEBRATION.ui;
+}
+function triggerCelebration(info){
+ if(window.__TEVIN_SERVER__||!info||![0,1].includes(info.team))return false;
+ const e=CELEBRATION,key=MP.round+':'+score.join(':')+':'+(info.id??'goal');if(e.key===key)return false;e.key=key;e.age=0;e.team=info.team;e.color=celebrationAccent(celebrationPaint(info));
+ e.origin.set(cl(ball.p.x,-GX+.5,GX-.5),cl(ball.p.y,.8,GH-.6),info.team===0?HZ:-HZ);
+ const ui=setupCelebrationUI();ui.kicker.textContent=(info.team?'ORANGE':'BLUE')+' SCORES';ui.detail.textContent=(info.scorer>=0?driverName(info.scorer):'OWN GOAL')+(info.assist>=0?' · ASSIST '+driverName(info.assist):'')+(info.speed?' · '+Math.round(info.speed)+' KM/H':'');ui.el.style.setProperty('--celebration-color','#'+e.color.toString(16).padStart(6,'0'));ui.el.hidden=false;ui.el.classList.toggle('still',!celebrationMotion()||RIVAL_PREF.celebration==='quiet');
+ document.body.classList.add('goal-presentation');document.body.classList.toggle('goal-impact',celebrationMotion()&&RIVAL_PREF.celebration!=='quiet');
+ return true;
+}
+function clearCelebration(){
+ const e=CELEBRATION;e.age=99;e.key='';e.trailLife.fill(0);e.nextTrail=0;e.boostClock.fill(0);document.body.classList.remove('goal-impact','boost-thrust','goal-presentation');if(e.ui)e.ui.el.hidden=true;
+ for(const mesh of [e.boostOuter,e.boostCore,e.trail,e.shards])if(mesh)mesh.count=0;for(const ring of e.rings)ring.visible=false;
+}
+function resetCelebrationEffects(){clearCelebration();CELEBRATION.group=null;CELEBRATION.boostOuter=CELEBRATION.boostCore=CELEBRATION.trail=CELEBRATION.shards=null;CELEBRATION.rings=[];}
+function celebrationTrail(c,m){
+ const e=CELEBRATION,i=e.nextTrail++%96,o=i*3;cePosition.set(-.72,.1,(i%2?1:-1)*.17).applyQuaternion(m.quaternion).add(m.position);ceDirection.set(-1,0,0).applyQuaternion(m.quaternion);
+ e.trailPosition[o]=cePosition.x;e.trailPosition[o+1]=cePosition.y;e.trailPosition[o+2]=cePosition.z;
+ e.trailVelocity[o]=c.v.x*.35+ceDirection.x*2;e.trailVelocity[o+1]=c.v.y*.35+ceDirection.y*2;e.trailVelocity[o+2]=c.v.z*.35+ceDirection.z*2;e.trailColor[i]=celebrationAccent(c.color);e.trailLife[i]=e.trailTotal[i]=.25+(i%5)*.025;
+}
+function updateCelebrations(dt){
+ const e=CELEBRATION;if(window.__TEVIN_SERVER__)return;const live=st==='PLAY',goal=st==='GOAL',motion=celebrationMotion(),quiet=RIVAL_PREF.celebration==='quiet';e.clock+=Math.max(0,dt);e.age+=Math.max(0,dt);
+ document.body.classList.toggle('goal-presentation',goal&&!!e.key);document.body.classList.toggle('goal-impact',goal&&motion&&!quiet&&e.age<.7);document.body.classList.toggle('boost-thrust',live&&motion&&!!localPlayer().bst);
+ if(e.ui){e.ui.el.hidden=!goal||e.age>(motion?2.25:1.7);e.ui.el.classList.toggle('still',!motion||quiet);}if(!e.group)return;e.group.visible=live||goal;if(!e.group.visible){e.trailLife.fill(0);return;}
+ let outer=0,core=0;
+ if(live)for(let i=0;i<cars.length;i++){
+  const c=cars[i],m=cm[i];if(!c.enabled||!c.bst||!m){e.boostClock[i]=0;continue;}
+  const flame=motion?1.05+Math.min(1,c.v.length()/23)*.8+Math.sin(e.clock*24+i)*.045:.65;
+  for(const side of [-1,1]){
+   cePosition.set(-.68,.1,side*.17).applyQuaternion(m.quaternion).add(m.position);ceScale.set(flame,.115,.115);ceMatrix.compose(cePosition,m.quaternion,ceScale);e.boostOuter.setMatrixAt(outer,ceMatrix);e.boostOuter.setColorAt(outer++,ceColor.setHex(celebrationAccent(c.color)));
+   ceScale.set(flame*.75,.045,.045);ceMatrix.compose(cePosition,m.quaternion,ceScale);e.boostCore.setMatrixAt(core,ceMatrix);e.boostCore.setColorAt(core++,ceColor.setHex(0xfff1d0));
+  }
+  e.boostClock[i]=(e.boostClock[i]||0)+dt;let spawned=0;while(motion&&e.boostClock[i]>1/48&&spawned++<2){e.boostClock[i]-=1/48;celebrationTrail(c,m);}
+ }
+ e.boostOuter.count=outer;e.boostCore.count=core;if(outer){e.boostOuter.instanceMatrix.needsUpdate=e.boostCore.instanceMatrix.needsUpdate=true;e.boostOuter.instanceColor.needsUpdate=e.boostCore.instanceColor.needsUpdate=true;}
+ let trail=0;const step=Math.min(.05,Math.max(0,dt));
+ for(let i=0;i<96;i++){
+  e.trailLife[i]=Math.max(0,e.trailLife[i]-step);if(!motion||!e.trailLife[i])continue;const o=i*3,alpha=e.trailLife[i]/e.trailTotal[i];for(let k=0;k<3;k++)e.trailPosition[o+k]+=e.trailVelocity[o+k]*step;
+  cePosition.fromArray(e.trailPosition,o);ceScale.setScalar((.14+(1-alpha)*.15)*alpha);ceMatrix.compose(cePosition,cam.quaternion,ceScale);e.trail.setMatrixAt(trail,ceMatrix);e.trail.setColorAt(trail++,ceColor.setHex(e.trailColor[i]).multiplyScalar(alpha));
+ }
+ e.trail.count=trail;if(trail){e.trail.instanceMatrix.needsUpdate=e.trail.instanceColor.needsUpdate=true;}
+ const intensity=celebrationEnvelope(e.age),exploding=goal&&motion&&!quiet&&intensity>0;
+ e.shards.count=exploding?72:0;
+ if(exploding){
+  for(let i=0;i<72;i++){
+   const d=e.shardDirection[i],speed=e.shardSpeed[i],age=Math.min(e.age,2.8);ceDirection.copy(d);ceDirection.z=Math.abs(d.z)*(e.team===0?-1:1);cePosition.copy(e.origin).addScaledVector(ceDirection,speed*age);cePosition.y=Math.max(.08,cePosition.y-age*age*2.5);
+   ceDirection.y-=age*.3;ceDirection.normalize();ceRotation.setFromUnitVectors(ceZ,ceDirection);ceScale.set((i%3===0?.075:.035)*intensity,(i%3===0?.075:.035)*intensity,(i%6===0?1.8:.55+(i%7)*.13)*(1-age*.2));ceMatrix.compose(cePosition,ceRotation,ceScale);e.shards.setMatrixAt(i,ceMatrix);e.shards.setColorAt(i,ceColor.setHex(i%5===0?0xfff0c9:e.color).multiplyScalar(intensity));
+  }e.shards.instanceMatrix.needsUpdate=e.shards.instanceColor.needsUpdate=true;
+ }
+ for(let i=0;i<e.rings.length;i++){
+  const ring=e.rings[i],age=e.age-i*.12;ring.visible=exploding&&age>=0;if(!ring.visible)continue;const radius=.9+age*(i===1?11:8);ring.position.copy(e.origin);if(i===1){ring.rotation.x=-Math.PI/2;ring.position.y=.09;}else{ring.rotation.x=0;ring.position.z+=(e.team===0?-1:1)*(.15+i*.06);}ring.scale.setScalar(radius);ring.material.color.setHex(i===2?0xffecc6:e.color);ring.material.opacity=intensity*(i===2?.35:.65);
+ }
+}
+
 let preloadJob=null;
 async function preloadArena(){
  if(preloadJob)return preloadJob;
@@ -11968,7 +12276,7 @@ if(window.__TEVIN_SERVER__){
 }
 
 if(window.__TEVIN_TEST__){
- window.tevinTest={turfGeometry,engine:ENGINE,SECRET,SECRET_ABILITIES,secretKey,secretOpen,secretClose,secretApply,secretSnapshot,readSecretState,secretReset,secretBallStep,secretCarStep,planBot,bot,possessionPlan,arenaBotTarget,preparePaint,replayPlaybackTime,positionDriverTag,cinemaEase,cinemaMotion,syncCinema,msg,DED,dedState,dedFrame,packDriver,pixelRatio,setupGauges,updateGauge,SHOWROOM,resetShowroom,THREE,cfg,cars,ball,PADS,PHYS,BODY_PHYSICS,DT,SIM_DT,PROTOCOL,keys,bindings,padInput,cameraSettings,MP,
+ window.tevinTest={PRESENTATION_TIMING,DEVICE,touchInput,updateDeviceUI,updateDeviceProfile,setDeviceInput,clearTouchInput,deviceCanPlay,touchStickStart,touchStickMove,touchRelease,touchActionStart,deviceSecretHoldStart,deviceSecretHoldMove,validPaint,driverPaint,paintHex,setCustomPaint,updateScorePaint,CELEBRATION,triggerCelebration,updateCelebrations,clearCelebration,celebrationEnvelope,celebrationAccent,turfGeometry,engine:ENGINE,SECRET,SECRET_ABILITIES,secretKey,secretOpen,secretClose,secretApply,secretSnapshot,readSecretState,secretReset,secretBallStep,secretCarStep,planBot,bot,possessionPlan,arenaBotTarget,preparePaint,replayPlaybackTime,positionDriverTag,cinemaEase,cinemaMotion,syncCinema,msg,DED,dedState,dedFrame,packDriver,pixelRatio,setupGauges,updateGauge,SHOWROOM,resetShowroom,THREE,cfg,cars,ball,PADS,PHYS,BODY_PHYSICS,DT,SIM_DT,PROTOCOL,keys,bindings,padInput,cameraSettings,MP,
   RIVALS,RIVAL_PREF,CAREER,DRILL,DRILLS,SERIES,heat,trainingSetup,trainingTick,finishDrill,readHeatState,predictLocalBall,cameraBallTarget,rivalsStart,rivalsFinish,rivalsTick,replayRecord,rivalsGoal,stopReplay,garagePreset,seriesStart,seriesFinish,mpSnapshot,renderCareer,rivalsTouch,endMatch,
   cameraAnchor:()=>cameraAnchorReady,setCameraAnchor:value=>cameraAnchorReady=value,
   throttleAcceleration,steeringCurvature,padContains,bodyPhysics,resetCar,stepCar,carBall,ballSub,stepBall,carCar,padStep,sim,frame,configureCars,spawnCar,surf,carPenetration,predictBall,finishRegulation,advanceMatchClock,validSnapshot,packetValid,queuePlan,human,pollController,mappedKey,captureBinding,setupDriverSettings,renderBindings,fitCarVisual,rendererWithFallback,spectrumEnergy,advanceMusicEnvelope,INTRO,LOADING,introPlay,openPlaySelection,loadingBegin,loadingEnd,
@@ -11979,11 +12287,11 @@ if(window.__TEVIN_TEST__){
  if(window.__TEVIN_TEST__==='headless'){window.tevinBoot.ready=true;return;}
 }
 
-setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();setupGraphicsUI();configureCars();kickoff();st='MENU';setupIntro();setupShowroomControls();setupGauges();setupRivals();setupSecret();requestAnimationFrame(frame);if(!window.__TEVIN_TEST__)setTimeout(preloadArena,0);
+setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();setupGraphicsUI();configureCars();kickoff();st='MENU';setupIntro();setupShowroomControls();setupGauges();setupRivals();setupSecret();setupPaint();setupDevice();setupCelebrationUI();requestAnimationFrame(frame);if(!window.__TEVIN_TEST__)setTimeout(preloadArena,0);
 
 window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:120,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,multiplayer:DED.active?'Phoenix dedicated':'offline',rtt:DED.rtt,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
 
-window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.6 · RIVALS · Ready to play');
+window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.7 · MOMENTUM · Ready to play');
 
 
 } catch(error) { window.tevinBoot.error=String(error.message||error);window.tevinBoot.show("Startup failed at "+window.tevinBoot.stage+": "+window.tevinBoot.error);console.error(error); }
