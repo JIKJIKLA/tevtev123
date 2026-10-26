@@ -9,7 +9,6 @@ test('arena targets respect rounded corners and solid back walls',()=>{
 test('supporters and Heatseeker retain their defensive assignments',()=>{
  const {api:a}=load();a.cfg.size=2;a.configureCars();a.ball.p.set(0,1,0);a.cars[1].p.set(0,1,4);const c=a.cars[3];c.p.set(0,1,14);c.ai.intercept.copy(a.ball.p);c.ai.mode='SUPPORT';a.possessionPlan(c,false,false);assert.equal(c.ai.mode,'SUPPORT');a.cfg.mode=1;a.cars[1].ai.mode='SAVE';a.possessionPlan(a.cars[1],false,false);assert.equal(a.cars[1].ai.mode,'SAVE');
 });
-test('matte paint has no clearcoat and replay slows to half speed near contact',()=>{
+test('matte paint has no clearcoat and retains its restrained reflection intensity',()=>{
  const {api:a}=load(),mat=new a.THREE.MeshPhysicalMaterial({color:0x123456,clearcoat:1}),mesh=new a.THREE.Mesh(new a.THREE.BoxGeometry(),mat);a.preparePaint(mesh,0x123456);assert.ok(mat.roughness>=.7);assert.equal(mat.clearcoat,0);assert.ok(mat.envMapIntensity<.7);
- const r={frames:[{t:0},{t:4}],duration:4,elapsed:2};const t=a.replayPlaybackTime(r);r.elapsed=2.2;assert.ok(Math.abs(a.replayPlaybackTime(r)-t-.1)<1e-8);r.elapsed=5;assert.equal(a.replayPlaybackTime(r),4);
 });

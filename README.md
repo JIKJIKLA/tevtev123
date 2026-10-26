@@ -1,9 +1,13 @@
-# Tevin League 9.8 — Championship
+# Tevin League 9.9 — Cinema
 
 Browser car soccer with Soccar and Heatseeker, 1v1/2v2/3v3, AI, sandbox, private rooms and public matchmaking. [Play on GitHub Pages](https://jikjikla.github.io/tevtev123/) or [Bunny CDN](https://tevtev123.b-cdn.net/). Online play uses the Phoenix dedicated server. The portable `index.html` also supports offline AI and practice.
 
 ## Controls and new features
 
+- Wall camera checks the same rounded boundary as gameplay, orbits along the wall to frame both car and ball, and fades your car to 33% opacity when it blocks the view. The fade is isolated from other players and restores automatically.
+- Goal replays establish from midfield, follow the final shooter, slow down and zoom through the last touch, then track the shot and widen as playback accelerates. The shared goal hold is 9.4 seconds; online recordings use authority timestamps.
+- Cobalt/amber light and slight distance haze frame the pitch. The exterior now includes concourses, gates, a plaza, trees, lamps and taller cable towers; the playable dimensions remain unchanged.
+- Cleaner player labels and illustrated mode cards accompany a persistent match-start button on desktop and touch layouts.
 - Online countdowns animate once per number. Remote cars use the server tick timeline with a 50–100 ms adaptive interpolation delay instead of a fixed 100 ms arrival-time buffer; local steering corrections blend visually while authority stays unchanged.
 - Championship stadium adds rounded multicolored fans, continuous concourse displays, roof undersides/ribs, hospitality boxes and pennants. Balanced warm sun/cool fill and baked turf-edge shading preserve the existing photographic sky and matte cars.
 - Phones/tablets automatically get a left thumbstick, hold-to-boost, jump/dodge, slide, air roll, ball-camera, pause and fullscreen controls. Settings → Screen & Controls can override detection. Keyboard/controller input switches automatically on hybrid devices.
@@ -35,4 +39,4 @@ Edit `src/` and run `node scripts/build.cjs` to regenerate the portable HTML. `s
 
 The recovered Supabase source remains for archival compatibility; current gameplay uses the dedicated WebSocket transport. No server credentials belong in the repository.
 
-[Persistent product vision](docs/PRODUCT-VISION.md) · [9.8 release scope](docs/RELEASE-9.8.md) · [New sound licenses](docs/AUDIO-9.6.md) · [Physics references](docs/ACCURACY.md)
+[Persistent product vision](docs/PRODUCT-VISION.md) · [9.9 release scope](docs/RELEASE-9.9.md) · [New sound licenses](docs/AUDIO-9.6.md) · [Physics references](docs/ACCURACY.md)

@@ -77,7 +77,7 @@ function mobilePlayTarget(){
 }
 function updateMobilePlaybar(){
  const bar=$('mobile-playbar');if(!bar)return;
- const show=['phone','tablet'].includes(DEVICE.form)&&st==='MENU'&&menuScreen==='play'&&!MP.active&&!INTRO.active&&!LOADING.active;
+ const show=st==='MENU'&&menuScreen==='play'&&!MP.active&&!INTRO.active&&!LOADING.active;
  bar.hidden=!show;document.body.classList.toggle('mobile-match-menu',show);if(!show)return;
  const [id,label]=mobilePlayTarget(),target=$(id),button=$('mobile-play'),summary=$('mobile-play-summary');
  if(button.textContent!==label)button.textContent=label;button.disabled=!target||target.disabled;

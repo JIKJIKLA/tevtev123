@@ -69,7 +69,7 @@ function dedState(m){
  MP.received=s.seq;MP.lastSnapshot=performance.now();const time=dedClockSample(m.tick,MP.lastSnapshot,phaseChanged);if(phaseChanged)MP.buffer.length=0;MP.snapshot=s;MP.buffer.push({at:MP.lastSnapshot,time,state:s});if(MP.buffer.length>10)MP.buffer.shift();
  if(!MP.loaded)return;
  const c=localPlayer(),before=c.p.clone().add(DED.offset),beforeRotation=c.q.clone().multiply(DED.rotationOffset),ballBefore=ball.p.clone().add(DED.ballOffset);
- handleRemoteMatch(s);
+ RIVALS.replayStamp=Number.isFinite(m.tick)?m.tick*DT:RIVALS.time;handleRemoteMatch(s);
  if(phaseChanged){DED.history.length=DED.outbox.length=0;DED.offset.set(0,0,0);DED.rotationOffset.identity();DED.lastJump=MP.jump;acc=0}
  mpReadCar(c,s.cars[MP.slot],1,0);readDriver(c,m.driver);
  readSecretState(s.arcade);readHeatState(s.heat);ball.p.fromArray(s.ball.p);ball.v.fromArray(s.ball.v);ball.w.fromArray(s.ball.w);ball.last=s.ball.last;ball.lastPlayer=s.ball.lastPlayer;ball.color=s.ball.color;
@@ -78,7 +78,7 @@ function dedState(m){
  c.frameP.copy(c.p);c.frameQ.copy(c.q);c.prevP.copy(c.p);c.prevQ.copy(c.q);
  if(!phaseChanged){DED.offset.copy(before).sub(c.p);DED.rotationOffset.copy(c.q).invert().multiply(beforeRotation).normalize();if(DED.offset.length()>5){DED.offset.set(0,0,0);DED.rotationOffset.identity();}if(DED.rotationOffset.angleTo(dedIdentity)>Math.PI/2)DED.rotationOffset.identity();}
  ball.frameP.copy(ball.p);ball.prevP.copy(ball.p);DED.ballOffset.copy(ballBefore).sub(ball.p);if(phaseChanged||DED.ballOffset.length()>3)DED.ballOffset.set(0,0,0);
- if(s.phase==='PLAY')replayRecord(s);if(s.phase==='END')updateRematchUI();mpStatus('PHOENIX · '+(DED.rtt?DED.rtt+' ms':'CONNECTED'),'good');
+ if(s.phase==='PLAY')replayRecord(s,RIVALS.replayStamp);if(s.phase==='END')updateRematchUI();mpStatus('PHOENIX · '+(DED.rtt?DED.rtt+' ms':'CONNECTED'),'good');
 }
 function dedFrame(dt){
  if(!MP.loaded)return;const now=performance.now();

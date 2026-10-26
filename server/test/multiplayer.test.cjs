@@ -12,7 +12,7 @@ for(const mode of [0,1])for(const size of [1,2,3])test(`Rivals lifecycle: ${mode
  const world=p.inspect();const advance=()=>{for(let i=0;i<500&&p.phase()!=='PLAY';i++)p.step();assert.equal(p.phase(),'PLAY')};advance();
  const initialRound=p.state().round;
  // Server-only placement creates a deterministic scoring fixture; it is not a client command.
- const scoreGoal=()=>{for(const c of world.cars)c.enabled=false;world.ball.lastPlayer=0;world.ball.p.set(0,1,53);world.ball.v.set(0,0,5);p.step();assert.equal(p.phase(),'GOAL');assert.equal(p.state().goal.scorer,0);assert.ok(p.state().heat.speed>=18);for(let i=0;i<900&&p.phase()==='GOAL';i++)p.step()};
+ const scoreGoal=()=>{for(const c of world.cars)c.enabled=false;world.ball.lastPlayer=0;world.ball.p.set(0,1,53);world.ball.v.set(0,0,5);p.step();assert.equal(p.phase(),'GOAL');assert.equal(p.state().goal.scorer,0);assert.ok(p.state().heat.speed>=18);for(let i=0;i<1500&&p.phase()==='GOAL';i++)p.step()};
  scoreGoal();assert.equal(p.phase(),'COUNT');advance();assert.ok(p.state().round>initialRound);
  if(mode){for(let goal=1;goal<7;goal++){scoreGoal();if(goal<6)advance()}}else{world.ball.p.set(0,1,0);world.ball.v.set(0,0,0);for(let i=0;i<15000&&p.phase()!=='END';i++)p.step()}
  assert.equal(p.phase(),'END');const ended=p.state();assert.equal(ended.series.wins[0],1);assert.equal(ended.cars.length,size*2);for(const c of ended.cars)assert.ok([c.x,c.y,c.z,...c.v,...c.q].every(Number.isFinite));
@@ -36,7 +36,7 @@ test('shared solver runs boost, jump, goals and clock without a browser',()=>{
  p.input('driver',{seq:2,round:s.round,jump:1,held:true,controls:{thr:1,boost:0}});for(let i=0;i<24;i++)p.step();assert.ok(p.state().cars[0].y>before.y+.5);
  // Place a ball just beyond a valid goal plane; score must be owned by solver.
  const {ball}=p.inspect();ball.p.set(0,1,53);ball.v.set(0,0,5);p.step();assert.equal(p.state().phase,'GOAL');assert.equal(p.state().score.reduce((a,b)=>a+b),1);
- const goalClock=p.state().clock;assert.ok(Number.isFinite(goalClock));for(let i=0;i<420;i++)p.step();assert.equal(p.phase(),'GOAL');assert.equal(p.state().clock,goalClock);for(let i=0;i<480;i++)p.step();assert.equal(p.phase(),'COUNT');assert.ok(p.state().round>s.round);
+ const goalClock=p.state().clock;assert.ok(Number.isFinite(goalClock));for(let i=0;i<420;i++)p.step();assert.equal(p.phase(),'GOAL');assert.equal(p.state().clock,goalClock);for(let i=0;i<1200&&p.phase()==='GOAL';i++)p.step();assert.equal(p.phase(),'COUNT');assert.ok(p.state().round>s.round);
 });
 test('RGB profiles validate custom paint and preserve black without breaking older clients',()=>{
  assert.equal(profile({paint:0}).paint,0);assert.equal(profile({paint:0xff43b5}).paint,0xff43b5);

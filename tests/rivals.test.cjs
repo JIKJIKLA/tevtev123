@@ -14,10 +14,10 @@ test('drill success awards progress once and repeat starts a clean attempt',()=>
  a.trainingSetup('recover');a.cars[0].ground=true;a.cars[0].n.set(0,1,0);a.trainingTick(.6);assert.equal(a.CAREER.drills,2);
 });
 test('goal replay is a bounded copy and idle cleanup preserves the chase camera anchor',()=>{
- const {a}=practice();a.setState({sandbox:false,st:'PLAY'});for(let i=0;i<180;i++){a.RIVALS.time=i/30;a.ball.p.x=i;a.replayRecord()}
- assert.equal(a.RIVALS.ring.length,150);const previous=a.RIVALS.ring.at(-1).ball[0];a.ball.p.x=-99;assert.equal(a.RIVALS.ring.at(-1).ball[0],previous);
+ const {a}=practice();a.setState({sandbox:false,st:'PLAY'});for(let i=0;i<300;i++){a.RIVALS.time=i/30;a.ball.p.x=i;a.replayRecord()}
+ assert.equal(a.RIVALS.ring.length,240);const previous=a.RIVALS.ring.at(-1).ball[0];a.ball.p.x=-99;assert.equal(a.RIVALS.ring.at(-1).ball[0],previous);
  a.setCameraAnchor(true);a.rivalsTick(.016);assert.equal(a.cameraAnchor(),true);
- a.setState({st:'GOAL',score:[1,0]});a.rivalsGoal({team:0,scorer:0,assist:-1,speed:70});assert.equal(a.RIVALS.replay.frames.length,120);
+ a.setState({st:'GOAL',score:[1,0]});a.rivalsGoal({team:0,scorer:0,assist:-1,speed:70});assert.equal(a.RIVALS.replay.frames.length,241);
  a.stopReplay();assert.equal(a.RIVALS.replay,null);assert.equal(a.cameraAnchor(),false);
 });
 test('overhead ball framing keeps a bounded vertical aim without moving either body',()=>{
