@@ -37,9 +37,13 @@ function buildArenaExterior(){
  batchMeshes(group);group.traverse(o=>{o.castShadow=false;o.receiveShadow=false;});scene.add(group);document.body.dataset.exterior='skyline-district';
 }
 function buildArenaAtmosphere(){
- const group=new THREE.Group();group.name='Team atmosphere';
+ const group=new THREE.Group();group.name='Team atmosphere';const shaftGeometry=stadiumLightShaftGeometry(),shaftMap=stadiumLightShaftMap();
  for(let team=0;team<2;team++){
-  const color=team?0xff8d45:0x4f9dff,material=new THREE.SpriteMaterial({map:glowTex(),color,opacity:.075,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false,fog:false}),haze=new THREE.Sprite(material);haze.position.set(0,15,(team?1:-1)*64);haze.scale.set(58,27,1);group.add(haze);
+  const color=team?0xff9829:0x398cff,material=new THREE.SpriteMaterial({map:glowTex(),color,opacity:.055,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false,fog:false}),haze=new THREE.Sprite(material);haze.position.set(0,15,(team?1:-1)*64);haze.scale.set(58,27,1);group.add(haze);
+  // A little colored air around the far lamps gives the stadium depth without
+  // volumetric marching, extra lights, or haze over the car and ball.
+  const shaftMaterial=new THREE.MeshBasicMaterial({map:shaftMap,color:teamPalette[team],transparent:true,opacity:.11,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,depthWrite:false,toneMapped:false});shaftMaterial.userData.team=team;
+  const shafts=new THREE.Mesh(shaftGeometry,shaftMaterial);shafts.name='Distant team-colored lamp shafts';shafts.position.z=(team?1:-1)*(HZ+5);shafts.userData.skipAO=true;group.add(shafts);
  }
  scene.add(group);document.body.dataset.atmosphere='cobalt-amber';
 }

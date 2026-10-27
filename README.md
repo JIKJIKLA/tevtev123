@@ -1,6 +1,8 @@
-# Tevin League 9.9.5 — Airshow kickoff
+# Tevin League 9.9.6 — Championship lighting
 
-The first VS AI kickoff has a five-second airshow countdown. Three instances of the supplied F-22 approach together: the orange-trail leader continues straight while blue-trail wingmen peel in opposite directions. The ball falls independently through the fixed roof doors, bounces and eases to rest exactly at GO. There is no delivery drone. HDR stadium reflections and baked perimeter occlusion add depth across every playlist while retaining matte car paint. [Airshow release details](docs/RELEASE-9.9.5.md).
+Warm key light, broad cool fill, richer green turf, readable goal interiors and restrained blue/orange source glow move the arena toward Rocket League's stylized stadium look. Car paint stays matte, and local grass shading improves contact beneath the cars. The Chromebook path retains its existing light/shadow budget. [Lighting release details](docs/RELEASE-9.9.6.md).
+
+The first VS AI kickoff retains the five-second three-jet airshow and independent ball drop. The orange leader flies straight while blue wingmen peel apart; the ball bounces and eases to rest at GO. [Airshow release details](docs/RELEASE-9.9.5.md).
 
 Boost pickups use sculpted three-armed housings, floating golden full-boost pills, light curtains and collection/respawn effects. All 34 placements are verified against the standard field. [Boost pickup release details and references](docs/RELEASE-9.9.1.md).
 

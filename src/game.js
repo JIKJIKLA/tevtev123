@@ -2,7 +2,7 @@
 try {
 
 
-/* Tevin League 9.9.5 — Airshow kickoff. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
+/* Tevin League 9.9.6 — Championship lighting. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
 window.tevinBoot.stage='game script';
 
 const ENGINE=TevinEngine;
@@ -2123,28 +2123,15 @@ async function build3d(forceGL){
 
  // Static filtered environment avoids the periodic six-pass cube-camera hitch.
 
-  ren.outputColorSpace=THREE.SRGBColorSpace;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=1.02;ren.shadowMap.enabled=!!cfg.hi;ren.shadowMap.type=THREE.PCFShadowMap;ren.shadowMap.autoUpdate=false;ren.shadowMap.needsUpdate=!!cfg.hi;
+  ren.outputColorSpace=THREE.SRGBColorSpace;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=STADIUM_LIGHTING.exposure;ren.shadowMap.enabled=!!cfg.hi;ren.shadowMap.autoUpdate=false;ren.shadowMap.needsUpdate=!!cfg.hi;
 
- scene=new THREE.Scene();scene.background=new THREE.Color(0x5caee5);scene.fog=new THREE.Fog(0x849ec1,78,315);
+ scene=new THREE.Scene();scene.background=new THREE.Color(0x5caee5);scene.fog=new THREE.Fog(STADIUM_LIGHTING.fogColor,STADIUM_LIGHTING.fogNear,STADIUM_LIGHTING.fogFar);
 
  cam=new THREE.PerspectiveCamera(77,innerWidth/innerHeight,.1,700);
 
  await loadingStage(28,'Preparing stadium lighting');
- const sky=await loadStadiumSky();try{envTarget=await ENGINE.environment(ren,sky.lighting)}finally{sky.lighting.dispose()}scene.environment=envTarget.texture;scene.environmentIntensity=.88;scene.background=sky.visible;scene.backgroundIntensity=1;document.body.dataset.arenaLight='stadium-radiance-3';
-
- scene.add(new THREE.HemisphereLight(0xb8dcff,0x526e3d,1.05));
-
- sun=new THREE.DirectionalLight(0xfff0d6,2.5);sun.castShadow=!!cfg.hi;sun.shadow.autoUpdate=false;sun.shadow.needsUpdate=!!cfg.hi;sun.shadow.mapSize.set(2048,2048);const sc=sun.shadow.camera;sc.left=sc.bottom=-76;sc.right=sc.top=76;sc.near=1;sc.far=200;sun.shadow.bias=-.00015;sun.shadow.normalBias=.018;scene.add(sun,sun.target);
-
- const fill=new THREE.DirectionalLight(0x8cbefa,.72);fill.position.set(-35,28,-35);scene.add(fill);
-
- const rim=new THREE.DirectionalLight(0xffb77b,.52);rim.position.set(40,16,-35);scene.add(rim);
-
- [[0x2060ff,-1],[0xff7a20,1]].forEach(([c,s])=>{const l=new THREE.PointLight(c,48,36,2);l.position.set(0,7,s*(HZ-3));l.userData.team=s<0?0:1;l.userData.base=48;goalLights.push(l);scene.add(l);
-
-  if(cfg.hi)for(const x of [-GX,GX]){const lamp=new THREE.PointLight(c,8,12,2);lamp.position.set(x,GH,s*(HZ-.4));lamp.userData.team=s<0?0:1;lamp.userData.base=8;goalLights.push(lamp);scene.add(lamp)}
-
- });
+ const sky=await loadStadiumSky();try{envTarget=await ENGINE.environment(ren,sky.lighting)}finally{sky.lighting.dispose()}scene.environment=envTarget.texture;scene.environmentIntensity=STADIUM_LIGHTING.environment;scene.background=sky.visible;scene.backgroundIntensity=1;document.body.dataset.arenaLight='championship-daylight-4';
+ ({sun,goalLights}=stadiumLightRig(ren,scene,!!cfg.hi));
 
  const side=wallMat('#3cf'),bw=wallMat('#38f'),ow=wallMat('#f93');WM=[side,bw,ow];
 
@@ -2237,7 +2224,7 @@ async function build3d(forceGL){
 
  pipeline=ENGINE.createPipeline(ren,scene,cam,cfg.hi);pipeline.resize(innerWidth,innerHeight,pixelRatio());
 
- const lp=localPlayer();cam.position.copy(cpos);cam.lookAt(lookPos);sun.position.set(42,48,29);sun.target.position.set(0,0,0);
+ const lp=localPlayer();cam.position.copy(cpos);cam.lookAt(lookPos);
 
  await loadingStage(90,'Compiling materials and effects');
  OPENING.visuals.group.visible=OPENING.visuals.airshow.group.visible=BOMB.visuals.ball.visible=BOMB.visuals.effects.visible=true;OPENING.visuals.airshow.jets.forEach(j=>j.visible=true);try{await ENGINE.prewarm(ren,scene,cam,pipeline,cm,pts)}finally{OPENING.visuals.group.visible=true;OPENING.visuals.airshow.group.visible=BOMB.visuals.ball.visible=BOMB.visuals.effects.visible=false;OPENING.visuals.airshow.jets.forEach(j=>j.visible=false)}
@@ -2392,7 +2379,7 @@ setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();se
 
 window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:120,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,multiplayer:DED.active?'Phoenix dedicated':'offline',rtt:DED.rtt,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
 
-window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.9.5 · AIRSHOW KICKOFF · Ready to play');
+window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.9.6 · CHAMPIONSHIP LIGHTING · Ready to play');
 
 
 } catch(error) { window.tevinBoot.error=String(error.message||error);window.tevinBoot.show("Startup failed at "+window.tevinBoot.stage+": "+window.tevinBoot.error);console.error(error); }

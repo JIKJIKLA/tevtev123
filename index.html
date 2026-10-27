@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="color-scheme" content="dark">
-<title>Tevin League 9.9.5 — Airshow kickoff</title>
+<title>Tevin League 9.9.6 — Championship lighting</title>
 <script>
 // Independent bootstrap diagnostics remain available even if the engine fails.
 window.tevinBoot={ready:false,error:'',stage:'engine bundle not reached'};
@@ -329,7 +329,7 @@ body:is(.device-phone,.device-tablet) #menu #play-panel .destination-tabs button
 <div id="msg"></div>
 <div id="menu" class="ov on" data-screen="home"><section id="intro" aria-label="Tevin League title screen">
  <canvas id="music-visualizer" aria-hidden="true"></canvas><div id="intro-stage" aria-hidden="true"><div class="intro-art"></div><div class="stadium-design"><div class="stadium-orbit orbit-one"></div><div class="stadium-orbit orbit-two"></div><div class="stadium-beam beam-blue"></div><div class="stadium-beam beam-orange"></div><div class="stadium-stands"></div><div class="stadium-pitch"><div class="pitch-center"></div><div class="pitch-box box-blue"></div><div class="pitch-box box-orange"></div><div class="pitch-goal goal-blue"></div><div class="pitch-goal goal-orange"></div></div><div class="match-ball"><svg viewBox="0 0 200 200" aria-hidden="true"><defs><radialGradient id="ball-light" cx="32%" cy="25%" r="75%"><stop stop-color="#f2fcff"/><stop offset=".55" stop-color="#9ebfce"/><stop offset="1" stop-color="#233d55"/></radialGradient><clipPath id="ball-edge"><circle cx="100" cy="100" r="94"/></clipPath></defs><circle cx="100" cy="100" r="94" fill="url(#ball-light)"/><g clip-path="url(#ball-edge)" fill="#112b40" stroke="#4c7186" stroke-width="2"><path d="M91 61 126 78 120 116 81 122 63 87Z"/><path d="M8 66 34 43 54 57 49 89 20 99Z"/><path d="M131 9 164 25 159 49 135 52 119 31Z"/><path d="M159 116 193 100 209 133 192 161 162 151Z"/><path d="M67 158 98 148 119 170 108 197 72 198Z"/></g><g fill="none" stroke="#456577" stroke-width="2"><path d="M91 61 83 30 119 31M126 78 159 49M120 116 159 116M81 122 67 158M63 87 49 89M54 57 83 30 62 13M20 99 26 134 67 158M26 134 9 147M98 148 120 116M162 151 119 170"/></g></svg></div><div class="stadium-coordinate">CHAMPIONSHIP FIELD / 01<br><span>BLUE SIDE × ORANGE SIDE</span></div></div><div class="intro-horizon"></div></div>
- <div class="intro-top"><span>TEVIN / CHAMPIONSHIP SERIES</span><span>SEASON 09.9.5</span></div>
+ <div class="intro-top"><span>TEVIN / CHAMPIONSHIP SERIES</span><span>SEASON 09.9.6</span></div>
  <div class="intro-title"><p>THE ARENA IS YOURS</p><h1>TEVIN<span>LEAGUE</span></h1><div class="intro-rule"></div><p class="intro-tagline">ONE MORE MATCH. ONE GREAT MOMENT.</p></div>
  <div class="intro-controls"><button id="intro-start" hidden>ENABLE SOUND <small>YOUR BROWSER NEEDS A CLICK</small></button><button id="intro-play">START <span>ENTER THE ARENA →</span></button><button id="intro-skip">SETTINGS</button><p id="intro-status" role="status" aria-live="polite">Loading game engine…</p></div>
  <div class="intro-track"><div id="intro-spectrum" aria-hidden="true"></div><div><small>NOW PLAYING / YOUR SOUNDTRACK</small><strong>LUV U NEED U</strong><span>Slushii · Monstercat</span></div></div>
@@ -337,7 +337,7 @@ body:is(.device-phone,.device-tablet) #menu #play-panel .destination-tabs button
 </section>
 
 
- <header class="menu-top"><div class="wordmark">TEVIN<span>LEAGUE</span><small>CINEMA / 09.9.5</small></div><button id="menu-back" hidden>← BACK</button><button id="menu-music" aria-label="Toggle lobby music">MUSIC ON / OFF</button><button id="party-toggle">QUICK MATCH PARTY</button><span id="menu-location">HOME</span></header>
+ <header class="menu-top"><div class="wordmark">TEVIN<span>LEAGUE</span><small>CINEMA / 09.9.6</small></div><button id="menu-back" hidden>← BACK</button><button id="menu-music" aria-label="Toggle lobby music">MUSIC ON / OFF</button><button id="party-toggle">QUICK MATCH PARTY</button><span id="menu-location">HOME</span></header>
 
  <div id="car-inspect" tabindex="0" role="region" aria-label="Rotate car preview. Drag left or right, use arrow keys, or scroll to zoom."><span>DRAG TO ROTATE · SCROLL TO ZOOM</span></div><div id="home-panel"><div class="hero-copy"><p class="eyebrow">YOUR NEXT GREAT TOUCH</p><h1>TEVIN<br><em>LEAGUE.</em></h1><p>Arena soccer. Full-throttle freedom.</p></div><nav class="home-actions" aria-label="Main menu"><button id="nav-play" class="main-action"><b>PLAY</b><span>Quick Match, friends or free play</span><i>↗</i></button><button id="nav-garage"><b>GARAGE</b><span>Your car. Your colors.</span><i>→</i></button><button id="nav-training"><b>TRAINING</b><span>Practice on the pitch</span></button><button id="nav-settings"><b>SETTINGS</b><span>Sound, graphics and keyboard controls</span><i>→</i></button></nav><div class="home-caption">SOCCAR / HEATSEEKER <span>1v1 — 3v3</span></div></div>
 
@@ -376,7 +376,7 @@ body:is(.device-phone,.device-tablet) #menu #play-panel .destination-tabs button
 </div>
 
 <section id="loading-screen" hidden role="dialog" aria-modal="true" aria-labelledby="loading-title" aria-describedby="loading-detail">
- <div class="loading-art" aria-hidden="true"></div><header><strong>TEVIN<span>LEAGUE</span></strong><span>CHAMPIONSHIP SERIES / 09.9.5</span></header>
+ <div class="loading-art" aria-hidden="true"></div><header><strong>TEVIN<span>LEAGUE</span></strong><span>CHAMPIONSHIP SERIES / 09.9.6</span></header>
  <main><p id="loading-cache">PREPARING YOUR NEXT SESSION</p><h1 id="loading-title" tabindex="-1">ENTER THE ARENA</h1><p id="loading-detail">Preparing your game</p><div class="loading-track" id="loading-meter" role="progressbar" aria-label="Loading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="loading-fill"></div></div><div class="loading-readout"><span id="loading-phase" role="status" aria-live="polite">Preparing assets</span><strong id="loading-percent">0%</strong></div></main>
  <footer><span>YOUR NEXT GREAT TOUCH IS WAITING.</span><span>W / S DRIVE &nbsp; · &nbsp; SHIFT BOOST &nbsp; · &nbsp; SPACE JUMP</span></footer>
 </section>
@@ -8828,16 +8828,18 @@ function b_(C){
  let p=vec3(w.x.add(position.x.mul(cos(a)).sub(position.z.mul(sin(a))).mul(fade)),height.mul(length).add(.008),w.y.add(position.x.mul(sin(a)).add(position.z.mul(cos(a))).mul(fade)));
  const wave=sin(time.mul(1.25).add(w.x.mul(.42)).add(w.y.mul(.24))).mul(.35).add(sin(time.mul(2.1).add(w.y.mul(.71)).add(r.mul(9))).mul(.09)).mul(height.mul(height)).mul(length).mul(2.4).mul(wind);
  p=p.add(vec3(wave,0,wave.mul(.55)));
+ let contactShade=float(1);
  for(let k=0;k<7;k++){
   const center=uniform(C['c'+k].value),velocity=uniform(C['v'+k].value),q=w.sub(center.xz),near=float(1).sub(smoothstep(.6,2,center.y));
   const press=float(1).sub(smoothstep(.2,1.35,q.length())).mul(near),speed=velocity.xz.length(),dir=velocity.xz.div(speed.max(.001)),along=q.dot(dir),side=q.sub(dir.mul(along)).length();
+  contactShade=contactShade.mul(float(1).sub(press.mul(.32)));
   const wake=float(1).sub(smoothstep(.4,1.35,side)).mul(smoothstep(-4,-1,along)).mul(float(1).sub(smoothstep(-.2,.6,along))).mul(speed.div(23).min(1)).mul(near);
   const bend=normalize(q.add(.0001)).mul(press).mul(.11).add(dir.mul(wake).mul(.18)).mul(height.mul(height));
   p=p.add(vec3(bend.x,press.mul(.65).add(wake.mul(.3)).mul(height).mul(length).negate(),bend.y));
  }
  const field=uniform(C.fieldSize.value),uv=vec2(w.x.div(field.x).add(.5),float(.5).sub(w.y.div(field.y)));
  const paint=varying(texture(C.paint.value,uv).rgb,'turfPigment');
- const color=paint.mul(mix(.7,1.08,height)).mul(float(.88).add(r.mul(.24)));
+ const color=paint.mul(mix(.7,1.08,height)).mul(float(.88).add(r.mul(.24))).mul(varying(contactShade.max(.5),'turfContactShade'));
  const material=new fi({side:MB,roughness:.98,metalness:0,envMapIntensity:.3});
  material.name='Painted wind turf / WebGPU';material.positionNode=p;material.colorNode=color;material.normalNode=normalViewGeometry;material.emissiveNode=color.mul(.06);return material;
 }
@@ -8879,7 +8881,7 @@ window.THREE=TevinEngine.THREE;
 try {
 
 
-/* Tevin League 9.9.5 — Airshow kickoff. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
+/* Tevin League 9.9.6 — Championship lighting. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
 window.tevinBoot.stage='game script';
 
 const ENGINE=TevinEngine;
@@ -8913,10 +8915,37 @@ async function retryGraphics(){
 // A static HDR lighting probe, filtered once by the existing PMREM path. This is
 // image-based lighting, not hardware ray tracing. No recurring cube captures.
 function radianceLinear(value){value=cl(value/255,0,1);return value<=.04045?value/12.92:Math.pow((value+.055)/1.055,2.4);}
+const STADIUM_LIGHTING={exposure:1.02,environment:.62,fogColor:0x9bb6cc,fogNear:92,fogFar:310};
+function stadiumLightRig(renderer,scene,detail,palette=teamPalette){
+ scene.add(new THREE.HemisphereLight(0xd5e8ff,0x6e714d,.98));
+ const sun=new THREE.DirectionalLight(0xffebcb,3.4);sun.position.set(-40,68,28);sun.castShadow=!!detail;sun.shadow.autoUpdate=false;sun.shadow.needsUpdate=!!detail;sun.shadow.mapSize.set(2048,2048);sun.shadow.radius=2.5;
+ const sc=sun.shadow.camera;sc.left=sc.bottom=-70;sc.right=sc.top=70;sc.near=1;sc.far=220;sun.shadow.bias=-.00015;sun.shadow.normalBias=.022;scene.add(sun,sun.target);
+ // Broad diffuse fill exposes body shape; high roughness still controls paint highlights.
+ const fill=new THREE.DirectionalLight(0xb9d8ff,1.5);fill.position.set(42,30,-38);scene.add(fill);
+ const rim=new THREE.DirectionalLight(0xffc186,.72);rim.position.set(-15,26,-48);scene.add(rim);
+ const lights=[];
+ for(let team=0;team<2;team++){const sign=team?1:-1,l=new THREE.PointLight(palette[team],64,42,2);l.position.set(0,7,sign*(HZ-3));Object.assign(l.userData,{team,base:64});lights.push(l);scene.add(l);if(detail)for(const x of [-GX,GX]){const lamp=new THREE.PointLight(palette[team],10,12,2);lamp.position.set(x,GH,sign*(HZ-.4));Object.assign(lamp.userData,{team,base:10});lights.push(lamp);scene.add(lamp);}}
+ renderer.shadowMap.type=THREE.PCFShadowMap;return{sun,goalLights:lights};
+}
+function goalFrameHaloGeometry(){
+ const p=[],uv=[],indices=[];
+ for(const [x,y,w,h] of [[-GX-.22,GH/2,.8,GH+.5],[GX+.22,GH/2,.8,GH+.5],[0,GH+.24,2*GX+1,.8]]){const base=p.length/3;p.push(x-w/2,y-h/2,0,x+w/2,y-h/2,0,x+w/2,y+h/2,0,x-w/2,y+h/2,0);uv.push(0,0,1,0,1,1,0,1);indices.push(base,base+1,base+2,base,base+2,base+3);}
+ const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(indices);g.computeVertexNormals();return g;
+}
+function stadiumLightShaftGeometry(){
+ const p=[],uv=[],indices=[];
+ for(const x of [-21,21]){const base=p.length/3;p.push(x-3.3,3,0,x+3.3,3,0,x+.45,28,0,x-.45,28,0);uv.push(0,0,1,0,1,1,0,1);indices.push(base,base+1,base+2,base,base+2,base+3);}
+ const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(p,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));g.setIndex(indices);g.computeVertexNormals();return g;
+}
+function stadiumLightShaftMap(){
+ const w=64,h=128,pixels=new Uint8Array(w*h*4);
+ for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=(y*w+x)*4,edge=Math.pow(Math.max(0,1-Math.pow((x/(w-1)-.5)*2,2)),2),fade=Math.pow(Math.sin(y/(h-1)*Math.PI),1.2);pixels[i]=pixels[i+1]=pixels[i+2]=255;pixels[i+3]=255*edge*fade;}
+ const t=new THREE.DataTexture(pixels,w,h);t.minFilter=t.magFilter=THREE.LinearFilter;t.needsUpdate=true;return t;
+}
 function stadiumRadiancePixels(bytes,width,height){
  const pixels=new Float32Array(width*height*4);
  for(let y=0;y<height;y++)for(let x=0;x<width;x++){
-  const i=(y*width+x)*4,r=bytes[i],g=bytes[i+1],b=bytes[i+2],fascia=y/height>.482&&y/height<.513,led=fascia&&(b>190&&b>r*1.3||r>215&&r>b*1.35),gain=led?3.1:1;
+  const i=(y*width+x)*4,r=bytes[i],g=bytes[i+1],b=bytes[i+2],fascia=y/height>.482&&y/height<.513,led=fascia&&(b>190&&b>r*1.3||r>215&&r>b*1.35),gain=led?2.2:1;
   // Canvas rows start at the top; raw DataTexture rows start at the bottom.
   const out=((height-1-y)*width+x)*4;pixels[out]=radianceLinear(r)*gain;pixels[out+1]=radianceLinear(g)*gain;pixels[out+2]=radianceLinear(b)*gain;pixels[out+3]=1;
  }return pixels;
@@ -8925,10 +8954,10 @@ function stadiumRadianceTexture(image){
  const w=1024,h=512,c=cvs(w,h),g=c.getContext('2d');g.drawImage(image,0,0,w,h);
  // The lower hemisphere sees concourses, team fascia and green turf, rather
  // than a mirrored sky. The photographic sky remains unchanged on screen.
- const bowl=g.createLinearGradient(0,222,0,350);bowl.addColorStop(0,'rgba(45,70,91,0)');bowl.addColorStop(.3,'#334b5d');bowl.addColorStop(.7,'#243b4b');bowl.addColorStop(1,'#496246');g.fillStyle=bowl;g.fillRect(0,222,w,128);
+ const bowl=g.createLinearGradient(0,222,0,350);bowl.addColorStop(0,'rgba(58,73,84,0)');bowl.addColorStop(.3,'#3e4b52');bowl.addColorStop(.7,'#29333c');bowl.addColorStop(1,'#47533c');g.fillStyle=bowl;g.fillRect(0,222,w,128);
  for(let panel=0;panel<32;panel++){const x=panel*w/32;g.fillStyle=panel%2?'#314858':'#243b4b';g.fillRect(x,263,w/32-3,55);g.fillStyle='#9b9f85';g.fillRect(x+7,231,14,2);}
  for(let side=0;side<4;side++){const x=side*w/4,blue=side%2===0;g.fillStyle=blue?'#268fff':'#ff922a';g.fillRect(x+5,248,w/4-10,5);g.fillStyle=blue?'#3578a3':'#ac7440';g.fillRect(x+5,259,w/4-10,2);}
- const ground=g.createLinearGradient(0,317,0,h);ground.addColorStop(0,'rgba(76,105,62,0)');ground.addColorStop(.3,'#526e3c');ground.addColorStop(1,'#28422d');g.fillStyle=ground;g.fillRect(0,317,w,h-317);
+ const ground=g.createLinearGradient(0,317,0,h);ground.addColorStop(0,'rgba(70,87,49,0)');ground.addColorStop(.3,'#465b30');ground.addColorStop(1,'#283423');g.fillStyle=ground;g.fillRect(0,317,w,h-317);
  const pixels=stadiumRadiancePixels(g.getImageData(0,0,w,h).data,w,h),texture=new THREE.DataTexture(pixels,w,h,THREE.RGBAFormat,THREE.FloatType);texture.colorSpace=THREE.LinearSRGBColorSpace;texture.mapping=THREE.EquirectangularReflectionMapping;texture.needsUpdate=true;texture.name='Static HDR stadium radiance';return texture;
 }
 function pitchOcclusionTexture(){
@@ -9001,7 +9030,7 @@ function surf(p){
 }
 
 // Reference measurements are linked in docs/ACCURACY.md. Metres, seconds; Y up.
-const BUILD='9.9.5';
+const BUILD='9.9.6';
 const PRESENTATION_TIMING=Object.freeze({goalHold:8.5,replayDelay:.8,replayDuration:7.7,replayShot:6.6,goalFade:.9});
 const PROTOCOL=4;
 function airRotation(velocity,input,acceleration,damping,dt,roll=false){return velocity+(input*acceleration-damping*(roll?1:1-Math.abs(input))*velocity)*dt;}
@@ -11253,9 +11282,9 @@ function arenaSky(reflection=false){
 function arenaPitchMaterial(){
  // Retain the existing normal map and field UVs, replacing only the painted surface.
  const m=ENGINE.pitchMaterial(ren,teamPalette),c=m.map.image,g=c.getContext('2d'),w=c.width,h=c.height;
- g.fillStyle='#285d35';g.fillRect(0,0,w,h);
+ g.fillStyle='#2a4c1b';g.fillRect(0,0,w,h);
  // Alternating mowing directions form broad checker panels like a sports pitch.
- for(let y=0;y<12;y++)for(let x=0;x<8;x++){g.fillStyle=(x+y)%2?'#326b3e':'#285d35';g.fillRect(x*w/8,y*h/12,w/8+1,h/12+1);}
+ for(let y=0;y<12;y++)for(let x=0;x<8;x++){g.fillStyle=(x+y)%2?'#3a6026':'#2a4c1b';g.fillRect(x*w/8,y*h/12,w/8+1,h/12+1);}
  // Deterministic fine grain is baked once; no noise shader or per-frame canvas work.
  let seed=4271;const rand=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
  for(let i=0;i<110000;i++){g.strokeStyle=i%2?'rgba(184,211,124,.15)':'rgba(7,30,21,.17)';const x=rand()*w,y=rand()*h;g.beginPath();g.moveTo(x,y);g.lineTo(x+(rand()-.5)*2,y+1+rand()*3);g.stroke();}
@@ -11274,7 +11303,10 @@ function arenaPitchMaterial(){
  g.beginPath();g.moveTo(-37,0);g.lineTo(37,0);g.stroke();g.beginPath();g.arc(0,0,10,0,Math.PI*2);g.stroke();
  for(const s of [-1,1]){g.strokeRect(-18,s<0?-47:31,36,16);g.strokeRect(-9,s<0?-47:40,18,7)}
  g.fillStyle='#d9f6e5';g.beginPath();g.arc(0,0,.23,0,Math.PI*2);g.fill();
- g.font='italic 900 2px sans-serif';g.textAlign='center';g.fillStyle='rgba(223,250,239,.24)';g.fillText('T E V I N',0,4);g.restore();
+ g.font='italic 900 2px sans-serif';g.textAlign='center';g.fillStyle='rgba(223,250,239,.24)';g.fillText('T E V I N',0,4);
+ // Broad soft canopy shade gives the pitch sun/shade separation in either preset.
+ // It is baked once, rather than making every roof rib cast a moving shadow.
+ const canopy=g.createLinearGradient(-37,0,-9,0);canopy.addColorStop(0,'rgba(4,19,9,.27)');canopy.addColorStop(.6,'rgba(4,19,9,.18)');canopy.addColorStop(1,'rgba(4,19,9,0)');g.fillStyle=canopy;g.beginPath();g.moveTo(-37,-47);g.lineTo(-24,-47);g.lineTo(-10,47);g.lineTo(-37,47);g.closePath();g.fill();g.restore();
  // A soft baked roof shadow grounds the perimeter without another shadow pass.
  const shade=g.createRadialGradient(w/2,h/2,w*.3,w/2,h/2,w*.68);shade.addColorStop(0,'rgba(5,24,17,0)');shade.addColorStop(1,'rgba(5,24,17,.28)');g.fillStyle=shade;g.fillRect(0,0,w,h);
  PITCH_TEXTURE=m.map;m.map.needsUpdate=true;m.roughness=.96;m.aoMap=pitchOcclusionTexture();m.aoMapIntensity=.65;if(m.normalScale)m.normalScale.set(.55,.55);return m;
@@ -11284,15 +11316,18 @@ function arenaPanelMaterial(color=0x536579){
  const c=cvs(512,512),g=c.getContext('2d');g.fillStyle='#8995a0';g.fillRect(0,0,512,512);
  for(let y=0;y<560;y+=32)for(let x=-32;x<560;x+=55){const cx=x+(y%64?27.5:0);g.beginPath();for(let k=0;k<6;k++){const a=k*Math.PI/3;g[k?'lineTo':'moveTo'](cx+Math.cos(a)*31,y+Math.sin(a)*31)}g.closePath();g.fillStyle=(x+y)%3?'#7e8c98':'#8b97a2';g.fill();g.strokeStyle='#465664';g.lineWidth=2;g.stroke();}
  g.strokeStyle='#c2cbd0';g.lineWidth=3;g.strokeRect(5,5,502,502);for(const x of [16,496])for(const y of [16,496]){g.fillStyle='#2b3d4c';g.beginPath();g.arc(x,y,4,0,7);g.fill();}
- return new THREE.MeshStandardMaterial({color,map:tex(c),normalMap:arenaSurfaceNormal(c),normalScale:new THREE.Vector2(.6,.6),roughness:.86,metalness:.12,envMapIntensity:.45});
+ return new THREE.MeshStandardMaterial({color,map:tex(c),normalMap:arenaSurfaceNormal(c),normalScale:new THREE.Vector2(.6,.6),roughness:.9,metalness:.1,envMapIntensity:.3});
 }
 function decorateArenaGoals(){
- const structure=arenaPanelMaterial(0x718799),backing=arenaPanelMaterial(0x3c5362);
- const group=new THREE.Group();group.name='Championship goal surrounds';
+ const structure=arenaPanelMaterial(0x718799),backing=arenaPanelMaterial(0xa4afb3);backing.emissive.setHex(0x16212a);backing.emissiveIntensity=.18;
+ const group=new THREE.Group();group.name='Championship goal surrounds';const haloGeometry=goalFrameHaloGeometry(),haloMap=glowTex();
  const box=(x,y,z,w,h,d,mat)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);group.add(m);return m;};
  for(const sign of [-1,1]){
   const color=teamPalette[sign<0?0:1],strip=new THREE.MeshStandardMaterial({color,emissive:color,emissiveIntensity:.65,roughness:.7,metalness:.03});strip.userData.team=sign<0?0:1;
   const z=sign*(HZ+.1);
+  // Source glow is kept local to the lamps; no whole-screen bloom in Chromebook mode.
+  const haloMaterial=new THREE.MeshBasicMaterial({map:haloMap,color,transparent:true,opacity:.18,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,toneMapped:false});haloMaterial.userData.team=sign<0?0:1;
+  const halo=new THREE.Mesh(haloGeometry,haloMaterial);halo.position.z=sign*(HZ-.62);halo.name='Soft team-colored goal lighting';group.add(halo);
   // The full collision opening stays clear; every new surround sits outside it.
   for(const side of [-1,1]){
    box(side*(GX+.62),GH/2+.2,z,1.05,GH+1.25,1.05,structure);
@@ -11324,8 +11359,8 @@ function styleChampionshipStadium(stadium){
    o.instanceColor.needsUpdate=true;
    if(!RIVALS.crowd)RIVALS.crowd={mesh:o,y:Array.from({length:o.count},(_,i)=>o.instanceMatrix.array[i*16+13])};
   }else if(o.material?.isMeshStandardMaterial&&o.material.userData.team===undefined){
-   // Neutral blue-gray structure keeps saturated team colors distinct.
-   o.material.color.lerp(new THREE.Color(0x53687b),.16);
+   // Neutral structure separates the colored lamps from the pitch and paint.
+   o.material.color.lerp(new THREE.Color(0x626461),.16);
   }
  });
  for(const geometry of oldGeometry)geometry.dispose();
@@ -11442,9 +11477,13 @@ function buildArenaExterior(){
  batchMeshes(group);group.traverse(o=>{o.castShadow=false;o.receiveShadow=false;});scene.add(group);document.body.dataset.exterior='skyline-district';
 }
 function buildArenaAtmosphere(){
- const group=new THREE.Group();group.name='Team atmosphere';
+ const group=new THREE.Group();group.name='Team atmosphere';const shaftGeometry=stadiumLightShaftGeometry(),shaftMap=stadiumLightShaftMap();
  for(let team=0;team<2;team++){
-  const color=team?0xff8d45:0x4f9dff,material=new THREE.SpriteMaterial({map:glowTex(),color,opacity:.075,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false,fog:false}),haze=new THREE.Sprite(material);haze.position.set(0,15,(team?1:-1)*64);haze.scale.set(58,27,1);group.add(haze);
+  const color=team?0xff9829:0x398cff,material=new THREE.SpriteMaterial({map:glowTex(),color,opacity:.055,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false,fog:false}),haze=new THREE.Sprite(material);haze.position.set(0,15,(team?1:-1)*64);haze.scale.set(58,27,1);group.add(haze);
+  // A little colored air around the far lamps gives the stadium depth without
+  // volumetric marching, extra lights, or haze over the car and ball.
+  const shaftMaterial=new THREE.MeshBasicMaterial({map:shaftMap,color:teamPalette[team],transparent:true,opacity:.11,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,depthWrite:false,toneMapped:false});shaftMaterial.userData.team=team;
+  const shafts=new THREE.Mesh(shaftGeometry,shaftMaterial);shafts.name='Distant team-colored lamp shafts';shafts.position.z=(team?1:-1)*(HZ+5);shafts.userData.skipAO=true;group.add(shafts);
  }
  scene.add(group);document.body.dataset.atmosphere='cobalt-amber';
 }
@@ -11715,14 +11754,14 @@ function makeGrass(){
   shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`float r=off.z,h=position.y;vec2 w=mod(off.xy-cameraPosition.xz+10.,20.)+cameraPosition.xz-10.;float fade=(1.-smoothstep(6.,9.7,length(cameraPosition.xz-w)))*step(abs(w.x),36.8)*step(abs(w.y),46.8);float ht=(.052+.052*r)*fade;
    float a=r*6.2831;vec3 transformed=vec3(w.x+(position.x*cos(a)-position.z*sin(a))*fade,.008+h*ht,w.y+(position.x*sin(a)+position.z*cos(a))*fade);
    float wave=(sin(t*1.25+w.x*.42+w.y*.24)*.35+sin(t*2.1+w.y*.71+r*9.)*.09)*h*h*ht*2.4*wind;transformed.xz+=vec2(wave,wave*.55);
-   vec3 ob[7];ob[0]=c0;ob[1]=c1;ob[2]=c2;ob[3]=c3;ob[4]=c4;ob[5]=c5;ob[6]=c6;vec3 vel[7];vel[0]=v0;vel[1]=v1;vel[2]=v2;vel[3]=v3;vel[4]=v4;vel[5]=v5;vel[6]=v6;
-   for(int i=0;i<7;i++){vec2 q=w-ob[i].xz;float nearGround=1.-smoothstep(.6,2.,ob[i].y);float f=(1.-smoothstep(.2,1.35,length(q)))*nearGround;vec2 dir=vel[i].xz/max(length(vel[i].xz),.001);float along=dot(q,dir),side=length(q-dir*along);float wake=(1.-smoothstep(.4,1.35,side))*smoothstep(-4.,-1.,along)*(1.-smoothstep(-.2,.6,along))*min(length(vel[i].xz)/23.,1.)*nearGround;transformed.xz+=(normalize(q+vec2(.0001))*f*.11+dir*wake*.18)*h*h;transformed.y-=(f*.65+wake*.3)*h*ht;}
-   turfPigment=texture2D(paint,vec2(w.x/fieldSize.x+.5,.5-w.y/fieldSize.y)).rgb*mix(.7,1.08,h)*(.88+.24*r);`);
+   vec3 ob[7];ob[0]=c0;ob[1]=c1;ob[2]=c2;ob[3]=c3;ob[4]=c4;ob[5]=c5;ob[6]=c6;vec3 vel[7];vel[0]=v0;vel[1]=v1;vel[2]=v2;vel[3]=v3;vel[4]=v4;vel[5]=v5;vel[6]=v6;float contactShade=1.;
+   for(int i=0;i<7;i++){vec2 q=w-ob[i].xz;float nearGround=1.-smoothstep(.6,2.,ob[i].y);float f=(1.-smoothstep(.2,1.35,length(q)))*nearGround;contactShade*=1.-f*.32;vec2 dir=vel[i].xz/max(length(vel[i].xz),.001);float along=dot(q,dir),side=length(q-dir*along);float wake=(1.-smoothstep(.4,1.35,side))*smoothstep(-4.,-1.,along)*(1.-smoothstep(-.2,.6,along))*min(length(vel[i].xz)/23.,1.)*nearGround;transformed.xz+=(normalize(q+vec2(.0001))*f*.11+dir*wake*.18)*h*h;transformed.y-=(f*.65+wake*.3)*h*ht;}
+   turfPigment=texture2D(paint,vec2(w.x/fieldSize.x+.5,.5-w.y/fieldSize.y)).rgb*mix(.7,1.08,h)*(.88+.24*r)*max(.5,contactShade);`);
   shader.fragmentShader='varying vec3 turfPigment;\n'+shader.fragmentShader;
   shader.fragmentShader=shader.fragmentShader.replace('#include <normal_fragment_begin>','#include <normal_fragment_begin>\n normal=normalize(vNormal);');
   shader.fragmentShader=shader.fragmentShader.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\n totalEmissiveRadiance += turfPigment * .06;');
   shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>','#include <color_fragment>\n diffuseColor.rgb *= turfPigment;');
- };material.customProgramCacheKey=()=>'tevin-painted-wind-turf-v1';}
+ };material.customProgramCacheKey=()=>'tevin-painted-wind-turf-v2';}
  const mesh=new THREE.InstancedMesh(g,material,count),matrix=new THREE.Matrix4();for(let i=0;i<count;i++)mesh.setMatrixAt(i,matrix);
  mesh.instanceMatrix.needsUpdate=true;mesh.frustumCulled=false;mesh.userData.skipAO=true;mesh.receiveShadow=true;grassM=mesh;scene.add(mesh);document.body.dataset.turf='painted-wind-v1';document.body.dataset.turfBackend=ren.isWebGPURenderer?'webgpu':'webgl';
  for(const side of [-1,1])for(const z of [-30,30]){const flagGeometry=new THREE.PlaneGeometry(3,1.3,12,3),flagMaterial=ENGINE.standardMaterial(ren,{color:side<0?0x559eff:0xf5a34c,side:THREE.DoubleSide,roughness:.85});flagMaterial.userData.team=side<0?0:1;const flag=new THREE.Mesh(flagGeometry,flagMaterial);flag.position.set(side*40,7,z);flag.rotation.y=side*Math.PI/2;scene.add(flag);windFlags.push(flagGeometry.attributes.position);}
@@ -11777,28 +11816,15 @@ async function build3d(forceGL){
 
  // Static filtered environment avoids the periodic six-pass cube-camera hitch.
 
-  ren.outputColorSpace=THREE.SRGBColorSpace;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=1.02;ren.shadowMap.enabled=!!cfg.hi;ren.shadowMap.type=THREE.PCFShadowMap;ren.shadowMap.autoUpdate=false;ren.shadowMap.needsUpdate=!!cfg.hi;
+  ren.outputColorSpace=THREE.SRGBColorSpace;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=STADIUM_LIGHTING.exposure;ren.shadowMap.enabled=!!cfg.hi;ren.shadowMap.autoUpdate=false;ren.shadowMap.needsUpdate=!!cfg.hi;
 
- scene=new THREE.Scene();scene.background=new THREE.Color(0x5caee5);scene.fog=new THREE.Fog(0x849ec1,78,315);
+ scene=new THREE.Scene();scene.background=new THREE.Color(0x5caee5);scene.fog=new THREE.Fog(STADIUM_LIGHTING.fogColor,STADIUM_LIGHTING.fogNear,STADIUM_LIGHTING.fogFar);
 
  cam=new THREE.PerspectiveCamera(77,innerWidth/innerHeight,.1,700);
 
  await loadingStage(28,'Preparing stadium lighting');
- const sky=await loadStadiumSky();try{envTarget=await ENGINE.environment(ren,sky.lighting)}finally{sky.lighting.dispose()}scene.environment=envTarget.texture;scene.environmentIntensity=.88;scene.background=sky.visible;scene.backgroundIntensity=1;document.body.dataset.arenaLight='stadium-radiance-3';
-
- scene.add(new THREE.HemisphereLight(0xb8dcff,0x526e3d,1.05));
-
- sun=new THREE.DirectionalLight(0xfff0d6,2.5);sun.castShadow=!!cfg.hi;sun.shadow.autoUpdate=false;sun.shadow.needsUpdate=!!cfg.hi;sun.shadow.mapSize.set(2048,2048);const sc=sun.shadow.camera;sc.left=sc.bottom=-76;sc.right=sc.top=76;sc.near=1;sc.far=200;sun.shadow.bias=-.00015;sun.shadow.normalBias=.018;scene.add(sun,sun.target);
-
- const fill=new THREE.DirectionalLight(0x8cbefa,.72);fill.position.set(-35,28,-35);scene.add(fill);
-
- const rim=new THREE.DirectionalLight(0xffb77b,.52);rim.position.set(40,16,-35);scene.add(rim);
-
- [[0x2060ff,-1],[0xff7a20,1]].forEach(([c,s])=>{const l=new THREE.PointLight(c,48,36,2);l.position.set(0,7,s*(HZ-3));l.userData.team=s<0?0:1;l.userData.base=48;goalLights.push(l);scene.add(l);
-
-  if(cfg.hi)for(const x of [-GX,GX]){const lamp=new THREE.PointLight(c,8,12,2);lamp.position.set(x,GH,s*(HZ-.4));lamp.userData.team=s<0?0:1;lamp.userData.base=8;goalLights.push(lamp);scene.add(lamp)}
-
- });
+ const sky=await loadStadiumSky();try{envTarget=await ENGINE.environment(ren,sky.lighting)}finally{sky.lighting.dispose()}scene.environment=envTarget.texture;scene.environmentIntensity=STADIUM_LIGHTING.environment;scene.background=sky.visible;scene.backgroundIntensity=1;document.body.dataset.arenaLight='championship-daylight-4';
+ ({sun,goalLights}=stadiumLightRig(ren,scene,!!cfg.hi));
 
  const side=wallMat('#3cf'),bw=wallMat('#38f'),ow=wallMat('#f93');WM=[side,bw,ow];
 
@@ -11891,7 +11917,7 @@ async function build3d(forceGL){
 
  pipeline=ENGINE.createPipeline(ren,scene,cam,cfg.hi);pipeline.resize(innerWidth,innerHeight,pixelRatio());
 
- const lp=localPlayer();cam.position.copy(cpos);cam.lookAt(lookPos);sun.position.set(42,48,29);sun.target.position.set(0,0,0);
+ const lp=localPlayer();cam.position.copy(cpos);cam.lookAt(lookPos);
 
  await loadingStage(90,'Compiling materials and effects');
  OPENING.visuals.group.visible=OPENING.visuals.airshow.group.visible=BOMB.visuals.ball.visible=BOMB.visuals.effects.visible=true;OPENING.visuals.airshow.jets.forEach(j=>j.visible=true);try{await ENGINE.prewarm(ren,scene,cam,pipeline,cm,pts)}finally{OPENING.visuals.group.visible=true;OPENING.visuals.airshow.group.visible=BOMB.visuals.ball.visible=BOMB.visuals.effects.visible=false;OPENING.visuals.airshow.jets.forEach(j=>j.visible=false)}
@@ -12999,7 +13025,7 @@ if(window.__TEVIN_SERVER__){
 }
 
 if(window.__TEVIN_TEST__){
- window.tevinTest={AIRSHOW,airshowImpactMotion,airshowJetPose,airshowTrailGeometry,writeAirshowTrail,radianceLinear,stadiumRadiancePixels,JET,jetSpecification,jetMeshGeometry,jetFlybyPose,clearFlyby,wallCageBandGeometry,BOMB,bombEligible,rollBombDrop,resetBombDrop,armBombDrop,bombBlastSample,bombCarBlast,detonateOpeningBomb,tickBombDrop,createBombVisuals,OPENING,MATCH_FADE,KICKOFF_JOLT,openingEligible,resetMatchPresentation,beginOpening,finishOpening,openingDeliveryPose,createOpeningVisuals,goalFieldCameraPose,kickoffLabel,kickoffJoltOffset,startKickoffJolt,goalFadeSample,updateGoalTransition,renderQuickChat,receiveQuickChat,sendQuickChat,boostBaseGeometry,boostLensGeometry,boostCurtainGeometry,createBoostPickupSet,tickBoostPickupSet,boostPickupBurst,BOOST_PICKUPS,wallCameraPose,wallBallTarget,exteriorApronGeometry,VIEW,constrainArenaCamera,carBlocksBall,prepareCameraFade,setCameraCarOpacity,resetViewFade,planGoalReplay,replayDirectorState,positionReplayCamera,captureReplayFrame,stadiumRibbonGeometry,dedClockSample,dedRenderTime,dedResetClock,applyMultiplayer,handleRemoteMatch,PRESENTATION_TIMING,DEVICE,touchInput,updateDeviceUI,updateDeviceProfile,setDeviceInput,clearTouchInput,deviceCanPlay,touchStickStart,touchStickMove,touchRelease,touchActionStart,deviceSecretHoldStart,deviceSecretHoldMove,validPaint,driverPaint,paintHex,setCustomPaint,updateScorePaint,CELEBRATION,triggerCelebration,updateCelebrations,clearCelebration,celebrationEnvelope,celebrationAccent,turfGeometry,engine:ENGINE,SECRET,SECRET_ABILITIES,secretKey,secretOpen,secretClose,secretApply,secretSnapshot,readSecretState,secretReset,secretBallStep,secretCarStep,planBot,bot,possessionPlan,arenaBotTarget,preparePaint,replayPlaybackTime,positionDriverTag,cinemaEase,cinemaMotion,syncCinema,msg,DED,dedState,dedFrame,packDriver,pixelRatio,setupGauges,updateGauge,SHOWROOM,resetShowroom,THREE,cfg,cars,ball,PADS,PHYS,BODY_PHYSICS,DT,SIM_DT,PROTOCOL,keys,bindings,padInput,cameraSettings,MP,
+ window.tevinTest={STADIUM_LIGHTING,stadiumLightRig,goalFrameHaloGeometry,AIRSHOW,airshowImpactMotion,airshowJetPose,airshowTrailGeometry,writeAirshowTrail,radianceLinear,stadiumRadiancePixels,JET,jetSpecification,jetMeshGeometry,jetFlybyPose,clearFlyby,wallCageBandGeometry,BOMB,bombEligible,rollBombDrop,resetBombDrop,armBombDrop,bombBlastSample,bombCarBlast,detonateOpeningBomb,tickBombDrop,createBombVisuals,OPENING,MATCH_FADE,KICKOFF_JOLT,openingEligible,resetMatchPresentation,beginOpening,finishOpening,openingDeliveryPose,createOpeningVisuals,goalFieldCameraPose,kickoffLabel,kickoffJoltOffset,startKickoffJolt,goalFadeSample,updateGoalTransition,renderQuickChat,receiveQuickChat,sendQuickChat,boostBaseGeometry,boostLensGeometry,boostCurtainGeometry,createBoostPickupSet,tickBoostPickupSet,boostPickupBurst,BOOST_PICKUPS,wallCameraPose,wallBallTarget,exteriorApronGeometry,VIEW,constrainArenaCamera,carBlocksBall,prepareCameraFade,setCameraCarOpacity,resetViewFade,planGoalReplay,replayDirectorState,positionReplayCamera,captureReplayFrame,stadiumRibbonGeometry,dedClockSample,dedRenderTime,dedResetClock,applyMultiplayer,handleRemoteMatch,PRESENTATION_TIMING,DEVICE,touchInput,updateDeviceUI,updateDeviceProfile,setDeviceInput,clearTouchInput,deviceCanPlay,touchStickStart,touchStickMove,touchRelease,touchActionStart,deviceSecretHoldStart,deviceSecretHoldMove,validPaint,driverPaint,paintHex,setCustomPaint,updateScorePaint,CELEBRATION,triggerCelebration,updateCelebrations,clearCelebration,celebrationEnvelope,celebrationAccent,turfGeometry,engine:ENGINE,SECRET,SECRET_ABILITIES,secretKey,secretOpen,secretClose,secretApply,secretSnapshot,readSecretState,secretReset,secretBallStep,secretCarStep,planBot,bot,possessionPlan,arenaBotTarget,preparePaint,replayPlaybackTime,positionDriverTag,cinemaEase,cinemaMotion,syncCinema,msg,DED,dedState,dedFrame,packDriver,pixelRatio,setupGauges,updateGauge,SHOWROOM,resetShowroom,THREE,cfg,cars,ball,PADS,PHYS,BODY_PHYSICS,DT,SIM_DT,PROTOCOL,keys,bindings,padInput,cameraSettings,MP,
   RIVALS,RIVAL_PREF,CAREER,DRILL,DRILLS,SERIES,heat,trainingSetup,trainingTick,finishDrill,readHeatState,predictLocalBall,cameraBallTarget,rivalsStart,rivalsFinish,rivalsTick,replayRecord,rivalsGoal,stopReplay,garagePreset,seriesStart,seriesFinish,mpSnapshot,renderCareer,rivalsTouch,endMatch,
   cameraAnchor:()=>cameraAnchorReady,setCameraAnchor:value=>cameraAnchorReady=value,
   throttleAcceleration,steeringCurvature,padContains,bodyPhysics,resetCar,stepCar,carBall,ballSub,stepBall,carCar,padStep,sim,frame,configureCars,spawnCar,surf,carPenetration,predictBall,finishRegulation,advanceMatchClock,validSnapshot,packetValid,queuePlan,human,pollController,mappedKey,captureBinding,setupDriverSettings,renderBindings,fitCarVisual,rendererWithFallback,spectrumEnergy,advanceMusicEnvelope,INTRO,LOADING,introPlay,openPlaySelection,loadingBegin,loadingEnd,
@@ -13014,7 +13040,7 @@ setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();se
 
 window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:120,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,multiplayer:DED.active?'Phoenix dedicated':'offline',rtt:DED.rtt,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
 
-window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.9.5 · AIRSHOW KICKOFF · Ready to play');
+window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.9.6 · CHAMPIONSHIP LIGHTING · Ready to play');
 
 
 } catch(error) { window.tevinBoot.error=String(error.message||error);window.tevinBoot.show("Startup failed at "+window.tevinBoot.stage+": "+window.tevinBoot.error);console.error(error); }

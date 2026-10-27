@@ -27,9 +27,9 @@ function arenaSky(reflection=false){
 function arenaPitchMaterial(){
  // Retain the existing normal map and field UVs, replacing only the painted surface.
  const m=ENGINE.pitchMaterial(ren,teamPalette),c=m.map.image,g=c.getContext('2d'),w=c.width,h=c.height;
- g.fillStyle='#285d35';g.fillRect(0,0,w,h);
+ g.fillStyle='#2a4c1b';g.fillRect(0,0,w,h);
  // Alternating mowing directions form broad checker panels like a sports pitch.
- for(let y=0;y<12;y++)for(let x=0;x<8;x++){g.fillStyle=(x+y)%2?'#326b3e':'#285d35';g.fillRect(x*w/8,y*h/12,w/8+1,h/12+1);}
+ for(let y=0;y<12;y++)for(let x=0;x<8;x++){g.fillStyle=(x+y)%2?'#3a6026':'#2a4c1b';g.fillRect(x*w/8,y*h/12,w/8+1,h/12+1);}
  // Deterministic fine grain is baked once; no noise shader or per-frame canvas work.
  let seed=4271;const rand=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
  for(let i=0;i<110000;i++){g.strokeStyle=i%2?'rgba(184,211,124,.15)':'rgba(7,30,21,.17)';const x=rand()*w,y=rand()*h;g.beginPath();g.moveTo(x,y);g.lineTo(x+(rand()-.5)*2,y+1+rand()*3);g.stroke();}
@@ -48,7 +48,10 @@ function arenaPitchMaterial(){
  g.beginPath();g.moveTo(-37,0);g.lineTo(37,0);g.stroke();g.beginPath();g.arc(0,0,10,0,Math.PI*2);g.stroke();
  for(const s of [-1,1]){g.strokeRect(-18,s<0?-47:31,36,16);g.strokeRect(-9,s<0?-47:40,18,7)}
  g.fillStyle='#d9f6e5';g.beginPath();g.arc(0,0,.23,0,Math.PI*2);g.fill();
- g.font='italic 900 2px sans-serif';g.textAlign='center';g.fillStyle='rgba(223,250,239,.24)';g.fillText('T E V I N',0,4);g.restore();
+ g.font='italic 900 2px sans-serif';g.textAlign='center';g.fillStyle='rgba(223,250,239,.24)';g.fillText('T E V I N',0,4);
+ // Broad soft canopy shade gives the pitch sun/shade separation in either preset.
+ // It is baked once, rather than making every roof rib cast a moving shadow.
+ const canopy=g.createLinearGradient(-37,0,-9,0);canopy.addColorStop(0,'rgba(4,19,9,.27)');canopy.addColorStop(.6,'rgba(4,19,9,.18)');canopy.addColorStop(1,'rgba(4,19,9,0)');g.fillStyle=canopy;g.beginPath();g.moveTo(-37,-47);g.lineTo(-24,-47);g.lineTo(-10,47);g.lineTo(-37,47);g.closePath();g.fill();g.restore();
  // A soft baked roof shadow grounds the perimeter without another shadow pass.
  const shade=g.createRadialGradient(w/2,h/2,w*.3,w/2,h/2,w*.68);shade.addColorStop(0,'rgba(5,24,17,0)');shade.addColorStop(1,'rgba(5,24,17,.28)');g.fillStyle=shade;g.fillRect(0,0,w,h);
  PITCH_TEXTURE=m.map;m.map.needsUpdate=true;m.roughness=.96;m.aoMap=pitchOcclusionTexture();m.aoMapIntensity=.65;if(m.normalScale)m.normalScale.set(.55,.55);return m;
@@ -58,15 +61,18 @@ function arenaPanelMaterial(color=0x536579){
  const c=cvs(512,512),g=c.getContext('2d');g.fillStyle='#8995a0';g.fillRect(0,0,512,512);
  for(let y=0;y<560;y+=32)for(let x=-32;x<560;x+=55){const cx=x+(y%64?27.5:0);g.beginPath();for(let k=0;k<6;k++){const a=k*Math.PI/3;g[k?'lineTo':'moveTo'](cx+Math.cos(a)*31,y+Math.sin(a)*31)}g.closePath();g.fillStyle=(x+y)%3?'#7e8c98':'#8b97a2';g.fill();g.strokeStyle='#465664';g.lineWidth=2;g.stroke();}
  g.strokeStyle='#c2cbd0';g.lineWidth=3;g.strokeRect(5,5,502,502);for(const x of [16,496])for(const y of [16,496]){g.fillStyle='#2b3d4c';g.beginPath();g.arc(x,y,4,0,7);g.fill();}
- return new THREE.MeshStandardMaterial({color,map:tex(c),normalMap:arenaSurfaceNormal(c),normalScale:new THREE.Vector2(.6,.6),roughness:.86,metalness:.12,envMapIntensity:.45});
+ return new THREE.MeshStandardMaterial({color,map:tex(c),normalMap:arenaSurfaceNormal(c),normalScale:new THREE.Vector2(.6,.6),roughness:.9,metalness:.1,envMapIntensity:.3});
 }
 function decorateArenaGoals(){
- const structure=arenaPanelMaterial(0x718799),backing=arenaPanelMaterial(0x3c5362);
- const group=new THREE.Group();group.name='Championship goal surrounds';
+ const structure=arenaPanelMaterial(0x718799),backing=arenaPanelMaterial(0xa4afb3);backing.emissive.setHex(0x16212a);backing.emissiveIntensity=.18;
+ const group=new THREE.Group();group.name='Championship goal surrounds';const haloGeometry=goalFrameHaloGeometry(),haloMap=glowTex();
  const box=(x,y,z,w,h,d,mat)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);group.add(m);return m;};
  for(const sign of [-1,1]){
   const color=teamPalette[sign<0?0:1],strip=new THREE.MeshStandardMaterial({color,emissive:color,emissiveIntensity:.65,roughness:.7,metalness:.03});strip.userData.team=sign<0?0:1;
   const z=sign*(HZ+.1);
+  // Source glow is kept local to the lamps; no whole-screen bloom in Chromebook mode.
+  const haloMaterial=new THREE.MeshBasicMaterial({map:haloMap,color,transparent:true,opacity:.18,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide,toneMapped:false});haloMaterial.userData.team=sign<0?0:1;
+  const halo=new THREE.Mesh(haloGeometry,haloMaterial);halo.position.z=sign*(HZ-.62);halo.name='Soft team-colored goal lighting';group.add(halo);
   // The full collision opening stays clear; every new surround sits outside it.
   for(const side of [-1,1]){
    box(side*(GX+.62),GH/2+.2,z,1.05,GH+1.25,1.05,structure);
@@ -98,8 +104,8 @@ function styleChampionshipStadium(stadium){
    o.instanceColor.needsUpdate=true;
    if(!RIVALS.crowd)RIVALS.crowd={mesh:o,y:Array.from({length:o.count},(_,i)=>o.instanceMatrix.array[i*16+13])};
   }else if(o.material?.isMeshStandardMaterial&&o.material.userData.team===undefined){
-   // Neutral blue-gray structure keeps saturated team colors distinct.
-   o.material.color.lerp(new THREE.Color(0x53687b),.16);
+   // Neutral structure separates the colored lamps from the pitch and paint.
+   o.material.color.lerp(new THREE.Color(0x626461),.16);
   }
  });
  for(const geometry of oldGeometry)geometry.dispose();
