@@ -1,5 +1,5 @@
 // Match presentation owns camera/mesh poses only. Online kickoff and ball authority stay on the server.
-const OPENING={pending:false,active:false,completed:false,elapsed:0,duration:5.5,impact:2.5,roofY:30.5,target:new V3(),visuals:null};
+const OPENING={pending:false,active:false,completed:false,elapsed:0,duration:5,impact:2.25,roofY:30.5,target:new V3(),visuals:null};
 const MATCH_FADE={element:null,active:false,previous:'MENU',out:0,opacity:0};
 const KICKOFF_JOLT={age:99,key:''};
 const openingPosition=new V3(),openingAim=new V3(),openingDesired=new V3(),openingSpin=new V3(.15,1,.25).normalize();
@@ -7,7 +7,7 @@ function openingEligible(){return !window.__TEVIN_SERVER__&&!MP.active&&!sandbox
 function resetMatchPresentation(arm=false){
  resetBombDrop(arm);clearFlyby();
  OPENING.pending=arm&&openingEligible();OPENING.active=OPENING.completed=false;OPENING.elapsed=0;KICKOFF_JOLT.age=99;KICKOFF_JOLT.key='';MATCH_FADE.active=false;MATCH_FADE.out=MATCH_FADE.opacity=0;MATCH_FADE.previous='MENU';
- if(MATCH_FADE.element)MATCH_FADE.element.style.opacity=0;if(OPENING.visuals){OPENING.visuals.drone.visible=OPENING.visuals.jet.visible=false;for(const d of OPENING.visuals.doors)d.position.x=d.userData.sign*1.61;}document.body.classList.remove('opening-cinematic');if($('opening-caption'))$('opening-caption').hidden=true;
+ if(MATCH_FADE.element)MATCH_FADE.element.style.opacity=0;if(OPENING.visuals){OPENING.visuals.airshow.group.visible=false;for(const d of OPENING.visuals.doors)d.position.x=d.userData.sign*1.61;}document.body.classList.remove('opening-cinematic');if($('opening-caption'))$('opening-caption').hidden=true;
 }
 function beginOpening(){
  const begin=OPENING.pending&&openingEligible();OPENING.pending=false;OPENING.active=begin;OPENING.elapsed=0;armBombDrop();if(!begin)return false;
@@ -15,21 +15,20 @@ function beginOpening(){
 }
 function finishOpening(){
  if(!OPENING.active)return false;OPENING.active=false;OPENING.completed=true;if(!MP.active&&!window.__TEVIN_SERVER__){ball.p.copy(OPENING.target);ball.prevP.copy(ball.p);ball.frameP.copy(ball.p);ball.v.set(0,0,0);ball.w.set(0,0,0);if(bm)bm.quaternion.identity();}
- if(OPENING.visuals){OPENING.visuals.drone.visible=OPENING.visuals.jet.visible=false;for(const door of OPENING.visuals.doors)door.position.x=door.userData.sign*1.61;}clearFlyby();document.body.classList.remove('opening-cinematic');if($('opening-caption'))$('opening-caption').hidden=true;cameraAnchorReady=false;return true;
+ if(OPENING.visuals){OPENING.visuals.airshow.group.visible=false;for(const door of OPENING.visuals.doors)door.position.x=door.userData.sign*1.61;}clearFlyby();document.body.classList.remove('opening-cinematic');if($('opening-caption'))$('opening-caption').hidden=true;cameraAnchorReady=false;return true;
 }
 function openingDeliveryPose(elapsed){
- const t=cl(elapsed,0,OPENING.duration),ease=cinemaEase,high=OPENING.roofY+4,approach=ease(t/.65),depart=ease((t-.78)/1.25),droneY=high+1.45+(1-approach)*16.55+depart*18;let height;
- if(t<.75)height=high+(1-approach)*16.55;
- else if(t<2.5){const u=(t-.75)/1.75;height=BR+(high-BR)*(1-u*u);}
- else if(t<3.1){const u=(t-2.5)/.6;height=BR+.7*4*u*(1-u);}
- else if(t<3.55){const u=(t-3.1)/.45;height=BR+.17*4*u*(1-u);}
- else if(t<4.2){const u=(t-3.55)/.65;height=BR+.05*Math.pow(1-u,3)*(1-Math.cos(u*Math.PI*4))*.5;}
+ const t=cl(elapsed,0,OPENING.duration),ease=cinemaEase,high=54.5;let height;
+ if(t<OPENING.impact){const u=t/OPENING.impact;height=BR+(high-BR)*(1-u*u);}
+ else if(t<3.35){const u=(t-OPENING.impact)/(3.35-OPENING.impact);height=BR+2.05*4*u*(1-u);}
+ else if(t<4.12){const u=(t-3.35)/.77;height=BR+.56*4*u*(1-u);}
+ else if(t<OPENING.duration){const u=(t-4.12)/(OPENING.duration-4.12);height=BR+.14*Math.pow(1-u,3)*Math.pow(Math.sin(u*Math.PI*1.5),2);}
  else height=BR;
- const open=ease(t/.55)*(1-ease((t-1.6)/.55)),handoff=ease((t-2.7)/1.9),spin=(t<2.5?t:2.5+(t-2.5)*1.1)*(1-ease((t-3.55)/.65));
- return{height,open,handoff,spin,droneY,droneX:depart*10,droneZ:depart*12,grip:1-ease((t-.62)/.13),phase:t<.75?'SPECIAL DELIVERY':t<2.5?'BALL RELEASE':t<4.2?'CENTERING THE BALL':'READY FOR KICKOFF'};
+ const open=ease((t-.15)/.65)*(1-ease((t-1.85)/.55)),handoff=ease((t-2.05)/2.35),spin=t*(1-ease((t-OPENING.impact)/(OPENING.duration-OPENING.impact)));
+ return{height,open,handoff,spin,phase:t<1.3?'EYES TO THE SKY':t<2.25?'AIRSHOW / SPLIT':t<4.12?'BALL INBOUND':'READY FOR KICKOFF'};
 }
 function createOpeningVisuals(){
- const group=new THREE.Group();group.name='Fixed stadium roof and aerial delivery';const steel=new THREE.MeshStandardMaterial({color:0x263c4c,metalness:.35,roughness:.64}),edge=new THREE.MeshStandardMaterial({color:0x7f98a6,roughness:.55,metalness:.25}),light=new THREE.MeshBasicMaterial({color:0x79c5dc,toneMapped:false}),glass=new THREE.MeshStandardMaterial({color:0x91c4d3,transparent:true,opacity:.22,depthWrite:false,side:THREE.DoubleSide,roughness:.25,metalness:.05,envMapIntensity:.45}),etch=new THREE.MeshBasicMaterial({color:0xd8f1f5,transparent:true,opacity:.16,depthWrite:false,side:THREE.DoubleSide});
+ const group=new THREE.Group();group.name='Fixed stadium roof and independent ball drop';const steel=new THREE.MeshStandardMaterial({color:0x263c4c,metalness:.35,roughness:.64}),edge=new THREE.MeshStandardMaterial({color:0x7f98a6,roughness:.55,metalness:.25}),light=new THREE.MeshBasicMaterial({color:0x79c5dc,toneMapped:false}),glass=new THREE.MeshStandardMaterial({color:0x91c4d3,transparent:true,opacity:.22,depthWrite:false,side:THREE.DoubleSide,roughness:.25,metalness:.05,envMapIntensity:.65}),etch=new THREE.MeshBasicMaterial({color:0xd8f1f5,transparent:true,opacity:.16,depthWrite:false,side:THREE.DoubleSide});
  const box=(parent,x,y,z,w,h,d,material)=>{const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);mesh.position.set(x,y,z);parent.add(mesh);return mesh;};
  const roof=new THREE.Group();roof.position.y=OPENING.roofY;roof.name='Roof at the grandstand roofline';group.add(roof);const shape=new THREE.Shape();shape.moveTo(-47,-64);shape.lineTo(47,-64);shape.lineTo(47,64);shape.lineTo(-47,64);shape.closePath();
  for(const z of [-24,0,24]){const hole=new THREE.Path();hole.moveTo(-3.22,z-3.22);hole.lineTo(-3.22,z+3.22);hole.lineTo(3.22,z+3.22);hole.lineTo(3.22,z-3.22);hole.closePath();shape.holes.push(hole);}
@@ -44,25 +43,22 @@ function createOpeningVisuals(){
    for(const z of [-2.6,2.6])box(door,0,-.028,z,2.8,.004,.04,etch);box(door,-sign*1.2,-.028,0,.025,.004,4.8,etch);batchMeshes(door);hatch.add(door);doors.push(door);
   }batchMeshes(hatch);
  }batchMeshes(roof);
- const drone=new THREE.Group();drone.name='Delivery drone above the roof';group.add(drone);box(drone,0,0,0,1.6,.3,1.2,steel);box(drone,0,.2,0,.9,.12,.65,edge);box(drone,0,-.2,.62,.7,.08,.06,light);const rotors=[],grips=[];
- for(const x of [-1.5,1.5])for(const z of [-1.3,1.3]){const arm=box(drone,x*.5,0,z*.5,2,.1,.1,edge);arm.rotation.y=-Math.atan2(z,x);const ring=new THREE.Mesh(new THREE.TorusGeometry(.6,.04,5,24).rotateX(-Math.PI/2),steel);ring.position.set(x,.1,z);drone.add(ring);const rotor=new THREE.Group();rotor.position.set(x,.13,z);box(rotor,0,0,0,1.04,.02,.05,edge);drone.add(rotor);rotors.push(rotor);}
- for(const sign of [-1,1]){const grip=new THREE.Group();grip.userData.sign=sign;box(grip,0,-.62,0,.08,1,.13,edge);box(grip,-sign*.18,-1.13,0,.42,.08,.24,steel);drone.add(grip);grips.push(grip);}
- batchMeshes(drone);const jet=createJetVisual();group.add(jet);drone.visible=jet.visible=false;group.traverse(o=>{o.castShadow=false;o.receiveShadow=false;});return{group,roof,hatches,doors,panes,drone,rotors,grips,jet};
+ const airshow=createAirshowVisuals();group.add(airshow.group);group.traverse(o=>{o.castShadow=false;o.receiveShadow=false;});return{group,roof,hatches,doors,panes,airshow};
 }
 function updateOpeningVisuals(){
- const v=OPENING.visuals;if(!OPENING.active||st!=='COUNT'){if(v){v.group.visible=true;v.drone.visible=v.jet.visible=false;}return null;}OPENING.elapsed=cl(OPENING.duration-cnt,0,OPENING.duration);const pose=openingDeliveryPose(OPENING.elapsed);
- if(v){const activeZ=Math.round(OPENING.target.z/24)*24;for(const door of v.doors)door.position.x=door.userData.sign*(1.61+(door.userData.centerZ===activeZ?pose.open*3.45:0));v.drone.visible=OPENING.elapsed<2.1;v.drone.position.set(pose.droneX,pose.droneY,OPENING.target.z+pose.droneZ);for(const rotor of v.rotors)rotor.rotation.y=OPENING.elapsed*65;for(const grip of v.grips)grip.position.x=grip.userData.sign*(.94+(1-pose.grip)*.6);updateJetFlyby(v,OPENING.elapsed);}
+ const v=OPENING.visuals;if(!OPENING.active||st!=='COUNT'){if(v){v.group.visible=true;v.airshow.group.visible=false;}clearFlyby();return null;}OPENING.elapsed=cl(OPENING.duration-cnt,0,OPENING.duration);const pose=openingDeliveryPose(OPENING.elapsed);
+ if(v){const activeZ=Math.round(OPENING.target.z/24)*24;for(const door of v.doors)door.position.x=door.userData.sign*(1.61+(door.userData.centerZ===activeZ?pose.open*3.45:0));}
  bm.position.copy(OPENING.target);bm.position.y=pose.height;bm.quaternion.setFromAxisAngle(openingSpin,pose.spin);
  const label=$('opening-stage');if(label&&label.textContent!==pose.phase)label.textContent=pose.phase;if($('opening-progress'))$('opening-progress').style.setProperty('--progress',OPENING.elapsed/OPENING.duration);return pose;
 }
 function positionOpeningCamera(){
  if(!OPENING.active||st!=='COUNT')return;const p=openingDeliveryPose(OPENING.elapsed),target=OPENING.target;
- openingDesired.set(target.x+12,11,target.z-20).lerp(cam.position,p.handoff);openingAim.copy(bm.position);openingAim.y+=.25;openingAim.lerp(lookPos,p.handoff);constrainArenaCamera(target,openingDesired,cam.position);cam.lookAt(openingAim);const fly=jetFlybyPose(OPENING.elapsed,cinemaMotion());cam.position.x+=fly.shakeX;cam.position.y+=fly.shakeY;cam.fov=62+(cam.fov-62)*p.handoff;cam.updateProjectionMatrix();
+ openingDesired.set(target.x,9,target.z+(target.z< -10?40:-40)).lerp(cam.position,p.handoff);openingAim.copy(bm.position);openingAim.y=Math.max(openingAim.y+.25,35*(1-cinemaEase((OPENING.elapsed-1.5)/.9)));openingAim.lerp(lookPos,p.handoff);constrainArenaCamera(target,openingDesired,cam.position);cam.lookAt(openingAim);const fly=jetFlybyPose(OPENING.elapsed,airshowImpactMotion());cam.position.x+=fly.shakeX;cam.position.y+=fly.shakeY;const wide=cl(2*Math.atan(Math.tan(56*Math.PI/180)/cam.aspect)*180/Math.PI,65,116);cam.fov=wide+(cam.fov-wide)*p.handoff;cam.updateProjectionMatrix();if(OPENING.visuals)updateJetFlyby(OPENING.visuals,OPENING.elapsed);
 }
 function goalFieldCameraPose(team,age,out,target){
  const attack=team===0?1:-1,u=cinemaEase(age/.65);out.set(10+u*1.4,5.3+u*.5,attack*(HZ-12-u*1.4));target.set(0,2.1,attack*(HZ-.5));
 }
-function kickoffLabel(count){return count>3?'READY':Math.max(1,Math.ceil(count));}
+function kickoffLabel(count){return OPENING.active?Math.max(1,Math.ceil(count)):count>3?'READY':Math.max(1,Math.ceil(count));}
 function startKickoffJolt(){if(window.__TEVIN_SERVER__)return;const key=MP.round+':'+score.join(':');if(key===KICKOFF_JOLT.key)return;KICKOFF_JOLT.key=key;KICKOFF_JOLT.age=0;}
 function kickoffJoltOffset(age,out){const power=age>=0&&age<.42?Math.pow(1-age/.42,2):0;return out.set(Math.sin(age*83)*.033*power,Math.sin(age*107)*.022*power,0);}
 function applyMatchCamera(dt){

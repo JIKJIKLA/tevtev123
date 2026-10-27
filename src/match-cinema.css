@@ -23,6 +23,7 @@ body.opening-cinematic::before,body.opening-cinematic::after{transform:translate
 body.jet-impact :is(#hud,#opening-caption,#msg,#quick-chat){translate:var(--jet-x,0px) var(--jet-y,0px);will-change:translate}
 body.opening-cinematic :is(#quick-chat,#chat-log,#camtag,#bo,#spd,#rival-title,#matchtag,#driver-markers){display:none!important}
 body.opening-cinematic #touch-controls :is(#touch-stick,#touch-boost,#touch-jump,#touch-slide,#touch-air,#touch-landscape-hint){opacity:0;pointer-events:none}
+body.opening-cinematic #msg{font-size:cl(48px,8vw,96px);font-weight:500;letter-spacing:.06em;color:#f4fbff!important;text-shadow:0 2px 16px #06182fcc;top:22%;}
 body.cinema-replay :is(#goal-detail,#quick-chat,#chat-log,#camtag,#bo,#spd,#matchtag,#rival-title){display:none!important}
 body.bomb-prank :is(#hud,#msg,#touch-controls,#training-hud,#driver-markers,#secret-notice,#secret-restore){visibility:hidden!important;pointer-events:none!important}
 body.bomb-prank::before,body.bomb-prank::after{transform:translateY(0)}

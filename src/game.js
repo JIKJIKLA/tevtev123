@@ -2,11 +2,12 @@
 try {
 
 
-/* Tevin League 9.9.4 — Skyline flyby. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
+/* Tevin League 9.9.5 — Airshow kickoff. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
 window.tevinBoot.stage='game script';
 
 const ENGINE=TevinEngine;
 // INLINE:renderer.js
+// INLINE:radiance.js
 
 const SIM_DT=1/120; // outer simulation tick; preserve DT=1/120 solver calibration
 
@@ -1641,7 +1642,7 @@ function setupMenu(){
  $('private-create').onclick=()=>choosePrivateAction('create');$('private-join').onclick=()=>choosePrivateAction('join');$('party-create-tab').onclick=()=>choosePartyAction('create');$('party-join-tab').onclick=()=>choosePartyAction('join');$('quick-manage-party').onclick=()=>showMenuScreen('party');$('party-private-link').onclick=()=>{chooseRoute('online');showMenuScreen('play')};
  for(const name of ['quick','offline','online','training'])$('choose-'+name).onclick=()=>chooseRoute(name);
  BODY_NAMES.forEach((name,i)=>{const b=document.createElement('button');b.textContent=name.toUpperCase();b.setAttribute('aria-pressed',String(cfg.body===i));b.onclick=()=>{cfg.body=i;P1.body=i;for(const [j,button] of Array.from($('body-options').children).entries())button.setAttribute('aria-pressed',String(i===j));savePresentation();updateMatchSummary();previewGarage()};$('body-options').appendChild(b)});
- $('performance-mode').checked=!cfg.hi;$('performance-mode').onchange=()=>{cfg.hi=$('performance-mode').checked?0:1;cfg.models=1;try{localStorage.setItem("tevin.graphics.v9",cfg.hi?"detail":"chromebook")}catch(_){}savePresentation();$('quality-description').textContent=cfg.hi?'DETAIL · Richer shadows and turf. Best on faster devices.':'CHROMEBOOK · Detailed cars, lighter turf and crisp native resolution. Built for smooth play.';$('garage-performance').hidden=true;updateMatchSummary()};$('performance-mode').onchange();
+ $('performance-mode').checked=!cfg.hi;$('performance-mode').onchange=()=>{cfg.hi=$('performance-mode').checked?0:1;cfg.models=1;try{localStorage.setItem("tevin.graphics.v9",cfg.hi?"detail":"chromebook")}catch(_){}savePresentation();$('quality-description').textContent=cfg.hi?'DETAIL · Stadium reflections, soft shadows, ambient occlusion and bloom. Best on faster devices.':'CHROMEBOOK · Stadium reflections, matte paint and crisp native resolution. Lighter turf for smooth play.';$('garage-performance').hidden=true;updateMatchSummary()};$('performance-mode').onchange();
  $('paint-name').textContent=paintName(cfg);chooseRoute('offline');showMenuScreen('home');
 }
 function createCarVisual(c){const visual=cfg.models?ENGINE.importedCar(ren,BODY_IDS[c.body||0],c.color,assetTextures):carMesh2('#'+c.color.toString(16).padStart(6,'0'),'#d9efff');const m=fitCarVisual(visual,c);m.userData.body=c.body||0;m.userData.simple=!cfg.models;preparePaint(m,c.color);m.traverse(o=>{o.castShadow=!!o.isMesh&&!o.material.transparent});prepareCameraFade(m);return m}
@@ -2124,20 +2125,20 @@ async function build3d(forceGL){
 
   ren.outputColorSpace=THREE.SRGBColorSpace;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=1.02;ren.shadowMap.enabled=!!cfg.hi;ren.shadowMap.type=THREE.PCFShadowMap;ren.shadowMap.autoUpdate=false;ren.shadowMap.needsUpdate=!!cfg.hi;
 
- scene=new THREE.Scene();scene.background=new THREE.Color(0x5caee5);scene.fog=new THREE.Fog(0x879ac0,70,310);
+ scene=new THREE.Scene();scene.background=new THREE.Color(0x5caee5);scene.fog=new THREE.Fog(0x849ec1,78,315);
 
  cam=new THREE.PerspectiveCamera(77,innerWidth/innerHeight,.1,700);
 
  await loadingStage(28,'Preparing stadium lighting');
- const sky=await loadStadiumSky();envTarget=await ENGINE.environment(ren,sky.lighting);scene.environment=envTarget.texture;scene.environmentIntensity=.82;sky.lighting.dispose();scene.background=sky.visible;scene.backgroundIntensity=1;document.body.dataset.arenaLight='daylight-2';
+ const sky=await loadStadiumSky();try{envTarget=await ENGINE.environment(ren,sky.lighting)}finally{sky.lighting.dispose()}scene.environment=envTarget.texture;scene.environmentIntensity=.88;scene.background=sky.visible;scene.backgroundIntensity=1;document.body.dataset.arenaLight='stadium-radiance-3';
 
- scene.add(new THREE.HemisphereLight(0xc7e5ff,0x526e3d,1.2));
+ scene.add(new THREE.HemisphereLight(0xb8dcff,0x526e3d,1.05));
 
  sun=new THREE.DirectionalLight(0xfff0d6,2.5);sun.castShadow=!!cfg.hi;sun.shadow.autoUpdate=false;sun.shadow.needsUpdate=!!cfg.hi;sun.shadow.mapSize.set(2048,2048);const sc=sun.shadow.camera;sc.left=sc.bottom=-76;sc.right=sc.top=76;sc.near=1;sc.far=200;sun.shadow.bias=-.00015;sun.shadow.normalBias=.018;scene.add(sun,sun.target);
 
- const fill=new THREE.DirectionalLight(0x8cbefa,.68);fill.position.set(-35,28,-35);scene.add(fill);
+ const fill=new THREE.DirectionalLight(0x8cbefa,.72);fill.position.set(-35,28,-35);scene.add(fill);
 
- const rim=new THREE.DirectionalLight(0xffbe86,.42);rim.position.set(40,16,-35);scene.add(rim);
+ const rim=new THREE.DirectionalLight(0xffb77b,.52);rim.position.set(40,16,-35);scene.add(rim);
 
  [[0x2060ff,-1],[0xff7a20,1]].forEach(([c,s])=>{const l=new THREE.PointLight(c,48,36,2);l.position.set(0,7,s*(HZ-3));l.userData.team=s<0?0:1;l.userData.base=48;goalLights.push(l);scene.add(l);
 
@@ -2212,7 +2213,7 @@ async function build3d(forceGL){
 
  const sp=cvs(64,64),sg=sp.getContext('2d'),rg=sg.createRadialGradient(32,32,0,32,32,32);rg.addColorStop(0,'#fff');rg.addColorStop(.3,'rgba(255,255,255,.5)');rg.addColorStop(1,'rgba(255,255,255,0)');sg.fillStyle=rg;sg.fillRect(0,0,64,64);
 
-  await loadingStage(63,'Preparing the F-22 flyby');await loadJetAssets();buildBoostPickups();OPENING.visuals=createOpeningVisuals();scene.add(OPENING.visuals.group);buildBombDrop();
+  await loadingStage(63,'Preparing the three-jet airshow');await loadJetAssets();buildBoostPickups();OPENING.visuals=createOpeningVisuals();scene.add(OPENING.visuals.group);buildBombDrop();
 
   await createGraphicsEffects();createCelebrationEffects();
 
@@ -2239,7 +2240,7 @@ async function build3d(forceGL){
  const lp=localPlayer();cam.position.copy(cpos);cam.lookAt(lookPos);sun.position.set(42,48,29);sun.target.position.set(0,0,0);
 
  await loadingStage(90,'Compiling materials and effects');
- OPENING.visuals.group.visible=OPENING.visuals.drone.visible=OPENING.visuals.jet.visible=BOMB.visuals.ball.visible=BOMB.visuals.effects.visible=true;try{await ENGINE.prewarm(ren,scene,cam,pipeline,cm,pts)}finally{OPENING.visuals.group.visible=true;OPENING.visuals.drone.visible=OPENING.visuals.jet.visible=BOMB.visuals.ball.visible=BOMB.visuals.effects.visible=false}
+ OPENING.visuals.group.visible=OPENING.visuals.airshow.group.visible=BOMB.visuals.ball.visible=BOMB.visuals.effects.visible=true;OPENING.visuals.airshow.jets.forEach(j=>j.visible=true);try{await ENGINE.prewarm(ren,scene,cam,pipeline,cm,pts)}finally{OPENING.visuals.group.visible=true;OPENING.visuals.airshow.group.visible=BOMB.visuals.ball.visible=BOMB.visuals.effects.visible=false;OPENING.visuals.airshow.jets.forEach(j=>j.visible=false)}
 
  if(ren.isWebGPURenderer)ren.onDeviceLost=handleDeviceLoss;
 
@@ -2361,7 +2362,7 @@ function frame(t){requestAnimationFrame(frame);presentationDelta=cl((t-last)/100
 
  updateServeHint();if(st=='COUNT'){
   const n=kickoffLabel(cnt);cnt-=presentationDelta;const m=kickoffLabel(cnt),bomb=BOMB.phase==='armed'&&(OPENING.active?OPENING.duration-cnt>=OPENING.impact:cnt<=0)&&detonateOpeningBomb();
-  if(!bomb){if(cnt<=0){finishOpening();st='PLAY';msg('GO!',.8,'#4f8')}else if(OPENING.active&&cnt>3){mt=0;$('msg').style.opacity=0;}else if(m!==n||!mt)msg(m,1,'#fff');}
+  if(!bomb){if(cnt<=0){finishOpening();st='PLAY';msg('GO!',.8,'#4f8')}else if(m!==n||!mt)msg(m,1,'#fff');}
  }
 
  if(st=='PLAY'||st=='GOAL'||st=='COUNT')acc+=dt*(st=='GOAL'?.3:1);else acc=0;
@@ -2391,7 +2392,7 @@ setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();se
 
 window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:120,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,multiplayer:DED.active?'Phoenix dedicated':'offline',rtt:DED.rtt,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
 
-window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.9.4 · SKYLINE FLYBY · Ready to play');
+window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.9.5 · AIRSHOW KICKOFF · Ready to play');
 
 
 } catch(error) { window.tevinBoot.error=String(error.message||error);window.tevinBoot.show("Startup failed at "+window.tevinBoot.stage+": "+window.tevinBoot.error);console.error(error); }

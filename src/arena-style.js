@@ -4,12 +4,7 @@ async function loadStadiumSky(){
  try{visible=await new THREE.TextureLoader().loadAsync('SKY:stadium');}
  catch(error){console.warn('Photographic sky unavailable; using built-in sky',error);visible=arenaSky();}
  visible.colorSpace=THREE.SRGBColorSpace;visible.mapping=THREE.EquirectangularReflectionMapping;
- // Use the photograph for both the visible sky and diffuse environment. Replace
- // its mirrored lower hemisphere with the field's green bounce before filtering.
- const c=cvs(1024,512),g=c.getContext('2d');g.drawImage(visible.image,0,0,1024,512);
- const ground=g.createLinearGradient(0,245,0,512);ground.addColorStop(0,'rgba(128,156,137,0)');ground.addColorStop(.24,'#789579');ground.addColorStop(1,'#334a35');
- g.fillStyle=ground;g.fillRect(0,245,1024,267);
- const lighting=tex(c);lighting.mapping=THREE.EquirectangularReflectionMapping;
+ const lighting=stadiumRadianceTexture(visible.image);
  return {visible,lighting};
 }
 function arenaSky(reflection=false){
@@ -56,7 +51,7 @@ function arenaPitchMaterial(){
  g.font='italic 900 2px sans-serif';g.textAlign='center';g.fillStyle='rgba(223,250,239,.24)';g.fillText('T E V I N',0,4);g.restore();
  // A soft baked roof shadow grounds the perimeter without another shadow pass.
  const shade=g.createRadialGradient(w/2,h/2,w*.3,w/2,h/2,w*.68);shade.addColorStop(0,'rgba(5,24,17,0)');shade.addColorStop(1,'rgba(5,24,17,.28)');g.fillStyle=shade;g.fillRect(0,0,w,h);
- PITCH_TEXTURE=m.map;m.map.needsUpdate=true;m.roughness=.96;if(m.normalScale)m.normalScale.set(.55,.55);return m;
+ PITCH_TEXTURE=m.map;m.map.needsUpdate=true;m.roughness=.96;m.aoMap=pitchOcclusionTexture();m.aoMapIntensity=.65;if(m.normalScale)m.normalScale.set(.55,.55);return m;
 }
 
 function arenaPanelMaterial(color=0x536579){

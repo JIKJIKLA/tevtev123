@@ -1,6 +1,6 @@
-# Tevin League 9.9.4 — Skyline flyby
+# Tevin League 9.9.5 — Airshow kickoff
 
-The first VS AI kickoff brings a delivery drone in from above a fixed glass stadium roof, with a fast flyby using the supplied F-22 model. The ball passes through sliding doors and settles before GO in a shorter 5.5-second opening. Championship kickboards and structural ribs frame the arena, and private match/party invites now use three-digit codes. [Skyline flyby release details](docs/RELEASE-9.9.4.md).
+The first VS AI kickoff has a five-second airshow countdown. Three instances of the supplied F-22 approach together: the orange-trail leader continues straight while blue-trail wingmen peel in opposite directions. The ball falls independently through the fixed roof doors, bounces and eases to rest exactly at GO. There is no delivery drone. HDR stadium reflections and baked perimeter occlusion add depth across every playlist while retaining matte car paint. [Airshow release details](docs/RELEASE-9.9.5.md).
 
 Boost pickups use sculpted three-armed housings, floating golden full-boost pills, light curtains and collection/respawn effects. All 34 placements are verified against the standard field. [Boost pickup release details and references](docs/RELEASE-9.9.1.md).
 
