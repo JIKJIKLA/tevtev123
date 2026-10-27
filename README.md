@@ -1,4 +1,6 @@
-# Tevin League 9.9.1 — Boost pickups
+# Tevin League 9.9.2 — Match cinema
+
+The first VS AI kickoff delivers the ball through a ceiling hatch by drone. Goal replays finish with a field-side explosion and a 0.9-second fade into the next countdown. Quick chat and match controls share the broadcast HUD style. [Match cinema release details](docs/RELEASE-9.9.2.md).
 
 Boost pickups use sculpted three-armed housings, floating golden full-boost pills, light curtains and collection/respawn effects. All 34 placements are verified against the standard field. [Boost pickup release details and references](docs/RELEASE-9.9.1.md).
 

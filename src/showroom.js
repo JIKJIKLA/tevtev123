@@ -10,7 +10,7 @@ function setupShowroomControls(){
  $('preview-car').onclick=()=>{resetShowroom();if(!inited)previewGarage()};
 }
 function renderShowcase(dt){
- if(!inited)return;if(RIVALS.visuals)RIVALS.visuals.group.visible=false;previewTime+=dt;const ending=st==='END',title=INTRO.active&&!ending;
+ if(!inited)return;if(OPENING.visuals)OPENING.visuals.group.visible=false;if(RIVALS.visuals)RIVALS.visuals.group.visible=false;previewTime+=dt;const ending=st==='END',title=INTRO.active&&!ending;
  // The same pitch is retained behind every menu. Cars stand at their real wheel baseline.
  garageStage.visible=false;grassM.visible=true;cam.fov=ending?62:title?60:43;cam.updateProjectionMatrix();
  const winner=score[0]>score[1]?0:1,count=cars.filter(c=>c.enabled&&c.team===winner).length;let n=0;

@@ -44,10 +44,11 @@ function celebrationTrail(c,m){
  e.trailPosition[o]=cePosition.x;e.trailPosition[o+1]=cePosition.y;e.trailPosition[o+2]=cePosition.z;
  e.trailVelocity[o]=c.v.x*.35+ceDirection.x*2;e.trailVelocity[o+1]=c.v.y*.35+ceDirection.y*2;e.trailVelocity[o+2]=c.v.z*.35+ceDirection.z*2;e.trailColor[i]=celebrationAccent(c.color);e.trailLife[i]=e.trailTotal[i]=.25+(i%5)*.025;
 }
-function updateCelebrations(dt){
+function updateCelebrations(dt,presentation=null){
  const e=CELEBRATION;if(window.__TEVIN_SERVER__)return;const live=st==='PLAY',goal=st==='GOAL',motion=celebrationMotion(),quiet=RIVAL_PREF.celebration==='quiet';e.clock+=Math.max(0,dt);e.age+=Math.max(0,dt);
- document.body.classList.toggle('goal-presentation',goal&&!!e.key);document.body.classList.toggle('goal-impact',goal&&motion&&!quiet&&e.age<.7);document.body.classList.toggle('boost-thrust',live&&motion&&!!localPlayer().bst);
- if(e.ui){e.ui.el.hidden=!goal||e.age>(motion?2.25:1.7);e.ui.el.classList.toggle('still',!motion||quiet);}if(!e.group)return;e.group.visible=live||goal;if(!e.group.visible){e.trailLife.fill(0);return;}
+ const effectAge=Number.isFinite(presentation?.age)?presentation.age:e.age;
+ document.body.classList.toggle('goal-presentation',goal&&!!e.key);document.body.classList.toggle('goal-impact',goal&&motion&&!quiet&&effectAge<.7);document.body.classList.toggle('boost-thrust',live&&motion&&!!localPlayer().bst);
+ if(e.ui){e.ui.el.hidden=!!presentation?.suppressUI||!goal||effectAge>(motion?2.25:1.7);e.ui.el.classList.toggle('still',!motion||quiet);}if(!e.group)return;e.group.visible=live||goal;if(!e.group.visible){e.trailLife.fill(0);return;}
  let outer=0,core=0;
  if(live)for(let i=0;i<cars.length;i++){
   const c=cars[i],m=cm[i];if(!c.enabled||!c.bst||!m){e.boostClock[i]=0;continue;}
@@ -65,15 +66,15 @@ function updateCelebrations(dt){
   cePosition.fromArray(e.trailPosition,o);ceScale.setScalar((.14+(1-alpha)*.15)*alpha);ceMatrix.compose(cePosition,cam.quaternion,ceScale);e.trail.setMatrixAt(trail,ceMatrix);e.trail.setColorAt(trail++,ceColor.setHex(e.trailColor[i]).multiplyScalar(alpha));
  }
  e.trail.count=trail;if(trail){e.trail.instanceMatrix.needsUpdate=e.trail.instanceColor.needsUpdate=true;}
- const intensity=celebrationEnvelope(e.age),exploding=goal&&motion&&!quiet&&intensity>0;
+ const intensity=celebrationEnvelope(effectAge),exploding=goal&&motion&&!quiet&&intensity>0;
  e.shards.count=exploding?72:0;
  if(exploding){
   for(let i=0;i<72;i++){
-   const d=e.shardDirection[i],speed=e.shardSpeed[i],age=Math.min(e.age,2.8);ceDirection.copy(d);ceDirection.z=Math.abs(d.z)*(e.team===0?-1:1);cePosition.copy(e.origin).addScaledVector(ceDirection,speed*age);cePosition.y=Math.max(.08,cePosition.y-age*age*2.5);
+   const d=e.shardDirection[i],speed=e.shardSpeed[i],age=Math.min(effectAge,2.8);ceDirection.copy(d);ceDirection.z=Math.abs(d.z)*(e.team===0?-1:1);cePosition.copy(e.origin).addScaledVector(ceDirection,speed*age);cePosition.y=Math.max(.08,cePosition.y-age*age*2.5);
    ceDirection.y-=age*.3;ceDirection.normalize();ceRotation.setFromUnitVectors(ceZ,ceDirection);ceScale.set((i%3===0?.075:.035)*intensity,(i%3===0?.075:.035)*intensity,(i%6===0?1.8:.55+(i%7)*.13)*(1-age*.2));ceMatrix.compose(cePosition,ceRotation,ceScale);e.shards.setMatrixAt(i,ceMatrix);e.shards.setColorAt(i,ceColor.setHex(i%5===0?0xfff0c9:e.color).multiplyScalar(intensity));
   }e.shards.instanceMatrix.needsUpdate=e.shards.instanceColor.needsUpdate=true;
  }
  for(let i=0;i<e.rings.length;i++){
-  const ring=e.rings[i],age=e.age-i*.12;ring.visible=exploding&&age>=0;if(!ring.visible)continue;const radius=.9+age*(i===1?11:8);ring.position.copy(e.origin);if(i===1){ring.rotation.x=-Math.PI/2;ring.position.y=.09;}else{ring.rotation.x=0;ring.position.z+=(e.team===0?-1:1)*(.15+i*.06);}ring.scale.setScalar(radius);ring.material.color.setHex(i===2?0xffecc6:e.color);ring.material.opacity=intensity*(i===2?.35:.65);
+  const ring=e.rings[i],age=effectAge-i*.12;ring.visible=exploding&&age>=0;if(!ring.visible)continue;const radius=.9+age*(i===1?11:8);ring.position.copy(e.origin);if(i===1){ring.rotation.x=-Math.PI/2;ring.position.y=.09;}else{ring.rotation.x=0;ring.position.z+=(e.team===0?-1:1)*(.15+i*.06);}ring.scale.setScalar(radius);ring.material.color.setHex(i===2?0xffecc6:e.color);ring.material.opacity=intensity*(i===2?.35:.65);
  }
 }

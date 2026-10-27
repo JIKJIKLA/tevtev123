@@ -10,7 +10,7 @@ function saveRivals(){try{localStorage.setItem('tevin.rivals.v1',JSON.stringify(
 function extraCue(key,volume=.28){if(RIVAL_PREF.extraSounds&&!window.__TEVIN_SERVER__)audioSample(key,volume)}
 function driverName(id){return id===localPlayer().id?'YOU':MP.active&&MP.seats[id]?MP.seats[id].name||'PLAYER '+(id+1):'AI '+(id+1)}
 function earnedTitles(){const list=['ROOKIE'];if(CAREER.drills>=5)list.push('TRAINING GROUND');if(CAREER.goals>=10)list.push('FINISHER');if(CAREER.matches>=10)list.push('ARENA REGULAR');if(CAREER.wins>=10)list.push('MATCH WINNER');return list}
-function rivalsStart(){secretReset();RIVALS.claim=null;RIVALS.recorded=false;RIVALS.ring.length=0;RIVALS.goal=null;RIVALS.touches.length=0;RIVALS.goalSeen='';RIVALS.replay=null;RIVALS.messages.length=0;RIVALS.boost=33;RIVALS.fast=false;DRILL.active=false;DRILL.kind='free';DRILL.attempts=DRILL.successes=0;}
+function rivalsStart(){resetMatchPresentation(true);secretReset();RIVALS.claim=null;RIVALS.recorded=false;RIVALS.ring.length=0;RIVALS.goal=null;RIVALS.touches.length=0;RIVALS.goalSeen='';RIVALS.replay=null;RIVALS.messages.length=0;RIVALS.boost=33;RIVALS.fast=false;DRILL.active=false;DRILL.kind='free';DRILL.attempts=DRILL.successes=0;}
 function rivalsTouch(c,strength){
  if(DED.replaying)return;
  if(!MP.active||MP.role==='host'){
@@ -34,7 +34,7 @@ function rivalsGoal(info){
  const key=MP.round+':'+score.join(':');if(RIVALS.goalSeen===key)return;RIVALS.goalSeen=key;triggerCelebration(info);
  const e=$('goal-detail');if(e){e.textContent=(info.team?'ORANGE':'BLUE')+' GOAL · '+(info.scorer>=0?driverName(info.scorer):'OWN GOAL')+(info.assist>=0?' · ASSIST '+driverName(info.assist):'')+' · '+info.speed+' KM/H';e.style.setProperty('--goal-color',teamHex(info.team));e.hidden=false;}
  if(sandbox&&DRILL.active&&DRILL.kind==='shoot'&&DRILL.touched&&info.team===0)finishDrill();
- if(RIVAL_PREF.replays&&!sandbox&&RIVALS.ring.length>=12){const frames=RIVALS.ring.slice(-240);frames.push(captureReplayFrame(null,Math.max(DED.active?(Number.isFinite(RIVALS.replayStamp)?RIVALS.replayStamp:frames.at(-1).t+DT):RIVALS.time,frames.at(-1).t+DT)));RIVALS.replay={frames,elapsed:-PRESENTATION_TIMING.replayDelay,duration:Math.max(.1,frames.at(-1).t-frames[0].t),wallStart:performance.now()+PRESENTATION_TIMING.replayDelay*1000,scorer:info.scorer,focusCar:info.scorer>=0?info.scorer:Math.max(0,ball.lastPlayer),team:info.team};planGoalReplay(RIVALS.replay);$('replay-controls').hidden=false;}
+ if(RIVAL_PREF.replays&&!sandbox&&RIVALS.ring.length>=12){const frames=RIVALS.ring.slice(-240);frames.push(captureReplayFrame(null,Math.max(DED.active?(Number.isFinite(RIVALS.replayStamp)?RIVALS.replayStamp:frames.at(-1).t+DT):RIVALS.time,frames.at(-1).t+DT)));RIVALS.replay={frames,elapsed:-PRESENTATION_TIMING.replayDelay,duration:Math.max(.1,frames.at(-1).t-frames[0].t),wallStart:performance.now()+PRESENTATION_TIMING.replayDelay*1000,scorer:info.scorer,focusCar:info.scorer>=0?info.scorer:Math.max(0,ball.lastPlayer),team:info.team};planGoalReplay(RIVALS.replay);$('replay-label').textContent='GOAL REPLAY · THE APPROACH';$('replay-controls').hidden=true;}
  if(DED.active){goalPulse=1;const col=teamPalette[info.team];graphicsBurst(ball.p,28,col);}
 }
 function stopReplay(){document.body.classList.remove('cinema-replay');if(RIVALS.replay){if(RIVALS.replay.started)presentSceneCut('live');cameraAnchorReady=false;}RIVALS.replay=null;if($('replay-controls'))$('replay-controls').hidden=true;}
@@ -44,14 +44,14 @@ function replayRecord(snapshot,time=RIVALS.time){
  RIVALS.ring.push(frame);if(RIVALS.ring.length>240)RIVALS.ring.shift();
 }
 function renderGoalReplay(dt){
- const r=RIVALS.replay;if(!r||st!=='GOAL'||MP.localPaused)return false;r.elapsed=Math.max(r.elapsed+dt,(performance.now()-r.wallStart)/1000);if(r.elapsed>-.18&&!r.wipe){r.wipe=true;presentSceneCut('replay');}if(r.elapsed<0)return false;if(!r.started){r.started=true;resetViewFade();}
+ const r=RIVALS.replay;if(!r||st!=='GOAL'||MP.localPaused)return false;r.elapsed=Math.max(r.elapsed+dt,(performance.now()-r.wallStart)/1000);if(r.elapsed>-.18&&!r.wipe){r.wipe=true;presentSceneCut('replay');}if(r.elapsed<0)return false;if(!r.started){r.started=true;$('replay-controls').hidden=false;resetViewFade();}
  const time=replayPlaybackTime(r);let a=r.frames[0],b=a;
  for(let i=1;i<r.frames.length;i++){b=r.frames[i];if(b.t>=time)break;a=b}
  const f=cl((time-a.t)/Math.max(.001,b.t-a.t),0,1);
  for(let i=0;i<cm.length;i++){const m=cm[i];m.visible=cars[i].enabled;if(!a.cars[i]||!b.cars[i])continue;m.position.fromArray(a.cars[i].p).lerp(replayPose.fromArray(b.cars[i].p),f);m.quaternion.fromArray(a.cars[i].q).slerp(replayRotation.fromArray(b.cars[i].q),f);if(m.userData.f)m.userData.f.visible=false;}
- bm.visible=true;bm.position.fromArray(a.ball).lerp(replayPose.fromArray(b.ball),f);const direction=positionReplayCamera(r);document.body.classList.toggle('cinema-replay',cinemaMotion());updateWind(dt*(direction.slow?.22:1));
- pts.count=0;if(FX)FX.group.visible=false;contactShadows.forEach(s=>s.visible=false);if(RIVALS.visuals)RIVALS.visuals.group.visible=false;$('flash').style.opacity=0;updateCelebrations(dt);updateBoostPickups(dt,a.pads||null,false);pipeline.render();
- $('replay-label').textContent=direction.slow?'FINAL TOUCH · SLOW MOTION':direction.ballFocus>.5?'GOAL REPLAY · FOLLOW THE SHOT':'GOAL REPLAY · THE APPROACH';if(r.elapsed>PRESENTATION_TIMING.replayDuration)stopReplay();return true;
+ bm.position.fromArray(a.ball).lerp(replayPose.fromArray(b.ball),f);const direction=positionReplayCamera(r);bm.visible=!direction.exploding;document.body.classList.toggle('cinema-replay',cinemaMotion());updateWind(dt*(direction.slow?.22:1));
+ pts.count=0;if(FX)FX.group.visible=false;contactShadows.forEach(s=>s.visible=false);if(RIVALS.visuals)RIVALS.visuals.group.visible=false;$('flash').style.opacity=0;updateCelebrations(dt,{age:direction.exploding?direction.impactAge:99,suppressUI:true});updateBoostPickups(dt,a.pads||null,false);pipeline.render();
+ $('replay-label').textContent=direction.exploding?'GOAL EXPLOSION':direction.slow?'FINAL TOUCH · SLOW MOTION':direction.ballFocus>.5?'GOAL REPLAY · FOLLOW THE SHOT':'GOAL REPLAY · THE APPROACH';return true;
 }
 function rivalsFinish(){
  if(window.__TEVIN_SERVER__||sandbox||RIVALS.recorded||!score.every(Number.isFinite)||score[0]===score[1])return;
@@ -111,6 +111,7 @@ function receiveQuickChat(m){if(!QUICK_CHAT.includes(m.text))return;RIVALS.messa
 function sendQuickChat(index){
  if(!['PLAY','COUNT'].includes(st)||!QUICK_CHAT[index]||RIVALS.time-RIVALS.chatAt<1.2)return;RIVALS.chatAt=RIVALS.time;
  if(DED.active)dedSend({type:'chat',phrase:index});else{receiveQuickChat({name:'YOU',text:QUICK_CHAT[index]});if(!MP.active){for(const c of cars)if(c.enabled&&c.team===localPlayer().team&&c!==localPlayer())c.ai.yieldUntil=index===0?simTime+2:0;}}
+ $('quick-chat').open=false;document.activeElement?.blur?.();
 }
 function rivalsTick(dt){
  secretTick();syncCinema();RIVALS.time+=dt;trainingTick(dt);if(st!=='GOAL'){stopReplay();if($('goal-detail'))$('goal-detail').hidden=true;}if(st!=='PLAY'){for(const el of RIVALS.visuals?.labels||[])el.hidden=true;if(RIVALS.visuals)RIVALS.visuals.group.visible=false;}
@@ -119,8 +120,8 @@ function rivalsTick(dt){
   if(c.boost-RIVALS.boost>5){RIVALS.pickupUntil=RIVALS.time+.65;$('boost-feedback').textContent='+'+Math.round(c.boost-RIVALS.boost)+' BOOST'}RIVALS.boost=c.boost;
   const fast=c.v.length()>=PHYS.car.maxSpeed*.95;$('speed-streak').classList.toggle('active',fast&&RIVAL_PREF.motion&&!matchMedia('(prefers-reduced-motion: reduce)').matches);RIVALS.fast=fast;
  }else $('speed-streak').classList.remove('active');
- $('boost-feedback').hidden=RIVALS.time>RIVALS.pickupUntil||st!=='PLAY';$('quick-chat').hidden=!['PLAY','COUNT'].includes(st);$('drill-status').hidden=!sandbox||MP.active||st==='MENU';
- RIVALS.messages=RIVALS.messages.filter(m=>m.until>RIVALS.time);const log=$('chat-log');const content=RIVALS.messages.map(m=>m.name+': '+m.text).join('\n');if(log.textContent!==content)log.textContent=content;
+ $('boost-feedback').hidden=RIVALS.time>RIVALS.pickupUntil||st!=='PLAY';$('quick-chat').hidden=!['PLAY','COUNT'].includes(st)||OPENING.active;$('drill-status').hidden=!sandbox||MP.active||st==='MENU';
+ RIVALS.messages=RIVALS.messages.filter(m=>m.until>RIVALS.time);renderQuickChat();
  if($('queue-practice'))$('queue-practice').hidden=!SOC.searching||MP.active;
  if($('practice-queue-status')){$('practice-queue-status').hidden=!RIVALS.queuePractice;$('practice-queue-status').textContent=SOC.searching?'SEARCHING FOR PLAYERS · Practice while you wait':'SEARCH ENDED · Free play';}
 }

@@ -2,7 +2,7 @@
 try {
 
 
-/* Tevin League 9.9.1 — Boost pickups. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
+/* Tevin League 9.9.2 — Match cinema. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
 window.tevinBoot.stage='game script';
 
 const ENGINE=TevinEngine;
@@ -1742,7 +1742,7 @@ function setupSocial(){try{SOC.name=localStorage.getItem('tevin.driverName')||'D
 
 const matchStats={touches:0,topSpeed:0,boost:0,lastTouch:-1e9};
 
-const msg=(t,s,col='#fff')=>{const m=$('msg'),label=String(t);if(m.textContent!==label||mt<=0)cinemaMessage(m);m.textContent=label;m.style.color=col;m.style.opacity=1;mt=s;msgDeadline=performance.now()+s*1000};
+const msg=(t,s,col='#fff')=>{const m=$('msg'),label=String(t),fresh=m.textContent!==label||mt<=0;if(fresh){cinemaMessage(m);if(label==='GO!')startKickoffJolt();}m.textContent=label;m.style.color=col;m.style.opacity=1;mt=s;msgDeadline=performance.now()+s*1000};
 
 function kickoff(newRound=true){if(newRound&&st!=='MENU'&&st!=='WAIT')presentSceneCut('kickoff');resetViewFade();clearCelebration();secretReset();
 
@@ -1750,7 +1750,7 @@ function kickoff(newRound=true){if(newRound&&st!=='MENU'&&st!=='WAIT')presentSce
 
  for(const c of cars)spawnCar(c);heat.target=0;heat.speed=18;heat.cooldown=0;ball.color=0xdceeff;ball.lastPlayer=-1;
 
-  const lp=localPlayer();ball.p.set(0,BR,0);ball.v.set(0,0,0);ball.w.set(0,0,0);ball.last=-1;ball.hit=0;ball.hitT=0;setupHeatServe();ball.prevP.copy(ball.p);ball.frameP.copy(ball.p);if(bm)bm.quaternion.identity();cd.set(1,0,0).applyQuaternion(lp.q);cpos.copy(lp.p).addScaledVector(cd,-5);cpos.y+=1.5;lookPos.copy(ball.p);cameraAnchorReady=false;acc=0;PADS.forEach(p=>p.t=0);st='COUNT';cnt=3.99;
+  const lp=localPlayer();ball.p.set(0,BR,0);ball.v.set(0,0,0);ball.w.set(0,0,0);ball.last=-1;ball.hit=0;ball.hitT=0;setupHeatServe();ball.prevP.copy(ball.p);ball.frameP.copy(ball.p);if(bm)bm.quaternion.identity();cd.set(1,0,0).applyQuaternion(lp.q);cpos.copy(lp.p).addScaledVector(cd,-5);cpos.y+=1.5;lookPos.copy(ball.p);cameraAnchorReady=false;acc=0;PADS.forEach(p=>p.t=0);st='COUNT';cnt=3.99;OPENING.active=false;beginOpening();
 
   if(MP.active&&MP.role==='host'&&newRound){MP.round++;mpClearInput();publishMatch()}
 
@@ -1793,7 +1793,7 @@ async function startGame(){
 
 function startOfflineGame(training=false){if(starting||mpBusy||SOC.searching||SOC.busy)return;if(training!==true&&st==='MENU'&&menuScreen==='home'){showMenuScreen('play');return}if(training!==true&&st==='MENU'&&(playRoute==='online'||playRoute==='quick'))return;sandbox=training===true||playRoute==='training';if(MP.active)mpReset();startGame()}
 
-function finishQuit(){resetViewFade();clearCelebration();stopReplay();sandbox=false;RIVALS.queuePractice=false;DRILL.active=false;mt=0;$('msg').style.opacity=0;if(SOC.searching)cancelQuickMatch();st='MENU';syncMenuSettings();if(MP.active)mpReset();learnFlush();learnUI();['pause','end'].forEach(x=>$(x).classList.remove('on'));$('menu').classList.add('on');showMenuScreen('home');$('training-hud').hidden=true;$('hud').style.display='none';$('msg').style.opacity=0;audioSilence()}
+function finishQuit(){resetMatchPresentation();resetViewFade();clearCelebration();stopReplay();sandbox=false;RIVALS.queuePractice=false;DRILL.active=false;mt=0;$('msg').style.opacity=0;if(SOC.searching)cancelQuickMatch();st='MENU';syncMenuSettings();if(MP.active)mpReset();learnFlush();learnUI();['pause','end'].forEach(x=>$(x).classList.remove('on'));$('menu').classList.add('on');showMenuScreen('home');$('training-hud').hidden=true;$('hud').style.display='none';$('msg').style.opacity=0;audioSilence()}
 
 async function quit(){
  if(LOADING.active)return;const transition=loadingBegin('BACK TO THE LOBBY','Saving your session and returning to the lobby',true);
@@ -2107,7 +2107,7 @@ function dispose3d(){
 
  const old=$('cv');old.replaceWith(old.cloneNode(false));if(pipeline){pipeline.dispose();pipeline=null}if(ren){ren.dispose();if(ren.forceContextLoss)ren.forceContextLoss()}
 
-  resetCelebrationEffects();BOOST_PICKUPS.visuals=null;FX=null;garageStage=null;RIVALS.visuals=null;RIVALS.trim=null;RIVALS.crowd=null;$('driver-markers').replaceChildren();scene=ren=cam=sun=grassM=GT=GU=envTarget=null;cm=[];WM=[];windFlags=[];contactShadows=[];goalLights=[];inited=0;graphicsPreset=-1;
+  resetCelebrationEffects();OPENING.visuals=null;BOOST_PICKUPS.visuals=null;FX=null;garageStage=null;RIVALS.visuals=null;RIVALS.trim=null;RIVALS.crowd=null;$('driver-markers').replaceChildren();scene=ren=cam=sun=grassM=GT=GU=envTarget=null;cm=[];WM=[];windFlags=[];contactShadows=[];goalLights=[];inited=0;graphicsPreset=-1;
 
 }
 
@@ -2220,7 +2220,7 @@ async function build3d(forceGL){
 
  const sp=cvs(64,64),sg=sp.getContext('2d'),rg=sg.createRadialGradient(32,32,0,32,32,32);rg.addColorStop(0,'#fff');rg.addColorStop(.3,'rgba(255,255,255,.5)');rg.addColorStop(1,'rgba(255,255,255,0)');sg.fillStyle=rg;sg.fillRect(0,0,64,64);
 
-  buildBoostPickups();
+  buildBoostPickups();OPENING.visuals=createOpeningVisuals();scene.add(OPENING.visuals.group);
 
   await createGraphicsEffects();createCelebrationEffects();
 
@@ -2247,7 +2247,7 @@ async function build3d(forceGL){
  const lp=localPlayer();cam.position.copy(cpos);cam.lookAt(lookPos);sun.position.set(42,48,29);sun.target.position.set(0,0,0);
 
  await loadingStage(90,'Compiling materials and effects');
- await ENGINE.prewarm(ren,scene,cam,pipeline,cm,pts);
+ OPENING.visuals.group.visible=true;try{await ENGINE.prewarm(ren,scene,cam,pipeline,cm,pts)}finally{OPENING.visuals.group.visible=false}
 
  if(ren.isWebGPURenderer)ren.onDeviceLost=handleDeviceLoss;
 
@@ -2275,7 +2275,7 @@ addEventListener('resize',()=>{if(!inited)return;ren.setPixelRatio(pixelRatio())
 
 function render(dt){
 
- if(!inited||st==='PAUSE')return;updateGraphicsEffects(dt);if(renderGoalReplay(dt))return;if(st==='MENU'||st==='END'){renderShowcase(dt);return}bm.visible=true;garageStage.visible=false;grassM.visible=true;if(cam.view?.enabled)cam.clearViewOffset();const alpha=cl(acc/SIM_DT,0,1);
+ if(!inited||st==='PAUSE')return;updateGoalTransition(presentationDelta||dt);updateGraphicsEffects(dt);if(renderGoalReplay(dt))return;if(st==='MENU'||st==='END'){renderShowcase(dt);return}bm.visible=true;garageStage.visible=false;grassM.visible=true;if(cam.view?.enabled)cam.clearViewOffset();const alpha=cl(acc/SIM_DT,0,1);
 
  for(let k=0;k<cars.length;k++){const c=cars[k],m=cm[k];m.visible=c.enabled;if(!c.enabled)continue;paintCar(k);m.position.lerpVectors(c.frameP,c.p,alpha);m.quaternion.copy(c.frameQ).slerp(c.q,alpha);if(DED.active&&k===MP.slot){m.position.add(DED.offset);m.quaternion.multiply(DED.rotationOffset);}
 
@@ -2287,7 +2287,7 @@ function render(dt){
 
    if(c.bst){renderEffect.copy(renderForward).multiplyScalar(-.58).add(c.p);for(let j=0;j<(cfg.hi?3:1);j++)emit(renderEffect.x,renderEffect.y,renderEffect.z,c.v.x*.5+(Math.random()-.5)*2,c.v.y*.5+(Math.random()-.5),c.v.z*.5+(Math.random()-.5)*2,.35,((c.color>>16)&255)/255,((c.color>>8)&255)/255,(c.color&255)/255)}}
 
- bm.position.lerpVectors(ball.frameP,ball.p,alpha);if(DED.active)bm.position.add(DED.ballOffset);const sp=ball.v.length(),wl=ball.w.length();if(wl>.01){spinAxis.copy(ball.w).divideScalar(wl);spinQ.setFromAxisAngle(spinAxis,wl*dt*(st=='GOAL'?.3:1));bm.quaternion.premultiply(spinQ).normalize()}
+ bm.position.lerpVectors(ball.frameP,ball.p,alpha);if(DED.active)bm.position.add(DED.ballOffset);const sp=ball.v.length(),wl=ball.w.length();if(wl>.01){spinAxis.copy(ball.w).divideScalar(wl);spinQ.setFromAxisAngle(spinAxis,wl*dt*(st=='GOAL'?.3:1));bm.quaternion.premultiply(spinQ).normalize()}updateOpeningVisuals();
 
  for(let k=0;k<cars.length+1;k++){const shadow=contactShadows[k],p=k<cars.length?cm[k].position:bm.position,height=Math.max(0,p.y-(k<cars.length?.485:BR));
 
@@ -2335,7 +2335,7 @@ function render(dt){
 
  for(let k=0;k<goalLights.length;k++)goalLights[k].intensity=goalLights[k].userData.base*(1+goalPulse*.7);
 
- updateRivalVisuals(dt);animateArenaAccents(dt);uploadParticles();updateCelebrations(dt);updateBoostPickups(dt);pipeline.render();
+ applyMatchCamera(presentationDelta||dt);updateRivalVisuals(dt);animateArenaAccents(dt);uploadParticles();updateCelebrations(dt);updateBoostPickups(dt);pipeline.render();
 
   if(st==='PLAY'){perfEMA+=(dt-perfEMA)*.03;perfTimer+=dt;if(perfTimer>4){perfTimer=0;const next=1;if(next!==renderScale){renderScale=next;ren.setPixelRatio(pixelRatio());pipeline.resize(innerWidth,innerHeight,pixelRatio())}}}
 
@@ -2356,9 +2356,9 @@ function render(dt){
 }
 
 const cameraAnchor=new V3(),camAnchorDelta=new V3();let cameraAnchorReady=false;
-const spinAxis=new V3(),spinQ=new Qn();let DBG=0,last=0,acc=0;
+const spinAxis=new V3(),spinQ=new Qn();let DBG=0,last=0,acc=0,presentationDelta=0;
 
-function frame(t){requestAnimationFrame(frame);const dt=cl((t-last)/1000||0,0,.1);last=t;pollController();updateDeviceUI();introFrame(dt);
+function frame(t){requestAnimationFrame(frame);presentationDelta=cl((t-last)/1000||0,0,1);const dt=Math.min(.1,presentationDelta);last=t;pollController();updateDeviceUI();introFrame(dt);
  if(LOADING.active){acc=0;if(inited&&!ENGINE.status.warming)render(dt);return}
 
  rivalsTick(dt);if(mt>0){mt=Math.max(0,(msgDeadline-t)/1000);if(!mt)$('msg').style.opacity=0;}
@@ -2367,19 +2367,20 @@ function frame(t){requestAnimationFrame(frame);const dt=cl((t-last)/1000||0,0,.1
 
  
 
- updateServeHint();if(st=='COUNT'){const n=Math.ceil(cnt);cnt-=dt;const m=Math.ceil(cnt);if(cnt<=0){st='PLAY';msg('GO!',.8,'#4f8')}else if(m!=n||!mt){msg(m,1,'#fff')}}
+ updateServeHint();if(st=='COUNT'){const n=Math.ceil(cnt);cnt-=presentationDelta;const m=Math.ceil(cnt);if(cnt<=0){finishOpening();st='PLAY';msg('GO!',.8,'#4f8')}else if(OPENING.active&&cnt>3.05){mt=0;$('msg').style.opacity=0;}else if(m!=n||!mt){msg(m,1,'#fff')}}
 
  if(st=='PLAY'||st=='GOAL'||st=='COUNT')acc+=dt*(st=='GOAL'?.3:1);else acc=0;
 
   let steps=0;while(acc+1e-10>=SIM_DT&&steps++<12){acc=Math.max(0,acc-SIM_DT);for(let k=0;k<cars.length;k++){cars[k].frameP.copy(cars[k].p);cars[k].frameQ.copy(cars[k].q)}ball.frameP.copy(ball.p);sim(DT)}if(steps>12)acc%=SIM_DT; // avoid a backlog spiral after a slow or hidden frame
 
- if(st=='GOAL'&&(gt-=dt)<=0&&(!MP.active||MP.role==='host')){if(!sandbox&&(ot||cfg.mode===1&&Math.max(...score)>=7||cfg.mode===0&&tl<=0&&score[0]!==score[1]))endMatch();else{if(!sandbox&&cfg.mode===0&&tl<=0){ot=1;tl=0}kickoff()}}
+ if(st=='GOAL'&&(gt-=presentationDelta)<=0&&(!MP.active||MP.role==='host')){if(!sandbox&&(ot||cfg.mode===1&&Math.max(...score)>=7||cfg.mode===0&&tl<=0&&score[0]!==score[1]))endMatch();else{if(!sandbox&&cfg.mode===0&&tl<=0){ot=1;tl=0}kickoff()}}
 
  publishMultiplayer(dt);updateAudio();render(dt)}
 
 // INLINE:rivals.js
 // INLINE:cinematics.js
 // INLINE:camera-director.js
+// INLINE:match-cinema.js
 // INLINE:possession.js
 // INLINE:secret.js
 // INLINE:paint.js
@@ -2389,11 +2390,11 @@ function frame(t){requestAnimationFrame(frame);const dt=cl((t-last)/1000||0,0,.1
 // INLINE:preload.js
 // INLINE:server-api.js
 // INLINE:test-hooks.js
-setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();setupGraphicsUI();configureCars();kickoff();st='MENU';setupIntro();setupShowroomControls();setupGauges();setupRivals();setupSecret();setupPaint();setupDevice();setupCelebrationUI();setupCinemaUI();requestAnimationFrame(frame);if(!window.__TEVIN_TEST__)setTimeout(preloadArena,0);
+setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();setupGraphicsUI();configureCars();kickoff();st='MENU';setupIntro();setupShowroomControls();setupGauges();setupRivals();setupSecret();setupPaint();setupDevice();setupCelebrationUI();setupCinemaUI();setupMatchPresentationUI();requestAnimationFrame(frame);if(!window.__TEVIN_TEST__)setTimeout(preloadArena,0);
 
 window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:120,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,multiplayer:DED.active?'Phoenix dedicated':'offline',rtt:DED.rtt,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
 
-window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.9.1 · BOOST PICKUPS · Ready to play');
+window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.9.2 · MATCH CINEMA · Ready to play');
 
 
 } catch(error) { window.tevinBoot.error=String(error.message||error);window.tevinBoot.show("Startup failed at "+window.tevinBoot.stage+": "+window.tevinBoot.error);console.error(error); }
