@@ -11981,7 +11981,7 @@ function render(dt){
 const cameraAnchor=new V3(),camAnchorDelta=new V3();let cameraAnchorReady=false;
 const spinAxis=new V3(),spinQ=new Qn();let DBG=0,last=0,acc=0,presentationDelta=0;
 
-const FLYBY_REVIEW={time:1.02};
+const reviewTime=Number(new URLSearchParams(location.search).get('review')||1.02);const FLYBY_REVIEW={time:cl(Number.isFinite(reviewTime)?reviewTime:1.02,0,5.4)};
 function frame(t){requestAnimationFrame(frame);presentationDelta=cl((t-last)/1000||0,0,1);const dt=Math.min(.1,presentationDelta);last=t;pollController();updateDeviceUI();introFrame(dt);
  if(LOADING.active){acc=0;if(inited&&!ENGINE.status.warming)render(dt);return}
  if(FLYBY_REVIEW.time!==null&&OPENING.active&&st==='COUNT'){cnt=OPENING.duration-FLYBY_REVIEW.time;presentationDelta=0;acc=0;rivalsTick(0);updateAudio();render(0);return;}
@@ -12332,11 +12332,13 @@ async function loadJetAssets(){
 }
 function createJetVisual(){
  const group=new THREE.Group();group.name='Supplied F-22 Raptor';if(!JET.images)return group;
- const maps=JET.images.map((image,i)=>{const t=new THREE.Texture(image);t.colorSpace=i===0?THREE.SRGBColorSpace:THREE.NoColorSpace;t.anisotropy=4;t.needsUpdate=true;return t;}),body=new THREE.MeshStandardMaterial({map:maps[0],normalMap:maps[1],normalScale:new THREE.Vector2(.65,.65),metalnessMap:maps[2],roughnessMap:maps[2],metalness:.65,roughness:.9,envMapIntensity:.7}),glass=new THREE.MeshStandardMaterial({color:0x6e786c,transparent:true,opacity:.52,metalness:.42,roughness:.18,envMapIntensity:.9,depthWrite:false}),hud=new THREE.MeshStandardMaterial({color:0x89cbbc,transparent:true,opacity:.6,roughness:.25,metalness:.15,emissive:0x153a32});
+ const maps=JET.images.map((image,i)=>{const t=new THREE.Texture(image);t.colorSpace=i===0?THREE.SRGBColorSpace:THREE.NoColorSpace;t.anisotropy=4;t.needsUpdate=true;return t;}),body=new THREE.MeshStandardMaterial({map:maps[0],normalMap:maps[1],normalScale:new THREE.Vector2(.65,.65),metalnessMap:maps[2],roughnessMap:maps[2],metalness:.45,roughness:.9,envMapIntensity:.45}),glass=new THREE.MeshStandardMaterial({color:0x6e786c,transparent:true,opacity:.52,metalness:.42,roughness:.18,envMapIntensity:.9,depthWrite:false}),hud=new THREE.MeshStandardMaterial({color:0x89cbbc,transparent:true,opacity:.6,roughness:.25,metalness:.15,emissive:0x153a32});
  for(const part of jetSpecification().meshes){const m=new THREE.Mesh(jetMeshGeometry(part),part.name.includes('canopy')||part.name.includes('instrGlass')?glass:part.name.endsWith('hud')?hud:body);m.name=part.name;group.add(m);}
  const flames=new THREE.Group();flames.name='Twin afterburners';group.add(flames);
- const outer=new THREE.MeshBasicMaterial({color:0xff995a,transparent:true,opacity:.2,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false}),core=new THREE.MeshBasicMaterial({color:0x97c5ff,transparent:true,opacity:.65,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false});
- for(const z of [-.75,.75]){const plume=new THREE.Mesh(new THREE.ConeGeometry(.42,5,10,1,true),outer);plume.rotation.z=Math.PI/2;plume.position.set(-10.4,-.45,z);flames.add(plume);const hot=new THREE.Mesh(new THREE.ConeGeometry(.25,2.8,10,1,true),core);hot.rotation.z=Math.PI/2;hot.position.set(-9.4,-.45,z);flames.add(hot);}
+ const canvas=cvs(256,48),context=canvas.getContext('2d'),pixels=context.createImageData(256,48);
+ for(let y=0;y<48;y++)for(let x=0;x<256;x++){const u=x/255,v=(y/47-.5)*2,core=Math.pow(u,.6),width=.2+u*.7,edge=Math.pow(Math.max(0,1-v*v/(width*width)),2),diamonds=.76+.24*Math.cos((1-u)*Math.PI*9),i=(y*256+x)*4;pixels.data[i]=110+core*90;pixels.data[i+1]=120+core*100;pixels.data[i+2]=220+core*35;pixels.data[i+3]=edge*core*diamonds*180;}context.putImageData(pixels,0,0);
+ const flame=new THREE.MeshBasicMaterial({map:tex(canvas),transparent:true,opacity:.8,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false,side:THREE.DoubleSide});
+ for(const z of [-.75,.75])for(const angle of [0,Math.PI/2]){const plume=new THREE.Mesh(new THREE.PlaneGeometry(5.2,.68),flame);plume.position.set(-10.4,-.45,z);plume.rotation.x=angle;flames.add(plume);}
  group.userData.flames=flames;group.visible=false;group.traverse(o=>{o.castShadow=false;o.receiveShadow=false;});return group;
 }
 function jetFlybyPose(elapsed,motion=true){
@@ -12950,7 +12952,7 @@ if(window.__TEVIN_TEST__){
 setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();setupGraphicsUI();configureCars();kickoff();st='MENU';setupIntro();setupShowroomControls();setupGauges();setupRivals();setupSecret();setupPaint();setupDevice();setupCelebrationUI();setupCinemaUI();setupMatchPresentationUI();setupBombUI();
 const review=document.createElement('aside');review.id='flyby-review';review.setAttribute('aria-label','Cinematic review controls');review.style.cssText='position:fixed;z-index:200;top:8px;left:8px;display:flex;flex-wrap:wrap;gap:5px;max-width:350px;padding:8px;background:#071529ee;color:white;font:11px Arial';
 const label=document.createElement('span');label.textContent='PREVIEW: FLYBY HELD';label.style.width='100%';review.appendChild(label);
-for(const [name,time] of [['HOLD ROOF',.1],['HOLD FLYBY',1.02],['HOLD DROP',1.7],['HOLD BOUNCE',2.8],['LIVE',null]]){const button=document.createElement('button');button.textContent=name;button.style.cssText='padding:9px;background:#184563;color:white;border:1px solid #75b3d1;cursor:pointer;font-size:10px';button.onclick=()=>{FLYBY_REVIEW.time=time;label.textContent='PREVIEW: '+name;};review.appendChild(button);}document.body.appendChild(review);
+for(const [name,time] of [['HOLD ROOF',.1],['HOLD FLYBY',1.02],['HOLD DROP',1.7],['HOLD BOUNCE',2.8],['LIVE',null]]){const button=document.createElement('button');button.textContent=name;button.style.cssText='padding:9px;background:#184563;color:white;border:1px solid #75b3d1;cursor:pointer;font-size:10px';button.onclick=()=>{FLYBY_REVIEW.time=time;label.textContent='PREVIEW: '+name;};review.appendChild(button);}if(!new URLSearchParams(location.search).has('capture'))document.body.appendChild(review);
 requestAnimationFrame(frame);if(!window.__TEVIN_TEST__)setTimeout(()=>preloadArena().then(()=>{INTRO.active=false;introStop();$('intro').hidden=true;for(const child of $('menu').children)child.inert=false;sandbox=false;startGame();}),0);
 
 window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:120,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,multiplayer:DED.active?'Phoenix dedicated':'offline',rtt:DED.rtt,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
