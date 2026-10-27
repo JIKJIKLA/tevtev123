@@ -3,6 +3,7 @@ function cinemaMotion(){return RIVAL_PREF.motion&&!matchMedia('(prefers-reduced-
 function cinemaEase(t){t=cl(t,0,1);return t*t*(3-2*t)}
 function syncCinema(){
  const motion=cinemaMotion(),body=document.body;
+ if(!motion||st==='PAUSE'||!OPENING.active)body.classList.remove('jet-impact');
  body.classList.toggle('cinema-motion',motion);body.classList.toggle('cinema-still',!motion);
  if(!motion||st!=='GOAL'||!RIVALS.replay||MP.localPaused)body.classList.remove('cinema-replay');
 }

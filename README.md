@@ -1,6 +1,6 @@
-# Tevin League 9.9.3 — Glass skylight
+# Tevin League 9.9.4 — Skyline flyby
 
-The first VS AI kickoff drops the ball through sliding glass skylight doors. A 1% rare bomb drop blasts every car and reveals TEVIN WINS, with Play Again and Lobby actions. Replay cameras blend into the goal explosion, followed by a 0.9-second black transition into the next countdown. [Glass skylight release details](docs/RELEASE-9.9.3.md).
+The first VS AI kickoff brings a delivery drone in from above a fixed glass stadium roof, with a fast flyby using the supplied F-22 model. The ball passes through sliding doors and settles before GO in a shorter 5.5-second opening. Championship kickboards and structural ribs frame the arena, and private match/party invites now use three-digit codes. [Skyline flyby release details](docs/RELEASE-9.9.4.md).
 
 Boost pickups use sculpted three-armed housings, floating golden full-boost pills, light curtains and collection/respawn effects. All 34 placements are verified against the standard field. [Boost pickup release details and references](docs/RELEASE-9.9.1.md).
 

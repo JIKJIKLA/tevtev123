@@ -11,6 +11,8 @@ for(const file of ['bootstrap.js','engine.bundle.js','game.js']) {
  let code=file==='engine.bundle.js'?[...read('legacy-8.2.html').matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)][1][1]:read(file);
  code=code.replace(/\/\/ INLINE:([\w.-]+\.js)/g,(_,part)=>read(part));
  code=code.replace('SKY:stadium',()=> 'data:image/jpeg;base64,'+fs.readFileSync(path.join(root,'src/assets/stadium-clouds-2k.jpg')).toString('base64'));
+ code=code.replace("'JET:mesh'",()=>JSON.stringify(fs.readFileSync(path.join(root,'src/assets/f22-jet.json'),'utf8')));
+ for(const name of ['albedo','normal','surface'])code=code.replace('JET:'+name,()=> 'data:image/jpeg;base64,'+fs.readFileSync(path.join(root,'src/assets/f22-'+name+'.jpg')).toString('base64'));
  if(file==='engine.bundle.js')code=require('./patch-grass.cjs')(code);
  new vm.Script(code,{filename:file});
  html=html.replace('<!-- INLINE:'+file+' -->',()=>code);

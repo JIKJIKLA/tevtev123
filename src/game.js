@@ -2,7 +2,7 @@
 try {
 
 
-/* Tevin League 9.9.3 — Glass skylight. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
+/* Tevin League 9.9.4 — Skyline flyby. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
 window.tevinBoot.stage='game script';
 
 const ENGINE=TevinEngine;
@@ -1489,7 +1489,7 @@ function randomRoomCode(){const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let cod
 function validNumber(v){return typeof v==='number'&&Number.isFinite(v)}
 function mpReset(removeRoom=true){dedReset();AUDIO.received=0;AUDIO.events.length=0;const room=MP.room,role=MP.role,session=MP.session,slot=MP.slot;for(const l of MP.listeners)l.ref.off(l.event,l.handler);MP.listeners.length=0;for(const d of MP.disconnects)d.cancel().catch(()=>{});MP.disconnects.length=0;
  if(room&&removeRoom){if(role==='host')room.remove().catch(()=>{});else{room.child('meta').transaction(m=>{if(m===null)return null;if(m.seats?.[slot]?.session!==session)return;delete m.seats[slot];return m},undefined,false).catch(()=>{});room.child('presence/'+session).remove().catch(()=>{});room.child('inputs/'+session).remove().catch(()=>{})}}
- Object.assign(MP,{active:false,quick:'',endReason:'',role:'',slot:0,code:'',room:null,loaded:false,session:'',seats:{},presence:{},inputs:{},lastInputs:{},seenJumps:{},localPaused:false,transport:false,seq:0,received:-1,round:0,publishClock:0,pending:0,lastSnapshot:0,snapshot:null,buffer:[],jump:0,matchBegun:false,force:true,closed:false,startRequested:false});mpStatus('Host a private room or enter a six-character code.')}
+ Object.assign(MP,{active:false,quick:'',endReason:'',role:'',slot:0,code:'',room:null,loaded:false,session:'',seats:{},presence:{},inputs:{},lastInputs:{},seenJumps:{},localPaused:false,transport:false,seq:0,received:-1,round:0,publishClock:0,pending:0,lastSnapshot:0,snapshot:null,buffer:[],jump:0,matchBegun:false,force:true,closed:false,startRequested:false});mpStatus('Create a private room or enter a three-digit code.')}
 function mpClearInput(){clearTouchInput();for(const k in keys)keys[k]=0;for(const c of cars){c.jp=c.jh=0;Object.assign(c.inp,Z)}for(const s in MP.inputs)MP.seenJumps[s]=MP.inputs[s].jump||0;acc=0}
 function mpFreeze(reason){if(!MP.loaded)return;if(st!=='PAUSE'){ps_=st;st='PAUSE';mpClearInput()}audioSilence();$('msg').style.opacity=0;$('pause').classList.add('on');$('pause-title').textContent=reason;$('res').disabled=!MP.localPaused;$('res').textContent=MP.localPaused?'RESUME':'WAITING FOR PLAYERS'}
 function mpSetPause(value){if(DED.active)return dedPause(value);if(!MP.active||!MP.room)return;MP.localPaused=!!value;const p=MP.presence[MP.session]||{};p.paused=!!value;MP.presence[MP.session]=p;if(value)mpFreeze('MATCH PAUSED');else{mpClearInput();if(ps_==='WAIT'){st='WAIT';$('pause').classList.remove('on');mpLobby()}}MP.room.child('presence/'+MP.session+'/paused').set(!!value).catch(mpFailure);MP.force=true}
@@ -1805,7 +1805,7 @@ window.tevinBoot.stage='menu handlers';
 $('go').onclick=startOfflineGame;$('rm').onclick=()=>{if(DED.active&&!MP.quick){dedStart();return}if(MP.quick){quit().then(()=>{chooseRoute('quick');showMenuScreen('play')});return}if(MP.active&&MP.role==='guest'){mpStatus(`ROOM ${MP.code} · WAITING FOR HOST REMATCH`,'')}else startGame()};$('res').onclick=pause;$('q1').onclick=$('q2').onclick=quit;
 
 $('graphics-retry').onclick=retryGraphics;$('graphics-open').href='https://jikjikla.github.io/tevtev123/';
-$('host-match').onclick=hostMatch;$('join-match').onclick=joinMatch;$('room-code').addEventListener('input',e=>e.target.value=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,6));
+$('party-code-input').addEventListener('input',e=>e.target.value=e.target.value.replace(/\D/g,'').slice(0,3));$('host-match').onclick=hostMatch;$('join-match').onclick=joinMatch;$('room-code').addEventListener('input',e=>e.target.value=e.target.value.replace(/\D/g,'').slice(0,3));
 
 $('leave-room').onclick=quit;
 
@@ -1928,16 +1928,8 @@ function face(a,sg,mat,skip){
 
  const m=new THREE.Mesh(g,mat);m.receiveShadow=true;scene.add(m)}
 
-function wallMat(col){
- const c=cvs(1024,512),g=c.getContext('2d');g.clearRect(0,0,1024,512);
- // Fine safety net above low, solid advertising boards: stands stay visible.
- g.strokeStyle='rgba(145,177,192,.105)';g.lineWidth=1;
- for(let y=0;y<512;y+=24)for(let x=0;x<1080;x+=42){const cx=x+(y%48?21:0);g.beginPath();for(let k=0;k<6;k++){const a=k*Math.PI/3;g[k?'lineTo':'moveTo'](cx+Math.cos(a)*23,y+Math.sin(a)*23)}g.closePath();g.stroke()}
- g.fillStyle='#15394d';g.fillRect(0,444,1024,68);g.fillStyle='#061422';g.fillRect(0,454,1024,37);
- g.font='italic 800 24px sans-serif';g.fillStyle='#dbe7e9';for(let x=18;x<1024;x+=256)g.fillText('TEVIN LEAGUE',x,480);
- g.fillStyle=col;g.fillRect(0,440,1024,6);g.fillRect(0,498,1024,7);for(let x=230;x<1024;x+=256)g.fillRect(x,460,4,22);
- const t=tex(c);return new THREE.MeshStandardMaterial({map:t,emissive:0xffffff,emissiveMap:t,emissiveIntensity:.2,roughness:.94,metalness:.03,transparent:true,depthWrite:false});
-}
+function wallMat(col){return championshipWallMaterial(col)}
+// INLINE:arena-walls.js
 // INLINE:arena-style.js
 // INLINE:stadium-detail.js
 // INLINE:arena-exterior.js
@@ -2181,7 +2173,7 @@ async function build3d(forceGL){
 
   const cb=pl(new THREE.CylinderGeometry(.2,.2,2*GX,12),pm,0,GH+.2,s*(HZ+.2),0,0);cb.rotation.z=Math.PI/2});
 
- decorateArenaGoals();makeGrass();
+ decorateArenaGoals();buildArenaWallStructure();makeGrass();
 
  await loadingStage(55,'Loading car models and textures');
  const importedTextures=assetTextures=cfg.models?await ENGINE.loadImportedTextures():null;
@@ -2220,7 +2212,7 @@ async function build3d(forceGL){
 
  const sp=cvs(64,64),sg=sp.getContext('2d'),rg=sg.createRadialGradient(32,32,0,32,32,32);rg.addColorStop(0,'#fff');rg.addColorStop(.3,'rgba(255,255,255,.5)');rg.addColorStop(1,'rgba(255,255,255,0)');sg.fillStyle=rg;sg.fillRect(0,0,64,64);
 
-  buildBoostPickups();OPENING.visuals=createOpeningVisuals();scene.add(OPENING.visuals.group);buildBombDrop();
+  await loadingStage(63,'Preparing the F-22 flyby');await loadJetAssets();buildBoostPickups();OPENING.visuals=createOpeningVisuals();scene.add(OPENING.visuals.group);buildBombDrop();
 
   await createGraphicsEffects();createCelebrationEffects();
 
@@ -2234,7 +2226,7 @@ async function build3d(forceGL){
 
  pts.count=0;pts.frustumCulled=false;scene.add(pts);
 
- // The roof is open over the pitch, with a coherent sky behind the stadium.
+ // A fixed glass roof at the grandstand roofline retains the daylight sky.
 
  // Photographic sky is a scene background, so it has no clipping sphere or parallax.
 
@@ -2247,7 +2239,7 @@ async function build3d(forceGL){
  const lp=localPlayer();cam.position.copy(cpos);cam.lookAt(lookPos);sun.position.set(42,48,29);sun.target.position.set(0,0,0);
 
  await loadingStage(90,'Compiling materials and effects');
- OPENING.visuals.group.visible=BOMB.visuals.ball.visible=BOMB.visuals.effects.visible=true;try{await ENGINE.prewarm(ren,scene,cam,pipeline,cm,pts)}finally{OPENING.visuals.group.visible=BOMB.visuals.ball.visible=BOMB.visuals.effects.visible=false}
+ OPENING.visuals.group.visible=OPENING.visuals.drone.visible=OPENING.visuals.jet.visible=BOMB.visuals.ball.visible=BOMB.visuals.effects.visible=true;try{await ENGINE.prewarm(ren,scene,cam,pipeline,cm,pts)}finally{OPENING.visuals.group.visible=true;OPENING.visuals.drone.visible=OPENING.visuals.jet.visible=BOMB.visuals.ball.visible=BOMB.visuals.effects.visible=false}
 
  if(ren.isWebGPURenderer)ren.onDeviceLost=handleDeviceLoss;
 
@@ -2383,6 +2375,7 @@ function frame(t){requestAnimationFrame(frame);presentationDelta=cl((t-last)/100
 // INLINE:rivals.js
 // INLINE:cinematics.js
 // INLINE:camera-director.js
+// INLINE:jet-flyby.js
 // INLINE:bomb-drop.js
 // INLINE:match-cinema.js
 // INLINE:possession.js
@@ -2398,7 +2391,7 @@ setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();se
 
 window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:120,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,multiplayer:DED.active?'Phoenix dedicated':'offline',rtt:DED.rtt,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
 
-window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.9.3 · GLASS SKYLIGHT · Ready to play');
+window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.9.4 · SKYLINE FLYBY · Ready to play');
 
 
 } catch(error) { window.tevinBoot.error=String(error.message||error);window.tevinBoot.show("Startup failed at "+window.tevinBoot.stage+": "+window.tevinBoot.error);console.error(error); }

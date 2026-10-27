@@ -57,7 +57,7 @@ async function dedJoined(m){
  if(!await startGame())throw Error('Arena failed to load. Try again.');
 }
 async function dedPrivate(type){
- if(mpBusy||starting||SOC.searching||SOC.busy)return;const code=$('room-code').value.trim().toUpperCase();if(type==='join'&&!/^[A-Z2-9]{6}$/.test(code)){mpStatus('Enter the six-character match code.','bad');return}
+ if(mpBusy||starting||SOC.searching||SOC.busy)return;const code=$('room-code').value.trim();if(type==='join'&&!/^\d{3}$/.test(code)){mpStatus('Enter the three-digit match code.','bad');return}
  mpBusyUI(true);try{mpReset();mpStatus('CONNECTING TO PHOENIX…');await dedConnect();await dedRequest({type,wire:1,code,settings:matchSettings(),profile:socialProfile()});await DED.entering}catch(e){mpReset();mpFailure(e)}finally{mpBusyUI(false)}
 }
 async function dedLoaded(){MP.loaded=true;MP.localPaused=false;kickoff(false);st='WAIT';mpClearInput();mpApplySeats();mpLobby();await dedRequest({type:'ready'})}
@@ -97,6 +97,7 @@ function dedFrame(dt){
  updateAudio();render(dt);
 }
 async function dedSocial(type,extra={}){
+ if(type==='partyJoin'&&!/^\d{3}$/.test(extra.code||'')){SOC.error='Enter the three-digit party code.';socialUI();return;}
  if(SOC.busy)return;SOC.busy=true;SOC.error='';socialUI();
  try{await dedConnect();await dedRequest({type,wire:1,profile:socialProfile(),...extra})}catch(e){SOC.error=e.message;if(type==='queue')SOC.searching=false}finally{SOC.busy=false;socialUI()}
 }

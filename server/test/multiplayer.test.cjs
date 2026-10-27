@@ -48,9 +48,9 @@ test('malformed controls cannot inject forces or nonfinite values',()=>{
  assert.deepEqual(controls({thr:1,position:{x:900}}),{thr:1,steer:0,pitch:0,yaw:0,roll:0,boost:0,ps:0});
 });
 test('two sockets join, ready, start, receive authoritative motion and survive leader departure',async t=>{
- const app=createService();app.server.listen(0,'127.0.0.1');await once(app.server,'listening');t.after(()=>app.close());
+ const app=createService({inviteRandom:()=>0});app.server.listen(0,'127.0.0.1');await once(app.server,'listening');t.after(()=>app.close());
  const port=app.server.address().port,a=connect(port),b=connect(port);await Promise.all([a.next('hello'),b.next('hello')]);
- a.send({type:'create',wire:WIRE,settings:{size:1},profile:{name:'A',paint:0}});const roomA=await a.next('joined');
+ a.send({type:'create',wire:WIRE,settings:{size:1},profile:{name:'A',paint:0}});const roomA=await a.next('joined');assert.equal(roomA.code,'000');
  b.send({type:'join',wire:WIRE,code:roomA.code,profile:{name:'B',paint:0xff43b5}});const roomB=await b.next('joined');assert.equal(roomB.slot,1);assert.notEqual(roomA.session,roomB.session);
  b.send({type:'start'});assert.match((await b.next('error')).message,/leader/);
  a.send({type:'ready'});b.send({type:'ready'});await a.next('lobby',m=>Object.values(m.seats).length===2&&Object.values(m.seats).every(s=>s.ready));
@@ -71,13 +71,13 @@ test('bad origins rejected and quick match starts only when both clients ready',
  a.send({type:'ready'});assert.equal((await a.next('state')).state.phase,'WAIT');b.send({type:'ready'});assert.equal((await a.next('state',m=>m.state.phase==='COUNT')).state.phase,'COUNT');
 });
 test('party matchmaking keeps teammates together and cancellation clears every member',async t=>{
- const app=createService();app.server.listen(0,'127.0.0.1');await once(app.server,'listening');t.after(()=>app.close());const port=app.server.address().port;
+ const app=createService({inviteRandom:()=>0});app.server.listen(0,'127.0.0.1');await once(app.server,'listening');t.after(()=>app.close());const port=app.server.address().port;
  const peers=Array.from({length:4},()=>connect(port));await Promise.all(peers.map(p=>p.next('hello')));const [a,b,c,d]=peers;
- a.send({type:'partyCreate',profile:{name:'A'}});const party=await a.next('party');b.send({type:'partyJoin',code:party.code,profile:{name:'B'}});await b.next('party');
+ a.send({type:'partyCreate',profile:{name:'A'}});const party=await a.next('party');assert.equal(party.code,'000');b.send({type:'partyJoin',code:party.code,profile:{name:'B'}});await b.next('party');
  a.send({type:'partyReady',ready:true});b.send({type:'partyReady',ready:true});await a.next('party',m=>Object.keys(m.data.members).length===2&&Object.values(m.data.members).every(x=>x.ready));
  a.send({type:'queue',wire:WIRE,settings:{size:2}});await b.next('queue',m=>m.searching);b.send({type:'cancelQueue'});await a.next('queue',m=>!m.searching);
  a.send({type:'queue',wire:WIRE,settings:{size:2}});c.send({type:'queue',wire:WIRE,settings:{size:2}});d.send({type:'queue',wire:WIRE,settings:{size:2}});
- const joined=await Promise.all(peers.map(p=>p.next('joined')));assert.equal(new Set(joined.map(m=>m.code)).size,1);assert.equal(joined[0].slot%2,joined[1].slot%2);assert.notEqual(joined[0].slot%2,joined[2].slot%2);
+ const joined=await Promise.all(peers.map(p=>p.next('joined')));assert.equal(new Set(joined.map(m=>m.code)).size,1);assert.equal(joined[0].code,'001');assert.equal(joined[0].slot%2,joined[1].slot%2);assert.notEqual(joined[0].slot%2,joined[2].slot%2);
  for(const p of peers)p.send({type:'ready'});await a.next('state',m=>m.state.phase==='COUNT');
 });
 

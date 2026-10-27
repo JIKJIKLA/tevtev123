@@ -7,7 +7,12 @@ function controls(value){
  const result={};for(const key of KEYS){const v=value[key]??0;if(typeof v!=='number'||!Number.isFinite(v)||Math.abs(v)>1)throw Error('Invalid control value');result[key]=v}return result;
 }
 function profile(value={}){if(!value||typeof value!=='object'||Array.isArray(value))value={};return{paint:Number.isInteger(value.paint)&&value.paint>=0&&value.paint<=0xffffff?value.paint:null,name:String(value.name||'DRIVER').replace(/[^\w .-]/g,'').slice(0,20)||'DRIVER',body:Math.min(2,Math.max(0,Number(value.body)|0)),color:Math.min(7,Math.max(0,Number(value.color)|0))}}
-function roomCode(){const alphabet='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return Array.from({length:6},()=>alphabet[randomInt(alphabet.length)]).join('')}
+function reserveInviteCode(used,draw=()=>randomInt(1000)){
+ const start=draw();if(!Number.isInteger(start)||start<0||start>=1000)throw Error('Invalid invite draw');
+ for(let i=0;i<1000;i++){const code=String((start+i)%1000).padStart(3,'0');if(!used.has(code))return code;}
+ throw Error('All invite codes are in use. Try again shortly.');
+}
+function validInvite(code){return typeof code==='string'&&/^\d{3}$/.test(code);}
 function createService(options={}){
  const rooms=new Map(),clients=new Set(),parties=new Map(),queue=new Map(),origins=new Set(options.origins||['https://jikjikla.github.io','https://tevtev123.b-cdn.net']);
  const maxRooms=options.maxRooms||4,maxClients=options.maxClients||48,physics=options.physics||createPhysics;
@@ -16,7 +21,7 @@ function createService(options={}){
  function roster(r){const seats={};for(const c of r.members.values())seats[c.slot]={session:c.id,...c.profile,ready:c.ready};return seats}
  function lobby(r){r.api.seats(roster(r));const seats=roster(r);for(const c of r.members.values())send(c,{type:'lobby',code:r.code,owner:r.owner,seats,quick:r.quick})}
  function leave(c){const r=c.room;if(!r)return;c.room=null;r.members.delete(c.id);if(!r.members.size){rooms.delete(r.code);return}if(r.owner===c.id)r.owner=r.members.keys().next().value;lobby(r)}
- function newRoom(settings,quick=false){if(rooms.size>=maxRooms)throw Error('All match servers are busy. Try again shortly.');let code;do{code=roomCode()}while(rooms.has(code));const api=physics(settings),state=api.inspect();const r={code,api,settings:{mode:state.cfg.mode,size:state.cfg.size,lvl:state.cfg.lvl,len:state.cfg.len,speed:state.cfg.speed,gravity:state.cfg.gravity,unlimited:state.cfg.unlimited,teamColors:state.cfg.teamColors,series:state.cfg.series},members:new Map(),owner:'',quick,created:Date.now(),lastActive:Date.now(),tick:0};rooms.set(code,r);return r}
+ function newRoom(settings,quick=false){if(rooms.size>=maxRooms)throw Error('All match servers are busy. Try again shortly.');const code=reserveInviteCode(new Set([...rooms.keys(),...parties.keys()]),options.inviteRandom),api=physics(settings),state=api.inspect();const r={code,api,settings:{mode:state.cfg.mode,size:state.cfg.size,lvl:state.cfg.lvl,len:state.cfg.len,speed:state.cfg.speed,gravity:state.cfg.gravity,unlimited:state.cfg.unlimited,teamColors:state.cfg.teamColors,series:state.cfg.series},members:new Map(),owner:'',quick,created:Date.now(),lastActive:Date.now(),tick:0};rooms.set(code,r);return r}
  function join(c,r,preferred){
   if(r.api.phase()!=='WAIT')throw Error('This match has already started.');
   const used=new Set([...r.members.values()].map(x=>x.slot));let slot=preferred??0;while(used.has(slot))slot++;if(slot>=r.settings.size*2)throw Error('This match is full.');
@@ -48,7 +53,7 @@ function createService(options={}){
   if(m.type==='profile'){c.profile=profile(m.profile);partyState(c.party);return}
   if(m.type==='partyCreate'||m.type==='partyJoin'){
    if(c.room||c.party||c.queue)throw Error('Leave your current party or match first.');c.profile=profile(m.profile);
-   let p;if(m.type==='partyCreate'){let code;do{code=roomCode()}while(parties.has(code));p={code,leader:c.id,members:new Map()};parties.set(code,p)}else p=parties.get(String(m.code||'').toUpperCase());
+   let p;if(m.type==='partyCreate'){const code=reserveInviteCode(new Set([...rooms.keys(),...parties.keys()]),options.inviteRandom);p={code,leader:c.id,members:new Map()};parties.set(code,p)}else{if(!validInvite(m.code))throw Error('Enter a three-digit party code.');p=parties.get(m.code);}
    if(!p||p.members.size>=3||[...p.members.values()].some(x=>x.queue||x.room))throw Error('Party unavailable, full, or already searching.');
    c.party=p;c.partyReady=false;p.members.set(c.id,c);partyState(p);return;
   }
@@ -67,7 +72,7 @@ function createService(options={}){
    if(c.room||c.queue)throw Error('Leave the current match or queue first.');
    if(Date.now()-c.lastJoin<1500)throw Error('Please wait before joining another room.');c.lastJoin=Date.now();c.profile=profile(m.profile);
    if(m.type==='create')join(c,newRoom(m.settings||{}));
-   else if(m.type==='join'){const r=rooms.get(String(m.code||'').toUpperCase());if(!r||r.quick)throw Error('Private match not found.');join(c,r)}
+   else if(m.type==='join'){if(!validInvite(m.code))throw Error('Enter a three-digit match code.');const r=rooms.get(m.code);if(!r||r.quick)throw Error(parties.has(m.code)?'That is a party code. Open Quick Match Party to join.':'Private match not found.');join(c,r)}
    else{const size=Math.min(3,Math.max(1,Number(m.settings?.size)|0)),mode=m.settings?.mode===1?1:0;
     const r=[...rooms.values()].find(r=>r.quick&&r.settings.size===size&&r.settings.mode===mode&&r.api.phase()==='WAIT'&&r.members.size<size*2)||newRoom({size,mode,lvl:2,len:300,speed:1,gravity:1},true);join(c,r)}
    return;
@@ -102,7 +107,7 @@ function createService(options={}){
   }
   throw Error('Unknown message type');
  }
- const server=http.createServer((req,res)=>{res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');if(req.url==='/health'){res.setHeader('Content-Type','application/json');res.end(JSON.stringify({ok:true,service:'tevin-match-server',wire:WIRE,region:'Phoenix',build:'9.9.3',physicsHz:120,snapshotHz:30,rooms:rooms.size,capacity:maxRooms,droppedTicks}));}else{res.writeHead(404);res.end('Not found')}});
+ const server=http.createServer((req,res)=>{res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');if(req.url==='/health'){res.setHeader('Content-Type','application/json');res.end(JSON.stringify({ok:true,service:'tevin-match-server',wire:WIRE,region:'Phoenix',build:'9.9.4',physicsHz:120,snapshotHz:30,rooms:rooms.size,capacity:maxRooms,droppedTicks}));}else{res.writeHead(404);res.end('Not found')}});
  const wss=new WebSocketServer({noServer:true,maxPayload:4096,perMessageDeflate:false});
  server.on('upgrade',(req,socket,head)=>{
   if(req.url!=='/play'||!origins.has(req.headers.origin)||clients.size>=maxClients){socket.end('HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n');return}
@@ -137,4 +142,4 @@ function createService(options={}){
  return{server,rooms,clients,async close(){if(closed)return;closed=true;clearInterval(loop);clearInterval(heartbeat);for(const c of clients)c.ws.terminate();await new Promise(resolve=>wss.close(resolve));await new Promise(resolve=>server.close(resolve))}};
 }
 if(require.main===module){const service=createService({maxRooms:Number(process.env.MAX_ROOMS)||4});service.server.listen(Number(process.env.PORT)||8787,'127.0.0.1',()=>console.log('Tevin match server ready on loopback'));for(const signal of ['SIGTERM','SIGINT'])process.on(signal,()=>service.close().then(()=>process.exit(0)))}
-module.exports={createService,controls,profile,WIRE};
+module.exports={createService,controls,profile,WIRE,reserveInviteCode,validInvite};

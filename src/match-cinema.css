@@ -20,6 +20,7 @@
 #opening-caption small{font-size:8px;font-weight:700;letter-spacing:.18em;color:#97c4da}#opening-caption strong{display:block;font-size:15px;font-weight:800;letter-spacing:.08em;color:#eef9ff;margin:7px 0 12px}
 #opening-progress{display:block;height:2px;background:#91cce426;position:relative}#opening-progress:after{content:'';position:absolute;inset:0;background:#8be5ff;transform-origin:left;transform:scaleX(var(--progress,0));box-shadow:0 0 9px #81d7ff66}
 body.opening-cinematic::before,body.opening-cinematic::after{transform:translateY(0)}
+body.jet-impact :is(#hud,#opening-caption,#msg,#quick-chat){translate:var(--jet-x,0px) var(--jet-y,0px);will-change:translate}
 body.opening-cinematic :is(#quick-chat,#chat-log,#camtag,#bo,#spd,#rival-title,#matchtag,#driver-markers){display:none!important}
 body.opening-cinematic #touch-controls :is(#touch-stick,#touch-boost,#touch-jump,#touch-slide,#touch-air,#touch-landscape-hint){opacity:0;pointer-events:none}
 body.cinema-replay :is(#goal-detail,#quick-chat,#chat-log,#camtag,#bo,#spd,#matchtag,#rival-title){display:none!important}
