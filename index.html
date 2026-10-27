@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="color-scheme" content="dark">
-<title>Tevin League 9.9 — Cinema</title>
+<title>Tevin League 9.9.1 — Boost pickups</title>
 <script>
 // Independent bootstrap diagnostics remain available even if the engine fails.
 window.tevinBoot={ready:false,error:'',stage:'engine bundle not reached'};
@@ -329,7 +329,7 @@ body:is(.device-phone,.device-tablet) #menu #play-panel .destination-tabs button
 <div id="msg"></div>
 <div id="menu" class="ov on" data-screen="home"><section id="intro" aria-label="Tevin League title screen">
  <canvas id="music-visualizer" aria-hidden="true"></canvas><div id="intro-stage" aria-hidden="true"><div class="intro-art"></div><div class="stadium-design"><div class="stadium-orbit orbit-one"></div><div class="stadium-orbit orbit-two"></div><div class="stadium-beam beam-blue"></div><div class="stadium-beam beam-orange"></div><div class="stadium-stands"></div><div class="stadium-pitch"><div class="pitch-center"></div><div class="pitch-box box-blue"></div><div class="pitch-box box-orange"></div><div class="pitch-goal goal-blue"></div><div class="pitch-goal goal-orange"></div></div><div class="match-ball"><svg viewBox="0 0 200 200" aria-hidden="true"><defs><radialGradient id="ball-light" cx="32%" cy="25%" r="75%"><stop stop-color="#f2fcff"/><stop offset=".55" stop-color="#9ebfce"/><stop offset="1" stop-color="#233d55"/></radialGradient><clipPath id="ball-edge"><circle cx="100" cy="100" r="94"/></clipPath></defs><circle cx="100" cy="100" r="94" fill="url(#ball-light)"/><g clip-path="url(#ball-edge)" fill="#112b40" stroke="#4c7186" stroke-width="2"><path d="M91 61 126 78 120 116 81 122 63 87Z"/><path d="M8 66 34 43 54 57 49 89 20 99Z"/><path d="M131 9 164 25 159 49 135 52 119 31Z"/><path d="M159 116 193 100 209 133 192 161 162 151Z"/><path d="M67 158 98 148 119 170 108 197 72 198Z"/></g><g fill="none" stroke="#456577" stroke-width="2"><path d="M91 61 83 30 119 31M126 78 159 49M120 116 159 116M81 122 67 158M63 87 49 89M54 57 83 30 62 13M20 99 26 134 67 158M26 134 9 147M98 148 120 116M162 151 119 170"/></g></svg></div><div class="stadium-coordinate">CHAMPIONSHIP FIELD / 01<br><span>BLUE SIDE × ORANGE SIDE</span></div></div><div class="intro-horizon"></div></div>
- <div class="intro-top"><span>TEVIN / CHAMPIONSHIP SERIES</span><span>SEASON 09.9</span></div>
+ <div class="intro-top"><span>TEVIN / CHAMPIONSHIP SERIES</span><span>SEASON 09.9.1</span></div>
  <div class="intro-title"><p>THE ARENA IS YOURS</p><h1>TEVIN<span>LEAGUE</span></h1><div class="intro-rule"></div><p class="intro-tagline">ONE MORE MATCH. ONE GREAT MOMENT.</p></div>
  <div class="intro-controls"><button id="intro-start" hidden>ENABLE SOUND <small>YOUR BROWSER NEEDS A CLICK</small></button><button id="intro-play">START <span>ENTER THE ARENA →</span></button><button id="intro-skip">SETTINGS</button><p id="intro-status" role="status" aria-live="polite">Loading game engine…</p></div>
  <div class="intro-track"><div id="intro-spectrum" aria-hidden="true"></div><div><small>NOW PLAYING / YOUR SOUNDTRACK</small><strong>LUV U NEED U</strong><span>Slushii · Monstercat</span></div></div>
@@ -337,7 +337,7 @@ body:is(.device-phone,.device-tablet) #menu #play-panel .destination-tabs button
 </section>
 
 
- <header class="menu-top"><div class="wordmark">TEVIN<span>LEAGUE</span><small>CINEMA / 09.9</small></div><button id="menu-back" hidden>← BACK</button><button id="menu-music" aria-label="Toggle lobby music">MUSIC ON / OFF</button><button id="party-toggle">QUICK MATCH PARTY</button><span id="menu-location">HOME</span></header>
+ <header class="menu-top"><div class="wordmark">TEVIN<span>LEAGUE</span><small>CINEMA / 09.9.1</small></div><button id="menu-back" hidden>← BACK</button><button id="menu-music" aria-label="Toggle lobby music">MUSIC ON / OFF</button><button id="party-toggle">QUICK MATCH PARTY</button><span id="menu-location">HOME</span></header>
 
  <div id="car-inspect" tabindex="0" role="region" aria-label="Rotate car preview. Drag left or right, use arrow keys, or scroll to zoom."><span>DRAG TO ROTATE · SCROLL TO ZOOM</span></div><div id="home-panel"><div class="hero-copy"><p class="eyebrow">YOUR NEXT GREAT TOUCH</p><h1>TEVIN<br><em>LEAGUE.</em></h1><p>Arena soccer. Full-throttle freedom.</p></div><nav class="home-actions" aria-label="Main menu"><button id="nav-play" class="main-action"><b>PLAY</b><span>Quick Match, friends or free play</span><i>↗</i></button><button id="nav-garage"><b>GARAGE</b><span>Your car. Your colors.</span><i>→</i></button><button id="nav-training"><b>TRAINING</b><span>Practice on the pitch</span></button><button id="nav-settings"><b>SETTINGS</b><span>Sound, graphics and keyboard controls</span><i>→</i></button></nav><div class="home-caption">SOCCAR / HEATSEEKER <span>1v1 — 3v3</span></div></div>
 
@@ -376,7 +376,7 @@ body:is(.device-phone,.device-tablet) #menu #play-panel .destination-tabs button
 </div>
 
 <section id="loading-screen" hidden role="dialog" aria-modal="true" aria-labelledby="loading-title" aria-describedby="loading-detail">
- <div class="loading-art" aria-hidden="true"></div><header><strong>TEVIN<span>LEAGUE</span></strong><span>CHAMPIONSHIP SERIES / 09.9</span></header>
+ <div class="loading-art" aria-hidden="true"></div><header><strong>TEVIN<span>LEAGUE</span></strong><span>CHAMPIONSHIP SERIES / 09.9.1</span></header>
  <main><p id="loading-cache">PREPARING YOUR NEXT SESSION</p><h1 id="loading-title" tabindex="-1">ENTER THE ARENA</h1><p id="loading-detail">Preparing your game</p><div class="loading-track" id="loading-meter" role="progressbar" aria-label="Loading progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="loading-fill"></div></div><div class="loading-readout"><span id="loading-phase" role="status" aria-live="polite">Preparing assets</span><strong id="loading-percent">0%</strong></div></main>
  <footer><span>YOUR NEXT GREAT TOUCH IS WAITING.</span><span>W / S DRIVE &nbsp; · &nbsp; SHIFT BOOST &nbsp; · &nbsp; SPACE JUMP</span></footer>
 </section>
@@ -8831,7 +8831,7 @@ window.THREE=TevinEngine.THREE;
 try {
 
 
-/* Tevin League 9.9 — Cinema. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
+/* Tevin League 9.9.1 — Boost pickups. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
 window.tevinBoot.stage='game script';
 
 const ENGINE=TevinEngine;
@@ -8925,7 +8925,7 @@ function surf(p){
 }
 
 // Reference measurements are linked in docs/ACCURACY.md. Metres, seconds; Y up.
-const BUILD='9.9';
+const BUILD='9.9.1';
 const PRESENTATION_TIMING=Object.freeze({goalHold:9.4,replayDelay:1.25,replayDuration:6.6});
 const PROTOCOL=4;
 function airRotation(velocity,input,acceleration,damping,dt,roll=false){return velocity+(input*acceleration-damping*(roll?1:1-Math.abs(input))*velocity)*dt;}
@@ -8937,13 +8937,14 @@ function steeringCurvature(speed){
  const v=Math.min(23,Math.abs(speed)/cfg.speed);
  return (v<5?.69-.0584*v:v<10?.561-.0326*v:v<15?.43-.0195*v:v<17.5?.3025-.011*v:.18-.004*v)/cfg.speed;
 }
+// Keep existing wire indices stable; the measured centimeter positions are verified as a set.
 const STANDARD_PADS=[
  [0,-42.4,0],[-17.92,-41.84,0],[17.92,-41.84,0],[-30.72,-40.96,1],[30.72,-40.96,1],
- [-9.5,-33.08,0],[9.5,-33.08,0],[0,-28.16,0],[-35.84,-24.84,0],[35.84,-24.84,0],
- [-17.88,-23.02,0],[17.88,-23.02,0],[-20.48,-10.36,0],[20.48,-10.36,0],[0,-10.24,0],
+ [-9.4,-33.08,0],[9.4,-33.08,0],[0,-28.16,0],[-35.84,-24.84,0],[35.84,-24.84,0],
+ [-17.88,-23,0],[17.88,-23,0],[-20.48,-10.36,0],[20.48,-10.36,0],[0,-10.24,0],
  [-35.84,0,1],[-10.24,0,0],[10.24,0,0],[35.84,0,1],[0,10.24,0],
- [-20.48,10.36,0],[20.48,10.36,0],[-17.88,23.02,0],[17.88,23.02,0],[-35.84,24.84,0],[35.84,24.84,0],
- [0,28.16,0],[-9.5,33.08,0],[9.5,33.08,0],[-30.72,40.96,1],[30.72,40.96,1],
+ [-20.48,10.36,0],[20.48,10.36,0],[-17.88,23,0],[17.88,23,0],[-35.84,24.84,0],[35.84,24.84,0],
+ [0,28.16,0],[-9.4,33.08,0],[9.4,33.08,0],[-30.72,40.96,1],[30.72,40.96,1],
  [-17.92,41.84,0],[17.92,41.84,0],[0,42.4,0]
 ];
 function padContains(p,c){const dx=c.p.x-p.x,dz=c.p.z-p.z;return c.p.y>=0&&c.p.y<=(p.big?1.68:1.65)&&dx*dx+dz*dz<=(p.big?2.08:1.44)**2;}
@@ -10794,7 +10795,7 @@ function renderShowcase(dt){
  if(ending){cam.position.set(1.5,2.4,7);cam.lookAt(0,.5,0)}
  else if(title){cam.position.set(8,.7,13);cam.lookAt(0,1,-16)}
  else{const offset=innerWidth>800?-.12:0;cam.setViewOffset(innerWidth,innerHeight,innerWidth*offset,0,innerWidth,innerHeight);const d=SHOWROOM.distance;cam.position.set(d*.76,.36+d*SHOWROOM.pitch,d*.65);cam.lookAt(0,.38,0)}
- updateWind(dt,true);pts.count=0;if(cfg.hi){ren.shadowMap.needsUpdate=true;sun.shadow.needsUpdate=true}pipeline.render();
+ updateWind(dt,true);pts.count=0;updateBoostPickups(dt,null,false);if(cfg.hi){ren.shadowMap.needsUpdate=true;sun.shadow.needsUpdate=true}pipeline.render();
 }
 
 
@@ -11025,7 +11026,7 @@ function sim(dt){
 
 // ---------- 3D scene ----------
 
-let ren,scene,cam,sun,cm=[],bm,padM=[],padOff,bigPillars,pts,cd=new V3(1,0,0),cpos=new V3(),lookPos=new V3(),inited=0,pipeline=null,goalLights=[],goalPulse=0,grassM,WM=[],contactShadows=[],fr=0,graphicsPreset=-1,envTarget,assetTextures=null,garageStage=null;
+let ren,scene,cam,sun,cm=[],bm,pts,cd=new V3(1,0,0),cpos=new V3(),lookPos=new V3(),inited=0,pipeline=null,goalLights=[],goalPulse=0,grassM,WM=[],contactShadows=[],fr=0,graphicsPreset=-1,envTarget,assetTextures=null,garageStage=null;
 
 const renderForward=new V3(),renderRight=new V3(),renderEffect=new V3(),camDesired=new V3(),camLook=new V3(),camToBall=new V3(),shadowCenter=new V3();
 
@@ -11358,6 +11359,109 @@ function buildArenaAtmosphere(){
  scene.add(group);document.body.dataset.atmosphere='cobalt-amber';
 }
 
+// Measured pickup positions live in accuracy.js. These meshes never become colliders.
+// Original geometry: permanent three-legged housing, separate lenses, light curtains and pill.
+const BOOST_PICKUPS={visuals:null};
+function boostMerge(parts){
+ const data={position:[],normal:[],uv:[],color:[]},shade=new THREE.Color();
+ for(const part of parts){const source=part.geometry,g=source.index?source.toNonIndexed():source,p=g.getAttribute('position'),n=g.getAttribute('normal'),uv=g.getAttribute('uv');
+  for(let i=0;i<p.count;i++){data.position.push(p.getX(i),p.getY(i),p.getZ(i));data.normal.push(n.getX(i),n.getY(i),n.getZ(i));data.uv.push(uv?.getX(i)||0,uv?.getY(i)||0);shade.setHex(typeof part.color==='function'?part.color(n.getY(i)):part.color);data.color.push(shade.r,shade.g,shade.b);}
+  if(g!==source)g.dispose();source.dispose();
+ }
+ const result=new THREE.BufferGeometry();for(const [key,values] of Object.entries(data))result.setAttribute(key,new THREE.Float32BufferAttribute(values,key==='uv'?2:3));result.computeBoundingBox();result.computeBoundingSphere();return result;
+}
+function boostSector(inner,outer,start,end,height,y){
+ const s=new THREE.Shape();s.moveTo(Math.cos(start)*outer,Math.sin(start)*outer);s.absarc(0,0,outer,start,end,false);s.lineTo(Math.cos(end)*inner,Math.sin(end)*inner);s.absarc(0,0,inner,end,start,true);s.closePath();
+ return new THREE.ExtrudeGeometry(s,{depth:height,steps:1,bevelEnabled:true,bevelSize:.012,bevelThickness:.008,bevelSegments:1,curveSegments:5}).rotateX(-Math.PI/2).translate(0,y,0);
+}
+function boostBaseGeometry(){
+ const shape=new THREE.Shape(),parts=[];
+ for(let i=0;i<=72;i++){const a=i/72*Math.PI*2,r=.77+.23*Math.cos(a*3),x=Math.cos(a)*r,z=Math.sin(a)*r;shape[i?'lineTo':'moveTo'](x,z);}shape.closePath();
+ parts.push({geometry:new THREE.ExtrudeGeometry(shape,{depth:.075,steps:1,bevelEnabled:true,bevelSize:.025,bevelThickness:.018,bevelSegments:1}).rotateX(-Math.PI/2).translate(0,.028,0),color:ny=>ny>.8?0x89939e:ny>.1?0x545f6a:0x1a2028});
+ parts.push({geometry:new THREE.CylinderGeometry(.48,.51,.055,32).translate(0,.118,0),color:0x171d24});
+ parts.push({geometry:new THREE.RingGeometry(.435,.495,36).rotateX(-Math.PI/2).translate(0,.148,0),color:0xa4acb3});
+ parts.push({geometry:new THREE.CylinderGeometry(.4,.42,.035,32).translate(0,.14,0),color:0x343a3e});
+ for(let i=0;i<3;i++){const a=i*Math.PI*2/3;parts.push({geometry:boostSector(.59,.965,a-.3,a+.3,.028,.112),color:0x151c24});
+  for(const side of [-1,1]){const angle=a+side*.52;parts.push({geometry:new THREE.CylinderGeometry(.025,.028,.015,6).translate(Math.cos(angle)*.56,.12,-Math.sin(angle)*.56),color:0xc3c6c7});}
+ }
+ return boostMerge(parts);
+}
+function boostLensGeometry(){
+ const parts=[{geometry:new THREE.CylinderGeometry(.352,.37,.014,32).translate(0,.163,0),color:0xffffff}];
+ for(let i=0;i<3;i++){const a=i*Math.PI*2/3;parts.push({geometry:boostSector(.66,.91,a-.23,a+.23,.014,.151),color:0xffffff});}
+ return boostMerge(parts);
+}
+function boostCurtainGeometry(){
+ const positions=[],uvs=[],indices=[],steps=8;
+ for(let arm=0;arm<3;arm++){const base=positions.length/3;for(let j=0;j<=steps;j++){const a=arm*Math.PI*2/3-.25+j/steps*.5;for(let k=0;k<2;k++){const r=k?.99:.87;positions.push(Math.cos(a)*r,.17+k,-Math.sin(a)*r);uvs.push(j/steps,k);}}for(let j=0;j<steps;j++){const i=base+j*2;indices.push(i,i+1,i+2,i+1,i+3,i+2);}}
+ const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));g.setAttribute('uv',new THREE.Float32BufferAttribute(uvs,2));g.setIndex(indices);g.computeVertexNormals();return g;
+}
+function boostCurtainTexture(){
+ const c=cvs(96,128),g=c.getContext('2d'),image=g.createImageData(96,128);
+ for(let y=0;y<128;y++)for(let x=0;x<96;x++){const u=x/95,v=1-y/127,side=Math.sin(Math.PI*u),flare=.65+.35*Math.sin(x*.19+Math.sin(y*.12)*1.4),alpha=Math.pow(1-v,2)*Math.pow(side,.45)*flare;const o=(y*96+x)*4;image.data[o]=255;image.data[o+1]=220;image.data[o+2]=132;image.data[o+3]=Math.round(alpha*180);}g.putImageData(image,0,0);return tex(c);
+}
+function boostOrbTexture(){
+ const c=cvs(256,128),g=c.getContext('2d'),image=g.createImageData(256,128);
+ for(let y=0;y<128;y++)for(let x=0;x<256;x++){const u=x/256*Math.PI*2,v=y/127*Math.PI,nx=Math.sin(v)*Math.cos(u),ny=Math.cos(v),nz=Math.sin(v)*Math.sin(u);
+  const field=Math.sin(nx*16+Math.sin(nz*11)*2.1)+Math.sin(ny*19+Math.cos(nx*13)*1.7)+Math.sin(nz*22+ny*8)*.6,vein=Math.pow(Math.max(0,1-Math.abs(field)*1.5),3),heat=cl(.18+(1-ny)*.38+vein*.78,0,1),o=(y*256+x)*4;
+  image.data[o]=Math.round(70+185*heat);image.data[o+1]=Math.round(29+204*Math.pow(heat,1.4));image.data[o+2]=Math.round(8+80*Math.pow(heat,3));image.data[o+3]=255;
+ }g.putImageData(image,0,0);const texture=tex(c);texture.wrapS=THREE.RepeatWrapping;return texture;
+}
+function createBoostPickupSet(pads,textures){
+ const group=new THREE.Group();group.name='Three-dimensional boost pickups';
+ const material=new THREE.MeshStandardMaterial({vertexColors:true,roughness:.62,metalness:.45,envMapIntensity:.55});
+ const glow=extra=>new THREE.MeshBasicMaterial({transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false,...extra});
+ const make=(name,geometry,mat,count,dynamic=true)=>{const mesh=new THREE.InstancedMesh(geometry,mat,count);mesh.name=name;mesh.frustumCulled=false;mesh.userData.skipAO=!!mat.transparent;if(dynamic)mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);group.add(mesh);return mesh;};
+ const state={group,pads,records:pads.map((p,i)=>({cooldown:p.t||0,mix:p.t>0?0:1,age:99,kind:0,bigIndex:p.big?pads.slice(0,i).filter(q=>q.big).length:-1})),clock:0,initialized:false,live:false,eventSerial:0,particleCursor:0,
+  life:new Float32Array(128),total:new Float32Array(128),position:new Float32Array(384),velocity:new Float32Array(384),matrix:new THREE.Matrix4(),point:new V3(),scale:new V3(),rotation:new Qn(),color:new THREE.Color()};
+ const big=pads.filter(p=>p.big).length;
+ state.base=make('Beveled permanent metal housings',boostBaseGeometry(),material,pads.length,false);
+ state.lenses=make('Three amber inserts and center lenses',boostLensGeometry(),new THREE.MeshBasicMaterial({color:0xffffff,toneMapped:false}),pads.length);
+ state.curtains=make('Three rising light curtains',boostCurtainGeometry(),glow({map:textures.curtain,opacity:.54,side:THREE.DoubleSide}),pads.length);
+ state.orbs=make('Floating full-boost plasma pills',new THREE.SphereGeometry(.43,24,16),new THREE.MeshStandardMaterial({map:textures.orb,emissiveMap:textures.orb,emissive:0xffd16a,emissiveIntensity:1.25,color:0xffda86,roughness:.43,metalness:.12,envMapIntensity:.35}),big);
+ state.ground=make('Warm pickup ground spill',new THREE.PlaneGeometry(1,1).rotateX(-Math.PI/2),glow({map:textures.soft,opacity:.34,color:0xffb52c,polygonOffset:true,polygonOffsetFactor:-1}),pads.length);
+ state.halos=make('Pill aura',new THREE.PlaneGeometry(1,1),glow({map:textures.soft,opacity:.28,color:0xffb82b}),big);
+ state.motes=make('Pooled idle and collection sparks',new THREE.PlaneGeometry(1,1),glow({map:textures.soft,opacity:.9}),192);state.motes.count=0;
+ state.pulses=make('Pickup and respawn pulse',new THREE.RingGeometry(.87,1,40).rotateX(-Math.PI/2),glow({opacity:.7,side:THREE.DoubleSide}),pads.length);
+ for(const [i,p] of pads.entries()){state.point.set(p.x,0,p.z);state.scale.set(p.big?1.6:.94,p.big?1.22:1,p.big?1.6:.94);state.matrix.compose(state.point,state.rotation,state.scale);state.base.setMatrixAt(i,state.matrix);}
+ state.base.instanceMatrix.needsUpdate=true;state.base.receiveShadow=true;
+ for(const mesh of [state.lenses,state.motes,state.pulses]){mesh.setColorAt(0,state.color.setHex(0xffca43));mesh.instanceColor.setUsage(THREE.DynamicDrawUsage);}
+ return state;
+}
+function boostPickupBurst(state,index,respawn,motion){
+ const p=state.pads[index],record=state.records[index];record.age=0;record.kind=respawn?1:-1;state.eventSerial++;if(!motion)return;
+ const count=p.big?(respawn?8:18):(respawn?3:7);
+ for(let j=0;j<count;j++){const k=state.particleCursor++%128,o=k*3,a=j*2.399963+index,r=respawn?.4:p.big?.65:.28;
+  state.position[o]=p.x+Math.cos(a)*r;state.position[o+1]=p.big?1.25:.22;state.position[o+2]=p.z+Math.sin(a)*r;
+  state.velocity[o]=Math.cos(a)*(respawn?.35:1.6);state.velocity[o+1]=respawn?1.4:1.8+(j%4)*.35;state.velocity[o+2]=Math.sin(a)*(respawn?.35:1.6);state.life[k]=state.total[k]=p.big?.6:.42;
+ }
+}
+function tickBoostPickupSet(state,dt,{timers=null,camera=null,motion=true,events=true,playing=false,showcase=false}={}){
+ if(!state)return;const step=cl(dt,0,.1),time=state.clock+=step,matrix=state.matrix,pos=state.point,scale=state.scale,q=state.rotation,color=state.color;let count=0;
+ const set=(mesh,index,x,y,z,sx,sy,sz,rotation=null)=>{pos.set(x,y,z);scale.set(sx,sy,sz);q.copy(rotation||boostIdentity);matrix.compose(pos,q,scale);mesh.setMatrixAt(index,matrix);};
+ for(let i=0;i<state.pads.length;i++){
+  const p=state.pads[i],r=state.records[i],timer=showcase?0:Math.max(0,timers?timers[i]||0:p.t||0),active=timer<=0,radius=p.big?1.6:.94,sy=p.big?1.22:1;
+  if(state.initialized&&events&&playing&&state.live){if(r.cooldown<=0&&timer>0)boostPickupBurst(state,i,false,motion);else if(r.cooldown>0&&active)boostPickupBurst(state,i,true,motion);}
+  r.cooldown=timer;r.mix=active?(state.initialized?Math.min(1,r.mix+step*7):1):0;r.age+=step;const mix=r.mix,pulse=motion?1+Math.sin(time*2.3+i*.71)*.055:1;
+  set(state.lenses,i,p.x,0,p.z,radius,sy,radius);color.setHex(active?0xffc542:0x342b1c).multiplyScalar(active?(.75+.25*mix):1);state.lenses.setColorAt(i,color);
+  set(state.curtains,i,p.x,.03,p.z,radius*mix,(p.big?1.05:.5)*mix,radius*mix);
+  const spill=(p.big?4.5:2.4)*mix*pulse;set(state.ground,i,p.x,.019,p.z,spill,1,spill);
+  const wave=motion?Math.sin(time*1.8+i)*.075:0,height=1.57+wave;
+  if(p.big){q.setFromAxisAngle(Y3,motion?time*.48+i:0);state.matrix.compose(pos.set(p.x,height,p.z),q,scale.setScalar(mix));state.orbs.setMatrixAt(r.bigIndex,state.matrix);const halo=(1.8+wave)*mix;set(state.halos,r.bigIndex,p.x,height,p.z,halo,halo,1,camera?.quaternion);
+   if(active&&motion)for(let j=0;j<6;j++){const u=(time*.3+j/6+i*.131)%1,a=j*2.3999+time*.6,rr=.3+u*.32;set(state.motes,count,p.x+Math.cos(a)*rr,.2+u*1.65,p.z+Math.sin(a)*rr,.035*(1-u),.12*(1-u),1,camera?.quaternion);state.motes.setColorAt(count++,color.setHex(0xffd366).multiplyScalar(Math.sin(Math.PI*u)*.7));}
+  }else if(active&&motion){const u=(time*.45+i*.17)%1;set(state.motes,count,p.x+Math.sin(i*5.3)*.19,.2+u*.45,p.z+Math.cos(i*5.3)*.19,.035,.06,1,camera?.quaternion);state.motes.setColorAt(count++,color.setHex(0xffd66d).multiplyScalar(Math.sin(Math.PI*u)*.4));}
+  const life=motion&&r.age<.5?1-r.age/.5:0,size=life>0?radius*(.4+r.age*(r.kind>0?2:3)):0;set(state.pulses,i,p.x,.027,p.z,size,1,size);state.pulses.setColorAt(i,color.setHex(r.kind>0?0xffd76c:0xffa82b).multiplyScalar(life));
+ }
+ for(let k=0;k<128;k++){state.life[k]=Math.max(0,state.life[k]-step);if(!state.life[k]||!motion)continue;const o=k*3;for(let axis=0;axis<3;axis++)state.position[o+axis]+=state.velocity[o+axis]*step;state.velocity[o+1]-=step*2.8;const alpha=state.life[k]/state.total[k],size=.075*alpha;set(state.motes,count,state.position[o],state.position[o+1],state.position[o+2],size,size*1.8,1,camera?.quaternion);state.motes.setColorAt(count++,color.setHex(0xffd66b).multiplyScalar(alpha));}
+ state.motes.count=count;state.initialized=true;state.live=playing&&events;
+ for(const mesh of [state.lenses,state.curtains,state.orbs,state.ground,state.halos,state.motes,state.pulses]){mesh.instanceMatrix.needsUpdate=true;if(mesh.instanceColor)mesh.instanceColor.needsUpdate=true;}
+}
+const boostIdentity=new Qn();
+function buildBoostPickups(){
+ const state=createBoostPickupSet(PADS,{soft:glowTex(),orb:boostOrbTexture(),curtain:boostCurtainTexture()});BOOST_PICKUPS.visuals=state;scene.add(state.group);tickBoostPickupSet(state,0,{camera:cam,events:false});document.body.dataset.boostPickups='sculpted-3d-v1';
+}
+function updateBoostPickups(dt,timers=null,events=true){tickBoostPickupSet(BOOST_PICKUPS.visuals,dt,{timers,camera:cam,motion:cinemaMotion(),events,playing:st==='PLAY',showcase:st==='MENU'||st==='END'});}
+
 function floorMat(){return arenaPitchMaterial()}
 
 let GT,GU;const glowTex=()=>{if(GT)return GT;const c=cvs(64,64),g=c.getContext('2d'),r=g.createRadialGradient(32,32,0,32,32,32);r.addColorStop(0,'rgba(255,255,255,.9)');r.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=r;g.fillRect(0,0,64,64);return GT=new THREE.CanvasTexture(c)};
@@ -11560,7 +11664,7 @@ function dispose3d(){
 
  const old=$('cv');old.replaceWith(old.cloneNode(false));if(pipeline){pipeline.dispose();pipeline=null}if(ren){ren.dispose();if(ren.forceContextLoss)ren.forceContextLoss()}
 
-  resetCelebrationEffects();FX=null;garageStage=null;RIVALS.visuals=null;RIVALS.trim=null;RIVALS.crowd=null;$('driver-markers').replaceChildren();scene=ren=cam=sun=grassM=GT=GU=envTarget=bigPillars=padOff=null;cm=[];padM=[];WM=[];windFlags=[];contactShadows=[];goalLights=[];inited=0;graphicsPreset=-1;
+  resetCelebrationEffects();BOOST_PICKUPS.visuals=null;FX=null;garageStage=null;RIVALS.visuals=null;RIVALS.trim=null;RIVALS.crowd=null;$('driver-markers').replaceChildren();scene=ren=cam=sun=grassM=GT=GU=envTarget=null;cm=[];WM=[];windFlags=[];contactShadows=[];goalLights=[];inited=0;graphicsPreset=-1;
 
 }
 
@@ -11673,27 +11777,7 @@ async function build3d(forceGL){
 
  const sp=cvs(64,64),sg=sp.getContext('2d'),rg=sg.createRadialGradient(32,32,0,32,32,32);rg.addColorStop(0,'#fff');rg.addColorStop(.3,'rgba(255,255,255,.5)');rg.addColorStop(1,'rgba(255,255,255,0)');sg.fillStyle=rg;sg.fillRect(0,0,64,64);
 
-  // Three draw calls for all pads. Matrices change only when a pad is picked up or respawns.
-
-  const nSmall=PADS.filter(p=>!p.big).length,nBig=PADS.length-nSmall;
-
-  const padTexture=ENGINE.boostSurface(),padMaterial=ENGINE.standardMaterial(ren,{map:padTexture,emissiveMap:padTexture,emissive:0xffbf66,emissiveIntensity:.35,metalness:.4,roughness:.48});
-
-  const smallPads=new THREE.InstancedMesh(new THREE.CircleGeometry(.8,32).rotateX(-Math.PI/2),padMaterial,nSmall);
-
-  const bigPads=new THREE.InstancedMesh(new THREE.CircleGeometry(1.7,48).rotateX(-Math.PI/2),padMaterial,nBig);
-
-  bigPillars=new THREE.InstancedMesh(new THREE.TorusGeometry(.58,.08,6,32).rotateX(-Math.PI/2),ENGINE.standardMaterial(ren,{color:0xffd18a,emissive:0xff9c28,emissiveIntensity:1.1,metalness:.35,roughness:.32}),nBig);
-
-  padOff=new THREE.Matrix4().makeScale(0,0,0);let smallIndex=0,bigIndex=0;
-
-  for(const mesh of [smallPads,bigPads,bigPillars]){mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);mesh.frustumCulled=false;scene.add(mesh)}
-
-  PADS.forEach(p=>{const index=p.big?bigIndex++:smallIndex++,mesh=p.big?bigPads:smallPads,base=new THREE.Matrix4().makeTranslation(p.x,.05,p.z),pillar=p.big?new THREE.Matrix4().makeTranslation(p.x,.5,p.z):null;
-
-   mesh.setMatrixAt(index,base);if(p.big)bigPillars.setMatrixAt(index,pillar);padM.push({mesh,index,base,pillar,visible:true})});
-
-  smallPads.instanceMatrix.needsUpdate=bigPads.instanceMatrix.needsUpdate=bigPillars.instanceMatrix.needsUpdate=true;
+  buildBoostPickups();
 
   await createGraphicsEffects();createCelebrationEffects();
 
@@ -11770,8 +11854,6 @@ function render(dt){
 
   const glow=ball.last>=0?ball.color||PALETTE[ball.last]:0x222222;if(bm.userData.glow!==glow){bm.material.emissive.setHex(glow);bm.userData.glow=glow}
 
-  for(let k=0;k<padM.length;k++){const p=padM[k],on=PADS[k].t<=0;if(on===p.visible)continue;p.mesh.setMatrixAt(p.index,on?p.base:padOff);p.mesh.instanceMatrix.needsUpdate=true;if(p.pillar){bigPillars.setMatrixAt(p.index,on?p.pillar:padOff);bigPillars.instanceMatrix.needsUpdate=true}p.visible=on}
-
   // Keep live particles packed; upload only the used prefix of each dynamic buffer.
 
   for(let k=0;k<particleCount;){pl[k]-=dt;if(pl[k]<=0){const last=--particleCount;if(k!==last){const dst=k*3,src=last*3;for(let j=0;j<3;j++){pp[dst+j]=pp[src+j];pv[dst+j]=pv[src+j];pb[dst+j]=pb[src+j];pc[dst+j]=pc[src+j]}pl[k]=pl[last]}continue}
@@ -11810,7 +11892,7 @@ function render(dt){
 
  for(let k=0;k<goalLights.length;k++)goalLights[k].intensity=goalLights[k].userData.base*(1+goalPulse*.7);
 
- updateRivalVisuals(dt);animateArenaAccents(dt);uploadParticles();updateCelebrations(dt);pipeline.render();
+ updateRivalVisuals(dt);animateArenaAccents(dt);uploadParticles();updateCelebrations(dt);updateBoostPickups(dt);pipeline.render();
 
   if(st==='PLAY'){perfEMA+=(dt-perfEMA)*.03;perfTimer+=dt;if(perfTimer>4){perfTimer=0;const next=1;if(next!==renderScale){renderScale=next;ren.setPixelRatio(pixelRatio());pipeline.resize(innerWidth,innerHeight,pixelRatio())}}}
 
@@ -11904,7 +11986,7 @@ function renderGoalReplay(dt){
  const f=cl((time-a.t)/Math.max(.001,b.t-a.t),0,1);
  for(let i=0;i<cm.length;i++){const m=cm[i];m.visible=cars[i].enabled;if(!a.cars[i]||!b.cars[i])continue;m.position.fromArray(a.cars[i].p).lerp(replayPose.fromArray(b.cars[i].p),f);m.quaternion.fromArray(a.cars[i].q).slerp(replayRotation.fromArray(b.cars[i].q),f);if(m.userData.f)m.userData.f.visible=false;}
  bm.visible=true;bm.position.fromArray(a.ball).lerp(replayPose.fromArray(b.ball),f);const direction=positionReplayCamera(r);document.body.classList.toggle('cinema-replay',cinemaMotion());updateWind(dt*(direction.slow?.22:1));
- pts.count=0;if(FX)FX.group.visible=false;contactShadows.forEach(s=>s.visible=false);if(RIVALS.visuals)RIVALS.visuals.group.visible=false;$('flash').style.opacity=0;updateCelebrations(dt);pipeline.render();
+ pts.count=0;if(FX)FX.group.visible=false;contactShadows.forEach(s=>s.visible=false);if(RIVALS.visuals)RIVALS.visuals.group.visible=false;$('flash').style.opacity=0;updateCelebrations(dt);updateBoostPickups(dt,a.pads||null,false);pipeline.render();
  $('replay-label').textContent=direction.slow?'FINAL TOUCH · SLOW MOTION':direction.ballFocus>.5?'GOAL REPLAY · FOLLOW THE SHOT':'GOAL REPLAY · THE APPROACH';if(r.elapsed>PRESENTATION_TIMING.replayDuration)stopReplay();return true;
 }
 function rivalsFinish(){
@@ -12134,7 +12216,7 @@ function planGoalReplay(replay){
 }
 function captureReplayFrame(snapshot,time=RIVALS.time){
  const list=snapshot?snapshot.cars:cars;
- return{t:time,cars:snapshot?list.map(c=>({p:[c.x,c.y,c.z],q:c.q.slice()})):list.map(c=>({p:c.p.toArray(),q:c.q.toArray()})),ball:snapshot?snapshot.ball.p.slice():ball.p.toArray(),touches:list.map(c=>c.touches||0),lastPlayer:snapshot?snapshot.ball.lastPlayer:ball.lastPlayer};
+ return{t:time,cars:snapshot?list.map(c=>({p:[c.x,c.y,c.z],q:c.q.slice()})):list.map(c=>({p:c.p.toArray(),q:c.q.toArray()})),ball:snapshot?snapshot.ball.p.slice():ball.p.toArray(),pads:snapshot?.pads?snapshot.pads.slice():PADS.map(p=>p.t),touches:list.map(c=>c.touches||0),lastPlayer:snapshot?snapshot.ball.lastPlayer:ball.lastPlayer};
 }
 function replayDirectorState(replay){
  const p=replay.plan||planGoalReplay(replay),t=cl(replay.elapsed,0,PRESENTATION_TIMING.replayDuration);let time;
@@ -12563,7 +12645,7 @@ if(window.__TEVIN_SERVER__){
 }
 
 if(window.__TEVIN_TEST__){
- window.tevinTest={wallCameraPose,wallBallTarget,exteriorApronGeometry,VIEW,constrainArenaCamera,carBlocksBall,prepareCameraFade,setCameraCarOpacity,resetViewFade,planGoalReplay,replayDirectorState,positionReplayCamera,captureReplayFrame,stadiumRibbonGeometry,dedClockSample,dedRenderTime,dedResetClock,applyMultiplayer,handleRemoteMatch,PRESENTATION_TIMING,DEVICE,touchInput,updateDeviceUI,updateDeviceProfile,setDeviceInput,clearTouchInput,deviceCanPlay,touchStickStart,touchStickMove,touchRelease,touchActionStart,deviceSecretHoldStart,deviceSecretHoldMove,validPaint,driverPaint,paintHex,setCustomPaint,updateScorePaint,CELEBRATION,triggerCelebration,updateCelebrations,clearCelebration,celebrationEnvelope,celebrationAccent,turfGeometry,engine:ENGINE,SECRET,SECRET_ABILITIES,secretKey,secretOpen,secretClose,secretApply,secretSnapshot,readSecretState,secretReset,secretBallStep,secretCarStep,planBot,bot,possessionPlan,arenaBotTarget,preparePaint,replayPlaybackTime,positionDriverTag,cinemaEase,cinemaMotion,syncCinema,msg,DED,dedState,dedFrame,packDriver,pixelRatio,setupGauges,updateGauge,SHOWROOM,resetShowroom,THREE,cfg,cars,ball,PADS,PHYS,BODY_PHYSICS,DT,SIM_DT,PROTOCOL,keys,bindings,padInput,cameraSettings,MP,
+ window.tevinTest={boostBaseGeometry,boostLensGeometry,boostCurtainGeometry,createBoostPickupSet,tickBoostPickupSet,boostPickupBurst,BOOST_PICKUPS,wallCameraPose,wallBallTarget,exteriorApronGeometry,VIEW,constrainArenaCamera,carBlocksBall,prepareCameraFade,setCameraCarOpacity,resetViewFade,planGoalReplay,replayDirectorState,positionReplayCamera,captureReplayFrame,stadiumRibbonGeometry,dedClockSample,dedRenderTime,dedResetClock,applyMultiplayer,handleRemoteMatch,PRESENTATION_TIMING,DEVICE,touchInput,updateDeviceUI,updateDeviceProfile,setDeviceInput,clearTouchInput,deviceCanPlay,touchStickStart,touchStickMove,touchRelease,touchActionStart,deviceSecretHoldStart,deviceSecretHoldMove,validPaint,driverPaint,paintHex,setCustomPaint,updateScorePaint,CELEBRATION,triggerCelebration,updateCelebrations,clearCelebration,celebrationEnvelope,celebrationAccent,turfGeometry,engine:ENGINE,SECRET,SECRET_ABILITIES,secretKey,secretOpen,secretClose,secretApply,secretSnapshot,readSecretState,secretReset,secretBallStep,secretCarStep,planBot,bot,possessionPlan,arenaBotTarget,preparePaint,replayPlaybackTime,positionDriverTag,cinemaEase,cinemaMotion,syncCinema,msg,DED,dedState,dedFrame,packDriver,pixelRatio,setupGauges,updateGauge,SHOWROOM,resetShowroom,THREE,cfg,cars,ball,PADS,PHYS,BODY_PHYSICS,DT,SIM_DT,PROTOCOL,keys,bindings,padInput,cameraSettings,MP,
   RIVALS,RIVAL_PREF,CAREER,DRILL,DRILLS,SERIES,heat,trainingSetup,trainingTick,finishDrill,readHeatState,predictLocalBall,cameraBallTarget,rivalsStart,rivalsFinish,rivalsTick,replayRecord,rivalsGoal,stopReplay,garagePreset,seriesStart,seriesFinish,mpSnapshot,renderCareer,rivalsTouch,endMatch,
   cameraAnchor:()=>cameraAnchorReady,setCameraAnchor:value=>cameraAnchorReady=value,
   throttleAcceleration,steeringCurvature,padContains,bodyPhysics,resetCar,stepCar,carBall,ballSub,stepBall,carCar,padStep,sim,frame,configureCars,spawnCar,surf,carPenetration,predictBall,finishRegulation,advanceMatchClock,validSnapshot,packetValid,queuePlan,human,pollController,mappedKey,captureBinding,setupDriverSettings,renderBindings,fitCarVisual,rendererWithFallback,spectrumEnergy,advanceMusicEnvelope,INTRO,LOADING,introPlay,openPlaySelection,loadingBegin,loadingEnd,
@@ -12578,7 +12660,7 @@ setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();se
 
 window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:120,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,multiplayer:DED.active?'Phoenix dedicated':'offline',rtt:DED.rtt,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
 
-window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.9 · CINEMA · Ready to play');
+window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.9.1 · BOOST PICKUPS · Ready to play');
 
 
 } catch(error) { window.tevinBoot.error=String(error.message||error);window.tevinBoot.show("Startup failed at "+window.tevinBoot.stage+": "+window.tevinBoot.error);console.error(error); }

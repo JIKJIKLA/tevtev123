@@ -72,7 +72,7 @@ function planGoalReplay(replay){
 }
 function captureReplayFrame(snapshot,time=RIVALS.time){
  const list=snapshot?snapshot.cars:cars;
- return{t:time,cars:snapshot?list.map(c=>({p:[c.x,c.y,c.z],q:c.q.slice()})):list.map(c=>({p:c.p.toArray(),q:c.q.toArray()})),ball:snapshot?snapshot.ball.p.slice():ball.p.toArray(),touches:list.map(c=>c.touches||0),lastPlayer:snapshot?snapshot.ball.lastPlayer:ball.lastPlayer};
+ return{t:time,cars:snapshot?list.map(c=>({p:[c.x,c.y,c.z],q:c.q.slice()})):list.map(c=>({p:c.p.toArray(),q:c.q.toArray()})),ball:snapshot?snapshot.ball.p.slice():ball.p.toArray(),pads:snapshot?.pads?snapshot.pads.slice():PADS.map(p=>p.t),touches:list.map(c=>c.touches||0),lastPlayer:snapshot?snapshot.ball.lastPlayer:ball.lastPlayer};
 }
 function replayDirectorState(replay){
  const p=replay.plan||planGoalReplay(replay),t=cl(replay.elapsed,0,PRESENTATION_TIMING.replayDuration);let time;

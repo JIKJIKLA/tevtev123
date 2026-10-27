@@ -1,4 +1,6 @@
-# Tevin League 9.9 — Cinema
+# Tevin League 9.9.1 — Boost pickups
+
+Boost pickups use sculpted three-armed housings, floating golden full-boost pills, light curtains and collection/respawn effects. All 34 placements are verified against the standard field. [Boost pickup release details and references](docs/RELEASE-9.9.1.md).
 
 Browser car soccer with Soccar and Heatseeker, 1v1/2v2/3v3, AI, sandbox, private rooms and public matchmaking. [Play on GitHub Pages](https://jikjikla.github.io/tevtev123/) or [Bunny CDN](https://tevtev123.b-cdn.net/). Online play uses the Phoenix dedicated server. The portable `index.html` also supports offline AI and practice.
 

@@ -1,5 +1,5 @@
 // Reference measurements are linked in docs/ACCURACY.md. Metres, seconds; Y up.
-const BUILD='9.9';
+const BUILD='9.9.1';
 const PRESENTATION_TIMING=Object.freeze({goalHold:9.4,replayDelay:1.25,replayDuration:6.6});
 const PROTOCOL=4;
 function airRotation(velocity,input,acceleration,damping,dt,roll=false){return velocity+(input*acceleration-damping*(roll?1:1-Math.abs(input))*velocity)*dt;}
@@ -11,13 +11,14 @@ function steeringCurvature(speed){
  const v=Math.min(23,Math.abs(speed)/cfg.speed);
  return (v<5?.69-.0584*v:v<10?.561-.0326*v:v<15?.43-.0195*v:v<17.5?.3025-.011*v:.18-.004*v)/cfg.speed;
 }
+// Keep existing wire indices stable; the measured centimeter positions are verified as a set.
 const STANDARD_PADS=[
  [0,-42.4,0],[-17.92,-41.84,0],[17.92,-41.84,0],[-30.72,-40.96,1],[30.72,-40.96,1],
- [-9.5,-33.08,0],[9.5,-33.08,0],[0,-28.16,0],[-35.84,-24.84,0],[35.84,-24.84,0],
- [-17.88,-23.02,0],[17.88,-23.02,0],[-20.48,-10.36,0],[20.48,-10.36,0],[0,-10.24,0],
+ [-9.4,-33.08,0],[9.4,-33.08,0],[0,-28.16,0],[-35.84,-24.84,0],[35.84,-24.84,0],
+ [-17.88,-23,0],[17.88,-23,0],[-20.48,-10.36,0],[20.48,-10.36,0],[0,-10.24,0],
  [-35.84,0,1],[-10.24,0,0],[10.24,0,0],[35.84,0,1],[0,10.24,0],
- [-20.48,10.36,0],[20.48,10.36,0],[-17.88,23.02,0],[17.88,23.02,0],[-35.84,24.84,0],[35.84,24.84,0],
- [0,28.16,0],[-9.5,33.08,0],[9.5,33.08,0],[-30.72,40.96,1],[30.72,40.96,1],
+ [-20.48,10.36,0],[20.48,10.36,0],[-17.88,23,0],[17.88,23,0],[-35.84,24.84,0],[35.84,24.84,0],
+ [0,28.16,0],[-9.4,33.08,0],[9.4,33.08,0],[-30.72,40.96,1],[30.72,40.96,1],
  [-17.92,41.84,0],[17.92,41.84,0],[0,42.4,0]
 ];
 function padContains(p,c){const dx=c.p.x-p.x,dz=c.p.z-p.z;return c.p.y>=0&&c.p.y<=(p.big?1.68:1.65)&&dx*dx+dz*dz<=(p.big?2.08:1.44)**2;}

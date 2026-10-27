@@ -2,7 +2,7 @@
 try {
 
 
-/* Tevin League 9.9 — Cinema. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
+/* Tevin League 9.9.1 — Boost pickups. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
 window.tevinBoot.stage='game script';
 
 const ENGINE=TevinEngine;
@@ -1835,7 +1835,7 @@ function sim(dt){
 
 // ---------- 3D scene ----------
 
-let ren,scene,cam,sun,cm=[],bm,padM=[],padOff,bigPillars,pts,cd=new V3(1,0,0),cpos=new V3(),lookPos=new V3(),inited=0,pipeline=null,goalLights=[],goalPulse=0,grassM,WM=[],contactShadows=[],fr=0,graphicsPreset=-1,envTarget,assetTextures=null,garageStage=null;
+let ren,scene,cam,sun,cm=[],bm,pts,cd=new V3(1,0,0),cpos=new V3(),lookPos=new V3(),inited=0,pipeline=null,goalLights=[],goalPulse=0,grassM,WM=[],contactShadows=[],fr=0,graphicsPreset=-1,envTarget,assetTextures=null,garageStage=null;
 
 const renderForward=new V3(),renderRight=new V3(),renderEffect=new V3(),camDesired=new V3(),camLook=new V3(),camToBall=new V3(),shadowCenter=new V3();
 
@@ -1941,6 +1941,7 @@ function wallMat(col){
 // INLINE:arena-style.js
 // INLINE:stadium-detail.js
 // INLINE:arena-exterior.js
+// INLINE:boost-pickups.js
 function floorMat(){return arenaPitchMaterial()}
 
 let GT,GU;const glowTex=()=>{if(GT)return GT;const c=cvs(64,64),g=c.getContext('2d'),r=g.createRadialGradient(32,32,0,32,32,32);r.addColorStop(0,'rgba(255,255,255,.9)');r.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=r;g.fillRect(0,0,64,64);return GT=new THREE.CanvasTexture(c)};
@@ -2106,7 +2107,7 @@ function dispose3d(){
 
  const old=$('cv');old.replaceWith(old.cloneNode(false));if(pipeline){pipeline.dispose();pipeline=null}if(ren){ren.dispose();if(ren.forceContextLoss)ren.forceContextLoss()}
 
-  resetCelebrationEffects();FX=null;garageStage=null;RIVALS.visuals=null;RIVALS.trim=null;RIVALS.crowd=null;$('driver-markers').replaceChildren();scene=ren=cam=sun=grassM=GT=GU=envTarget=bigPillars=padOff=null;cm=[];padM=[];WM=[];windFlags=[];contactShadows=[];goalLights=[];inited=0;graphicsPreset=-1;
+  resetCelebrationEffects();BOOST_PICKUPS.visuals=null;FX=null;garageStage=null;RIVALS.visuals=null;RIVALS.trim=null;RIVALS.crowd=null;$('driver-markers').replaceChildren();scene=ren=cam=sun=grassM=GT=GU=envTarget=null;cm=[];WM=[];windFlags=[];contactShadows=[];goalLights=[];inited=0;graphicsPreset=-1;
 
 }
 
@@ -2219,27 +2220,7 @@ async function build3d(forceGL){
 
  const sp=cvs(64,64),sg=sp.getContext('2d'),rg=sg.createRadialGradient(32,32,0,32,32,32);rg.addColorStop(0,'#fff');rg.addColorStop(.3,'rgba(255,255,255,.5)');rg.addColorStop(1,'rgba(255,255,255,0)');sg.fillStyle=rg;sg.fillRect(0,0,64,64);
 
-  // Three draw calls for all pads. Matrices change only when a pad is picked up or respawns.
-
-  const nSmall=PADS.filter(p=>!p.big).length,nBig=PADS.length-nSmall;
-
-  const padTexture=ENGINE.boostSurface(),padMaterial=ENGINE.standardMaterial(ren,{map:padTexture,emissiveMap:padTexture,emissive:0xffbf66,emissiveIntensity:.35,metalness:.4,roughness:.48});
-
-  const smallPads=new THREE.InstancedMesh(new THREE.CircleGeometry(.8,32).rotateX(-Math.PI/2),padMaterial,nSmall);
-
-  const bigPads=new THREE.InstancedMesh(new THREE.CircleGeometry(1.7,48).rotateX(-Math.PI/2),padMaterial,nBig);
-
-  bigPillars=new THREE.InstancedMesh(new THREE.TorusGeometry(.58,.08,6,32).rotateX(-Math.PI/2),ENGINE.standardMaterial(ren,{color:0xffd18a,emissive:0xff9c28,emissiveIntensity:1.1,metalness:.35,roughness:.32}),nBig);
-
-  padOff=new THREE.Matrix4().makeScale(0,0,0);let smallIndex=0,bigIndex=0;
-
-  for(const mesh of [smallPads,bigPads,bigPillars]){mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);mesh.frustumCulled=false;scene.add(mesh)}
-
-  PADS.forEach(p=>{const index=p.big?bigIndex++:smallIndex++,mesh=p.big?bigPads:smallPads,base=new THREE.Matrix4().makeTranslation(p.x,.05,p.z),pillar=p.big?new THREE.Matrix4().makeTranslation(p.x,.5,p.z):null;
-
-   mesh.setMatrixAt(index,base);if(p.big)bigPillars.setMatrixAt(index,pillar);padM.push({mesh,index,base,pillar,visible:true})});
-
-  smallPads.instanceMatrix.needsUpdate=bigPads.instanceMatrix.needsUpdate=bigPillars.instanceMatrix.needsUpdate=true;
+  buildBoostPickups();
 
   await createGraphicsEffects();createCelebrationEffects();
 
@@ -2316,8 +2297,6 @@ function render(dt){
 
   const glow=ball.last>=0?ball.color||PALETTE[ball.last]:0x222222;if(bm.userData.glow!==glow){bm.material.emissive.setHex(glow);bm.userData.glow=glow}
 
-  for(let k=0;k<padM.length;k++){const p=padM[k],on=PADS[k].t<=0;if(on===p.visible)continue;p.mesh.setMatrixAt(p.index,on?p.base:padOff);p.mesh.instanceMatrix.needsUpdate=true;if(p.pillar){bigPillars.setMatrixAt(p.index,on?p.pillar:padOff);bigPillars.instanceMatrix.needsUpdate=true}p.visible=on}
-
   // Keep live particles packed; upload only the used prefix of each dynamic buffer.
 
   for(let k=0;k<particleCount;){pl[k]-=dt;if(pl[k]<=0){const last=--particleCount;if(k!==last){const dst=k*3,src=last*3;for(let j=0;j<3;j++){pp[dst+j]=pp[src+j];pv[dst+j]=pv[src+j];pb[dst+j]=pb[src+j];pc[dst+j]=pc[src+j]}pl[k]=pl[last]}continue}
@@ -2356,7 +2335,7 @@ function render(dt){
 
  for(let k=0;k<goalLights.length;k++)goalLights[k].intensity=goalLights[k].userData.base*(1+goalPulse*.7);
 
- updateRivalVisuals(dt);animateArenaAccents(dt);uploadParticles();updateCelebrations(dt);pipeline.render();
+ updateRivalVisuals(dt);animateArenaAccents(dt);uploadParticles();updateCelebrations(dt);updateBoostPickups(dt);pipeline.render();
 
   if(st==='PLAY'){perfEMA+=(dt-perfEMA)*.03;perfTimer+=dt;if(perfTimer>4){perfTimer=0;const next=1;if(next!==renderScale){renderScale=next;ren.setPixelRatio(pixelRatio());pipeline.resize(innerWidth,innerHeight,pixelRatio())}}}
 
@@ -2414,7 +2393,7 @@ setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();se
 
 window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:120,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,multiplayer:DED.active?'Phoenix dedicated':'offline',rtt:DED.rtt,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
 
-window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.9 · CINEMA · Ready to play');
+window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.9.1 · BOOST PICKUPS · Ready to play');
 
 
 } catch(error) { window.tevinBoot.error=String(error.message||error);window.tevinBoot.show("Startup failed at "+window.tevinBoot.stage+": "+window.tevinBoot.error);console.error(error); }

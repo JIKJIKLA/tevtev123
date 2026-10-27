@@ -21,5 +21,5 @@ function renderShowcase(dt){
  if(ending){cam.position.set(1.5,2.4,7);cam.lookAt(0,.5,0)}
  else if(title){cam.position.set(8,.7,13);cam.lookAt(0,1,-16)}
  else{const offset=innerWidth>800?-.12:0;cam.setViewOffset(innerWidth,innerHeight,innerWidth*offset,0,innerWidth,innerHeight);const d=SHOWROOM.distance;cam.position.set(d*.76,.36+d*SHOWROOM.pitch,d*.65);cam.lookAt(0,.38,0)}
- updateWind(dt,true);pts.count=0;if(cfg.hi){ren.shadowMap.needsUpdate=true;sun.shadow.needsUpdate=true}pipeline.render();
+ updateWind(dt,true);pts.count=0;updateBoostPickups(dt,null,false);if(cfg.hi){ren.shadowMap.needsUpdate=true;sun.shadow.needsUpdate=true}pipeline.render();
 }
