@@ -43,7 +43,7 @@ function secretPanel(){
  $('secret-lock').hidden=SECRET.unlocked;$('secret-powers').hidden=!SECRET.unlocked;
 }
 function secretKey(e){
- if(e.repeat||e.ctrlKey||e.metaKey||e.altKey||e.isComposing||e.key?.length!==1||$('secret-panel')?.contains(e.target))return;
+ if(st==='PRANK'||e.repeat||e.ctrlKey||e.metaKey||e.altKey||e.isComposing||e.key?.length!==1||$('secret-panel')?.contains(e.target))return;
  const now=performance.now();if(now-SECRET.typedAt>4000)SECRET.typed='';SECRET.typedAt=now;SECRET.typed=(SECRET.typed+e.key.toLowerCase()).slice(-6);
  if(SECRET.typed==='secret'){e.preventDefault?.();e.stopImmediatePropagation?.();SECRET.typed='';secretOpen();}
 }

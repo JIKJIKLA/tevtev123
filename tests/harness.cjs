@@ -20,5 +20,6 @@ module.exports=function loadGame(options={}){
  const context=vm.createContext(sandbox);
  for(let i=0;i<scripts.length;i++)vm.runInContext(scripts[i],context,{filename:['bootstrap.js','engine.bundle.js','game.js'][i]});
  if(!sandbox.tevinBoot.ready||errors.length)throw Error('Bootstrap: '+sandbox.tevinBoot.stage+' '+errors.join('; '));
+ if(sandbox.tevinTest?.BOMB)sandbox.tevinTest.BOMB.sample=()=>options.bombSample??99;
  return {api:sandbox.tevinTest,window:sandbox,document:window.document,storage,errors,setPads:value=>pads=value,dispatch:event=>window.dispatchEvent(event),Event:window.Event,context};
 };

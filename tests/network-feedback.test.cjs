@@ -7,6 +7,11 @@ test('repeated numeric multiplayer countdowns animate once per displayed number'
  const g=load(),a=g.api,el=g.document.getElementById('msg');let animations=0;el.animate=()=>{animations++;};el.getAnimations=()=>[];
  a.msg(3,1.2);for(let i=0;i<30;i++)a.msg(3,1.2);assert.equal(animations,1);assert.equal(el.textContent,'3');a.msg('3',1.2);assert.equal(animations,1);a.msg(2,1.2);assert.equal(animations,2);
 });
+test('both kickoff displays replace the preparatory 4 with READY and online packets do not flash it again',()=>{
+ const g=load(),a=g.api,el=g.document.getElementById('msg');a.configureCars();a.setState({st:'COUNT'});Object.assign(a.MP,{active:true,loaded:true,role:'guest'});const state=a.mpSnapshot();let animations=0;el.animate=()=>{animations++;};el.getAnimations=()=>[];
+ for(const count of [3.99,3.95,3.9,3.5,3.01]){assert.equal(a.kickoffLabel(count),'READY');a.handleRemoteMatch({...state,count});assert.equal(el.textContent,'READY');}assert.equal(animations,1);
+ for(const count of [3,2,1]){a.handleRemoteMatch({...state,count});assert.equal(el.textContent,String(count));}assert.equal(animations,4);assert.equal(a.kickoffLabel(0),1);
+});
 test('remote timeline uses a short stable delay and never rewinds under jitter or extrapolates indefinitely',()=>{
  const a=load().api;a.dedResetClock();let previous=-Infinity;
  for(let tick=4;tick<240;tick+=4){const time=tick*1000/120,arrival=1000+time+[0,12,4,20][tick/4%4];assert.equal(a.dedClockSample(tick,arrival),time);const view=a.dedRenderTime(arrival,1/30);assert.ok(view>=previous);assert.ok(view<=time+40);previous=view;}

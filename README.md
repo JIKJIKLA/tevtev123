@@ -1,6 +1,6 @@
-# Tevin League 9.9.2 — Match cinema
+# Tevin League 9.9.3 — Glass skylight
 
-The first VS AI kickoff delivers the ball through a ceiling hatch by drone. Goal replays finish with a field-side explosion and a 0.9-second fade into the next countdown. Quick chat and match controls share the broadcast HUD style. [Match cinema release details](docs/RELEASE-9.9.2.md).
+The first VS AI kickoff drops the ball through sliding glass skylight doors. A 1% rare bomb drop blasts every car and reveals TEVIN WINS, with Play Again and Lobby actions. Replay cameras blend into the goal explosion, followed by a 0.9-second black transition into the next countdown. [Glass skylight release details](docs/RELEASE-9.9.3.md).
 
 Boost pickups use sculpted three-armed housings, floating golden full-boost pills, light curtains and collection/respawn effects. All 34 placements are verified against the standard field. [Boost pickup release details and references](docs/RELEASE-9.9.1.md).
 

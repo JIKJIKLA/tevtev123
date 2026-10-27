@@ -82,20 +82,20 @@ function replayDirectorState(replay){
  else if(t<4.35)time=p.slowStart+(p.slowEnd-p.slowStart)*((t-2.35)/2);
  else{const u=cl((t-4.35)/p.releaseDuration,0,1);time=p.slowEnd+(p.end-p.slowEnd)*(u+u*u)/2;}
  const follow=cinemaEase(t/.9),release=cinemaEase((t-4.35)/1.55),zoom=cinemaEase((t-1.8)/.95)*(1-release),ballFocus=cinemaEase((time-p.hit)/Math.max(.09,(p.slowEnd-p.hit)));
- return{time:cl(time,p.start,p.end),follow,release,zoom,ballFocus,slow:t>=2.35&&t<4.35,exploding:replay.elapsed>=PRESENTATION_TIMING.replayShot,impactAge:Math.max(0,replay.elapsed-PRESENTATION_TIMING.replayShot),fov:80-follow*16-zoom*15+release*8};
+ return{time:cl(time,p.start,p.end),follow,release,zoom,ballFocus,slow:t>=2.35&&t<4.35,impactBlend:cinemaEase((replay.elapsed-(PRESENTATION_TIMING.replayShot-.32))/.32),exploding:replay.elapsed>=PRESENTATION_TIMING.replayShot,impactAge:Math.max(0,replay.elapsed-PRESENTATION_TIMING.replayShot),fov:80-follow*16-zoom*15+release*8};
 }
-const replayCenter=new V3(0,13,0),replayTarget=new V3(),replayDesired=new V3(),replayOffset=new V3(),replayPose=new V3(),replayRotation=new Qn();
+const replayCenter=new V3(0,13,0),replayTarget=new V3(),replayDesired=new V3(),replayOffset=new V3(),replayPose=new V3(),replayRotation=new Qn(),replayFieldEye=new V3(),replayFieldAim=new V3();
 function positionReplayCamera(replay){
  const state=replayDirectorState(replay),car=cm[replay.focusCar??replay.scorer]?.position||bm.position,attack=replay.team===0?1:-1,side=car.x>0?-1:1;
  replayTarget.copy(car).lerp(bm.position,state.ballFocus);replayTarget.y+=.55;
  replayDesired.copy(replayTarget).add(replayOffset.set(side*(8-state.zoom*2+state.release*2),4.5-state.zoom+state.release*2,-attack*(11-state.zoom*2+state.release*3))).lerp(replayCenter,1-state.follow);
  replayDesired.z=cl(replayDesired.z,-HZ+3.5,HZ-3.5);replayTarget.z=cl(replayTarget.z,-HZ+.5,HZ-.5);
- if(state.exploding)goalFieldCameraPose(replay.team,state.impactAge,replayDesired,replayTarget);
- constrainArenaCamera(replayTarget,replayDesired,cam.position);cam.lookAt(replayTarget);cam.fov=state.exploding?62:cinemaMotion()?state.fov:70;cam.updateProjectionMatrix();return state;
+ if(state.impactBlend>0){goalFieldCameraPose(replay.team,state.impactAge,replayFieldEye,replayFieldAim);replayDesired.lerp(replayFieldEye,state.impactBlend);replayTarget.lerp(replayFieldAim,state.impactBlend);}
+ constrainArenaCamera(replayTarget,replayDesired,cam.position);cam.lookAt(replayTarget);const fov=cinemaMotion()?state.fov:70;cam.fov=fov+(62-fov)*state.impactBlend;cam.updateProjectionMatrix();return state;
 }
 const SCENE_CUT={element:null,animation:null};
 function presentSceneCut(kind){
  if(window.__TEVIN_SERVER__||!cinemaMotion()||MATCH_FADE.active&&(kind==='live'||kind==='kickoff'))return;
  if(!SCENE_CUT.element){const el=document.createElement('div');el.id='scene-dissolve';el.setAttribute('aria-hidden','true');document.body.appendChild(el);SCENE_CUT.element=el;}
- SCENE_CUT.animation?.cancel();if(SCENE_CUT.element.animate)SCENE_CUT.animation=SCENE_CUT.element.animate([{opacity:0},{opacity:kind==='replay'?.86:.58,offset:.25},{opacity:0}],{duration:kind==='replay'?620:440,easing:'ease-in-out'});
+ SCENE_CUT.animation?.cancel();if(SCENE_CUT.element.animate)SCENE_CUT.animation=SCENE_CUT.element.animate([{opacity:0},{opacity:kind==='replay'?.62:.48,offset:.32},{opacity:0}],{duration:kind==='replay'?480:400,easing:'ease-in-out'});
 }

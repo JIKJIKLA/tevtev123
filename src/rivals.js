@@ -96,7 +96,7 @@ function createRivalVisuals(){
  RIVALS.visuals={group,ring,pulse,box,labels,project:new V3()};
 }
 function updateRivalVisuals(dt){
- const v=RIVALS.visuals;if(!v)return;while(v.labels.length<cars.length){const el=document.createElement('span');el.className='driver-marker';$('driver-markers').appendChild(el);v.labels.push(el)}v.group.visible=st!=='MENU'&&st!=='END';const p=bm.position;
+ const v=RIVALS.visuals;if(!v)return;while(v.labels.length<cars.length){const el=document.createElement('span');el.className='driver-marker';$('driver-markers').appendChild(el);v.labels.push(el)}v.group.visible=st!=='MENU'&&st!=='END'&&st!=='PRANK';const p=bm.position;
  v.ring.visible=RIVAL_PREF.markers&&Math.abs(p.x)<HX-3&&Math.abs(p.z)<HZ-3;v.ring.position.set(p.x,.035,p.z);v.ring.scale.setScalar(1+Math.min(8,Math.max(0,p.y-BR))*.035);v.ring.material.color.setHex(ball.last>=0?teamPalette[ball.last]:0xe0f9ff);
  v.box.visible=sandbox&&!MP.active&&DRILL.hitboxes;const c=localPlayer(),body=bodyPhysics(c);v.box.position.fromArray(body.center).applyQuaternion(c.q).add(cm[c.id].position);v.box.quaternion.copy(c.q);v.box.scale.set(body.half[0]*2,body.half[1]*2,body.half[2]*2);
  v.pulse.visible=goalPulse>.01&&RIVAL_PREF.celebration!=='quiet';if(v.pulse.visible){v.pulse.position.set(0,.055,RIVALS.goal?.team===0?HZ-3:-HZ+3);v.pulse.scale.setScalar(2+(1-goalPulse)*24);v.pulse.material.color.setHex(teamPalette[RIVALS.goal?.team||0]);v.pulse.material.opacity=goalPulse*.65;}
