@@ -1,6 +1,6 @@
 # Nivet League 10.1.0 — verification
 
-Recorded 2026-10-28. This record separates tested source/runtime behavior from publication still awaiting confirmation.
+Recorded 2026-10-28. This record covers tested source/runtime behavior and confirmed publication.
 
 ## Build and automated checks — PASS
 
@@ -43,11 +43,15 @@ The origin hello and live Cloudflare private-host session establish that the new
 - The new Worker uses static assets and a small module; unrelated Workers were not overwritten. No paid resources or plan upgrade were enabled for this release.
 - See [Cloudflare details](CLOUDFLARE.md) for deployment identifier, route checks, packaging and plan-specific limits. This record does not promise universal free usage or cover unrelated account charges.
 
-## GitHub, Pages and Bunny publication — PENDING
+## GitHub, Pages and Bunny publication — PASS
 
-**Pending final publication:** repository commit/ref verification, GitHub Actions verification, Pages deployment conclusion, and direct Pages/Bunny response/hash comparison for 10.1.0.
+- Game/source commit: [`fa93406bb830f378bb3c8e220e672900e8f20c56`](https://github.com/JIKJIKLA/tevtev123/commit/fa93406bb830f378bb3c8e220e672900e8f20c56).
+- [Verify game](https://github.com/JIKJIKLA/tevtev123/actions/runs/40704534624): success, including portable-build reproducibility and frontend/server suites.
+- [Pages build and deployment](https://github.com/JIKJIKLA/tevtev123/actions/runs/40704533209): success for that game commit.
+- Direct root GETs on Cloudflare, GitHub Pages and Bunny each returned HTTP 200, title `Nivet League 10.1.0 — Matchday`, exactly 16,783,916 bytes, and SHA-256 `5d4f3c8e58caa19901c8e5fcb72971920721c51583ed0fbddc1930dba4029bb5`.
+- Portable HTML Git blob: `cc20d7708e629aca0e102a353de39a23c481c916`. The uploaded blob was checked before the leased main-branch update.
 
-The existing Pages and Bunny URLs must not be described as verified 10.1.0 mirrors until these checks complete. The root agent will replace this pending status with the actual commit, CI conclusions and observed asset hashes after publication.
+This publication record is a documentation-only follow-up; it does not change the verified game bytes. A matching standalone copy is retained in the workspace outputs as `nivet-league-10.1.0.html`.
 
 ## Remaining differences
 

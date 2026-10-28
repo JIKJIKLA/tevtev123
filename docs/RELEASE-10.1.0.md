@@ -2,7 +2,7 @@
 
 Matchday improves ordinary match feedback, adds authoritative demolitions/respawns and corrects the custom opening. Black/velvet menus and normal blue/orange gameplay remain. The visual target is Rocket League's colorful stadium presentation, with matte cars and readable contact, rather than white reflections or realism alone.
 
-[Play the verified Cloudflare release](https://nivet-league.jikdifn.workers.dev/). GitHub/Pages and Bunny publication verification is **pending**; see [verification status](VERIFICATION-10.1.0.md).
+[Play on Cloudflare](https://nivet-league.jikdifn.workers.dev/), [GitHub Pages](https://jikjikla.github.io/tevtev123/) or [Bunny CDN](https://tevtev123.b-cdn.net/). All three serve the same verified game; see [publication evidence](VERIFICATION-10.1.0.md).
 
 ## Match feel and visible feedback
 
@@ -31,7 +31,7 @@ The new [Cloudflare Worker](https://nivet-league.jikdifn.workers.dev/) serves th
 
 ## Validation and limits
 
-The coordinated build passed **154 frontend checks and 18 dedicated-server checks: 172 total**. Actual WebGPU airshow/demolition rendering and WebGL Detail boost rendering were checked with empty warning/error logs. Live two-client and personal-paint checks passed against the updated Oracle service, and the new Worker origin completed its WebSocket hello. The Cloudflare HTML bytes/hash were verified. A live Cloudflare browser session created a temporary private room, started with AI, cleared the countdown, accepted driving/boost and returned cleanly to the lobby without warning/error logs. [The verification record](VERIFICATION-10.1.0.md) distinguishes completed checks from pending mirror publication.
+The coordinated build passed **154 frontend checks and 18 dedicated-server checks: 172 total**. Actual WebGPU airshow/demolition rendering and WebGL Detail boost rendering were checked with empty warning/error logs. Live two-client and personal-paint checks passed against the updated Oracle service, and the new Worker origin completed its WebSocket hello. Cloudflare, Pages and Bunny returned identical HTML bytes/hash. A live Cloudflare browser session created a temporary private room, started with AI, cleared the countdown, accepted driving/boost and returned cleanly to the lobby without warning/error logs. GitHub verification and Pages deployment succeeded; [the verification record](VERIFICATION-10.1.0.md) links the build and deployment evidence.
 
 This is an independent browser simulation, not a claim of exact 1:1 handling or every cosmetic/renderer feature. Car-car contact still uses a compact sphere-chain approximation; corners, suspension, car-ball impulses and some stat adjudication differ. No intended-device Chromebook FPS certification is made. No AI images, copied cosmetic variants, new audio assets or purchases were added.
 
