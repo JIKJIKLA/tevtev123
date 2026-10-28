@@ -16,7 +16,7 @@ function stadiumRibbonGeometry(x,z,y,height,radius=15){
 }
 function stadiumDisplayMaterial(){
  const c=cvs(1024,128),g=c.getContext('2d');g.fillStyle='#071421';g.fillRect(0,0,1024,128);
- for(let i=0;i<2;i++){const x=i*512;g.fillStyle=i?'#e48129':'#238ed7';g.fillRect(x,0,512,6);g.fillRect(x,122,512,6);g.fillStyle='#dcecf3';g.font='italic 900 36px sans-serif';g.textAlign='left';g.fillText('TEVIN LEAGUE',x+34,59);g.font='700 15px sans-serif';g.fillStyle=i?'#ffc974':'#86d5ff';g.fillText(i?'CHASE THE NEXT TOUCH':'CHAMPIONSHIP SERIES',x+36,91);for(let j=0;j<3;j++){g.beginPath();g.moveTo(x+437+j*18,33);g.lineTo(x+450+j*18,61);g.lineTo(x+437+j*18,89);g.strokeStyle=i?'#ffc974':'#86d5ff';g.lineWidth=4;g.stroke();}}
+ for(let i=0;i<2;i++){const x=i*512;g.fillStyle=i?'#e48129':'#238ed7';g.fillRect(x,0,512,6);g.fillRect(x,122,512,6);g.fillStyle='#dcecf3';g.font='italic 900 36px sans-serif';g.textAlign='left';g.fillText('NIVET LEAGUE',x+34,59);g.font='700 15px sans-serif';g.fillStyle=i?'#ffc974':'#86d5ff';g.fillText(i?'CHASE THE NEXT TOUCH':'CHAMPIONSHIP SERIES',x+36,91);for(let j=0;j<3;j++){g.beginPath();g.moveTo(x+437+j*18,33);g.lineTo(x+450+j*18,61);g.lineTo(x+437+j*18,89);g.strokeStyle=i?'#ffc974':'#86d5ff';g.lineWidth=4;g.stroke();}}
  g.fillStyle='#00000012';for(let y=8;y<122;y+=4)g.fillRect(0,y,1024,1);
  const map=tex(c);map.wrapS=THREE.RepeatWrapping;return new THREE.MeshStandardMaterial({map,emissiveMap:map,emissive:0xffffff,emissiveIntensity:.35,roughness:.92,metalness:0,side:THREE.DoubleSide});
 }

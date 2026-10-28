@@ -1,4 +1,4 @@
-# Precision 9.0: implementation and validation
+# Nivet League: measurements and implementation
 
 This is an independent browser simulation. The release improves measured mechanics without claiming to reproduce Rocket League's proprietary engine exactly.
 
@@ -21,13 +21,15 @@ This is an independent browser simulation. The release improves measured mechani
 - Zero-second airborne continuation; ground contact ends regulation; ties start a fresh overtime kickoff; a last-second equalizer reaches overtime after the goal celebration.
 - Saved horizontal camera FOV, distance, height, downward angle, stiffness and optional shake.
 - Keyboard rebinding with conflict swapping, standard-controller analog input and edge-triggered jump/camera/pause actions.
-- Chromebook default: detailed cars, 921,600-pixel ceiling before adaptive scaling, 3,000 grass instances, contact shadows, no expensive postprocessing. Detail mode uses 1.8M pixels, 24,000 grass instances and 2048-pixel shadow maps.
-- Multiplayer protocol 4, version-separated public queues, whole-snapshot numeric validation and the existing authenticated, session-owned Supabase Realtime transport.
+- Chromebook default: detailed cars, crisp native-resolution policy with adaptive scaling, lighter instanced turf and contact shadows. Detail mode adds denser turf, soft shadows and optional postprocessing. See current source budgets; historical resolution caps are not current.
+- Shared gameplay protocol4 and dedicated transport wire1; server-owned public/private matches with numeric validation and reconciliation. Legacy Supabase relay source remains for compatibility only.
 
-## Validation and remaining differences
+## Current implementation and remaining differences (10.0.0)
 
-The automated suite executes the actual bundled game in a lightweight DOM with rendering disabled. It tests acceleration, jumps, landing, pickups, zero-second rules, prediction, keyboard mapping, imported mesh bounds, wall collisions, frame-rate independence, a 30-second 3v3 simulation and backend authorization. A separate live integration command tests Supabase sign-in, two-client room membership, Realtime delivery and host ownership.
+The automated suite executes actual bundled gameplay in a lightweight DOM and shared authority in Node. It covers acceleration, jumps, landings, wall constraints, boost pickups, zero-second/overtime rules, body fitting, frame-rate independence, bot soak, car/ball prediction, replay timing, menu flow, saved settings and both rendering paths through separate browser checks. The Oracle server owns online simulation at 120 Hz and sends 30 Hz snapshots; the browser predicts local contacts/inputs and reconciles to authority. Replays are recorded-state presentation and never pause the online server.
 
-The stadium still uses rounded arena corners rather than an exact standard-map collision mesh. Car-car contact uses a compact sphere-chain approximation. Car-ball response, powerslide, flip torque and suspension remain independently tuned approximations. Demolitions, flip resets, full client prediction/reconciliation and replays are not implemented. Multiplayer remains host-authoritative with interpolation; it is not a trusted ranked server. No Chromebook frame-rate claim is certified until tested on the intended hardware.
+Field, goals and ball use the measured scale above. Car wheel tracks are fitted to the physical axle contacts; original height and length proportions remain. New-driver camera defaults are 110° horizontal FOV, 2.7 m distance, 1 m height, 3° tilt; saved cameras remain. The arena always stays blue/orange; normal team-color matches use standard team paint, with explicit personal-paint matches available.
 
-The existing embedded models, soundtrack, textures and engine are preserved from the supplied build. No new asset purchases or AI media generation were used.
+Arena corners use a rounded boundary rather than the exact standard-map collision mesh. Car-car contact uses a compact sphere-chain approximation. Car-ball response, powerslide, flip torque and suspension remain independently tuned approximations. Bots, full flip-reset mechanics and effects are not equivalent to the proprietary game. No ranked-MMR claim or Chromebook hardware frame-rate certification is made.
+
+The original embedded models, soundtrack, textures and engine remain in the immutable legacy recovery artifact. Current build patches change only the intended grass factory and two rendered brand strings. No new asset purchases or AI media generation were used. See [10.0.0 release](RELEASE-10.0.0.md) for the current scope.

@@ -1,9 +1,9 @@
-# Tevin League — persistent product vision
+# Nivet League — persistent product vision
 
 Owner request: 2026-10-23. This file is the durable end-result specification for future sessions, not a claim of human-like cross-chat memory.
 
 ## Non-negotiables
-- Browser-first car soccer, recognizable blue/orange team identity, original Tevin branding.
+- Browser-first car soccer, recognizable blue/orange team identity, Nivet branding.
 - Chromebook preset must retain detailed cars and native-resolution readability. Prefer batched/instanced scenery, baked textures and bounded effects; no mandatory heavy postprocessing.
 - Same 120 Hz rules for humans and bots; Phoenix server owns online scoring, collision and match state. Prediction may improve responsiveness but cannot award goals or progress.
 - All shared features support Soccar and Heatseeker, 1v1/2v2/3v3, offline, private and public matches. Training-only controls must never mutate an online match.
@@ -54,3 +54,8 @@ The latest owner direction removes the delivery drone entirely. During the first
 
 ## Stylized championship lighting (2026-10-27)
 The owner emphasized that the visual goal is Rocket League's stylized stadium art direction, rather than realism alone. Use actual gameplay/arena screenshots to judge the result. Favor a green sunlit pitch, distinct sun/shade regions, readable neutral structure, warm lamp light, strong blue/orange team identity, and clear car/ball silhouettes. Paint must stay matte with restrained reflections. Check the result from the chase camera, garage and both field ends, including Chromebook quality; brighter exposure or shinier cars alone is not the requested improvement. Keep the approved sky, audio, camera/airshow choreography and all game rules intact.
+
+
+## Owner direction — Nivet League (2026-10-27)
+
+The entire active game identity is Nivet League. Menus use near-black and deep velvet violet; the playable arena stays blue/orange. Aim for Rocket League-like proportions, car-soccer handling, camera readability, stadium atmosphere and clear play/garage flow. Prefer stylized, colorful sports lighting over photorealism. Paint stays matte. Every improvement must work across both playlists, team sizes and supported offline/online flows; preserve saved controls, progress and audio opt-in. Keep physical scale calibrated to published measurements, fit visible wheels to physical contacts, and review the actual chase and garage renders. Similarity is an end-result direction, not permission to claim exact proprietary-engine parity. Retain the requested cinematic/arcade features and free existing hosting.

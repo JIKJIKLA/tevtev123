@@ -152,7 +152,7 @@ function setupRivals(){
  $('queue-practice').onclick=queuePractice;
  const presets={balanced:{...CAMERA_DEFAULTS},wide:{fov:110,distance:3.5,height:1.35,angle:5,stiffness:.45,shake:false},close:{fov:100,distance:2.4,height:1,angle:4,stiffness:.75,shake:false}};
  for(const [id,preset] of Object.entries(presets))$('camera-preset-'+id).onclick=()=>{Object.assign(cameraSettings,preset);saveControls();document.querySelector('.driver-settings')?.remove();setupDriverSettings();};
- $('export-progress').onclick=()=>{const blob=new Blob([JSON.stringify({version:1,career:CAREER},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='tevin-local-progress.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
+ $('export-progress').onclick=()=>{const blob=new Blob([JSON.stringify({version:1,career:CAREER},null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='nivet-local-progress.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)};
  $('reset-progress').onclick=()=>{$('reset-progress-confirm').hidden=false};$('reset-progress-confirm').onclick=()=>{for(const key of ['matches','wins','goals','touches','topSpeed','xp','drills'])CAREER[key]=0;CAREER.history=[];RIVAL_PREF.title='ROOKIE';saveRivals();renderCareer();$('reset-progress-confirm').hidden=true;};
  addEventListener('keydown',e=>{if(e.repeat||['INPUT','TEXTAREA','SELECT','BUTTON'].includes(e.target?.tagName)||bindingCapture)return;if(/^Digit[1-4]$/.test(e.code)&&!Object.values(bindings).includes(e.code))sendQuickChat(Number(e.code.slice(-1))-1);});renderCareer();
 }

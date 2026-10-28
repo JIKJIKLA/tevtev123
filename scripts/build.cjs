@@ -13,7 +13,15 @@ for(const file of ['bootstrap.js','engine.bundle.js','game.js']) {
  code=code.replace('SKY:stadium',()=> 'data:image/jpeg;base64,'+fs.readFileSync(path.join(root,'src/assets/stadium-clouds-2k.jpg')).toString('base64'));
  code=code.replace("'JET:mesh'",()=>JSON.stringify(fs.readFileSync(path.join(root,'src/assets/f22-jet.json'),'utf8')));
  for(const name of ['albedo','normal','surface'])code=code.replace('JET:'+name,()=> 'data:image/jpeg;base64,'+fs.readFileSync(path.join(root,'src/assets/f22-'+name+'.jpg')).toString('base64'));
- if(file==='engine.bundle.js')code=require('./patch-grass.cjs')(code);
+ if(file==='engine.bundle.js'){
+  code=require('./patch-grass.cjs')(code);
+  // Rebrand the one generated stadium billboard, retaining the recovery source.
+  for(const [oldText,newText] of [['TEVIN LEAGUE','NIVET LEAGUE'],['T E V I N   L E A G U E','N I V E T   L E A G U E']]){
+   const stamp='fillText("'+oldText+'",';
+   if(code.split(stamp).length!==2)throw Error('Pinned stadium brand changed');
+   code=code.replace(stamp,'fillText("'+newText+'",');
+  }
+ }
  new vm.Script(code,{filename:file});
  html=html.replace('<!-- INLINE:'+file+' -->',()=>code);
 }

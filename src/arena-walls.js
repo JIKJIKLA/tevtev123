@@ -8,7 +8,7 @@ function championshipWallMaterial(color){
  g.fillStyle=color;g.fillRect(0,444,w,3);g.fillRect(0,505,w,2);g.fillStyle='#a9bec2';g.fillRect(0,440,w,1);g.fillStyle='#071420';g.fillRect(0,451,w,48);
  for(let i=0;i<16;i++){const x=i*128;g.fillStyle=i%2?'#0d2330':'#102734';g.fillRect(x+3,454,122,42);g.fillStyle='#c5e0e638';g.fillRect(x+2,452,1,46);g.fillStyle='#030d16';g.fillRect(x+125,452,2,46);
   if(i%4===3){g.strokeStyle=color;g.lineWidth=3;for(let j=0;j<3;j++){g.beginPath();g.moveTo(x+39+j*17,463);g.lineTo(x+48+j*17,475);g.lineTo(x+39+j*17,487);g.stroke();}}
-  else{g.fillStyle=color;g.beginPath();g.moveTo(x+16,462);g.lineTo(x+34,462);g.lineTo(x+33,480);g.lineTo(x+25,486);g.lineTo(x+17,480);g.closePath();g.fill();g.fillStyle='#deedf0';g.beginPath();g.arc(x+25,468,3,0,7);g.fill();g.textAlign='left';g.font='italic 900 13px Arial,sans-serif';g.fillText('TEVIN',x+43,474);g.font='italic 800 11px Arial,sans-serif';g.fillText('LEAGUE',x+42,486);}
+  else{g.fillStyle=color;g.beginPath();g.moveTo(x+16,462);g.lineTo(x+34,462);g.lineTo(x+33,480);g.lineTo(x+25,486);g.lineTo(x+17,480);g.closePath();g.fill();g.fillStyle='#deedf0';g.beginPath();g.arc(x+25,468,3,0,7);g.fill();g.textAlign='left';g.font='italic 900 13px Arial,sans-serif';g.fillText('NIVET',x+43,474);g.font='italic 800 11px Arial,sans-serif';g.fillText('LEAGUE',x+42,486);}
   for(const bx of [x+7,x+121]){g.fillStyle='#8d9fa6';g.fillRect(bx,445,2,2);g.fillRect(bx,502,2,2);}
  }
  g.strokeStyle='#91a9b333';g.lineWidth=.6;for(let y=449;y<512;y+=7){g.beginPath();g.moveTo(0,y);g.lineTo(w,y);g.stroke();}

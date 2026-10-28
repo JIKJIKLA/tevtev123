@@ -54,7 +54,7 @@ test('two sockets join, ready, start, receive authoritative motion and survive l
  b.send({type:'join',wire:WIRE,code:roomA.code,profile:{name:'B',paint:0xff43b5}});const roomB=await b.next('joined');assert.equal(roomB.slot,1);assert.notEqual(roomA.session,roomB.session);
  b.send({type:'start'});assert.match((await b.next('error')).message,/leader/);
  a.send({type:'ready'});b.send({type:'ready'});await a.next('lobby',m=>Object.values(m.seats).length===2&&Object.values(m.seats).every(s=>s.ready));
- a.send({type:'start'});const play=await a.next('state',m=>m.state.phase==='PLAY');assert.equal(play.state.cars[0].color,0);assert.equal(play.state.cars[1].color,0xff43b5);
+ a.send({type:'start'});const play=await a.next('state',m=>m.state.phase==='PLAY');assert.equal(play.state.cars[0].color,0x2a6bff);assert.equal(play.state.cars[1].color,0xff7a20);
  let seq=0;const sender=setInterval(()=>a.send({type:'input',seq:++seq,round:play.state.round,jump:0,held:false,controls:{thr:1,boost:1},position:{x:999}}),16);t.after(()=>clearInterval(sender));
  const moved=await b.next('state',m=>m.state.cars[0].boost<25);assert.ok(Math.hypot(...moved.state.cars[0].v)>2);assert.ok(Math.abs(moved.state.cars[0].x)<100);clearInterval(sender);
  const released=await b.next('state',m=>m.tick>moved.tick+40&&m.state.cars[0].input.boost===0);assert.ok(released.tick>moved.tick);

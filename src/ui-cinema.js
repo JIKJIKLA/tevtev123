@@ -7,5 +7,5 @@ function setupCinemaUI(){
  ];
  for(const [id,title,description,icon] of cards){const button=$('choose-'+id);button.innerHTML='<svg class="mode-glyph" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+icon+'</svg><strong>'+title+'</strong><small>'+description+'</small><span class="mode-check" aria-hidden="true">✓ SELECTED</span>';}
  const heading=$('play-panel').querySelector('h2');if(heading)heading.textContent='CHOOSE YOUR MATCH';
- const skip=$('replay-skip')||$('skip-replay');if(skip)skip.textContent='BACK TO LIVE';document.body.dataset.presentation='cinema-99';
+ const skip=$('replay-skip')||$('skip-replay');if(skip)skip.textContent='BACK TO LIVE';document.body.dataset.presentation='nivet-10';
 }

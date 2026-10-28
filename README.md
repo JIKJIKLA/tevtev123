@@ -1,6 +1,6 @@
-# Tevin League 9.9.6 — Championship lighting
+# Nivet League 10.0.0 — Velvet arena
 
-Warm key light, broad cool fill, richer green turf, readable goal interiors and restrained blue/orange source glow move the arena toward Rocket League's stylized stadium look. Car paint stays matte, and local grass shading improves contact beneath the cars. The Chromebook path retains its existing light/shadow budget. [Lighting release details](docs/RELEASE-9.9.6.md).
+Black and deep velvet violet menus surround the same blue/orange arena. Nivet identity now reaches the title, garage, loading screens and stadium signage. Calibrated tyre tracks, a three-quarter garage view, new-driver chase-camera tuning and keyboard/controller menu navigation improve presentation and play. Existing saves, matte cars, audio and multiplayer remain. [Release and references](docs/RELEASE-10.0.0.md).
 
 The first VS AI kickoff retains the five-second three-jet airshow and independent ball drop. The orange leader flies straight while blue wingmen peel apart; the ball bounces and eases to rest at GO. [Airshow release details](docs/RELEASE-9.9.5.md).
 
@@ -11,14 +11,14 @@ Browser car soccer with Soccar and Heatseeker, 1v1/2v2/3v3, AI, sandbox, private
 ## Controls and new features
 
 - Wall camera checks the same rounded boundary as gameplay, orbits along the wall to frame both car and ball, and fades your car to 33% opacity when it blocks the view. The fade is isolated from other players and restores automatically.
-- Goal replays establish from midfield, follow the final shooter, slow down and zoom through the last touch, then track the shot and widen as playback accelerates. The shared goal hold is 9.4 seconds; online recordings use authority timestamps.
+- Goal replays establish from midfield, follow the final shooter, slow down and zoom through the last touch, then track the shot and widen as playback accelerates. The shared goal hold is 8.5 seconds; online recordings use authority timestamps.
 - Cobalt/amber light and slight distance haze frame the pitch. The exterior now includes concourses, gates, a plaza, trees, lamps and taller cable towers; the playable dimensions remain unchanged.
 - Cleaner player labels and illustrated mode cards accompany a persistent match-start button on desktop and touch layouts.
 - Online countdowns animate once per number. Remote cars use the server tick timeline with a 50–100 ms adaptive interpolation delay instead of a fixed 100 ms arrival-time buffer; local steering corrections blend visually while authority stays unchanged.
 - Championship stadium adds rounded multicolored fans, continuous concourse displays, roof undersides/ribs, hospitality boxes and pennants. Balanced warm sun/cool fill and baked turf-edge shading preserve the existing photographic sky and matte cars.
 - Phones/tablets automatically get a left thumbstick, hold-to-boost, jump/dodge, slide, air roll, ball-camera, pause and fullscreen controls. Settings → Screen & Controls can override detection. Keyboard/controller input switches automatically on hybrid devices.
-- Garage supports a full RGB picker, hue slider and eight extra quick paints. Paint saves with garage presets and travels through multiplayer; scoreboard digits choose a readable contrast against each captain's actual paint.
-- Boost uses twin flame cores and bounded trails. Goals add scorer-colored shockwaves, ribbons and a stinger; the 7.2-second celebration includes a longer slow-motion replay. Quiet/reduced-motion settings remain available.
+- Garage supports a full RGB picker, hue slider and eight extra quick paints. Blue/orange team paint is the match default; hosts can disable Team Colors to use personal paint. Garage presets and online profiles retain custom RGB colors.
+- Boost uses twin flame cores and bounded trails. Goals add scorer-colored shockwaves, ribbons and a stinger; the celebration includes a skippable slow-motion replay. Quiet/reduced-motion settings remain available.
 - W/S: drive and air pitch; A/D: steer/yaw; Space: jump/dodge; Shift: boost; Q/E: air roll; C: powerslide; B: ball camera.
 - Escape: pause; F2: practice menu; R: repeat the current drill/reset the ball; T: recover the car.
 - 1–4: preset team chat, unless those keys are remapped. The HUD also has clickable chat buttons.

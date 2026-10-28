@@ -1,6 +1,6 @@
 const DEFAULT_BINDINGS={forward:'KeyW',reverse:'KeyS',left:'KeyA',right:'KeyD',jump:'Space',boost:'ShiftLeft',rollLeft:'KeyQ',rollRight:'KeyE',slide:'KeyC',camera:'KeyB'};
 const ACTION_KEYS={forward:'w',reverse:'s',left:'a',right:'d',jump:' ',boost:'shift',rollLeft:'q',rollRight:'e',slide:'control',camera:'b'};
-const CAMERA_DEFAULTS={fov:105,distance:2.7,height:1.1,angle:4,stiffness:.55,shake:false};
+const CAMERA_DEFAULTS={fov:110,distance:2.7,height:1,angle:3,stiffness:.55,shake:false};
 const cameraSettings={...CAMERA_DEFAULTS},bindings={...DEFAULT_BINDINGS};
 let bindingCapture=null,heldCodes=new Map(),inputFocused=true;
 try{const pref=JSON.parse(localStorage.getItem('tevin.controls.v9')||'null');if(pref){
@@ -34,17 +34,66 @@ function renderBindings(){
  if(!bindingCapture)$('binding-status').textContent='Changes save automatically. Arrow keys also drive. R / T reset training; F2 opens training settings.';
  $('camtag').textContent=(ballCam?'BALL CAM':'CAR CAM')+' · '+keyLabel(bindings.camera);
 }
+function menuNavigationReady(){return st==='MENU'&&!INTRO.active&&!LOADING.active&&!bindingCapture&&!(SECRET.open&&!SECRET.minimized)&&!document.hidden&&inputFocused&&!!$('menu')?.classList.contains('on');}
+function menuControlVisible(element){
+ if(!element||element.disabled||element.getAttribute?.('aria-disabled')==='true'||!$('menu')?.contains(element))return false;
+ for(let node=element;node&&node!==document;node=node.parentElement){
+  if(node.hidden||node.inert||node.getAttribute?.('aria-hidden')==='true'||node.style?.display==='none'||node.style?.visibility==='hidden')return false;
+  if(node.tagName==='DETAILS'&&!node.hasAttribute('open')&&!node.querySelector('summary')?.contains(element))return false;
+  if(typeof getComputedStyle==='function'){const style=getComputedStyle(node);if(style.display==='none'||style.visibility==='hidden')return false;}
+ }
+ return true;
+}
+function menuFocus(element){if(!menuControlVisible(element))return false;element.focus?.({preventScroll:true});element.scrollIntoView?.({block:'nearest',inline:'nearest',behavior:'auto'});return true;}
+function focusMenuScreen(screen=menuScreen){
+ if(!menuNavigationReady())return false;
+ const panel=$(screen+'-panel');let target=screen==='home'?$('nav-play'):screen==='play'?panel?.querySelector('.destination-tabs [aria-pressed="true"]'):panel?.querySelector('h2');
+ if(target?.tagName==='H2')target.setAttribute('tabindex','-1');
+ return menuFocus(target);
+}
+function navigateMenuKey(e){
+ if(!menuNavigationReady()||!['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))return false;
+ const active=e.target||document.activeElement;
+ if(active?.closest?.('input,textarea,select,[contenteditable]:not([contenteditable="false"]),#car-inspect'))return false;
+ let group=active?.closest?.('.home-actions,.destination-tabs,.row,#body-options,#swatches,.action-switch,.preset-row');
+ if(!group&&menuScreen==='home'&&(active===document.body||!active))group=$('home-panel')?.querySelector('.home-actions');
+ if(!group||group.classList.contains('home-actions')&&!['ArrowUp','ArrowDown'].includes(e.key))return false;
+ const choices=Array.from(group.querySelectorAll('button')).filter(menuControlVisible);if(!choices.length)return false;
+ const step=['ArrowDown','ArrowRight'].includes(e.key)?1:-1,index=choices.indexOf(active?.closest?.('button')),next=index<0?step>0?0:choices.length-1:(index+step+choices.length)%choices.length;
+ e.preventDefault?.();e.stopPropagation?.();return menuFocus(choices[next]);
+}
+function controllerMenuControls(){
+ const panel=$(menuScreen+'-panel'),items=Array.from(panel?.querySelectorAll('button,input[type="checkbox"],summary')||[]).filter(menuControlVisible);
+ if(menuScreen==='play'&&menuControlVisible($('mobile-play'))&&!items.includes($('mobile-play')))items.push($('mobile-play'));
+ if(menuScreen!=='home'&&menuControlVisible($('menu-back')))items.push($('menu-back'));return items;
+}
+function moveControllerMenu(step){
+ const items=controllerMenuControls();if(!items.length)return false;const index=items.indexOf(document.activeElement);
+ return menuFocus(items[index<0?step>0?0:items.length-1:(index+step+items.length)%items.length]);
+}
+const padMenu={up:false,down:false,left:false,right:false,confirm:false,back:false};
 const padInput={connected:false,thr:0,steer:0,pitch:0,yaw:0,roll:0,boost:0,ps:0,jump:false};
 let padJump=false,padCamera=false,padPause=false;
 const deadzone=x=>Math.abs(x)<.12?0:Math.sign(x)*(Math.abs(x)-.12)/.88;
 function pollController(){
  let pads;try{pads=navigator.getGamepads?.()}catch(_){pads=null}
  const pad=Array.from(pads||[]).find(p=>p?.connected&&p.mapping==='standard');
- const text=pad?'CONTROLLER CONNECTED · A jump · B boost · X slide · Y camera · LB/RB air roll':'KEYBOARD READY · Connect a standard controller to play';
+ const text=pad?st==='MENU'?'CONTROLLER CONNECTED · D-PAD navigate · A select · B back':'CONTROLLER CONNECTED · A jump · B boost · X slide · Y camera · LB/RB air roll':'KEYBOARD READY · Connect a standard controller to play';
  if($('controller-status')?.textContent!==text&&$('controller-status'))$('controller-status').textContent=text;
  padInput.connected=!!pad;Object.assign(padInput,{thr:0,steer:0,pitch:0,yaw:0,roll:0,boost:0,ps:0,jump:false});
- if(!pad){padJump=padCamera=padPause=false;return;}
+ if(!pad){padJump=padCamera=padPause=false;for(const key in padMenu)padMenu[key]=false;return;}
  const pressed=n=>!!pad.buttons[n]?.pressed,value=n=>cl(Number(pad.buttons[n]?.value)||0,0,1);
+ const menuNow={up:pressed(12),down:pressed(13),left:pressed(14),right:pressed(15),confirm:pressed(0),back:pressed(1)},menuEdges={};for(const key in menuNow){menuEdges[key]=menuNow[key]&&!padMenu[key];padMenu[key]=menuNow[key];}
+ if(st==='MENU'){
+  if(INTRO.active&&!LOADING.active&&!starting&&inputFocused&&!document.hidden&&!(SECRET.open&&!SECRET.minimized)&&menuEdges.confirm)introPlay();
+  else if(menuNavigationReady()){
+   if(menuEdges.back&&menuScreen!=='home')menuBack();
+   else if(menuEdges.up||menuEdges.down)moveControllerMenu(menuEdges.down?1:-1);
+   else if(menuEdges.left||menuEdges.right){const key=menuEdges.right?'ArrowRight':'ArrowLeft';if(!navigateMenuKey({key,target:document.activeElement}))moveControllerMenu(menuEdges.right?1:-1);}
+   else if(menuEdges.confirm){let target=document.activeElement;if(!menuControlVisible(target)||!target.matches?.('button,input[type="checkbox"],summary')){focusMenuScreen();target=document.activeElement;if(!target?.matches?.('button,input[type="checkbox"],summary')){target=controllerMenuControls()[0];menuFocus(target);}}if(menuControlVisible(target))target.click?.();}
+  }
+  padJump=pressed(0);padCamera=pressed(3);padPause=pressed(9);return;
+ }
  const jump=pressed(0),camera=pressed(3),paused=pressed(9),arcadeOpen=SECRET.open&&!SECRET.minimized,playable=!arcadeOpen&&inputFocused&&!document.hidden&&!LOADING.active&&!INTRO.active&&!MP.localPaused&&st==='PLAY';
  if(!arcadeOpen&&inputFocused&&!document.hidden&&!LOADING.active&&!INTRO.active){
   if(paused&&!padPause&&['PLAY','COUNT','PAUSE'].includes(st))pause();

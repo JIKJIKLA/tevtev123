@@ -30,7 +30,7 @@ function detonateOpeningBomb(){
  document.body.classList.add('bomb-prank');document.body.dataset.bombPhase='blast';audioSilence();if(!AUDIO.settings.muted)audioSample('goal',.75);return true;
 }
 function createBombVisuals(glowMap=glowTex()){
- const group=new THREE.Group(),shell=new THREE.Group(),effects=new THREE.Group();group.name='Rare Tevin ball drop';shell.name='Fuse bomb ball';effects.name='Bounded bomb blast';group.add(shell,effects);
+ const group=new THREE.Group(),shell=new THREE.Group(),effects=new THREE.Group();group.name='Rare Nivet ball drop';shell.name='Fuse bomb ball';effects.name='Bounded bomb blast';group.add(shell,effects);
  const iron=new THREE.MeshStandardMaterial({color:0x111925,metalness:.3,roughness:.64,envMapIntensity:.35}),band=new THREE.MeshStandardMaterial({color:0x454b52,metalness:.4,roughness:.62}),red=new THREE.MeshBasicMaterial({color:0xe9483f,toneMapped:false}),gold=new THREE.MeshStandardMaterial({color:0xa77c38,roughness:.65,metalness:.3});
  const mesh=(parent,geo,mat,x=0,y=0,z=0)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);parent.add(m);return m;};
  mesh(shell,new THREE.SphereGeometry(BR,28,20),iron);mesh(shell,new THREE.TorusGeometry(BR,.016,5,48),band).rotation.x=Math.PI/2;mesh(shell,new THREE.TorusGeometry(BR,.012,5,48),band).rotation.y=Math.PI/2;
@@ -82,6 +82,6 @@ function updateBombScene(dt){
 function buildBombDrop(){BOMB.visuals=createBombVisuals();scene.add(BOMB.visuals.group);}
 function setupBombUI(){
  const ui=document.createElement('section');ui.id='bomb-result';ui.hidden=true;ui.tabIndex=-1;ui.setAttribute('role','dialog');ui.setAttribute('aria-modal','true');ui.setAttribute('aria-labelledby','bomb-title');
- ui.innerHTML='<div class="bomb-result-card"><span class="bomb-result-kicker">SPECIAL DELIVERY / 1 IN 100</span><div class="bomb-crown" aria-hidden="true">T</div><h1 id="bomb-title">TEVIN WINS</h1><p>Special delivery. Every car caught the blast.</p><div class="bomb-actions"><button id="bomb-again">PLAY AGAIN <span>↗</span></button><button id="bomb-lobby">BACK TO LOBBY</button></div><small>The next match gets a fresh drop.</small></div>';document.body.appendChild(ui);BOMB.ui=ui;
+ ui.innerHTML='<div class="bomb-result-card"><span class="bomb-result-kicker">SPECIAL DELIVERY / 1 IN 100</span><div class="bomb-crown" aria-hidden="true">N</div><h1 id="bomb-title">NIVET WINS</h1><p>Special delivery. Every car caught the blast.</p><div class="bomb-actions"><button id="bomb-again">PLAY AGAIN <span>↗</span></button><button id="bomb-lobby">BACK TO LOBBY</button></div><small>The next match gets a fresh drop.</small></div>';document.body.appendChild(ui);BOMB.ui=ui;
  $('bomb-again').onclick=()=>{if(st==='PRANK'&&BOMB.phase==='result')startGame();};$('bomb-lobby').onclick=()=>quit();addEventListener('keydown',e=>{if(st!=='PRANK')return;if(e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation();quit();}else if(e.key==='Tab'&&!ui.hidden){e.preventDefault();const again=$('bomb-again'),lobby=$('bomb-lobby');(document.activeElement===again?lobby:again).focus?.();}},true);
 }

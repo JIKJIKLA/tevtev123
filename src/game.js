@@ -2,7 +2,7 @@
 try {
 
 
-/* Tevin League 9.9.6 — Championship lighting. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
+/* Nivet League 10.0.0 — Velvet arena. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
 window.tevinBoot.stage='game script';
 
 const ENGINE=TevinEngine;
@@ -1223,6 +1223,7 @@ addEventListener('keydown',e=>{if(st==='PRANK'||SECRET.open&&!SECRET.minimized)r
 
  }
 
+ if(navigateMenuKey(e))return;
  const k=mappedKey(e);heldCodes.set(e.code,k);const menuState=['MENU','PAUSE','END'].includes(st),btn=e.target instanceof HTMLButtonElement;
 
  if(k==='tab')return;
@@ -1383,7 +1384,7 @@ async function openPlaySelection(){
  try{transition=await loadingBegin('CHOOSE YOUR MATCH','1v1, 2v2 or 3v3. Your arena. Your rules.',true);
  await loadingStage(45,'Loading playlists');configureCars();
  INTRO.active=false;INTRO.leaving=false;$('intro').hidden=true;for(const e of $('menu').children)e.inert=false;
- showMenuScreen('play');await loadingStage(100,'Playlists ready');await loadingEnd(transition);$('choose-offline').focus?.();
+ showMenuScreen('play');await loadingStage(100,'Playlists ready');await loadingEnd(transition);focusMenuScreen('play');
  }catch(error){loadingAbort(transition);$('start-status').textContent='Could not open playlists. Please try again.';console.warn(error)}finally{starting=false;INTRO.leaving=false}
 }
 function introPlay(){if(starting||LOADING.active)return;if(!INTRO.manualPause)introStart();return INTRO.active?enterArenaHome():openPlaySelection();}
@@ -1425,7 +1426,7 @@ async function loadingBegin(title,detail,cached=false){
 }
 function loadingProgress(value,label){if(!LOADING.active)return;LOADING.progress=Math.max(LOADING.progress,Math.min(100,value));$('loading-phase').textContent=label;$('loading-percent').textContent=Math.round(LOADING.progress)+'%';$('loading-fill').style.transform='scaleX('+LOADING.progress/100+')';$('loading-meter').setAttribute('aria-valuenow',String(Math.round(LOADING.progress)))}
 async function loadingStage(value,label){if(!LOADING.active)return;loadingProgress(value,label);await loadingDelay(20)}
-async function loadingEnd(id){if(id!==LOADING.serial)return;loadingProgress(100,'Ready');$('loading-screen').setAttribute('aria-busy','false');await loadingDelay(INTRO.reduced?0:Math.max(80,650-(performance.now()-LOADING.opened)));if(id!==LOADING.serial)return;$('loading-screen').classList.add('leaving');await loadingDelay(INTRO.reduced?0:320);if(id!==LOADING.serial)return;$('loading-screen').hidden=true;$('menu').inert=false;LOADING.active=false;}
+async function loadingEnd(id){if(id!==LOADING.serial)return;loadingProgress(100,'Ready');$('loading-screen').setAttribute('aria-busy','false');await loadingDelay(INTRO.reduced?0:Math.max(80,650-(performance.now()-LOADING.opened)));if(id!==LOADING.serial)return;$('loading-screen').classList.add('leaving');await loadingDelay(INTRO.reduced?0:320);if(id!==LOADING.serial)return;$('loading-screen').hidden=true;$('menu').inert=false;LOADING.active=false;if(st==='MENU')focusMenuScreen(menuScreen);}
 function loadingAbort(id){if(id!==LOADING.serial)return;LOADING.serial++;LOADING.active=false;$('loading-screen').hidden=true;$('menu').inert=false;}
 
 
@@ -1504,7 +1505,7 @@ function attachRoomListeners(){const room=MP.room;mpListen(room.child('presence'
  else mpListen(room.child('state'),'value',s=>{const v=s.val();if(!validSnapshot(v)||v.seq<=MP.received)return;MP.received=v.seq;MP.lastSnapshot=performance.now();if(!MP.snapshot||v.round!==MP.snapshot.round||v.phase!==MP.snapshot.phase)MP.buffer.length=0;MP.snapshot=v;MP.buffer.push({at:MP.lastSnapshot,state:v});if(MP.buffer.length>10)MP.buffer.shift();if(MP.loaded)handleRemoteMatch(v)});
  mpListen(mpDatabase().ref('.info/connected'),'value',s=>{MP.transport=!!s.val();if(!MP.transport){if(MP.loaded)mpFreeze('CONNECTION INTERRUPTED');return}const d=room.child('presence/'+MP.session).onDisconnect();d.update({connected:false,paused:true}).catch(mpFailure);MP.disconnects.push(d);if(MP.loaded){MP.localPaused=true;room.child('presence/'+MP.session).update({connected:true,ready:true,paused:true}).catch(mpFailure)}})}
 async function hostMatch(){if(DED.enabled)return dedPrivate('create');if(mpBusy||starting||SOC.searching||SOC.busy)return;mpBusyUI(true);try{mpReset();sandbox=false;const db=await mpReady(),session=db.session;let room,code,res;for(let n=0;n<6;n++){code=randomRoomCode();room=db.ref('rooms/'+code);res=await mpTimeout(room.transaction(v=>v===null?{meta:{protocol:PROTOCOL,host:session,settings:matchSettings(),seats:{0:{session,color:cfg.color,body:cfg.body}},locked:false,createdAt:Date.now()}}:undefined),'Create room');if(res.committed)break}if(!res.committed)throw Error('Unable to reserve room. Try again.');Object.assign(MP,{active:true,role:'host',slot:0,session,room,code,seats:res.snapshot.val().meta.seats});$('room-code').value=code;attachRoomListeners();mpStatus('WAITING FOR PLAYERS');await startGame()}catch(e){mpReset();mpFailure(e)}finally{mpBusyUI(false)}}
-async function joinMatch(){if(DED.enabled)return dedPrivate('join');if(mpBusy||starting||SOC.searching||SOC.busy)return;const code=$('room-code').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');if(MP.active&&MP.role==='host'&&MP.code===code){mpStatus('Share '+code+' with the second player or your team.');return}if(code.length!==6){mpStatus('Enter the six-character room code.','bad');return}mpBusyUI(true);try{mpReset();sandbox=false;const db=await mpReady(),room=db.ref('rooms/'+code),session=db.session,meta=(await mpTimeout(room.child('meta').once('value'),'Room lookup')).val();if(!meta?.host)throw Error('Match not found or host disconnected. Use a MATCH code here; party codes belong in Quick Match Party.');if(meta.protocol!==PROTOCOL)throw Error('Everyone must reload the latest Tevin League build.');
+async function joinMatch(){if(DED.enabled)return dedPrivate('join');if(mpBusy||starting||SOC.searching||SOC.busy)return;const code=$('room-code').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');if(MP.active&&MP.role==='host'&&MP.code===code){mpStatus('Share '+code+' with the second player or your team.');return}if(code.length!==6){mpStatus('Enter the six-character room code.','bad');return}mpBusyUI(true);try{mpReset();sandbox=false;const db=await mpReady(),room=db.ref('rooms/'+code),session=db.session,meta=(await mpTimeout(room.child('meta').once('value'),'Room lookup')).val();if(!meta?.host)throw Error('Match not found or host disconnected. Use a MATCH code here; party codes belong in Quick Match Party.');if(meta.protocol!==PROTOCOL)throw Error('Everyone must reload the latest Nivet League build.');
  const res=await mpTimeout(room.child('meta').transaction(m=>{if(m===null)return null;if(m.host!==meta.host||m.protocol!==PROTOCOL||m.locked)return;const count=cl(Number(m.settings?.size)||1,1,3)*2;m.seats=m.seats||{};for(let k=1;k<count;k++)if(!m.seats[k]){m.seats[k]={session,color:cfg.color,body:cfg.body};return m}},undefined,false),'Join room');const joined=res.snapshot?.val(),entry=Object.entries(joined?.seats||{}).find(([,seat])=>seat.session===session);if(!res.committed||!entry)throw Error('Room full or match already started. Ask the host for a new lobby.');applySettings(joined.settings);Object.assign(MP,{active:true,role:'guest',slot:Number(entry[0]),session,room,code,seats:joined.seats});attachRoomListeners();await startGame()}catch(e){mpReset();mpFailure(e)}finally{mpBusyUI(false)}}
 function carPacket(c){return{x:c.p.x,y:c.p.y,z:c.p.z,q:c.q.toArray(),v:c.v.toArray(),w:c.w.toArray(),n:c.n.toArray(),boost:c.boost,ground:!!c.ground,input:{...c.inp},boosting:!!c.bst,color:c.color,touches:c.touches,goals:c.goals,topSpeed:c.topSpeed,boostUsed:c.boostUsed}}
 function ballPacket(){return{p:ball.p.toArray(),v:ball.v.toArray(),w:ball.w.toArray(),last:ball.last,lastPlayer:ball.lastPlayer??-1,color:ball.color||0xdceeff}}
@@ -1528,12 +1529,10 @@ const teamPalette=[PALETTE[0],PALETTE[1]];
 let arenaThemeKey='';
 function teamHex(team){return '#'+teamPalette[team].toString(16).padStart(6,'0')}
 function applyTeamColors(){
- for(let t=0;t<2;t++){
-  teamPalette[t]=MP.active?driverPaint(MP.seats[t],t):t===0?driverPaint(cfg):PALETTE[1];
- }
- // Equal captain paints still need two clearly distinguishable goal ends.
- if(teamPalette[0]===teamPalette[1])teamPalette[1]=teamPalette[0]===PALETTE[1]?PALETTE[0]:PALETTE[1];
- for(const c of cars){const personal=MP.active?driverPaint(MP.seats[c.id],c.team):c.id===0?driverPaint(cfg):PALETTE[c.team];c.color=cfg.teamColors?teamPalette[c.team]:personal;if(inited)paintCar(c.id)}
+ // The arena keeps its familiar blue/orange identity regardless of garage paint.
+ teamPalette[0]=PALETTE[0];teamPalette[1]=PALETTE[1];
+ const preview=st==='MENU'&&!MP.active&&!window.__TEVIN_SERVER__;
+ for(const c of cars){const personal=MP.active?driverPaint(MP.seats[c.id],c.team):c.id===0?driverPaint(cfg):PALETTE[c.team];c.color=cfg.teamColors&&!preview?teamPalette[c.team]:personal;if(inited)paintCar(c.id)}
  updateScorePaint();
  applyArenaTheme();
 }
@@ -1604,7 +1603,7 @@ function setupModesUI(){
  $('lobby-start').onclick=mpStartMatch;
  for(const name of ['play','garage','training'])$('nav-'+name).onclick=()=>{$('garage-panel').hidden=name!=='garage';$('play-panel').hidden=name==='garage';$('sandbox-start').classList.toggle('featured',name==='training');$('menu-caption').textContent=name==='garage'?'YOUR CAR. YOUR SIGNATURE.':name==='training'?'BUILD YOUR OWN PLAYGROUND.':'FIND YOUR NEXT MATCH.';};
 }
-function paintCar(id){const m=cm[id],c=cars[id];if(!m||!c||m.userData.paintColor===c.color)return;m.userData.paintColor=c.color;for(const mat of m.userData.paintMaterials||[])mat.color.setHex(c.color);m.userData.f?.traverse(o=>{if(o.material?.color)o.material.color.setHex(c.color)});}
+function paintCar(id,color=cars[id]?.color){const m=cm[id],c=cars[id];if(!m||!c||m.userData.paintColor===color)return;m.userData.paintColor=color;for(const mat of m.userData.paintMaterials||[])mat.color.setHex(color);m.userData.f?.traverse(o=>{if(o.material?.color)o.material.color.setHex(color)});}
 function preparePaint(m,color){const mats=new Set();m.traverse(o=>{for(const mat of (Array.isArray(o.material)?o.material:[o.material]))if(mat?.color&&mat.color.getHex()===color)mats.add(mat)});m.userData.paintMaterials=[...mats];for(const mat of mats){mat.roughness=.72;mat.metalness=.04;mat.envMapIntensity=.5;if('clearcoat' in mat)mat.clearcoat=0;}}
 function showPodium(){const winner=score[0]>score[1]?0:1;$('end').setAttribute('data-winner',winner?'orange':'blue');$('winner-team').textContent=(winner?'ORANGE':'BLUE')+' TEAM';$('winner-team').style.color=teamHex(winner);$('end').style.setProperty('--winner-color',teamHex(winner));$('podium-cards').innerHTML='';const winning=cars.filter(c=>c.enabled&&c.team===winner);for(const c of winning){const card=document.createElement('div');card.className='podium-card';card.style.borderColor='#'+c.color.toString(16).padStart(6,'0');const humanPlayer=MP.active?!!MP.seats[c.id]:c===P1;card.textContent=(c===localPlayer()?'YOU':humanPlayer?(MP.seats[c.id]?.name||'PLAYER '+(c.id+1)):'AI '+(c.id+1))+' · '+c.goals+' GOALS · '+c.touches+' TOUCHES';$('podium-cards').appendChild(card)}}
 // INLINE:showroom.js
@@ -1633,7 +1632,7 @@ function choosePrivateAction(action){privateAction=action;privateMenuUI();$('mp-
 function choosePartyAction(action){partyAction=action;socialUI();if(action==='join')$('party-code-input').focus?.()}
 function menuBack(){audioSample('uiBack',.38);showMenuScreen(menuScreen==='party'?partyReturn:'home')}
 function chooseRoute(route){if(typeof SOC!=='undefined'&&SOC.searching&&route!=='quick')cancelQuickMatch();playRoute=route;$('quick-panel').hidden=route!=='quick';for(const name of ['quick','offline','online','training'])$('choose-'+name).setAttribute('aria-pressed',String(name===route));$('go').hidden=route!=='offline';$('sandbox-start').hidden=route!=='training';$('mp-panel').hidden=route!=='online';$('mp-status').hidden=route!=='online';$('route-help').textContent=route==='quick'?'Play against other people online. Search solo or with a party on your team.':route==='online'?'Play in an invite-only match. Friends join individually with a match code.':route==='training'?'Endless practice. Change AI and boost with F2; reset the ball with R.':'Play a complete match with AI teammates and opponents.';updateMatchSummary();socialUI();privateMenuUI()}
-function showMenuScreen(screen){if(screen==='party'&&menuScreen!=='party')partyReturn=menuScreen;menuScreen=screen;for(const name of ['home','play','garage','settings','party'])$(name+'-panel').hidden=name!==screen;$('menu').setAttribute('data-screen',screen);$('menu-back').hidden=screen==='home';$('menu-back').textContent=screen==='party'&&partyReturn!=='home'?'← BACK TO '+partyReturn.toUpperCase():'← HOME';$('menu-location').textContent=screen==='home'?'HOME':screen==='party'?'QUICK MATCH / PARTY':'HOME / '+screen.toUpperCase();$('menu').classList.toggle('live-preview',!!inited);$('start-status').textContent='';if(screen==='play')chooseRoute(playRoute);if(screen==='garage')previewGarage();updateMatchSummary();socialUI()}
+function showMenuScreen(screen){if(screen==='party'&&menuScreen!=='party')partyReturn=menuScreen;menuScreen=screen;for(const name of ['home','play','garage','settings','party'])$(name+'-panel').hidden=name!==screen;$('menu').setAttribute('data-screen',screen);$('menu-back').hidden=screen==='home';$('menu-back').textContent=screen==='party'&&partyReturn!=='home'?'← BACK TO '+partyReturn.toUpperCase():'← HOME';$('menu-location').textContent=screen==='home'?'HOME':screen==='party'?'QUICK MATCH / PARTY':'HOME / '+screen.toUpperCase();$('menu').classList.toggle('live-preview',!!inited);$('start-status').textContent='';if(screen==='play')chooseRoute(playRoute);if(screen==='garage')previewGarage();updateMatchSummary();socialUI();focusMenuScreen(screen)}
 async function previewGarage(){if(previewJob)return previewJob;if(starting)return;starting=true;$('go').disabled=$('sandbox-start').disabled=true;$('preview-car').disabled=true;$('garage-status').textContent='Preparing your '+BODY_NAMES[cfg.body]+'…';
  previewJob=(async()=>{let transition;try{configureCars();transition=await loadingBegin('YOUR GARAGE',BODY_NAMES[cfg.body]+' · Preparing your car',graphicsReady());await init3d();const changed=cm.some((m,i)=>m.userData.body!==(cars[i].body||0)||m.userData.simple===!!cfg.models);refreshCarModels();if(changed&&ren?.compileAsync){await loadingStage(94,'Preparing your selected car');ENGINE.status.warming=true;try{await ren.compileAsync(scene,cam)}finally{ENGINE.status.warming=false}}if(menuScreen==='garage')$('menu').classList.add('live-preview');$('garage-status').textContent=BODY_NAMES[cfg.body]+' · '+paintName(cfg)+' · READY';await loadingEnd(transition);$('preview-car').focus?.()}catch(e){loadingAbort(transition);try{dispose3d()}catch(_){}$('menu').classList.remove('live-preview');$('garage-status').textContent='Preview unavailable. Try Performance mode in Settings.';console.warn('Garage preview',e)}finally{starting=false;$('go').disabled=$('sandbox-start').disabled=false;$('preview-car').disabled=false;previewJob=null}})();return previewJob;
 }
@@ -1647,7 +1646,14 @@ function setupMenu(){
 }
 function createCarVisual(c){const visual=cfg.models?ENGINE.importedCar(ren,BODY_IDS[c.body||0],c.color,assetTextures):carMesh2('#'+c.color.toString(16).padStart(6,'0'),'#d9efff');const m=fitCarVisual(visual,c);m.userData.body=c.body||0;m.userData.simple=!cfg.models;preparePaint(m,c.color);m.traverse(o=>{o.castShadow=!!o.isMesh&&!o.material.transparent});prepareCameraFade(m);return m}
 function fitCarVisual(visual,c){
- const spec=bodyPhysics(c),flame=visual.userData.f;visual.remove(flame);const box=new THREE.Box3().setFromObject(visual),size=box.getSize(new V3());visual.add(flame);const m=new THREE.Group();m.userData={...visual.userData};visual.scale.setScalar(spec.half[0]*2*1.06/size.x);visual.position.set(spec.center[0]-(box.min.x+size.x/2)*visual.scale.x,-spec.height-box.min.y*visual.scale.y,-(box.min.z+size.z/2)*visual.scale.z);m.add(visual);return m;
+ const spec=bodyPhysics(c),flame=visual.userData.f;visual.remove(flame);const box=new THREE.Box3().setFromObject(visual),size=box.getSize(new V3());visual.add(flame);const m=new THREE.Group();m.userData={...visual.userData};
+ const lengthScale=spec.half[0]*2*1.06/size.x;
+ // Fit the tyre track to the measured wheel contacts, rather than stretching the
+ // whole silhouette to a hitbox that deliberately overhangs the visible body.
+ visual.updateMatrixWorld(true);const centers=(visual.userData.wheels||[]).map(w=>visual.worldToLocal(w.getWorldPosition(new V3())));
+ const centerZ=centers.reduce((sum,p)=>sum+p.z,0)/Math.max(1,centers.length),track=centers.reduce((sum,p)=>sum+Math.abs(p.z-centerZ)*2,0)/Math.max(1,centers.length);
+ const targetTrack=spec.wheels.reduce((sum,p)=>sum+Math.abs(p[2])*2,0)/spec.wheels.length,trackScale=centers.length>=4&&track>.01?cl(targetTrack/(track*lengthScale),.85,1.2):1;
+ visual.scale.set(lengthScale,lengthScale,lengthScale*trackScale);visual.position.set(spec.center[0]-(box.min.x+size.x/2)*visual.scale.x,-spec.height-box.min.y*visual.scale.y,-(box.min.z+size.z/2)*visual.scale.z);m.userData.trackScale=trackScale;m.add(visual);return m;
 }
 function refreshCarModels(){if(!inited)return;for(let k=0;k<cars.length;k++){const old=cm[k],c=cars[k];if(!old||old.userData.body===(c.body||0)&&old.userData.simple===!cfg.models)continue;const next=createCarVisual(c);next.position.copy(old.position);next.quaternion.copy(old.quaternion);scene.remove(old);scene.add(next);cm[k]=next;const geos=new Set(),mats=new Set();old.traverse(o=>{if(o.geometry)geos.add(o.geometry);for(const m of Array.isArray(o.material)?o.material:[o.material])if(m)mats.add(m)});geos.forEach(g=>g.dispose());mats.forEach(m=>m.dispose());if(pipeline?.refreshVisibility)pipeline.refreshVisibility();ren.shadowMap.needsUpdate=true;sun.shadow.needsUpdate=true;}}
 
@@ -1751,7 +1757,7 @@ function kickoff(newRound=true){if(newRound&&st!=='MENU'&&st!=='WAIT')presentSce
 
  for(const c of cars)spawnCar(c);heat.target=0;heat.speed=18;heat.cooldown=0;ball.color=0xdceeff;ball.lastPlayer=-1;
 
-  const lp=localPlayer();ball.p.set(0,BR,0);ball.v.set(0,0,0);ball.w.set(0,0,0);ball.last=-1;ball.hit=0;ball.hitT=0;setupHeatServe();ball.prevP.copy(ball.p);ball.frameP.copy(ball.p);if(bm)bm.quaternion.identity();cd.set(1,0,0).applyQuaternion(lp.q);cpos.copy(lp.p).addScaledVector(cd,-5);cpos.y+=1.5;lookPos.copy(ball.p);cameraAnchorReady=false;acc=0;PADS.forEach(p=>p.t=0);st='COUNT';cnt=3.99;OPENING.active=false;beginOpening();
+  const lp=localPlayer();ball.p.set(0,BR,0);ball.v.set(0,0,0);ball.w.set(0,0,0);ball.last=-1;ball.hit=0;ball.hitT=0;setupHeatServe();ball.prevP.copy(ball.p);ball.frameP.copy(ball.p);if(bm)bm.quaternion.identity();cd.set(1,0,0).applyQuaternion(lp.q);cpos.copy(lp.p).addScaledVector(cd,-5);cpos.y+=1.5;lookPos.copy(ball.p);cameraAnchorReady=false;acc=0;PADS.forEach(p=>p.t=0);st='COUNT';applyTeamColors();cnt=3.99;OPENING.active=false;beginOpening();
 
   if(MP.active&&MP.role==='host'&&newRound){MP.round++;mpClearInput();publishMatch()}
 
@@ -2375,11 +2381,11 @@ function frame(t){requestAnimationFrame(frame);presentationDelta=cl((t-last)/100
 // INLINE:preload.js
 // INLINE:server-api.js
 // INLINE:test-hooks.js
-setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();setupGraphicsUI();configureCars();kickoff();st='MENU';setupIntro();setupShowroomControls();setupGauges();setupRivals();setupSecret();setupPaint();setupDevice();setupCelebrationUI();setupCinemaUI();setupMatchPresentationUI();setupBombUI();requestAnimationFrame(frame);if(!window.__TEVIN_TEST__)setTimeout(preloadArena,0);
+setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();setupGraphicsUI();configureCars();kickoff();st='MENU';applyTeamColors();setupIntro();setupShowroomControls();setupGauges();setupRivals();setupSecret();setupPaint();setupDevice();setupCelebrationUI();setupCinemaUI();setupMatchPresentationUI();setupBombUI();requestAnimationFrame(frame);if(!window.__TEVIN_TEST__)setTimeout(preloadArena,0);
 
 window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:120,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,multiplayer:DED.active?'Phoenix dedicated':'offline',rtt:DED.rtt,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
 
-window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 9.9.6 · CHAMPIONSHIP LIGHTING · Ready to play');
+window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 10.0.0 · NIVET LEAGUE · Ready to play');
 
 
 } catch(error) { window.tevinBoot.error=String(error.message||error);window.tevinBoot.show("Startup failed at "+window.tevinBoot.stage+": "+window.tevinBoot.error);console.error(error); }

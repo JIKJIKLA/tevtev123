@@ -83,5 +83,5 @@ function renderQuickChat(){
 function setupMatchPresentationUI(){
  const summary=$('quick-chat').querySelector('summary');summary.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h16v12H9l-5 4V4Z"/><path d="M8 8h8M8 12h5"/></svg><span>QUICK CHAT<small id="chat-ready">READY</small></span><kbd>1–4</kbd>';
  const descriptions=['Claim the next touch','Cover your goal','Ask your team for space','Celebrate a teammate'];for(let i=0;i<4;i++){const button=$('chat-'+i);button.replaceChildren();const key=document.createElement('kbd'),label=document.createElement('span'),help=document.createElement('small');key.textContent=String(i+1);label.textContent=QUICK_CHAT[i];help.textContent=descriptions[i];button.append(key,label,help);}
- const caption=document.createElement('div');caption.id='opening-caption';caption.hidden=true;caption.innerHTML='<small>TEVIN LEAGUE / MATCH OPENING</small><strong id="opening-stage">SKYLIGHT OPENING</strong><span id="opening-progress" aria-hidden="true"></span>';document.body.appendChild(caption);
+ const caption=document.createElement('div');caption.id='opening-caption';caption.hidden=true;caption.innerHTML='<small>NIVET LEAGUE / MATCH OPENING</small><strong id="opening-stage">SKYLIGHT OPENING</strong><span id="opening-progress" aria-hidden="true"></span>';document.body.appendChild(caption);
 }
