@@ -25,7 +25,7 @@ function openingDeliveryPose(elapsed){
  else if(t<OPENING.duration){const u=(t-4.12)/(OPENING.duration-4.12);height=BR+.14*Math.pow(1-u,3)*Math.pow(Math.sin(u*Math.PI*1.5),2);}
  else height=BR;
  const open=ease((t-.15)/.65)*(1-ease((t-1.85)/.55)),handoff=ease((t-2.05)/2.35),spin=t*(1-ease((t-OPENING.impact)/(OPENING.duration-OPENING.impact)));
- return{height,open,handoff,spin,phase:t<1.3?'EYES TO THE SKY':t<2.25?'AIRSHOW / SPLIT':t<4.12?'BALL INBOUND':'READY FOR KICKOFF'};
+ return{height,open,handoff,spin,phase:t<1.15?'EYES TO THE SKY':t<2.1?'AIRSHOW OVERHEAD':t<4.12?'BALL INBOUND':'READY FOR KICKOFF'};
 }
 function createOpeningVisuals(){
  const group=new THREE.Group();group.name='Fixed stadium roof and independent ball drop';const steel=new THREE.MeshStandardMaterial({color:0x263c4c,metalness:.35,roughness:.64}),edge=new THREE.MeshStandardMaterial({color:0x7f98a6,roughness:.55,metalness:.25}),light=new THREE.MeshBasicMaterial({color:0x79c5dc,toneMapped:false}),glass=new THREE.MeshStandardMaterial({color:0x91c4d3,transparent:true,opacity:.22,depthWrite:false,side:THREE.DoubleSide,roughness:.25,metalness:.05,envMapIntensity:.65}),etch=new THREE.MeshBasicMaterial({color:0xd8f1f5,transparent:true,opacity:.16,depthWrite:false,side:THREE.DoubleSide});
@@ -53,7 +53,9 @@ function updateOpeningVisuals(){
 }
 function positionOpeningCamera(){
  if(!OPENING.active||st!=='COUNT')return;const p=openingDeliveryPose(OPENING.elapsed),target=OPENING.target;
- openingDesired.set(target.x,9,target.z+(target.z< -10?40:-40)).lerp(cam.position,p.handoff);openingAim.copy(bm.position);openingAim.y=Math.max(openingAim.y+.25,35*(1-cinemaEase((OPENING.elapsed-1.5)/.9)));openingAim.lerp(lookPos,p.handoff);constrainArenaCamera(target,openingDesired,cam.position);cam.lookAt(openingAim);const fly=jetFlybyPose(OPENING.elapsed,airshowImpactMotion());cam.position.x+=fly.shakeX;cam.position.y+=fly.shakeY;const wide=cl(2*Math.atan(Math.tan(56*Math.PI/180)/cam.aspect)*180/Math.PI,65,116);cam.fov=wide+(cam.fov-wide)*p.handoff;cam.updateProjectionMatrix();if(OPENING.visuals)updateJetFlyby(OPENING.visuals,OPENING.elapsed);
+ // Frame the high flyover, then tilt down as the independent ball clears its
+ // hatch. Only camera/HUD offsets react to the wake; the stadium stays fixed.
+ openingDesired.set(target.x,9,target.z+(target.z< -10?40:-40)).lerp(cam.position,p.handoff);openingAim.copy(bm.position);openingAim.y=Math.max(openingAim.y+.25,58*(1-cinemaEase((OPENING.elapsed-1.6)/.65)));openingAim.lerp(lookPos,p.handoff);constrainArenaCamera(target,openingDesired,cam.position);cam.lookAt(openingAim);const fly=jetFlybyPose(OPENING.elapsed,airshowImpactMotion());cam.position.x+=fly.shakeX;cam.position.y+=fly.shakeY;const wide=cl(2*Math.atan(Math.tan(56*Math.PI/180)/cam.aspect)*180/Math.PI,65,116);cam.fov=wide+(cam.fov-wide)*p.handoff;cam.updateProjectionMatrix();if(OPENING.visuals)updateJetFlyby(OPENING.visuals,OPENING.elapsed);
 }
 function goalFieldCameraPose(team,age,out,target){
  const attack=team===0?1:-1,u=cinemaEase(age/.65);out.set(10+u*1.4,5.3+u*.5,attack*(HZ-12-u*1.4));target.set(0,2.1,attack*(HZ-.5));

@@ -94,7 +94,7 @@ function pollController(){
   }
   padJump=pressed(0);padCamera=pressed(3);padPause=pressed(9);return;
  }
- const jump=pressed(0),camera=pressed(3),paused=pressed(9),arcadeOpen=SECRET.open&&!SECRET.minimized,playable=!arcadeOpen&&inputFocused&&!document.hidden&&!LOADING.active&&!INTRO.active&&!MP.localPaused&&st==='PLAY';
+ const jump=pressed(0),camera=pressed(3),paused=pressed(9),arcadeOpen=SECRET.open&&!SECRET.minimized,playable=!arcadeOpen&&inputFocused&&!document.hidden&&!LOADING.active&&!INTRO.active&&!MP.localPaused&&!carDemolished(localPlayer())&&st==='PLAY';
  if(!arcadeOpen&&inputFocused&&!document.hidden&&!LOADING.active&&!INTRO.active){
   if(paused&&!padPause&&['PLAY','COUNT','PAUSE'].includes(st))pause();
   if(camera&&!padCamera&&['PLAY','COUNT'].includes(st)){ballCam=!ballCam;renderBindings();}
@@ -106,7 +106,7 @@ function pollController(){
  padJump=jump;padCamera=camera;padPause=paused;
 }
 addEventListener('focus',()=>{inputFocused=true});
-function human(c){if(SECRET.open&&!SECRET.minimized){Object.assign(c.inp,Z);c.jp=c.jh=0;return;}
+function human(c){if(carDemolished(c)||SECRET.open&&!SECRET.minimized){Object.assign(c.inp,Z);c.jp=c.jh=0;return;}
  const k=keys,w=k.w||k.arrowup?1:0,s=k.s||k.arrowdown?1:0,a=k.a||k.arrowleft?1:0,d=k.d||k.arrowright?1:0,i=c.inp;
  const combine=(digital,touch,analog)=>digital||(touchInput.active?touch:analog);
  i.thr=combine(w-s,touchInput.thr,padInput.thr);i.pitch=combine(w-s,touchInput.pitch,padInput.pitch);i.steer=combine(d-a,touchInput.steer,padInput.steer);i.yaw=combine(d-a,touchInput.yaw,padInput.yaw);

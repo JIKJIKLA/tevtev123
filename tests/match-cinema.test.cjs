@@ -4,6 +4,12 @@ test('independent ball falls from outside the fixed roof, bounces and eases to r
  for(let t=0;t<5;t+=.007){const sample=p(t);assert.ok(sample.height>=.9125-1e-8);assert.ok(Object.entries(sample).every(([k,v])=>typeof v==='string'||Number.isFinite(v)));if(Math.abs(sample.height-a.OPENING.roofY)<.96)assert.ok(1.61+sample.open*3.45-1.64>.92,'doors must clear the entire ball at the roof');assert.equal('droneY' in sample,false);}
  assert.ok(Math.abs((p(5).height-p(4.999).height)/.001)<.00001);assert.ok(Math.abs((p(5).spin-p(4.999).spin)/.001)<.003);
 });
+
+test('sliding leaves fully clear the complete ball through the roof slab in every opening frame',()=>{
+ const a=load().api,ballRadius=.9125,roofHalfThickness=.15;
+ for(let t=0;t<=5;t+=1/240){const pose=a.openingDeliveryPose(t);if(Math.abs(pose.height-a.OPENING.roofY)<=ballRadius+roofHalfThickness){const halfGap=1.61+pose.open*3.45-1.64;assert.ok(halfGap>ballRadius+.25,'a door closes on the falling ball at '+t);assert.ok(Math.abs(pose.height-a.OPENING.roofY)<1.1);}}
+ assert.equal(a.openingDeliveryPose(.8).open,1);assert.equal(a.openingDeliveryPose(2.4).open,0);
+});
 test('delivery is armed for the first VS AI kickoff only, preserves physics during staging, and ends exactly at the serving pose',()=>{
  for(const mode of [0,1])for(const size of [1,2,3]){
   const a=load().api;a.cfg.mode=mode;a.cfg.size=size;a.configureCars();a.setState({st:'MENU',sandbox:false});a.rivalsStart();a.kickoff();assert.equal(a.OPENING.active,true);assert.equal(a.getState().cnt,5);assert.equal(a.kickoffLabel(5),5);const target=Array.from(a.ball.p.toArray());assert.equal(a.ball.v.length(),0);for(let t=0;t<5;t+=.1)a.openingDeliveryPose(t);assert.deepEqual(Array.from(a.ball.p.toArray()),target);a.ball.v.set(1,2,3);a.ball.w.set(2,3,4);assert.equal(a.finishOpening(),true);assert.equal(a.ball.v.length(),0);assert.equal(a.ball.w.length(),0);assert.deepEqual(Array.from(a.ball.p.toArray()),target);

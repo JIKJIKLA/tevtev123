@@ -12,8 +12,8 @@ function createCelebrationEffects(){
  const group=new THREE.Group();group.name='Pooled boost and goal spectacle';scene.add(group);e.group=group;e.boostClock=Array(6).fill(0);e.rings=[];e.shardDirection=[];e.shardSpeed=[];
  const additive=extra=>new THREE.MeshBasicMaterial({transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false,...extra});
  const nozzle=new THREE.ConeGeometry(1,1,8,1,true).rotateZ(Math.PI/2).translate(-.5,0,0);
- e.boostOuter=new THREE.InstancedMesh(nozzle,additive({opacity:.55,side:THREE.DoubleSide}),12);
- e.boostCore=new THREE.InstancedMesh(nozzle,additive({opacity:.9,side:THREE.DoubleSide}),12);
+ e.boostOuter=new THREE.InstancedMesh(nozzle,additive({map:FX?.maps.soft||glowTex(),opacity:.45,side:THREE.DoubleSide}),12);
+ e.boostCore=new THREE.InstancedMesh(nozzle,additive({map:FX?.maps.soft||glowTex(),opacity:.62,side:THREE.DoubleSide}),12);
  e.trail=new THREE.InstancedMesh(new THREE.PlaneGeometry(1,1),additive({map:FX?.maps?.soft||glowTex(),opacity:.65}),96);
  e.shards=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),additive({opacity:.9}),72);
  for(const mesh of [e.boostOuter,e.boostCore,e.trail,e.shards]){mesh.count=0;mesh.frustumCulled=false;mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);mesh.setColorAt(0,ceColor.setHex(0xffffff));mesh.instanceColor.setUsage(THREE.DynamicDrawUsage);mesh.userData.skipAO=true;group.add(mesh);}
@@ -51,11 +51,11 @@ function updateCelebrations(dt,presentation=null){
  if(e.ui){e.ui.el.hidden=!!presentation?.suppressUI||!goal||effectAge>(motion?2.25:1.7);e.ui.el.classList.toggle('still',!motion||quiet);}if(!e.group)return;e.group.visible=live||goal;if(!e.group.visible){e.trailLife.fill(0);return;}
  let outer=0,core=0;
  if(live)for(let i=0;i<cars.length;i++){
-  const c=cars[i],m=cm[i];if(!c.enabled||!c.bst||!m){e.boostClock[i]=0;continue;}
-  const flame=motion?1.05+Math.min(1,c.v.length()/23)*.8+Math.sin(e.clock*24+i)*.045:.65;
+  const c=cars[i],m=cm[i];if(!c.enabled||carDemolished(c)||!c.bst||!m){e.boostClock[i]=0;continue;}
+  const flame=motion?.58+Math.min(1,c.v.length()/23)*.5+Math.sin(e.clock*24+i)*.025:.5;
   for(const side of [-1,1]){
-   cePosition.set(-.68,.1,side*.17).applyQuaternion(m.quaternion).add(m.position);ceScale.set(flame,.115,.115);ceMatrix.compose(cePosition,m.quaternion,ceScale);e.boostOuter.setMatrixAt(outer,ceMatrix);e.boostOuter.setColorAt(outer++,ceColor.setHex(celebrationAccent(c.color)));
-   ceScale.set(flame*.75,.045,.045);ceMatrix.compose(cePosition,m.quaternion,ceScale);e.boostCore.setMatrixAt(core,ceMatrix);e.boostCore.setColorAt(core++,ceColor.setHex(0xfff1d0));
+   cePosition.set(-.68,.1,side*.17).applyQuaternion(m.quaternion).add(m.position);ceScale.set(flame,.095,.095);ceMatrix.compose(cePosition,m.quaternion,ceScale);e.boostOuter.setMatrixAt(outer,ceMatrix);e.boostOuter.setColorAt(outer++,ceColor.setHex(celebrationAccent(c.color)));
+   ceScale.set(flame*.72,.028,.028);ceMatrix.compose(cePosition,m.quaternion,ceScale);e.boostCore.setMatrixAt(core,ceMatrix);e.boostCore.setColorAt(core++,ceColor.setHex(0xffcf83));
   }
   e.boostClock[i]=(e.boostClock[i]||0)+dt;let spawned=0;while(motion&&e.boostClock[i]>1/48&&spawned++<2){e.boostClock[i]-=1/48;celebrationTrail(c,m);}
  }

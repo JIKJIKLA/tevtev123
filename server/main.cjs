@@ -14,7 +14,7 @@ function reserveInviteCode(used,draw=()=>randomInt(1000)){
 }
 function validInvite(code){return typeof code==='string'&&/^\d{3}$/.test(code);}
 function createService(options={}){
- const rooms=new Map(),clients=new Set(),parties=new Map(),queue=new Map(),origins=new Set(options.origins||['https://jikjikla.github.io','https://tevtev123.b-cdn.net']);
+ const rooms=new Map(),clients=new Set(),parties=new Map(),queue=new Map(),origins=new Set(options.origins||['https://jikjikla.github.io','https://tevtev123.b-cdn.net','https://nivet-league.jikdifn.workers.dev']);
  const maxRooms=options.maxRooms||4,maxClients=options.maxClients||48,physics=options.physics||createPhysics;
  let last=performance.now(),acc=0,ticks=0,droppedTicks=0,closed=false;
  function send(c,value){if(c.ws.readyState===1){if(c.ws.bufferedAmount>131072){c.ws.close(1013,'Connection too slow');return}c.ws.send(JSON.stringify(value))}}
@@ -107,7 +107,7 @@ function createService(options={}){
   }
   throw Error('Unknown message type');
  }
- const server=http.createServer((req,res)=>{res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');if(req.url==='/health'){res.setHeader('Content-Type','application/json');res.end(JSON.stringify({ok:true,service:'nivet-match-server',wire:WIRE,region:'Phoenix',build:'10.0.0',physicsHz:120,snapshotHz:30,rooms:rooms.size,capacity:maxRooms,droppedTicks}));}else{res.writeHead(404);res.end('Not found')}});
+ const server=http.createServer((req,res)=>{res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');if(req.url==='/health'){res.setHeader('Content-Type','application/json');res.end(JSON.stringify({ok:true,service:'nivet-match-server',wire:WIRE,region:'Phoenix',build:'10.1.0',physicsHz:120,snapshotHz:30,rooms:rooms.size,capacity:maxRooms,droppedTicks}));}else{res.writeHead(404);res.end('Not found')}});
  const wss=new WebSocketServer({noServer:true,maxPayload:4096,perMessageDeflate:false});
  server.on('upgrade',(req,socket,head)=>{
   if(req.url!=='/play'||!origins.has(req.headers.origin)||clients.size>=maxClients){socket.end('HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n');return}

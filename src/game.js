@@ -2,7 +2,7 @@
 try {
 
 
-/* Nivet League 10.0.0 — Velvet arena. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
+/* Nivet League 10.1.0 — Matchday. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
 window.tevinBoot.stage='game script';
 
 const ENGINE=TevinEngine;
@@ -122,13 +122,15 @@ const _p=new V3(),_n=new V3(),_up=new V3(),_ft=new V3(),_rt=new V3(),_a=new V3()
 
 const Z={thr:0,steer:0,pitch:0,yaw:0,roll:0,boost:0,ps:0};
 
-const mkCar=t=>({team:t,id:t,enabled:true,color:t?0xff7a20:0x2a6bff,touches:0,goals:0,topSpeed:0,boostUsed:0,lastTouchAt:-100,p:new V3(),prevP:new V3(),renderP:new V3(),prevQ:new Qn(),frameP:new V3(),frameQ:new Qn(),sweepEnd:new V3(),moveQ:new Qn(),sweepQ:new Qn(),v:new V3(),q:new Qn(),w:new V3(),n:new V3(0,1,0),jdir:new V3(0,1,0),boost:33,inp:{...Z},jp:0,jh:0,jt:0,jl:0,jAge:0,jumped:0,jHoldTime:0,flipAxis:new V3(),canJ:0,canD:0,dT:0,dcd:0,aT:0,cT:0,wy:0,grip:PHYS.ground.gripF,wasG:0,ground:0,bs:0,bt:0,bst:0,ai:{target:new V3(),intercept:new V3(),mode:'ATTACK',time:0,commit:0,rotateSide:1,strikeCD:0,tune:{steerGain:2.6,boostAngle:.28,boostRange:7,dodgeDistance:5.4,setup:2.6,airGain:3.4,wallGain:1}}});
+// INLINE:demolition.js
+
+const mkCar=t=>({team:t,id:t,enabled:true,color:t?0xff7a20:0x2a6bff,touches:0,goals:0,topSpeed:0,boostUsed:0,lastTouchAt:-100,p:new V3(),prevP:new V3(),renderP:new V3(),prevQ:new Qn(),frameP:new V3(),frameQ:new Qn(),sweepEnd:new V3(),moveQ:new Qn(),sweepQ:new Qn(),v:new V3(),q:new Qn(),w:new V3(),n:new V3(0,1,0),jdir:new V3(0,1,0),boost:33,demoTime:0,demoSeq:0,demoBy:-1,respawnSeq:0,supersonic:false,supersonicTime:0,boostHold:0,inp:{...Z},jp:0,jh:0,jt:0,jl:0,jAge:0,jumped:0,jHoldTime:0,flipAxis:new V3(),canJ:0,canD:0,dT:0,dcd:0,aT:0,cT:0,wy:0,grip:PHYS.ground.gripF,wasG:0,ground:0,bs:0,bt:0,bst:0,ai:{target:new V3(),intercept:new V3(),mode:'ATTACK',time:0,commit:0,rotateSide:1,strikeCD:0,tune:{steerGain:2.6,boostAngle:.28,boostRange:7,dodgeDistance:5.4,setup:2.6,airGain:3.4,wallGain:1}}});
 
 const cars=[mkCar(0),mkCar(1)],P1=cars[0],ball={p:new V3(),v:new V3(),w:new V3(),last:-1,hit:0,hitT:0,prevP:new V3(),frameP:new V3()},PADS=[];
 
 STANDARD_PADS.forEach(([x,z,big])=>PADS.push({x,z,big,t:0}));
 
-function resetCar(c,x,z){c.p.set(x,bodyPhysics(c).height+.015,z);c.v.set(0,0,0);c.w.set(0,0,0);c.n.set(0,1,0);c.boost=33;c.jp=c.jh=c.jt=c.jl=c.jAge=c.jumped=c.jHoldTime=0;c.canJ=1;c.canD=1;c.dT=c.dcd=c.aT=c.cT=c.wy=0;c.grip=PHYS.ground.gripF;c.wasG=1;c.ground=1;c.bs=c.bt=c.bst=c.sk=c.un=0;Object.assign(c.inp,Z);c.q.setFromAxisAngle(Y3,Math.hypot(x,z)>1e-6?Math.atan2(z,-x):0);c.prevP.copy(c.p);c.renderP.copy(c.p);c.prevQ.copy(c.q);c.frameP.copy(c.p);c.frameQ.copy(c.q);c.planT=c.righting=0;c.ai.mode='KICKOFF';c.ai.time=c.ai.commit=c.ai.strikeCD=c.ai.pressure=0;c.ai.rotateSide=x>0?1:-1;c.ai.target.copy(c.p);c.ai.intercept.set(0,BR,0);c.tgt=c.ai.target}
+function resetCar(c,x,z){c.demoTime=0;c.supersonic=false;c.supersonicTime=c.boostHold=0;c.p.set(x,bodyPhysics(c).height+.015,z);c.v.set(0,0,0);c.w.set(0,0,0);c.n.set(0,1,0);c.boost=33;c.jp=c.jh=c.jt=c.jl=c.jAge=c.jumped=c.jHoldTime=0;c.canJ=1;c.canD=1;c.dT=c.dcd=c.aT=c.cT=c.wy=0;c.grip=PHYS.ground.gripF;c.wasG=1;c.ground=1;c.bs=c.bt=c.bst=c.sk=c.un=0;Object.assign(c.inp,Z);c.q.setFromAxisAngle(Y3,Math.hypot(x,z)>1e-6?Math.atan2(z,-x):0);c.prevP.copy(c.p);c.renderP.copy(c.p);c.prevQ.copy(c.q);c.frameP.copy(c.p);c.frameQ.copy(c.q);c.planT=c.righting=0;c.ai.mode='KICKOFF';c.ai.time=c.ai.commit=c.ai.strikeCD=c.ai.pressure=0;c.ai.rotateSide=x>0?1:-1;c.ai.target.copy(c.p);c.ai.intercept.set(0,BR,0);c.tgt=c.ai.target}
 
 const axStep=(w,u,acc,dt)=>{const A=PHYS.air;if(u)w+=u*acc*dt*(w*u<0?2.2:1);w*=Math.exp(-(u?A.damp:A.damp0)*dt);return cl(w,-A.wmax,A.wmax)};
 
@@ -196,7 +198,7 @@ function sampleCarSupport(c){
 
 function stepCar(c,dt){
 
- if(!c.enabled)return;secretCarStep(c,dt);if(cfg.unlimited)c.boost=100;
+ if(!c.enabled)return;if(tickDemolition(c,dt))return;secretCarStep(c,dt);if(cfg.unlimited)c.boost=100;
 
  const i=c.inp,q=c.q,P=PHYS,Gd=P.ground,B=P.boost,J=P.jump,A=P.air,CI=bodyPhysics(c).inertia;
 
@@ -262,7 +264,7 @@ function stepCar(c,dt){
 
  if(c.jumped&&c.aT>=J.window+c.jHoldTime)c.canD=0;
 
- const bo=i.boost&&c.boost>0;if(bo)c.boost=Math.max(0,c.boost-B.rate*dt);c.bst=bo?1:0;
+ if(i.boost&&!c.bst&&c.boost>0)c.boostHold=.1;const bo=!!(c.boost>0&&(i.boost||c.boostHold>1e-8));if(bo){c.boost=Math.max(0,c.boost-B.rate*dt);c.boostHold=Math.max(0,c.boostHold-dt);}else c.boostHold=0;c.bst=bo?1:0;
 
  if(ground){
 
@@ -309,7 +311,6 @@ function stepCar(c,dt){
 
   else{const ws=c.w;ws.x=airRotation(ws.x,i.roll,38.34,4.76,dt,true);ws.y=airRotation(ws.y,-i.yaw,9.11,1.90,dt);ws.z=airRotation(ws.z,-i.pitch,12.46,2.86,dt);if(ws.lengthSq()>A.wmax*A.wmax)ws.setLength(A.wmax)}
 
-  if(!flipping&&Math.max(Math.abs(i.pitch),Math.abs(i.yaw),Math.abs(i.roll))<.08)c.w.multiplyScalar(Math.exp(-2.2*dt));
  const m=c.w.length();if(m>1e-4&&!flipping){_a.copy(c.w).divideScalar(m);q.multiply(_q1.setFromAxisAngle(_a,m*dt))}c.v.multiplyScalar(Math.exp(-Gd.drag*c.v.length()*dt*.5));
 
  }
@@ -322,7 +323,7 @@ function stepCar(c,dt){
 
  for(let k=1;k<=slices;k++){q.copy(c.prevQ).slerp(c.moveQ,k/slices);c.p.addScaledVector(c.v,dt/slices);resolveArenaCar(c)}
 
- c.ground=ground?1:0;c.wasG=ground;
+ c.ground=ground?1:0;c.wasG=ground;updateSupersonic(c,dt);
 
 }
 
@@ -330,7 +331,7 @@ function stepCar(c,dt){
 
 function carBall(c){
 
- if(!c.enabled)return;
+ if(!c.enabled||carDemolished(c))return;
 
  const b=ball,P=PHYS,hc=bodyPhysics(c).center,hh=bodyPhysics(c).half,H=P.hit,Mb=P.ball.mass,CI=bodyPhysics(c).inertia;
 
@@ -447,10 +448,11 @@ function stepBall(dt){
 
 }
 
-function carCar(){for(let i=0;i<cars.length;i++)for(let j=i+1;j<cars.length;j++)if(cars[i].enabled&&cars[j].enabled)carPair(cars[i],cars[j])}
+function carCar(){for(let i=0;i<cars.length;i++)for(let j=i+1;j<cars.length;j++)if(cars[i].enabled&&cars[j].enabled&&!carDemolished(cars[i])&&!carDemolished(cars[j]))carPair(cars[i],cars[j])}
 
 function carPair(a,b){
 
+ if(carDemolished(a)||carDemolished(b)||demolitionPair(a,b))return;
  const P=PHYS.car,ap=bodyPhysics(a),bp=bodyPhysics(b),R2=ap.half[2]+bp.half[2];
 
  for(const f of [-1,0,1]){const xa=ap.center[0]+f*Math.max(0,ap.half[0]-ap.half[2]);_a.set(xa,ap.center[1],0).applyQuaternion(a.q).add(a.p);
@@ -467,7 +469,7 @@ function padStep(dt){for(const p of PADS){
 
  p.t=Math.max(0,p.t-dt);if(p.t>0)continue;
 
- for(const c of cars){if(c.enabled&&c.boost<PHYS.boost.cap&&padContains(p,c)){
+ for(const c of cars){if(c.enabled&&!carDemolished(c)&&c.boost<PHYS.boost.cap&&padContains(p,c)){
 
   c.boost=Math.min(PHYS.boost.cap,c.boost+(p.big?100:12));p.t=p.big?10:4;audioWorld('pickup',8,c.p,c.id);break;
 
@@ -1304,6 +1306,7 @@ function audioSample(key,volume=1,rate=1,position=null){
 // Quiet oscillator fallback only while samples decode or a codec fails.
 function snd(f,t='sine',d=.1,v=.1,f2){if(!AC||AC.state!=='running'||AUDIO.settings.muted||document.hidden)return;if(AUDIO.voices.length>=16)audioStopVoice(AUDIO.voices[0]);const source=AC.createOscillator(),gain=AC.createGain(),n=AC.currentTime;source.type=t;source.frequency.setValueAtTime(f,n);if(f2)source.frequency.exponentialRampToValueAtTime(f2,n+d);gain.gain.setValueAtTime(v,n);gain.gain.exponentialRampToValueAtTime(.001,n+d);source.connect(gain);gain.connect(AUDIO.effects);const voice={source,gain,pan:null};AUDIO.voices.push(voice);source.onended=()=>audioRelease(voice);source.start(n);source.stop(n+d)}
 function audioCue(kind,strength=8,position=null,cid=-1){
+ if(kind==='shot')return;
  if((kind==='pickup'||kind==='save')&&cid!==localPlayer().id)return;
  const v=cl(strength/25,.12,.8),variant=(AUDIO.serial++%3)+1;
  if(kind==='hit'||kind==='ball'||kind==='wall'||kind==='bump'){
@@ -1314,15 +1317,15 @@ function audioWorld(kind,strength=8,p=null,cid=-1){if(DED.replaying)return;
  const now=performance.now(),gate=kind+':'+cid;if(now-(AUDIO.gate[gate]??-1000)<(kind==='ball'?100:70))return;AUDIO.gate[gate]=now;
  const position=p?[p.x,p.y,p.z]:null;
  if(MP.active&&MP.role==='host'){AUDIO.events.push({id:++AUDIO.seq,kind,strength:cl(strength,0,100),position,cid,at:now});if(AUDIO.events.length>16)AUDIO.events.shift()}
- if(st!=='PAUSE'&&st!=='MENU'&&st!=='WAIT')audioCue(kind,strength,position,cid);
+ if(st!=='PAUSE'&&st!=='MENU'&&st!=='WAIT'){matchContactCue(kind,strength,position,cid);audioCue(kind,strength,position,cid);}
 }
 function impactSound(kind,strength,p=null){audioWorld(kind,strength,p);if(kind==='hit'||kind==='wall')shake=Math.min(.22,shake+strength*.004)}
 function audioPacket(){const now=performance.now();return AUDIO.events.filter(e=>now-e.at<300).map(e=>({id:e.id,kind:e.kind,strength:e.strength,position:e.position,cid:e.cid,age:now-e.at}))}
 function audioReceive(s){if(!Array.isArray(s.audio))return;for(const e of s.audio.slice(-16)){
  if(!e||!Number.isSafeInteger(e.id)||e.id<=AUDIO.received)continue;AUDIO.received=e.id;
- if(!['hit','ball','wall','bump','jump','dodge','pickup','save'].includes(e.kind)||!Number.isFinite(e.strength)||!Number.isFinite(e.age)||e.age<0||e.age>300||!['PLAY','GOAL'].includes(s.phase)||st==='PAUSE'||document.hidden)continue;
+ if(!['hit','ball','wall','bump','jump','dodge','pickup','save','shot'].includes(e.kind)||!Number.isFinite(e.strength)||!Number.isFinite(e.age)||e.age<0||e.age>300||!['PLAY','GOAL'].includes(s.phase)||st==='PAUSE'||document.hidden)continue;
  if(e.position&&(!Array.isArray(e.position)||e.position.length!==3||!e.position.every(Number.isFinite)))continue;
- graphicsRemoteCue(e.kind,e.strength,e.position,s.ball?.color);audioCue(e.kind,cl(e.strength,0,100),e.position,e.cid);
+ graphicsRemoteCue(e.kind,e.strength,e.position,s.ball?.color,e.cid);audioCue(e.kind,cl(e.strength,0,100),e.position,e.cid);
 }}
 function updateAudio(){
  const previous=AUDIO.phase;AUDIO.phase=st;
@@ -1447,13 +1450,13 @@ async function createGraphicsEffects(){
 function graphicsBurst(p,strength=10,color=0xffffff,goal=false){if(!FX||!p)return;
  const count=goal?4:2;for(let i=0;i<count;i++){const e=FX.pool[FX.next++%FX.pool.length];e.sprite.position.set(p.x,p.y,p.z);e.total=e.life=goal?.85:.24;e.size=goal?8:cl(strength*.09,.5,2);e.sprite.material.color.setHex(color);e.sprite.material.rotation=e.wide?0:Math.random()*6.28;e.sprite.visible=true}
 }
-function graphicsRemoteCue(kind,strength,position,color){if(kind==='hit'&&position&&FX)graphicsBurst(fxOffset.fromArray(position),strength,color||ball.color||0xffffff)}
+function graphicsRemoteCue(kind,strength,position,color,cid=-1){if(kind==='hit'&&position&&FX)graphicsBurst(fxOffset.fromArray(position),strength,color||ball.color||0xffffff);matchContactCue(kind,strength,position,cid,color);}
 function updateGraphicsEffects(dt){if(!FX)return;const playing=st==='PLAY'||st==='GOAL';FX.group.visible=playing;
  $('bo').classList.toggle('boosting',playing&&!!localPlayer().bst);
  const key=score.join(':');if(st==='GOAL'&&FX.goalKey!==key){FX.goalKey=key;graphicsBurst(ball.p,35,ball.color||0xffffff,true);$('msg').classList.add('goal-burst')}else if(st!=='GOAL')$('msg').classList.remove('goal-burst');
  if(st==='COUNT')FX.goalKey='';if(!playing){for(const e of FX.pool)e.life=0;return}FX.time+=dt;
  for(const e of FX.pool){e.life=Math.max(0,e.life-dt);e.sprite.visible=e.life>0;if(!e.life)continue;const t=1-e.life/e.total,s=e.size*(.45+t*1.4);e.sprite.scale.set(s*(e.wide?2.8:1),s*(e.wide?.45:1),1);e.sprite.material.opacity=Math.pow(1-t,2)*(fxReduced?.2:.65)}
- for(let i=0;i<FX.boost.length;i++){const c=cars[i],s=FX.boost[i];s.visible=!!c.enabled&&!!c.bst;if(!s.visible)continue;fxOffset.set(-1.1,.02,0).applyQuaternion(cm[i].quaternion);s.position.copy(cm[i].position).add(fxOffset);s.material.color.setHex(c.color);s.material.opacity=fxReduced?.16:.42;s.scale.set(1.35+Math.sin(FX.time*19+i)*.12,.38,1)}
+ for(let i=0;i<FX.boost.length;i++){const c=cars[i],s=FX.boost[i];s.visible=!!c.enabled&&!!c.bst;if(!s.visible)continue;fxOffset.set(-1.1,.02,0).applyQuaternion(cm[i].quaternion);s.position.copy(cm[i].position).add(fxOffset);s.material.color.setHex(c.color);s.material.opacity=fxReduced?.12:.26;s.scale.set(.8+Math.sin(FX.time*19+i)*.07,.25,1)}
 }
 
 
@@ -1507,13 +1510,13 @@ function attachRoomListeners(){const room=MP.room;mpListen(room.child('presence'
 async function hostMatch(){if(DED.enabled)return dedPrivate('create');if(mpBusy||starting||SOC.searching||SOC.busy)return;mpBusyUI(true);try{mpReset();sandbox=false;const db=await mpReady(),session=db.session;let room,code,res;for(let n=0;n<6;n++){code=randomRoomCode();room=db.ref('rooms/'+code);res=await mpTimeout(room.transaction(v=>v===null?{meta:{protocol:PROTOCOL,host:session,settings:matchSettings(),seats:{0:{session,color:cfg.color,body:cfg.body}},locked:false,createdAt:Date.now()}}:undefined),'Create room');if(res.committed)break}if(!res.committed)throw Error('Unable to reserve room. Try again.');Object.assign(MP,{active:true,role:'host',slot:0,session,room,code,seats:res.snapshot.val().meta.seats});$('room-code').value=code;attachRoomListeners();mpStatus('WAITING FOR PLAYERS');await startGame()}catch(e){mpReset();mpFailure(e)}finally{mpBusyUI(false)}}
 async function joinMatch(){if(DED.enabled)return dedPrivate('join');if(mpBusy||starting||SOC.searching||SOC.busy)return;const code=$('room-code').value.trim().toUpperCase().replace(/[^A-Z0-9]/g,'');if(MP.active&&MP.role==='host'&&MP.code===code){mpStatus('Share '+code+' with the second player or your team.');return}if(code.length!==6){mpStatus('Enter the six-character room code.','bad');return}mpBusyUI(true);try{mpReset();sandbox=false;const db=await mpReady(),room=db.ref('rooms/'+code),session=db.session,meta=(await mpTimeout(room.child('meta').once('value'),'Room lookup')).val();if(!meta?.host)throw Error('Match not found or host disconnected. Use a MATCH code here; party codes belong in Quick Match Party.');if(meta.protocol!==PROTOCOL)throw Error('Everyone must reload the latest Nivet League build.');
  const res=await mpTimeout(room.child('meta').transaction(m=>{if(m===null)return null;if(m.host!==meta.host||m.protocol!==PROTOCOL||m.locked)return;const count=cl(Number(m.settings?.size)||1,1,3)*2;m.seats=m.seats||{};for(let k=1;k<count;k++)if(!m.seats[k]){m.seats[k]={session,color:cfg.color,body:cfg.body};return m}},undefined,false),'Join room');const joined=res.snapshot?.val(),entry=Object.entries(joined?.seats||{}).find(([,seat])=>seat.session===session);if(!res.committed||!entry)throw Error('Room full or match already started. Ask the host for a new lobby.');applySettings(joined.settings);Object.assign(MP,{active:true,role:'guest',slot:Number(entry[0]),session,room,code,seats:joined.seats});attachRoomListeners();await startGame()}catch(e){mpReset();mpFailure(e)}finally{mpBusyUI(false)}}
-function carPacket(c){return{x:c.p.x,y:c.p.y,z:c.p.z,q:c.q.toArray(),v:c.v.toArray(),w:c.w.toArray(),n:c.n.toArray(),boost:c.boost,ground:!!c.ground,input:{...c.inp},boosting:!!c.bst,color:c.color,touches:c.touches,goals:c.goals,topSpeed:c.topSpeed,boostUsed:c.boostUsed}}
+function carPacket(c){return{x:c.p.x,y:c.p.y,z:c.p.z,q:c.q.toArray(),v:c.v.toArray(),w:c.w.toArray(),n:c.n.toArray(),boost:c.boost,ground:!!c.ground,input:{...c.inp},boosting:!!c.bst,demoTime:c.demoTime||0,demoSeq:c.demoSeq||0,demoBy:c.demoBy??-1,respawnSeq:c.respawnSeq||0,supersonic:!!c.supersonic,color:c.color,touches:c.touches,goals:c.goals,topSpeed:c.topSpeed,boostUsed:c.boostUsed}}
 function ballPacket(){return{p:ball.p.toArray(),v:ball.v.toArray(),w:ball.w.toArray(),last:ball.last,lastPlayer:ball.lastPlayer??-1,color:ball.color||0xdceeff}}
 function mpSnapshot(){return{arcade:secretSnapshot(),heat:{target:heat.target,speed:heat.speed,cooldown:heat.cooldown},goal:RIVALS.goal,series:{...SERIES,wins:[...SERIES.wins]},serve:heat.server,audio:audioPacket(),seq:++MP.seq,round:MP.round,phase:st,resume:ps_||'COUNT',endReason:MP.endReason||'',clock:tl,count:cnt,goalTime:gt,overtime:!!ot,score:[...score],cars:cars.map(carPacket),ball:ballPacket(),pads:PADS.map(p=>p.t)}}
 function publishMultiplayer(dt){if(!MP.active||!MP.loaded||!MP.room||MP.closed)return;MP.publishClock+=dt;if(MP.pending>=4||(!MP.force&&MP.publishClock<.05))return;MP.publishClock=0;MP.force=false;MP.pending++;const session=MP.session;let path,value;if(MP.role==='host'){path='state';value=mpSnapshot()}else{human(localPlayer());path='inputs/'+session;value={seq:++MP.seq,round:MP.round,paused:MP.localPaused,jump:MP.jump,held:!!localPlayer().jh,controls:{...localPlayer().inp}}}MP.room.child(path).set(value).catch(e=>{if(MP.session===session)mpFailure(e)}).finally(()=>{if(MP.session===session)MP.pending--})}
-function mpRemoteControls(c){const seat=MP.seats[c.id];if(!seat){bot(c);return}const p=MP.inputs[seat.session];Object.assign(c.inp,Z);c.jp=c.jh=0;if(!p||p.round!==MP.round||p.paused)return;for(const key in Z)c.inp[key]=cl(Number(p.controls?.[key])||0,-1,1);c.jp=p.jump>(MP.seenJumps[seat.session]||0)?1:0;MP.seenJumps[seat.session]=p.jump;c.jh=p.held?1:0}
-function packetValid(p){return p&&[p.x,p.y,p.z].every(x=>Number.isFinite(x)&&Math.abs(x)<=1000)&&Number.isFinite(p.boost)&&p.boost>=0&&p.boost<=100&&finiteVector(p.q,4,1.01)&&p.q.reduce((sum,x)=>sum+x*x,0)>.5&&finiteVector(p.v,3,100)&&finiteVector(p.w,3,100)&&finiteVector(p.n,3,1.01)}
-function mpReadCar(c,p,blend,age,previous=p){if(!packetValid(p)||!packetValid(previous))return;_a.set(previous.x,previous.y,previous.z);_b.set(p.x,p.y,p.z);c.p.lerpVectors(_a,_b,blend);_b.fromArray(p.v);c.p.addScaledVector(_b,age);c.q.fromArray(previous.q).normalize();_q1.fromArray(p.q).normalize();c.q.slerp(_q1,blend);c.v.copy(_b);if(p.w?.length===3)c.w.fromArray(p.w);if(p.n?.length===3)c.n.fromArray(p.n);c.boost=p.boost;c.ground=p.ground;c.bst=p.boosting?1:0;c.color=validPaint(p.color)?p.color:PALETTE[c.team];c.touches=p.touches||0;c.goals=p.goals||0;c.topSpeed=p.topSpeed||0;c.boostUsed=p.boostUsed||0;Object.assign(c.inp,p.input||Z);c.frameP.copy(c.p);c.frameQ.copy(c.q);c.prevP.copy(c.p);c.prevQ.copy(c.q);if(c.id<2)updateScorePaint()}
+function mpRemoteControls(c){const seat=MP.seats[c.id];if(!seat){bot(c);return}const p=MP.inputs[seat.session];Object.assign(c.inp,Z);c.jp=c.jh=0;if(carDemolished(c)||!p||p.round!==MP.round||p.paused)return;for(const key in Z)c.inp[key]=cl(Number(p.controls?.[key])||0,-1,1);c.jp=p.jump>(MP.seenJumps[seat.session]||0)?1:0;MP.seenJumps[seat.session]=p.jump;c.jh=p.held?1:0}
+function packetValid(p){return p&&[p.x,p.y,p.z].every(x=>Number.isFinite(x)&&Math.abs(x)<=1000)&&Number.isFinite(p.boost)&&p.boost>=0&&p.boost<=100&&finiteVector(p.q,4,1.01)&&p.q.reduce((sum,x)=>sum+x*x,0)>.5&&finiteVector(p.v,3,100)&&finiteVector(p.w,3,100)&&finiteVector(p.n,3,1.01)&&validDemoPacket(p)}
+function mpReadCar(c,p,blend,age,previous=p){if(!packetValid(p)||!packetValid(previous))return;const discontinuity=(p.demoSeq||0)!==(previous.demoSeq||0)||(p.respawnSeq||0)!==(previous.respawnSeq||0);if(discontinuity){blend=1;age=0;}readDemoPacket(c,p);_a.set(previous.x,previous.y,previous.z);_b.set(p.x,p.y,p.z);c.p.lerpVectors(_a,_b,blend);_b.fromArray(p.v);c.p.addScaledVector(_b,age);c.q.fromArray(previous.q).normalize();_q1.fromArray(p.q).normalize();c.q.slerp(_q1,blend);c.v.copy(_b);if(p.w?.length===3)c.w.fromArray(p.w);if(p.n?.length===3)c.n.fromArray(p.n);c.boost=p.boost;c.ground=p.ground;c.bst=p.boosting?1:0;c.color=validPaint(p.color)?p.color:PALETTE[c.team];c.touches=p.touches||0;c.goals=p.goals||0;c.topSpeed=p.topSpeed||0;c.boostUsed=p.boostUsed||0;Object.assign(c.inp,p.input||Z);c.frameP.copy(c.p);c.frameQ.copy(c.q);c.prevP.copy(c.p);c.prevQ.copy(c.q);if(c.id<2)updateScorePaint()}
 function applyMultiplayer(dt,snap=false){if(MP.role!=='guest'||!MP.snapshot)return;let a=MP.snapshot,b=a,blend=1,age=0;const target=DED.active?dedRenderTime(performance.now(),dt):performance.now()-100,buf=MP.buffer,stamp=item=>DED.active?(item.time??item.at):item.at;if(!snap&&a.phase==='PLAY'&&buf.length){a=b=buf[0].state;for(let k=1;k<buf.length;k++){if(stamp(buf[k])>=target){a=buf[k-1].state;b=buf[k].state;blend=cl((target-stamp(buf[k-1]))/Math.max(1,stamp(buf[k])-stamp(buf[k-1])),0,1);break}a=b=buf[k].state}if(target>stamp(buf[buf.length-1]))age=Math.min(.05,(target-stamp(buf[buf.length-1]))/1000)}for(let k=0;k<cars.length;k++)if(!DED.active||snap||k!==MP.slot)mpReadCar(cars[k],b.cars[k],blend,age,a.cars[k]);if((!DED.active||snap)&&a.ball?.p?.length===3&&b.ball?.p?.length===3){_a.fromArray(a.ball.p);_b.fromArray(b.ball.p);ball.p.lerpVectors(_a,_b,blend);ball.v.fromArray(b.ball.v);ball.p.addScaledVector(ball.v,age);ball.w.fromArray(b.ball.w);ball.last=b.ball.last;ball.lastPlayer=b.ball.lastPlayer;ball.color=b.ball.color;ball.frameP.copy(ball.p);ball.prevP.copy(ball.p)}}
 function publishMatch(){MP.force=true}
 function handleRemoteMatch(s){if(!MP.loaded||MP.role!=='guest')return;const changed=st!==s.phase,roundChanged=MP.round!==s.round;heat.server=Number.isInteger(s.serve)?s.serve:-1;readHeatState(s.heat);if(s.series&&[1,3,5].includes(s.series.bestOf)&&Array.isArray(s.series.wins)&&s.series.wins.length===2&&s.series.wins.every(n=>Number.isInteger(n)&&n>=0&&n<=3))Object.assign(SERIES,s.series);MP.round=s.round;MP.endReason=s.endReason||'';tl=s.clock;cnt=s.count;gt=s.goalTime;ot=s.overtime?1:0;MP.matchBegun=s.phase!=='WAIT';if(Array.isArray(s.score)){score[0]=s.score[0];score[1]=s.score[1];$('s0').textContent=score[0];$('s1').textContent=score[1]}if(s.pads)for(let k=0;k<PADS.length;k++)PADS[k].t=s.pads[k]||0;if(roundChanged){presentSceneCut('kickoff');if(s.score[0]===0&&s.score[1]===0){RIVALS.recorded=false;SERIES.counted=false;RIVALS.goalSeen='';}kickoff(false);MP.round=s.round;mpClearInput();$('end').classList.remove('on');$('hud').style.display='block'}if(s.phase==='PAUSE'){applyMultiplayer(0,true);ps_=s.resume;mpFreeze('MATCH PAUSED')}else if(MP.localPaused){mpFreeze('PAUSE REQUESTED')}else{st=s.phase;$('pause').classList.remove('on');if(changed||roundChanged){mpClearInput();applyMultiplayer(0,true);if(st==='PLAY')msg('GO!',.8,'#4f8');if(st==='GOAL'){goalPulse=1;msg('GOAL!',3.2,'#fff');rivalsGoal(s.goal||{team:score[0]>score[1]?0:1,scorer:s.ball.lastPlayer,assist:-1,speed:Math.round(Math.hypot(...s.ball.v)*3.6)})}if(st==='END')endMatch(false)}}audioReceive(s);updateServeHint();if(st==='COUNT')msg(kickoffLabel(cnt),1.2,'#fff');mpStatus('LIVE · PLAYER '+(MP.slot+1),'good')}
@@ -1571,8 +1574,8 @@ function configureCars(){
  $('training-hud').hidden=!sandbox||MP.active;$('match-kind').textContent=(sandbox?'SANDBOX · ':'')+(cfg.mode?'HEATSEEKER':'SOCCAR')+' · '+cfg.size+'v'+cfg.size;$('match-label').textContent=(cfg.mode?'HEATSEEKER':'SOCCAR')+' · '+cfg.size+'V'+cfg.size;
 }
 function spawnCar(c){const row=c.id>>1,side=c.team?1:-1;resetCar(c,row===0?side*20.48:row===1?-side*2.56:0,side*(row===0?25.6:row===1?38.4:46.08));}
-function nearestOpponent(c){let best=cars[1-c.team],dist=Infinity;for(const x of cars)if(x.enabled&&x.team!==c.team){const d=x.p.distanceToSquared(ball.p);if(d<dist){dist=d;best=x}}return best}
-function teamRole(c){let ahead=0;const d=c.p.distanceToSquared(ball.p);for(const mate of cars)if(mate.enabled&&mate!==c&&mate.team===c.team){const md=mate.p.distanceToSquared(ball.p);if(md<d-1||Math.abs(md-d)<=1&&mate.id<c.id)ahead++}return ahead}
+function nearestOpponent(c){let best=cars[1-c.team],dist=Infinity;for(const x of cars)if(x.enabled&&!carDemolished(x)&&x.team!==c.team){const d=x.p.distanceToSquared(ball.p);if(d<dist){dist=d;best=x}}return best}
+function teamRole(c){let ahead=0;const d=c.p.distanceToSquared(ball.p);for(const mate of cars)if(mate.enabled&&!carDemolished(mate)&&mate!==c&&mate.team===c.team){const md=mate.p.distanceToSquared(ball.p);if(md<d-1||Math.abs(md-d)<=1&&mate.id<c.id)ahead++}return ahead}
 function teamPlan(c){
  if(cfg.mode===1&&ball.last<0&&heat.server>=0){c.ai.mode=c.id===heat.server?'COMMIT':'DEFEND';c.ai.commit=0;if(c.id===heat.server){c.ai.target.copy(ball.p);c.ai.target.z+=c.team?-1:1;c.ai.intercept.copy(ball.p)}else c.ai.target.set(((c.id>>1)-1)*5,0,(c.team?1:-1)*42);return;}
  const rank=teamRole(c),ai=c.ai,atk=c.team?-1:1;if(rank){ai.mode=rank===1?'SUPPORT':'DEFEND';ai.commit=0;
@@ -1751,7 +1754,7 @@ const matchStats={touches:0,topSpeed:0,boost:0,lastTouch:-1e9};
 
 const msg=(t,s,col='#fff')=>{const m=$('msg'),label=String(t),fresh=m.textContent!==label||mt<=0;if(fresh){cinemaMessage(m);if(label==='GO!')startKickoffJolt();}m.textContent=label;m.style.color=col;m.style.opacity=1;mt=s;msgDeadline=performance.now()+s*1000};
 
-function kickoff(newRound=true){if(newRound&&st!=='MENU'&&st!=='WAIT')presentSceneCut('kickoff');resetViewFade();clearCelebration();secretReset();
+function kickoff(newRound=true){if(newRound&&st!=='MENU'&&st!=='WAIT')presentSceneCut('kickoff');resetViewFade();clearCelebration();clearMatchEffects();secretReset();
 
  kickoffAge=0;stopReplay();RIVALS.ring.length=0;RIVALS.touches.length=0;learnKickoff();AUDIO.countKey='';AUDIO.events.length=0;
 
@@ -1800,7 +1803,7 @@ async function startGame(){
 
 function startOfflineGame(training=false){if(starting||mpBusy||SOC.searching||SOC.busy)return;if(training!==true&&st==='MENU'&&menuScreen==='home'){showMenuScreen('play');return}if(training!==true&&st==='MENU'&&(playRoute==='online'||playRoute==='quick'))return;sandbox=training===true||playRoute==='training';if(MP.active)mpReset();startGame()}
 
-function finishQuit(){resetMatchPresentation();resetViewFade();clearCelebration();stopReplay();sandbox=false;RIVALS.queuePractice=false;DRILL.active=false;mt=0;$('msg').style.opacity=0;if(SOC.searching)cancelQuickMatch();st='MENU';syncMenuSettings();if(MP.active)mpReset();learnFlush();learnUI();['pause','end'].forEach(x=>$(x).classList.remove('on'));$('menu').classList.add('on');showMenuScreen('home');$('training-hud').hidden=true;$('hud').style.display='none';$('msg').style.opacity=0;audioSilence()}
+function finishQuit(){resetMatchPresentation();resetViewFade();clearCelebration();clearMatchEffects();stopReplay();sandbox=false;RIVALS.queuePractice=false;DRILL.active=false;mt=0;$('msg').style.opacity=0;if(SOC.searching)cancelQuickMatch();st='MENU';syncMenuSettings();if(MP.active)mpReset();learnFlush();learnUI();['pause','end'].forEach(x=>$(x).classList.remove('on'));$('menu').classList.add('on');showMenuScreen('home');$('training-hud').hidden=true;$('hud').style.display='none';$('msg').style.opacity=0;audioSilence()}
 
 async function quit(){
  if(LOADING.active)return;const transition=loadingBegin('BACK TO THE LOBBY','Saving your session and returning to the lobby',true);
@@ -1830,7 +1833,7 @@ function sim(dt){
 
   for(let k=0;k<cars.length;k++){const c=cars[k];
 
-   if(!c.enabled)continue;if(live){window.__TEVIN_SERVER__?mpRemoteControls(c):c===lp?human(c):MP.active?mpRemoteControls(c):bot(c)}else Object.assign(c.inp,Z);const boostBefore=c.boost;stepCar(c,dt);c.boostUsed+=Math.max(0,boostBefore-c.boost);c.topSpeed=Math.max(c.topSpeed,c.v.length());
+   if(!c.enabled)continue;if(carDemolished(c))Object.assign(c.inp,Z);else if(live){window.__TEVIN_SERVER__?mpRemoteControls(c):c===lp?human(c):MP.active?mpRemoteControls(c):bot(c)}else Object.assign(c.inp,Z);const boostBefore=c.boost;stepCar(c,dt);c.boostUsed+=Math.max(0,boostBefore-c.boost);c.topSpeed=Math.max(c.topSpeed,c.v.length());
 
    if(live&&c===lp){matchStats.boost+=Math.max(0,boostBefore-c.boost);matchStats.topSpeed=Math.max(matchStats.topSpeed,c.v.length())}}
 
@@ -2085,7 +2088,7 @@ function updateWind(dt,showcase=false){
 
  const windAllowed=RIVAL_PREF.motion&&!matchMedia('(prefers-reduced-motion: reduce)').matches;GU.wind.value=windAllowed?1:0;if(windAllowed)GU.t.value+=dt;
 
- for(let k=0;k<7;k++){const p=GU['c'+k].value,v=GU['v'+k].value;if(showcase){if(k===0)p.copy(cm[0].position);else p.set(1000,1000,1000);v.set(0,0,0)}else if(k<cars.length&&k<6&&cars[k].enabled!==false){p.copy(cars[k].p);v.copy(cars[k].v)}else if(k===6){p.copy(ball.p);v.copy(ball.v)}else {p.set(1000,1000,1000);v.set(0,0,0)}}
+ for(let k=0;k<7;k++){const p=GU['c'+k].value,v=GU['v'+k].value;if(showcase){if(k===0)p.copy(cm[0].position);else p.set(1000,1000,1000);v.set(0,0,0)}else if(k<cars.length&&k<6&&cars[k].enabled!==false&&!carDemolished(cars[k])){p.copy(cars[k].p);v.copy(cars[k].v)}else if(k===6){p.copy(ball.p);v.copy(ball.v)}else {p.set(1000,1000,1000);v.set(0,0,0)}}
 
  for(let k=0;k<windFlags.length;k++){const a=windFlags[k],v=a.array;for(let i=0;i<v.length;i+=3){const u=(v[i]+1.5)/3;v[i+2]=u*(Math.sin(GU.t.value*1.4-u*5+k)*.16+Math.sin(GU.t.value*2.4+k)*.05)}a.needsUpdate=true}
 
@@ -2106,7 +2109,7 @@ function dispose3d(){
 
  const old=$('cv');old.replaceWith(old.cloneNode(false));if(pipeline){pipeline.dispose();pipeline=null}if(ren){ren.dispose();if(ren.forceContextLoss)ren.forceContextLoss()}
 
-  resetCelebrationEffects();OPENING.visuals=null;BOMB.visuals=null;BOOST_PICKUPS.visuals=null;FX=null;garageStage=null;RIVALS.visuals=null;RIVALS.trim=null;RIVALS.crowd=null;$('driver-markers').replaceChildren();scene=ren=cam=sun=grassM=GT=GU=envTarget=null;cm=[];WM=[];windFlags=[];contactShadows=[];goalLights=[];inited=0;graphicsPreset=-1;
+  resetCelebrationEffects();clearMatchEffects();MATCH_EFFECTS.group=MATCH_EFFECTS.ribbon=MATCH_EFFECTS.skids=null;OPENING.visuals=null;BOMB.visuals=null;BOOST_PICKUPS.visuals=null;FX=null;garageStage=null;RIVALS.visuals=null;RIVALS.trim=null;RIVALS.crowd=null;$('driver-markers').replaceChildren();scene=ren=cam=sun=grassM=GT=GU=envTarget=null;cm=[];WM=[];windFlags=[];contactShadows=[];goalLights=[];inited=0;graphicsPreset=-1;
 
 }
 
@@ -2136,7 +2139,7 @@ async function build3d(forceGL){
  cam=new THREE.PerspectiveCamera(77,innerWidth/innerHeight,.1,700);
 
  await loadingStage(28,'Preparing stadium lighting');
- const sky=await loadStadiumSky();try{envTarget=await ENGINE.environment(ren,sky.lighting)}finally{sky.lighting.dispose()}scene.environment=envTarget.texture;scene.environmentIntensity=STADIUM_LIGHTING.environment;scene.background=sky.visible;scene.backgroundIntensity=1;document.body.dataset.arenaLight='championship-daylight-4';
+ const sky=await loadStadiumSky();try{envTarget=await ENGINE.environment(ren,sky.lighting)}finally{sky.lighting.dispose()}scene.environment=envTarget.texture;scene.environmentIntensity=STADIUM_LIGHTING.environment;scene.background=sky.visible;scene.backgroundIntensity=1;document.body.dataset.arenaLight='matchday-key-fill-5';
  ({sun,goalLights}=stadiumLightRig(ren,scene,!!cfg.hi));
 
  const side=wallMat('#3cf'),bw=wallMat('#38f'),ow=wallMat('#f93');WM=[side,bw,ow];
@@ -2194,7 +2197,8 @@ async function build3d(forceGL){
 
  // Three small decals also ground the ball in Performance mode without a shadow map.
 
- for(let k=0;k<cars.length+1;k++){const shadow=new THREE.Mesh(new THREE.PlaneGeometry(k<cars.length?2.9:2.2,k<cars.length?1.75:2.2).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({map:glowTex(),color:0x000000,transparent:true,opacity:.3,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1}));shadow.name='Contact shadow';shadow.renderOrder=1;scene.add(shadow);contactShadows.push(shadow)}
+ const contactMap=stadiumContactShadowTexture();
+ for(let k=0;k<cars.length+1;k++){const shadow=new THREE.Mesh(new THREE.PlaneGeometry(k<cars.length?1.6:2.2,k<cars.length?1.04:2.2).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({map:contactMap,color:0x000000,transparent:true,opacity:.3,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1}));shadow.name='Contact shadow';shadow.renderOrder=1;scene.add(shadow);contactShadows.push(shadow)}
 
  const bc=cvs(512,256),bg=bc.getContext('2d');bg.fillStyle='#e8eef5';bg.fillRect(0,0,512,256);bg.fillStyle='#1a2330';for(let i=0;i<30;i++){bg.beginPath();bg.arc(Math.random()*512,Math.random()*256,10+Math.random()*14,0,7);bg.fill()}bg.strokeStyle='#8899aa';bg.lineWidth=3;for(let i=0;i<9;i++){bg.strokeRect(i*60,0,60,256)}
 
@@ -2202,13 +2206,13 @@ async function build3d(forceGL){
 
  for(let r=0;r<12;r++)for(let q=0;q<14;q++){const x=q*40+(r%2?20:0),y=r*23+12;bg.beginPath();eg2.beginPath();for(let k=0;k<6;k++){const a=k*Math.PI/3,px=x+Math.cos(a)*21,py=y+Math.sin(a)*21;bg[k?'lineTo':'moveTo'](px,py);eg2[k?'lineTo':'moveTo'](px,py)}bg.closePath();eg2.closePath();bg.fillStyle=(q+r)%3?'#c4d0de':'#2a3444';bg.fill();bg.strokeStyle='#5a6a80';bg.lineWidth=2;bg.stroke();eg2.strokeStyle='#fff';eg2.lineWidth=3;eg2.stroke()}
 
- bm=new THREE.Mesh(cfg.models?ENGINE.importedBallGeometry():new THREE.SphereGeometry(BR,40,28),ENGINE.physicalMaterial(ren,{map:cfg.models?importedTextures.ball:tex(bc),emissiveMap:cfg.models?null:tex(ec2),emissive:0x222222,emissiveIntensity:cfg.models?.04:.35,metalness:.18,roughness:.5,clearcoat:.25,envMapIntensity:.6,transparent:false,opacity:1,side:THREE.FrontSide}));bm.castShadow=true;scene.add(bm);
+ bm=new THREE.Mesh(cfg.models?ENGINE.importedBallGeometry():new THREE.SphereGeometry(BR,40,28),ENGINE.physicalMaterial(ren,{map:cfg.models?importedTextures.ball:tex(bc),emissiveMap:cfg.models?null:tex(ec2),emissive:0x222222,emissiveIntensity:cfg.models?.08:.3,metalness:.04,roughness:.64,clearcoat:.05,envMapIntensity:.5,transparent:false,opacity:1,side:THREE.FrontSide}));bm.castShadow=true;scene.add(bm);
 
  const sp=cvs(64,64),sg=sp.getContext('2d'),rg=sg.createRadialGradient(32,32,0,32,32,32);rg.addColorStop(0,'#fff');rg.addColorStop(.3,'rgba(255,255,255,.5)');rg.addColorStop(1,'rgba(255,255,255,0)');sg.fillStyle=rg;sg.fillRect(0,0,64,64);
 
   await loadingStage(63,'Preparing the three-jet airshow');await loadJetAssets();buildBoostPickups();OPENING.visuals=createOpeningVisuals();scene.add(OPENING.visuals.group);buildBombDrop();
 
-  await createGraphicsEffects();createCelebrationEffects();
+  await createGraphicsEffects();createCelebrationEffects();createMatchEffects();
 
  // Instanced camera-facing quads preserve the soft additive particle appearance.
 
@@ -2233,7 +2237,7 @@ async function build3d(forceGL){
  const lp=localPlayer();cam.position.copy(cpos);cam.lookAt(lookPos);
 
  await loadingStage(90,'Compiling materials and effects');
- OPENING.visuals.group.visible=OPENING.visuals.airshow.group.visible=BOMB.visuals.ball.visible=BOMB.visuals.effects.visible=true;OPENING.visuals.airshow.jets.forEach(j=>j.visible=true);try{await ENGINE.prewarm(ren,scene,cam,pipeline,cm,pts)}finally{OPENING.visuals.group.visible=true;OPENING.visuals.airshow.group.visible=BOMB.visuals.ball.visible=BOMB.visuals.effects.visible=false;OPENING.visuals.airshow.jets.forEach(j=>j.visible=false)}
+ OPENING.visuals.group.visible=OPENING.visuals.airshow.group.visible=BOMB.visuals.ball.visible=BOMB.visuals.effects.visible=true;OPENING.visuals.airshow.jets.forEach(j=>j.visible=true);try{await ENGINE.prewarm(ren,scene,cam,pipeline,cm,pts);clearMatchEffects()}finally{OPENING.visuals.group.visible=true;OPENING.visuals.airshow.group.visible=BOMB.visuals.ball.visible=BOMB.visuals.effects.visible=false;OPENING.visuals.airshow.jets.forEach(j=>j.visible=false)}
 
  if(ren.isWebGPURenderer)ren.onDeviceLost=handleDeviceLoss;
 
@@ -2263,7 +2267,7 @@ function render(dt){
 
  if(!inited||st==='PAUSE')return;updateGoalTransition(presentationDelta||dt);updateGraphicsEffects(dt);if(renderGoalReplay(dt))return;if(st==='MENU'||st==='END'){renderShowcase(dt);return}bm.visible=true;garageStage.visible=false;grassM.visible=true;if(cam.view?.enabled)cam.clearViewOffset();const alpha=cl(acc/SIM_DT,0,1);
 
- for(let k=0;k<cars.length;k++){const c=cars[k],m=cm[k];m.visible=c.enabled;if(!c.enabled)continue;paintCar(k);m.position.lerpVectors(c.frameP,c.p,alpha);m.quaternion.copy(c.frameQ).slerp(c.q,alpha);if(DED.active&&k===MP.slot){m.position.add(DED.offset);m.quaternion.multiply(DED.rotationOffset);}
+ for(let k=0;k<cars.length;k++){const c=cars[k],m=cm[k];m.visible=c.enabled&&!carDemolished(c);if(!c.enabled)continue;paintCar(k);m.position.lerpVectors(c.frameP,c.p,alpha);m.quaternion.copy(c.frameQ).slerp(c.q,alpha);if(DED.active&&k===MP.slot){m.position.add(DED.offset);m.quaternion.multiply(DED.rotationOffset);}
 
    renderForward.set(1,0,0).applyQuaternion(c.q);renderRight.set(0,0,1).applyQuaternion(c.q);const roll=c.v.dot(renderForward)*dt/.24;
 
@@ -2277,7 +2281,7 @@ function render(dt){
 
  for(let k=0;k<cars.length+1;k++){const shadow=contactShadows[k],p=k<cars.length?cm[k].position:bm.position,height=Math.max(0,p.y-(k<cars.length?.485:BR));
 
-  shadow.visible=(k===cars.length||cars[k].enabled)&&Math.abs(p.x)<36.5&&Math.abs(p.z)<46.5&&height<10;shadow.position.set(p.x,.018,p.z);shadow.material.opacity=(cfg.hi?.22:.36)*Math.exp(-height*.34);shadow.scale.setScalar(1+Math.min(height,10)*.055);
+  shadow.visible=(k===cars.length||cars[k].enabled&&!carDemolished(cars[k]))&&Math.abs(p.x)<36.5&&Math.abs(p.z)<46.5&&height<10;shadow.position.set(p.x,.018,p.z);shadow.material.opacity=(cfg.hi?.32:.47)*Math.exp(-height*.42);shadow.scale.setScalar(1+Math.min(height,10)*.055);
 
   if(k<cars.length){renderForward.set(1,0,0).applyQuaternion(cm[k].quaternion);shadow.rotation.y=-Math.atan2(renderForward.z,renderForward.x)}}
 
@@ -2321,7 +2325,7 @@ function render(dt){
 
  for(let k=0;k<goalLights.length;k++)goalLights[k].intensity=goalLights[k].userData.base*(1+goalPulse*.7);
 
- applyMatchCamera(presentationDelta||dt);updateRivalVisuals(dt);animateArenaAccents(dt);uploadParticles();updateCelebrations(dt);updateBoostPickups(dt);updateBombScene(dt);pipeline.render();
+ applyMatchCamera(presentationDelta||dt);updateRivalVisuals(dt);animateArenaAccents(dt);uploadParticles();updateCelebrations(dt);updateMatchEffects(dt);updateBoostPickups(dt);updateBombScene(dt);pipeline.render();
 
   if(st==='PLAY'){perfEMA+=(dt-perfEMA)*.03;perfTimer+=dt;if(perfTimer>4){perfTimer=0;const next=1;if(next!==renderScale){renderScale=next;ren.setPixelRatio(pixelRatio());pipeline.resize(innerWidth,innerHeight,pixelRatio())}}}
 
@@ -2377,15 +2381,16 @@ function frame(t){requestAnimationFrame(frame);presentationDelta=cl((t-last)/100
 // INLINE:paint.js
 // INLINE:device.js
 // INLINE:celebration.js
+// INLINE:match-effects.js
 // INLINE:ui-cinema.js
 // INLINE:preload.js
 // INLINE:server-api.js
 // INLINE:test-hooks.js
-setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();setupGraphicsUI();configureCars();kickoff();st='MENU';applyTeamColors();setupIntro();setupShowroomControls();setupGauges();setupRivals();setupSecret();setupPaint();setupDevice();setupCelebrationUI();setupCinemaUI();setupMatchPresentationUI();setupBombUI();requestAnimationFrame(frame);if(!window.__TEVIN_TEST__)setTimeout(preloadArena,0);
+setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();setupGraphicsUI();configureCars();kickoff();st='MENU';applyTeamColors();setupIntro();setupShowroomControls();setupGauges();setupRivals();setupSecret();setupPaint();setupDevice();setupCelebrationUI();setupCinemaUI();setupMatchPresentationUI();setupBombUI();setupMatchEffectsUI();requestAnimationFrame(frame);if(!window.__TEVIN_TEST__)setTimeout(preloadArena,0);
 
 window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:120,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,multiplayer:DED.active?'Phoenix dedicated':'offline',rtt:DED.rtt,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
 
-window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 10.0.0 · NIVET LEAGUE · Ready to play');
+window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 10.1.0 · MATCHDAY · Ready to play');
 
 
 } catch(error) { window.tevinBoot.error=String(error.message||error);window.tevinBoot.show("Startup failed at "+window.tevinBoot.stage+": "+window.tevinBoot.error);console.error(error); }

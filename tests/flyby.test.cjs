@@ -4,14 +4,41 @@ test('supplied F-22 retains its mesh and UVs in bounded portable buffers with re
  for(const part of s.meshes){assert.doesNotMatch(part.name,/landingOn/);const g=a.jetMeshGeometry(part),p=g.getAttribute('position'),n=g.getAttribute('normal'),uv=g.getAttribute('uv');assert.equal(p.count,part.vertices);assert.equal(g.index.count,part.triangles*3);assert.equal(n.count,p.count);assert.equal(uv.count,p.count);for(const data of [p.array,n.array,uv.array])assert.ok(Array.from(data).every(Number.isFinite));assert.ok(Math.max(...g.index.array)<p.count);for(let i=0;i<n.count;i++){const length=Math.hypot(n.getX(i),n.getY(i),n.getZ(i));assert.ok(length>.98&&length<1.02);}triangles+=part.triangles;vertices+=part.vertices;
  }assert.equal(triangles,28696);assert.ok(vertices<26000);
 });
-test('formation is fast and bounded above the roof; reduced motion removes every camera/UI offset',()=>{
- const a=load().api;let max=0;for(let t=0;t<5;t+=.01){const p=a.jetFlybyPose(t);assert.ok(Object.values(p).every(n=>typeof n==='boolean'||Number.isFinite(n)));assert.ok(p.y-2.9>a.OPENING.roofY);assert.ok(Math.abs(p.uiX)<=3.5&&Math.abs(p.uiY)<=2.5);assert.ok(Math.hypot(p.shakeX,p.shakeY)<.12);max=Math.max(max,p.power);const quiet=a.jetFlybyPose(t,false);assert.equal(quiet.visible,false);for(const k of ['shakeX','shakeY','uiX','uiY','power'])assert.equal(Math.abs(quiet[k]),0);}assert.ok(max>.9);assert.ok(a.jetFlybyPose(.5).z-a.jetFlybyPose(1.5).z>100);assert.equal(a.jetFlybyPose(3.8).visible,false);
+test('full-size formation reads smaller at altitude and stays clear of the roof; reduced motion removes every camera/UI offset',()=>{
+ const a=load().api;let max=0;for(let t=0;t<5;t+=.01){const p=a.jetFlybyPose(t);assert.ok(Object.values(p).every(n=>typeof n==='boolean'||Number.isFinite(n)));assert.ok(p.y-10>a.OPENING.roofY+20);assert.ok(p.y>=88);assert.ok(Math.abs(p.uiX)<=3.5&&Math.abs(p.uiY)<=2.5);assert.ok(Math.hypot(p.shakeX,p.shakeY)<.12);max=Math.max(max,p.power);const quiet=a.jetFlybyPose(t,false);assert.equal(quiet.visible,false);for(const k of ['shakeX','shakeY','uiX','uiY','power'])assert.equal(Math.abs(quiet[k]),0);}assert.ok(max>.9);assert.ok(a.jetFlybyPose(.5).z-a.jetFlybyPose(1.5).z>100);assert.equal(a.jetFlybyPose(3.8).visible,false);
 });
 
 test('orange leader goes straight while blue wingmen peel in opposite directions without path discontinuities',()=>{
  const a=load().api;assert.deepEqual(Array.from(a.AIRSHOW.colors),[0xff8c25,0x269eff,0x269eff]);
- for(let t=.05;t<3.7;t+=.02){const p=[0,1,2].map(i=>a.airshowJetPose(t,i));assert.equal(p[0].x,0);assert.equal(p[1].x,-p[2].x);assert.equal(p[1].bank,-p[2].bank);assert.equal(p[1].y,p[2].y);assert.ok(p[1].y>p[0].y);for(let i=0;i<3;i++){const next=a.airshowJetPose(t+.001,i),speed=Math.hypot(next.x-p[i].x,next.y-p[i].y,next.z-p[i].z)/.001;assert.ok(speed>70&&speed<112,String(speed));assert.ok(Math.abs(Math.atan2(next.z-p[i].z,next.x-p[i].x)+p[i].yaw)<.01);}}
- assert.ok(a.airshowJetPose(3,1).x< -100);assert.ok(a.airshowJetPose(3,2).x>100);assert.ok(Math.abs(a.airshowJetPose(3,1).yaw-Math.PI)<.04);assert.ok(Math.abs(a.airshowJetPose(3,2).yaw)<.04);
+ for(let t=.05;t<a.AIRSHOW.end;t+=.02){const p=[0,1,2].map(i=>a.airshowJetPose(t,i));assert.equal(p[0].x,0);assert.equal(p[1].x,-p[2].x);assert.equal(p[1].bank,-p[2].bank);assert.equal(p[1].y,p[2].y);assert.ok(p[1].y>p[0].y);for(let i=0;i<3;i++){const next=a.airshowJetPose(t+.001,i),speed=Math.hypot(next.x-p[i].x,next.y-p[i].y,next.z-p[i].z)/.001;assert.ok(speed>84&&speed<121,String(speed));assert.ok(Math.abs(Math.atan2(next.z-p[i].z,next.x-p[i].x)+p[i].yaw)<.01);}}
+ assert.ok(a.airshowJetPose(3.7,1).x< -150);assert.ok(a.airshowJetPose(3.7,2).x>150);assert.ok(Math.abs(a.airshowJetPose(3.7,1).yaw-Math.PI)<.15);assert.ok(Math.abs(a.airshowJetPose(3.7,2).yaw)<.15);
+});
+
+test('wingmen roll into smooth turns with continuous velocity and bounded acceleration',()=>{
+ const a=load().api,h=.001;let maxAcceleration=0,maxRollRate=0;
+ for(let i=1;i<3;i++)for(let t=.01;t<a.AIRSHOW.end;t+=.005){
+  const prev=a.airshowJetPose(t-h,i),p=a.airshowJetPose(t,i),next=a.airshowJetPose(t+h,i);
+  const acceleration=Math.hypot(next.x-2*p.x+prev.x,next.y-2*p.y+prev.y,next.z-2*p.z+prev.z)/(h*h);
+  maxAcceleration=Math.max(maxAcceleration,acceleration);maxRollRate=Math.max(maxRollRate,Math.abs(next.bank-prev.bank)/(2*h));
+ }
+ assert.ok(maxAcceleration<85,'turn acceleration spiked: '+maxAcceleration);
+ assert.ok(maxRollRate<2.6,'roll snapped: '+maxRollRate);
+ for(const i of [1,2]){const before=a.airshowJetPose(a.AIRSHOW.split-.0001,i),after=a.airshowJetPose(a.AIRSHOW.split+.0001,i);assert.ok(Math.abs(after.bank-before.bank)<1e-6);assert.ok(Math.abs(after.yaw-before.yaw)<1e-6);}
+ // The wake peaks when the aircraft pass, and is already over as the ball lands.
+ assert.ok(a.jetFlybyPose(a.AIRSHOW.flyover).power>.9);assert.ok(a.jetFlybyPose(a.OPENING.impact).power<.005);
+});
+
+test('every supplied aircraft corner clears the roof even through its banked split',()=>{
+ const a=load().api,T=a.THREE,bounds=a.jetSpecification().bounds,q=new T.Quaternion(),p=new T.Vector3();
+ for(let index=0;index<3;index++)for(let t=.05;t<a.AIRSHOW.end;t+=.04){const pose=a.airshowJetPose(t,index);q.setFromEuler(new T.Euler(0,pose.yaw,0));q.multiply(new T.Quaternion().setFromAxisAngle(new T.Vector3(0,0,1),pose.pitch));q.multiply(new T.Quaternion().setFromAxisAngle(new T.Vector3(1,0,0),pose.bank));
+  for(const x of [bounds[0][0],bounds[1][0]])for(const y of [bounds[0][1],bounds[1][1]])for(const z of [bounds[0][2],bounds[1][2]]){p.set(x,y,z).applyQuaternion(q);assert.ok(p.y+pose.y>a.OPENING.roofY+25,'aircraft clipped the stadium roof');}
+ }
+});
+
+test('flyover wake has a tiny fixed debris pool; the stadium itself never moves',()=>{
+ const a=load().api,v=a.createOpeningVisuals(),debris=v.airshow.debris;assert.equal(debris.instanceMatrix.count,14);assert.equal(debris.count,0);assert.equal(debris.castShadow,false);assert.equal(v.group.position.length(),0);assert.equal(v.roof.position.y,a.OPENING.roofY);let lights=0;v.airshow.group.traverse(o=>{if(o.isLight)lights++});assert.equal(lights,0);
+ let visible=0;for(let t=0;t<5;t+=.025)for(let i=0;i<a.AIRSHOW.debrisCount;i++){const p=a.airshowDebrisPose(t,i);assert.ok(Object.values(p).every(value=>typeof value==='boolean'||Number.isFinite(value)));assert.ok(p.scale>=0&&p.scale<=.055);if(p.visible){visible++;assert.ok(Math.abs(p.x)>22);assert.ok(p.y<a.OPENING.roofY&&p.y>27.4);}const quiet=a.airshowDebrisPose(t,i,false);assert.equal(quiet.visible,false);assert.equal(quiet.scale,0);}
+ assert.ok(visible>0);
 });
 
 test('colored trails use fixed buffers, follow the split, and are independent of display frame history',()=>{

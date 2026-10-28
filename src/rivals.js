@@ -13,6 +13,7 @@ function earnedTitles(){const list=['ROOKIE'];if(CAREER.drills>=5)list.push('TRA
 function rivalsStart(){resetMatchPresentation(true);secretReset();RIVALS.claim=null;RIVALS.recorded=false;RIVALS.ring.length=0;RIVALS.goal=null;RIVALS.touches.length=0;RIVALS.goalSeen='';RIVALS.replay=null;RIVALS.messages.length=0;RIVALS.boost=33;RIVALS.fast=false;DRILL.active=false;DRILL.kind='free';DRILL.attempts=DRILL.successes=0;}
 function rivalsTouch(c,strength){
  if(DED.replaying)return;
+ if(!DED.active&&strength>=3&&matchShotOnTarget(c.team,ball.p,ball.v)&&simTime-(c.lastShotAt??-100)>1.25){c.lastShotAt=simTime;audioWorld('shot',10,null,c.id);}
  if(!MP.active||MP.role==='host'){
   const last=RIVALS.touches.at(-1);if(!last||last.id!==c.id)RIVALS.touches.push({id:c.id,team:c.team,time:simTime});else last.time=simTime;
   RIVALS.touches=RIVALS.touches.filter(t=>simTime-t.time<8).slice(-8);
@@ -44,13 +45,13 @@ function replayRecord(snapshot,time=RIVALS.time){
  RIVALS.ring.push(frame);if(RIVALS.ring.length>240)RIVALS.ring.shift();
 }
 function renderGoalReplay(dt){
- const r=RIVALS.replay;if(!r||st!=='GOAL'||MP.localPaused)return false;r.elapsed=Math.max(r.elapsed+dt,(performance.now()-r.wallStart)/1000);if(r.elapsed>-.18&&!r.wipe){r.wipe=true;presentSceneCut('replay');}if(r.elapsed<0)return false;if(!r.started){r.started=true;$('replay-controls').hidden=false;resetViewFade();}
+ const r=RIVALS.replay;if(!r||st!=='GOAL'||MP.localPaused)return false;r.elapsed=Math.max(r.elapsed+dt,(performance.now()-r.wallStart)/1000);if(r.elapsed>-.18&&!r.wipe){r.wipe=true;presentSceneCut('replay');}if(r.elapsed<0)return false;if(!r.started){r.started=true;clearMatchEffects();$('replay-controls').hidden=false;resetViewFade();}
  const time=replayPlaybackTime(r);let a=r.frames[0],b=a;
  for(let i=1;i<r.frames.length;i++){b=r.frames[i];if(b.t>=time)break;a=b}
  const f=cl((time-a.t)/Math.max(.001,b.t-a.t),0,1);
- for(let i=0;i<cm.length;i++){const m=cm[i];m.visible=cars[i].enabled;if(!a.cars[i]||!b.cars[i])continue;m.position.fromArray(a.cars[i].p).lerp(replayPose.fromArray(b.cars[i].p),f);m.quaternion.fromArray(a.cars[i].q).slerp(replayRotation.fromArray(b.cars[i].q),f);if(m.userData.f)m.userData.f.visible=false;}
+ for(let i=0;i<cm.length;i++){const m=cm[i];m.visible=cars[i].enabled&&!(a.cars[i]?.demoTime>0);m.userData.replaySupersonic=!!a.cars[i]?.supersonic;if(!a.cars[i]||!b.cars[i])continue;m.position.fromArray(a.cars[i].p).lerp(replayPose.fromArray(b.cars[i].p),f);m.quaternion.fromArray(a.cars[i].q).slerp(replayRotation.fromArray(b.cars[i].q),f);if(m.userData.f)m.userData.f.visible=false;}
  bm.position.fromArray(a.ball).lerp(replayPose.fromArray(b.ball),f);const direction=positionReplayCamera(r);bm.visible=!direction.exploding;document.body.classList.toggle('cinema-replay',cinemaMotion());updateWind(dt*(direction.slow?.22:1));
- pts.count=0;if(FX)FX.group.visible=false;contactShadows.forEach(s=>s.visible=false);if(RIVALS.visuals)RIVALS.visuals.group.visible=false;$('flash').style.opacity=0;updateCelebrations(dt,{age:direction.exploding?direction.impactAge:99,suppressUI:true});updateBoostPickups(dt,a.pads||null,false);pipeline.render();
+ pts.count=0;if(FX)FX.group.visible=false;contactShadows.forEach(s=>s.visible=false);if(RIVALS.visuals)RIVALS.visuals.group.visible=false;$('flash').style.opacity=0;updateCelebrations(dt,{age:direction.exploding?direction.impactAge:99,suppressUI:true});updateMatchEffects(dt,true);updateBoostPickups(dt,a.pads||null,false);pipeline.render();
  $('replay-label').textContent=direction.exploding?'GOAL EXPLOSION':direction.slow?'FINAL TOUCH · SLOW MOTION':direction.ballFocus>.5?'GOAL REPLAY · FOLLOW THE SHOT':'GOAL REPLAY · THE APPROACH';return true;
 }
 function rivalsFinish(){
@@ -103,7 +104,7 @@ function updateRivalVisuals(dt){
  // Follow interpolated meshes using the final camera on every rendered frame.
  cam.updateMatrixWorld();for(let i=0;i<cars.length;i++){
  const other=cars[i],el=v.labels[i];if(!el)continue;
- el.hidden=!(RIVAL_PREF.markers&&other.enabled&&other!==c&&st==='PLAY'&&positionDriverTag(el,cm[i].position,cam,v.project,innerWidth,innerHeight));
+ el.hidden=!(RIVAL_PREF.markers&&other.enabled&&!carDemolished(other)&&other!==c&&st==='PLAY'&&positionDriverTag(el,cm[i].position,cam,v.project,innerWidth,innerHeight));
  if(!el.hidden){const name=driverName(i),relation=other.team===c.team?'ally':'rival';if(el.textContent!==name)el.textContent=name;el.dataset.relation=relation;const color=paintHex(other.color);if(el.dataset.paint!==color){el.dataset.paint=color;el.style.setProperty('--tag-color',color);el.style.color='#f3f8ff';}el.setAttribute('aria-label',relation+' '+name);}
  }
 }

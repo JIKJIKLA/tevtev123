@@ -1,17 +1,22 @@
 // A static HDR lighting probe, filtered once by the existing PMREM path. This is
 // image-based lighting, not hardware ray tracing. No recurring cube captures.
 function radianceLinear(value){value=cl(value/255,0,1);return value<=.04045?value/12.92:Math.pow((value+.055)/1.055,2.4);}
-const STADIUM_LIGHTING={exposure:1.02,environment:.62,fogColor:0x9bb6cc,fogNear:92,fogFar:310};
+const STADIUM_LIGHTING={exposure:1.02,environment:.46,fogColor:0x91a9ba,fogNear:115,fogFar:340};
 function stadiumLightRig(renderer,scene,detail,palette=teamPalette){
- scene.add(new THREE.HemisphereLight(0xd5e8ff,0x6e714d,.98));
- const sun=new THREE.DirectionalLight(0xffebcb,3.4);sun.position.set(-40,68,28);sun.castShadow=!!detail;sun.shadow.autoUpdate=false;sun.shadow.needsUpdate=!!detail;sun.shadow.mapSize.set(2048,2048);sun.shadow.radius=2.5;
+ scene.add(new THREE.HemisphereLight(0xc3dcf7,0x615d3e,.72));
+ const sun=new THREE.DirectionalLight(0xfff0d8,3.8);sun.position.set(-40,68,28);sun.castShadow=!!detail;sun.shadow.autoUpdate=false;sun.shadow.needsUpdate=!!detail;sun.shadow.mapSize.set(2048,2048);sun.shadow.radius=2.5;
  const sc=sun.shadow.camera;sc.left=sc.bottom=-70;sc.right=sc.top=70;sc.near=1;sc.far=220;sun.shadow.bias=-.00015;sun.shadow.normalBias=.022;scene.add(sun,sun.target);
  // Broad diffuse fill exposes body shape; high roughness still controls paint highlights.
- const fill=new THREE.DirectionalLight(0xb9d8ff,1.5);fill.position.set(42,30,-38);scene.add(fill);
- const rim=new THREE.DirectionalLight(0xffc186,.72);rim.position.set(-15,26,-48);scene.add(rim);
+ const fill=new THREE.DirectionalLight(0xb5cfff,.85);fill.position.set(42,30,-38);scene.add(fill);
+ const rim=new THREE.DirectionalLight(0xffb477,.55);rim.position.set(-15,26,-48);scene.add(rim);
  const lights=[];
  for(let team=0;team<2;team++){const sign=team?1:-1,l=new THREE.PointLight(palette[team],64,42,2);l.position.set(0,7,sign*(HZ-3));Object.assign(l.userData,{team,base:64});lights.push(l);scene.add(l);if(detail)for(const x of [-GX,GX]){const lamp=new THREE.PointLight(palette[team],10,12,2);lamp.position.set(x,GH,sign*(HZ-.4));Object.assign(lamp.userData,{team,base:10});lights.push(lamp);scene.add(lamp);}}
  renderer.shadowMap.type=THREE.PCFShadowMap;return{sun,goalLights:lights};
+}
+function stadiumContactShadowTexture(){
+ // A compact dark core anchors tyres; the broad glow previously looked detached.
+ const c=cvs(64,64),g=c.getContext('2d'),gradient=g.createRadialGradient(32,32,0,32,32,32);
+ gradient.addColorStop(0,'rgba(255,255,255,.95)');gradient.addColorStop(.35,'rgba(255,255,255,.78)');gradient.addColorStop(.7,'rgba(255,255,255,.24)');gradient.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gradient;g.fillRect(0,0,64,64);return tex(c);
 }
 function goalFrameHaloGeometry(){
  const p=[],uv=[],indices=[];

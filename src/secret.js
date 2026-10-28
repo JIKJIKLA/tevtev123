@@ -13,7 +13,7 @@ function readSecretState(value){
 function secretSyncBody(c){c.prevP.copy(c.p);c.frameP.copy(c.p);c.renderP.copy(c.p);c.prevQ.copy(c.q);c.frameQ.copy(c.q);c.w.set(0,0,0);c.dT=0;}
 function secretPlaceCar(c,x,z){const boost=c.boost;resetCar(c,cl(x,-HX+3,HX-3),cl(z,-HZ+3,HZ-3));c.boost=boost;resolveArenaCar(c);secretSyncBody(c);}
 function secretApply(slot,key){
- const c=cars[slot];if(st!=='PLAY'||!c?.enabled||typeof key!=='string'||!Object.hasOwn(SECRET_ABILITIES,key))return false;
+ const c=cars[slot];if(st!=='PLAY'||!c?.enabled||carDemolished(c)||typeof key!=='string'||!Object.hasOwn(SECRET_ABILITIES,key))return false;
  const atk=c.team?-1:1;
  if(key==='boost'){SECRET.boost[slot]=15;c.boost=100;}
  if(key==='hop'){c.p.y+=.25;c.v.y=12;c.jl=.2;c.ground=c.wasG=0;secretSyncBody(c);}
@@ -24,14 +24,14 @@ function secretApply(slot,key){
  if(key==='summon'){SECRET.freeze=0;secretVector.set(1,0,0).applyQuaternion(c.q).setY(0).normalize();ball.p.copy(c.p).addScaledVector(secretVector,2.8);ball.p.y=Math.max(BR+.05,ball.p.y);for(let i=0;i<8;i++){surf(ball.p);if(SS>=BR)break;ball.p.addScaledVector(SN,BR-SS+.001)}ball.v.copy(c.v);ball.w.set(0,0,0);ball.prevP.copy(ball.p);ball.frameP.copy(ball.p);}
  if(key==='teleport'){secretPlaceCar(c,ball.p.x,ball.p.z-atk*3);c.q.setFromAxisAngle(Y3,atk>0?-Math.PI/2:Math.PI/2);secretSyncBody(c);}
  if(key==='recover')secretPlaceCar(c,c.p.x,c.p.z);
- if(key==='swap'){const other=cars.filter(o=>o.enabled&&o!==c).sort((a,b)=>a.p.distanceToSquared(c.p)-b.p.distanceToSquared(c.p))[0];if(!other)return false;const x=c.p.x,z=c.p.z;secretPlaceCar(c,other.p.x,other.p.z);secretPlaceCar(other,x,z);}
- if(key==='chaos')for(const other of cars)if(other.enabled&&other!==c){other.p.y+=.2;other.v.y=9;other.jl=.2;other.ground=other.wasG=0;secretSyncBody(other);}
+ if(key==='swap'){const other=cars.filter(o=>o.enabled&&!carDemolished(o)&&o!==c).sort((a,b)=>a.p.distanceToSquared(c.p)-b.p.distanceToSquared(c.p))[0];if(!other)return false;const x=c.p.x,z=c.p.z;secretPlaceCar(c,other.p.x,other.p.z);secretPlaceCar(other,x,z);}
+ if(key==='chaos')for(const other of cars)if(other.enabled&&!carDemolished(other)&&other!==c){other.p.y+=.2;other.v.y=9;other.jl=.2;other.ground=other.wasG=0;secretSyncBody(other);}
  SECRET.serial++;return true;
 }
 function secretCarStep(c,dt){if(SECRET.boost[c.id]>0){SECRET.boost[c.id]=Math.max(0,SECRET.boost[c.id]-dt);c.boost=100;}}
 function secretBallStep(dt){
  if(SECRET.freeze>0){SECRET.freeze=Math.max(0,SECRET.freeze-dt);ball.v.set(0,0,0);ball.w.set(0,0,0);return true;}
- for(const field of SECRET.fields){field.left=Math.max(0,field.left-dt);const c=cars[field.slot];if(!c?.enabled||field.left<=0)continue;secretVector.copy(c.p);secretVector.y+=.8;secretVector.sub(ball.p);const d=secretVector.length();if(d>.2&&d<28)ball.v.addScaledVector(secretVector,(field.kind==='repel'?-32:24)*dt/d);}
+ for(const field of SECRET.fields){field.left=Math.max(0,field.left-dt);const c=cars[field.slot];if(!c?.enabled||carDemolished(c)||field.left<=0)continue;secretVector.copy(c.p);secretVector.y+=.8;secretVector.sub(ball.p);const d=secretVector.length();if(d>.2&&d<28)ball.v.addScaledVector(secretVector,(field.kind==='repel'?-32:24)*dt/d);}
  SECRET.fields=SECRET.fields.filter(f=>f.left>0);return false;
 }
 function secretNotice(name,key){const el=$('secret-notice');if(!el)return;el.textContent='ARCADE · '+name+' · '+(SECRET_ABILITIES[key]?.[0]||'POWER');el.hidden=false;SECRET.noticeUntil=performance.now()+4500;}

@@ -24,17 +24,24 @@ function createJetVisual(){
 }
 // Local presentation clock only. The same analytic path builds both jets and smoke,
 // so trails follow the split correctly even after a skipped display frame.
-const AIRSHOW={colors:[0xff8c25,0x269eff,0x269eff],split:1.3,end:3.7,samples:64,trailSeconds:1.45};
+const AIRSHOW={colors:[0xff8c25,0x269eff,0x269eff],split:.65,flyover:1.75,end:3.8,altitude:88,speed:120,turnTime:.8,samples:64,trailSeconds:1.25,debrisCount:14};
 function airshowImpactMotion(){return cinemaMotion()&&RIVAL_PREF.flybyShake;}
 function airshowJetPose(elapsed,index=0,motion=true){
- const t=Math.max(0,elapsed),side=index===1?-1:index===2?1:0,u=Math.max(0,t-AIRSHOW.split),turn=1-Math.exp(-u/.32),lift=cinemaEase(u/1.8);let x=side*8,z=(1.6-t)*110+(side?8:0),vx=0,vz=-110;
- if(side&&u>0){x=side*(8+110*(u-.32*turn));z=41-110*.38*(1-Math.exp(-u/.38));vx=side*110*turn;vz=-110*Math.exp(-u/.38);}
- const y=42+(side?1.7+lift*9:0),yaw=-Math.atan2(vz,vx),bank=side*(Math.sin(Math.min(1,u/1.2)*Math.PI)*.78),pitch=side?Math.atan2(9*(u<1.8?6*(u/1.8)*(1-u/1.8)/1.8:0),Math.hypot(vx,vz)):0;
+ const t=Math.max(0,elapsed),side=index===1?-1:index===2?1:0,u=Math.max(0,t-AIRSHOW.split),v=AIRSHOW.speed,tau=AIRSHOW.turnTime,q=u/tau,decay=Math.exp(-q),forward=(1+q)*decay,arc=tau*(2-(q+2)*decay),lift=cinemaEase(u/2.8);let x=side*8,z=(AIRSHOW.flyover-t)*v+(side?8:0),vx=0,vz=-v,omega=0;
+ if(side&&u>0){x=side*(8+v*(u-arc));z=(AIRSHOW.flyover-AIRSHOW.split)*v+8-v*arc;vx=side*v*(1-forward);vz=-v*forward;omega=q*decay/tau/(forward*forward+(1-forward)*(1-forward));}
+ // Height and apparent size come from distance, preserving the supplied 18.9 m
+ // aircraft. Roll follows curvature with a finite roll-in, not a corner snap.
+ const speed=Math.hypot(vx,vz),climb=side&&u<2.8?3.5*6*(u/2.8)*(1-u/2.8)/2.8:0;
+ const y=AIRSHOW.altitude+(side?2.5+lift*3.5:0),yaw=-Math.atan2(vz,vx),bank=side*Math.atan(speed*omega/9.81)*cinemaEase(u/.9),pitch=side?Math.atan2(climb,speed):0;
  return{x,y,z,yaw,bank,pitch,visible:motion&&elapsed>=.05&&elapsed<AIRSHOW.end,color:AIRSHOW.colors[index]??AIRSHOW.colors[0]};
 }
 function jetFlybyPose(elapsed,motion=true){
- const proximity=Math.exp(-Math.pow((elapsed-1.58)/.24,2)),wake=cinemaEase((elapsed-1.4)/.2)*(1-cinemaEase((elapsed-1.8)/.65)),power=motion?Math.max(proximity*.95,wake*.4):0;
- return{...airshowJetPose(elapsed,0,motion),shakeX:Math.sin(elapsed*103)*power*.095,shakeY:Math.sin(elapsed*127)*power*.065,uiX:Math.sin(elapsed*91)*power*3.5,uiY:Math.sin(elapsed*113)*power*2.5,power};
+ const at=AIRSHOW.flyover,proximity=Math.exp(-Math.pow((elapsed-at)/.21,2)),wake=cinemaEase((elapsed-at)/.12)*(1-cinemaEase((elapsed-at-.12)/.3)),power=motion?Math.max(proximity*.95,wake*.28):0;
+ return{...airshowJetPose(elapsed,0,motion),shakeX:Math.sin(elapsed*83)*power*.045,shakeY:Math.sin(elapsed*107)*power*.03,uiX:Math.sin(elapsed*79)*power*2.4,uiY:Math.sin(elapsed*97)*power*1.6,power};
+}
+function airshowDebrisPose(elapsed,index,motion=true){
+ const age=elapsed-AIRSHOW.flyover-.09-index*.014,life=1.05,u=cl(age/life,0,1),side=index%2?1:-1;
+ return{x:side*(22.8+(index%3)*.15+Math.max(0,age)*.28),y:OPENING.roofY-.3-2.4*Math.max(0,age)**2,z:(index%7-3)*3.1+Math.max(0,age)*.5,scale:motion&&age>=0&&age<life?.055*cinemaEase(age/.08)*Math.pow(1-u,1.4):0,visible:motion&&age>=0&&age<life};
 }
 function airshowTrailGeometry(samples=AIRSHOW.samples){
  const g=new THREE.BufferGeometry(),uv=new Float32Array((samples+1)*4),indices=[];
@@ -52,11 +59,13 @@ function createAirshowVisuals(){
   // clone shares the original mesh buffers and PBR maps across all three aircraft.
   const jet=i?prototype.clone(true):prototype;jet.name=i===0?'Orange leader':i===1?'Blue left wingman':'Blue right wingman';const flames=jet.getObjectByName('Twin afterburners');jet.userData.flames=flames;
   if(flames){const material=flames.children[0].material.clone();material.color.setHex(AIRSHOW.colors[i]);flames.children.forEach(m=>m.material=material);}group.add(jet);jets.push(jet);delete prototype.userData.flames;
-  for(let layer=0;layer<2;layer++){const material=new THREE.MeshBasicMaterial({map,color:AIRSHOW.colors[i],transparent:true,opacity:layer?.7:.5,depthWrite:false,side:THREE.DoubleSide,toneMapped:false,blending:layer?THREE.AdditiveBlending:THREE.NormalBlending}),trail=new THREE.Mesh(airshowTrailGeometry(),material);trail.name=jet.name+(layer?' luminous exhaust':' colored smoke');trail.frustumCulled=false;Object.assign(trail.userData,{aircraft:i,width:layer?.3:1.5});group.add(trail);trails.push(trail);}
+  for(let layer=0;layer<2;layer++){const material=new THREE.MeshBasicMaterial({map,color:AIRSHOW.colors[i],transparent:true,opacity:layer?.65:.4,depthWrite:false,side:THREE.DoubleSide,toneMapped:false,blending:layer?THREE.AdditiveBlending:THREE.NormalBlending}),trail=new THREE.Mesh(airshowTrailGeometry(),material);trail.name=jet.name+(layer?' luminous exhaust':' colored smoke');trail.frustumCulled=false;Object.assign(trail.userData,{aircraft:i,width:layer?.18:.85});group.add(trail);trails.push(trail);}
  }
- if(jets[0])jets[0].userData.flames=jets[0].getObjectByName('Twin afterburners');group.visible=false;return{group,jets,trails};
+ const debris=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1,0),new THREE.MeshStandardMaterial({color:0x9b9588,roughness:1,metalness:0,envMapIntensity:.2,transparent:true,opacity:.5,depthWrite:false}),AIRSHOW.debrisCount);debris.name='Tiny flyover wake dust below fixed canopy';debris.instanceMatrix.setUsage(THREE.DynamicDrawUsage);debris.frustumCulled=false;debris.count=0;group.add(debris);
+ if(jets[0])jets[0].userData.flames=jets[0].getObjectByName('Twin afterburners');group.visible=false;return{group,jets,trails,debris};
 }
 const airshowTrailPoint=new V3(),airshowTrailNext=new V3(),airshowTrailSide=new V3(),airshowTrailView=new V3(),airshowTrailForward=new V3();
+const airshowDebrisMatrix=new THREE.Matrix4(),airshowDebrisPosition=new V3(),airshowDebrisScale=new V3(),airshowDebrisRotation=new THREE.Quaternion(),airshowDebrisAxis=new V3(.3,.8,.5).normalize();
 function writeAirshowTrail(trail,elapsed,camera,originZ=0,direction=1){
  const positions=trail.geometry.getAttribute('position'),samples=positions.count/2-1,index=trail.userData.aircraft;
  for(let i=0;i<=samples;i++){
@@ -71,8 +80,11 @@ function clearFlyby(){JET.sounded=false;document.body.classList.remove('jet-impa
 function updateJetFlyby(visuals,elapsed){
  const motion=cinemaMotion(),pose=jetFlybyPose(elapsed,motion),fleet=visuals.airshow,direction=OPENING.target.z< -10?-1:1;fleet.group.visible=motion&&elapsed>=.05&&elapsed<AIRSHOW.end+.5;
  for(let i=0;i<fleet.jets.length;i++){const jet=fleet.jets[i],p=airshowJetPose(elapsed,i,motion);jet.visible=p.visible;if(p.visible){jet.position.set(p.x,p.y,OPENING.target.z+p.z*direction);jet.quaternion.setFromEuler(new THREE.Euler(0,p.yaw*direction,0));jet.rotateZ(p.pitch);jet.rotateX(p.bank*direction);if(jet.userData.flames)jet.userData.flames.scale.x=1+Math.sin(elapsed*81+i)*.08;}}
- for(const trail of fleet.trails){trail.visible=fleet.group.visible;trail.material.opacity=(trail.userData.width<1?.7:.5)*(1-cinemaEase((elapsed-AIRSHOW.end)/.5));if(trail.visible)writeAirshowTrail(trail,Math.min(elapsed,AIRSHOW.end),cam,OPENING.target.z,direction);}
+ for(const trail of fleet.trails){trail.visible=fleet.group.visible;trail.material.opacity=(trail.userData.width<.3?.65:.4)*(1-cinemaEase((elapsed-AIRSHOW.end)/.5));if(trail.visible)writeAirshowTrail(trail,Math.min(elapsed,AIRSHOW.end),cam,OPENING.target.z,direction);}
+ if(fleet.debris){let count=0;for(let i=0;i<AIRSHOW.debrisCount;i++){const p=airshowDebrisPose(elapsed,i,airshowImpactMotion());if(!p.visible)continue;airshowDebrisPosition.set(p.x,p.y,OPENING.target.z+p.z);airshowDebrisScale.setScalar(p.scale);airshowDebrisRotation.setFromAxisAngle(airshowDebrisAxis,elapsed*2+i);airshowDebrisMatrix.compose(airshowDebrisPosition,airshowDebrisRotation,airshowDebrisScale);fleet.debris.setMatrixAt(count++,airshowDebrisMatrix);}fleet.debris.count=count;if(count)fleet.debris.instanceMatrix.needsUpdate=true;}
  const active=pose.power>.01&&airshowImpactMotion();document.body.classList.toggle('jet-impact',active);if(active){document.body.style.setProperty('--jet-x',pose.uiX.toFixed(2)+'px');document.body.style.setProperty('--jet-y',pose.uiY.toFixed(2)+'px');}
- if(!JET.sounded&&elapsed>=1.3){JET.sounded=true;if(elapsed<2.2&&motion){audioSample('boostStart',.6,.65);audioSample('wall2',.28,.7);}}
+ // Reuse the existing airy boost transient; a wall-impact recording made this
+ // flyover sound like an aircraft or the ball had struck the stadium.
+ if(!JET.sounded&&elapsed>=AIRSHOW.flyover-.12){JET.sounded=true;if(elapsed<AIRSHOW.flyover+.5&&motion)audioSample('boostStart',.42,.72);}
  return pose;
 }

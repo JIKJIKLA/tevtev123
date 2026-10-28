@@ -14,7 +14,8 @@ function b_(C){
  for(let k=0;k<7;k++){
   const center=uniform(C['c'+k].value),velocity=uniform(C['v'+k].value),q=w.sub(center.xz),near=float(1).sub(smoothstep(.6,2,center.y));
   const press=float(1).sub(smoothstep(.2,1.35,q.length())).mul(near),speed=velocity.xz.length(),dir=velocity.xz.div(speed.max(.001)),along=q.dot(dir),side=q.sub(dir.mul(along)).length();
-  contactShade=contactShade.mul(float(1).sub(press.mul(.32)));
+  const core=float(1).sub(smoothstep(.12,k===6?1.05:.72,q.length())).mul(near);
+  contactShade=contactShade.mul(float(1).sub(core.mul(.5)));
   const wake=float(1).sub(smoothstep(.4,1.35,side)).mul(smoothstep(-4,-1,along)).mul(float(1).sub(smoothstep(-.2,.6,along))).mul(speed.div(23).min(1)).mul(near);
   const bend=normalize(q.add(.0001)).mul(press).mul(.11).add(dir.mul(wake).mul(.18)).mul(height.mul(height));
   p=p.add(vec3(bend.x,press.mul(.65).add(wake.mul(.3)).mul(height).mul(length).negate(),bend.y));

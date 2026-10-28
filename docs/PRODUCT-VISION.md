@@ -34,7 +34,7 @@ Owner request: 2026-10-23. This file is the durable end-result specification for
 - Browser: title→menu→offline/practice→pause→return; private host/join, goal overlay/replay, garage preset restore, music remains opt-in, added cues can mute.
 
 ## Release tracking
-Implementation and validation status for each deliverable is maintained in RELEASE-9.6.md. Features not validated must be labeled honestly, not advertised as complete.
+Current implementation and validation status is maintained in [RELEASE-10.1.0.md](RELEASE-10.1.0.md), [VERIFICATION-10.1.0.md](VERIFICATION-10.1.0.md) and the [core match-effect catalogue](MATCH-EFFECTS.md). Older release records remain historical. Features not validated must be labeled honestly, not advertised as complete.
 
 ## Secret arcade request (2026-10-25)
 The owner explicitly requested a hidden arcade overlay opened by typing secret and unlocked with the exact case-sensitive code spellingbeewinner. Include close/minimize/restore, twelve humorous powers and authoritative use in offline, private and quick matches. Online use is announced to all players; the code is a public client-side easter egg, not admin access. See SECRET-ARCADE.md.
@@ -59,3 +59,14 @@ The owner emphasized that the visual goal is Rocket League's stylized stadium ar
 ## Owner direction — Nivet League (2026-10-27)
 
 The entire active game identity is Nivet League. Menus use near-black and deep velvet violet; the playable arena stays blue/orange. Aim for Rocket League-like proportions, car-soccer handling, camera readability, stadium atmosphere and clear play/garage flow. Prefer stylized, colorful sports lighting over photorealism. Paint stays matte. Every improvement must work across both playlists, team sizes and supported offline/online flows; preserve saved controls, progress and audio opt-in. Keep physical scale calibrated to published measurements, fit visible wheels to physical contacts, and review the actual chase and garage renders. Similarity is an end-result direction, not permission to claim exact proprietary-engine parity. Retain the requested cinematic/arcade features and free existing hosting.
+
+
+## Matchday direction and hosting (2026-10-28)
+
+The owner wants the ordinary match feel to approach Rocket League across movement, event timing, feedback and stadium lighting. Maintain the 35-family catalogue as a concrete checklist, with current behavior, validation and gaps. Boost exhaust must follow active simulated thrust; supersonic wheel trails are a separate state. Short boost taps obey the measured minimum burst. Add useful, bounded tyre/contact/ball feedback rather than a constant screen filter or unbounded particles. Demolition and three-second respawn are shared rules: forward opponent bumper contact qualifies, victims are inert, authority decides online outcomes and respawns never draw trails or corrections across the field. Preserve all existing team sizes/playlists and saved preferences.
+
+For the custom first-AI opening, the stadium and roof remain fixed. A flyover should read as aircraft passing above the stadium, with screen/HUD wake and a little loose canopy dust, never as a crash. The supplied jets keep their geometry, appear smaller through greater altitude and bank into smooth curves. The independent ball fully clears the glass roof opening and settles at GO; visual staging does not send the physics ball through its ceiling. Keep the rare bomb, normal subsequent/online kickoffs and reduced-motion behavior distinct.
+
+Lighting should give a warmer key, restrained cool fill, readable sun/shade and tight contact shade without washing every surface white or making paint glossy. Retain the photographic sky, crisp field markings, blue/orange match identity and black/velvet menus. Browser review of actual WebGPU/WebGL output matters more than a list of effect names. Do not claim exact 1:1 proprietary handling, every cosmetic variant or certified Chromebook FPS.
+
+Cloudflare Workers is now an additional host for the same browser JavaScript/HTML asset. The small Worker does not render the game or replace Phoenix simulation. Keep the existing Pages/Bunny URLs and their origin allowlist entries; add new exact origins deliberately. No paid resource, plan upgrade or new audio/AI asset is authorized by this direction. Hosting usage must stay within the account's actual plan/limits; do not promise every use is free. Local saves on a new hostname are separate, and must never be described as automatically migrated.

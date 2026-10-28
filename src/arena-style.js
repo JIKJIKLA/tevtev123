@@ -27,9 +27,9 @@ function arenaSky(reflection=false){
 function arenaPitchMaterial(){
  // Retain the existing normal map and field UVs, replacing only the painted surface.
  const m=ENGINE.pitchMaterial(ren,teamPalette),c=m.map.image,g=c.getContext('2d'),w=c.width,h=c.height;
- g.fillStyle='#2a4c1b';g.fillRect(0,0,w,h);
+ g.fillStyle='#254b18';g.fillRect(0,0,w,h);
  // Alternating mowing directions form broad checker panels like a sports pitch.
- for(let y=0;y<12;y++)for(let x=0;x<8;x++){g.fillStyle=(x+y)%2?'#3a6026':'#2a4c1b';g.fillRect(x*w/8,y*h/12,w/8+1,h/12+1);}
+ for(let y=0;y<12;y++)for(let x=0;x<8;x++){g.fillStyle=(x+y)%2?'#355e22':'#254b18';g.fillRect(x*w/8,y*h/12,w/8+1,h/12+1);}
  // Deterministic fine grain is baked once; no noise shader or per-frame canvas work.
  let seed=4271;const rand=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
  for(let i=0;i<110000;i++){g.strokeStyle=i%2?'rgba(184,211,124,.15)':'rgba(7,30,21,.17)';const x=rand()*w,y=rand()*h;g.beginPath();g.moveTo(x,y);g.lineTo(x+(rand()-.5)*2,y+1+rand()*3);g.stroke();}

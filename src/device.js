@@ -3,7 +3,7 @@ const DEVICE={form:'desktop',input:'keyboard',lastInput:'keyboard',preference:'a
 const touchInput={active:false,thr:0,steer:0,pitch:0,yaw:0,roll:0,boost:0,ps:0,jump:false};
 try{const value=JSON.parse(localStorage.getItem('tevin.device.v1')||'null');if(['auto','touch','keyboard'].includes(value?.input))DEVICE.preference=value.input;}catch(_){}
 function deviceCanPlay(count=false){
- return !window.__TEVIN_SERVER__&&inputFocused&&!document.hidden&&!LOADING.active&&!INTRO.active&&!MP.localPaused&&!(SECRET.open&&!SECRET.minimized)&&(st==='PLAY'||count&&st==='COUNT');
+ return !window.__TEVIN_SERVER__&&inputFocused&&!document.hidden&&!LOADING.active&&!INTRO.active&&!MP.localPaused&&!carDemolished(localPlayer())&&!(SECRET.open&&!SECRET.minimized)&&(st==='PLAY'||count&&st==='COUNT');
 }
 function setDeviceInput(kind){
  if(!['keyboard','touch','controller'].includes(kind))return;

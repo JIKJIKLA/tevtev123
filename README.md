@@ -1,15 +1,18 @@
-# Nivet League 10.0.0 — Velvet arena
+# Nivet League 10.1.0 — Matchday
 
-Black and deep velvet violet menus surround the same blue/orange arena. Nivet identity now reaches the title, garage, loading screens and stadium signage. Calibrated tyre tracks, a three-quarter garage view, new-driver chase-camera tuning and keyboard/controller menu navigation improve presentation and play. Existing saves, matte cars, audio and multiplayer remain. [Release and references](docs/RELEASE-10.0.0.md).
+Matchday adds authoritative demolitions and three-second respawns, separate supersonic wheel trails, ball streaks, tyre dust/skids and clearer contact feedback. The opening now uses smaller-looking high jets with smooth banks, camera/HUD wake and an independent roof-hatch ball drop. Warm key/cool fill lighting and compact contact shadows preserve matte cars. Black/velvet menus and blue/orange gameplay remain. [Release details](docs/RELEASE-10.1.0.md) · [35 effect families and limitations](docs/MATCH-EFFECTS.md).
 
-The first VS AI kickoff retains the five-second three-jet airshow and independent ball drop. The orange leader flies straight while blue wingmen peel apart; the ball bounces and eases to rest at GO. [Airshow release details](docs/RELEASE-9.9.5.md).
+The first VS AI kickoff retains a five-second opening. The orange leader flies straight while blue wingmen bank apart at 88 m altitude. The fixed stadium does not shake; the camera/HUD react briefly with a few canopy dust pieces. The ball clears the sliding hatch, bounces and rests at GO. The old wall-impact flyover sound is removed. [Opening and validation](docs/VERIFICATION-10.1.0.md).
 
 Boost pickups use sculpted three-armed housings, floating golden full-boost pills, light curtains and collection/respawn effects. All 34 placements are verified against the standard field. [Boost pickup release details and references](docs/RELEASE-9.9.1.md).
 
-Browser car soccer with Soccar and Heatseeker, 1v1/2v2/3v3, AI, sandbox, private rooms and public matchmaking. [Play on GitHub Pages](https://jikjikla.github.io/tevtev123/) or [Bunny CDN](https://tevtev123.b-cdn.net/). Online play uses the Phoenix dedicated server. The portable `index.html` also supports offline AI and practice.
+Browser car soccer with Soccar and Heatseeker, 1v1/2v2/3v3, AI, sandbox, private rooms and public matchmaking. [Play the verified 10.1.0 Cloudflare release](https://nivet-league.jikdifn.workers.dev/). [GitHub Pages](https://jikjikla.github.io/tevtev123/) and [Bunny CDN](https://tevtev123.b-cdn.net/) remain available; their 10.1.0 publication verification is pending. Online play uses the existing Phoenix dedicated server. The portable `index.html` also supports offline AI and practice. [Deployment status](docs/VERIFICATION-10.1.0.md).
 
 ## Controls and new features
 
+- Supersonic wheel trails are separate from active boost flames. Short boost taps observe the measured 0.1-second minimum burst; neutral airborne controls retain axis damping without extra blanket spin suppression.
+- Forward supersonic opponent bumper hits can demolish a car. Victims cannot drive, touch the ball or collect pads, then authority restores them after a three-second simulated timer at a clear own-side spawn. A bounded smoke/burst and respawn ring accompany the transition.
+- Ordinary contact uses short rings, ball ribbons, dust and fading skid marks in fixed pools. [Effect catalogue](docs/MATCH-EFFECTS.md) distinguishes these original approximations from exact Rocket League assets and full stat/cosmetic systems.
 - Wall camera checks the same rounded boundary as gameplay, orbits along the wall to frame both car and ball, and fades your car to 33% opacity when it blocks the view. The fade is isolated from other players and restores automatically.
 - Goal replays establish from midfield, follow the final shooter, slow down and zoom through the last touch, then track the shot and widen as playback accelerates. The shared goal hold is 8.5 seconds; online recordings use authority timestamps.
 - Cobalt/amber light and slight distance haze frame the pitch. The exterior now includes concourses, gates, a plaza, trees, lamps and taller cable towers; the playable dimensions remain unchanged.
@@ -45,4 +48,6 @@ Edit `src/` and run `node scripts/build.cjs` to regenerate the portable HTML. `s
 
 The recovered Supabase source remains for archival compatibility; current gameplay uses the dedicated WebSocket transport. No server credentials belong in the repository.
 
-[Persistent product vision](docs/PRODUCT-VISION.md) · [9.9 release scope](docs/RELEASE-9.9.md) · [New sound licenses](docs/AUDIO-9.6.md) · [Physics references](docs/ACCURACY.md)
+Cloudflare hosts the same browser game with a small JavaScript Worker and static assets; it does not replace the rendering client or multiplayer simulation. [Worker package, deployment and usage limits](docs/CLOUDFLARE.md). No paid resources or billing upgrade were enabled by this release; plan limits and unrelated subscriptions still apply. Saves are scoped to each site origin.
+
+[Persistent product vision](docs/PRODUCT-VISION.md) · [10.1.0 verification](docs/VERIFICATION-10.1.0.md) · [New sound licenses](docs/AUDIO-9.6.md) · [Physics references](docs/ACCURACY.md)
