@@ -8,7 +8,7 @@ The first VS AI kickoff retains a five-second opening. The orange leader flies s
 
 Boost pickups use sculpted three-armed housings, floating golden full-boost pills, light curtains and collection/respawn effects. All 34 placements are verified against the standard field. [Boost pickup release details and references](docs/RELEASE-9.9.1.md).
 
-Browser car soccer with Soccar and Heatseeker, 1v1/2v2/3v3, AI, sandbox, private rooms and public matchmaking. Play the verified 10.2.0 browser game on [Cloudflare](https://nivet-league.jikdifn.workers.dev/). [GitHub Pages](https://jikjikla.github.io/tevtev123/) and the [versioned Bunny CDN link](https://tevtev123.b-cdn.net/?v=10.2.0) are retained; see the [publication record](docs/RELEASE-10.2.0.md) for rollout verification. Bunny's unversioned root may retain an older cached copy. Online play uses the existing Phoenix dedicated server. The portable `index.html` also supports offline AI and practice.
+Browser car soccer with Soccar and Heatseeker, 1v1/2v2/3v3, AI, sandbox, private rooms and public matchmaking. Play the verified 10.2.0 browser game on [Cloudflare](https://nivet-league.jikdifn.workers.dev/), [GitHub Pages](https://jikjikla.github.io/tevtev123/) or [Bunny CDN](https://tevtev123.b-cdn.net/?v=10.2.0). All three hosts returned the same tested artifact; see the [publication record](docs/RELEASE-10.2.0.md). Refresh an older open game tab to load this release. Online play uses the existing Phoenix dedicated server. The portable `index.html` also supports offline AI and practice.
 
 ## Controls and new features
 
