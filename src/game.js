@@ -2,7 +2,7 @@
 try {
 
 
-/* Nivet League 10.1.1 — Refined. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
+/* Nivet League 10.2.0 — Championship. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
 window.tevinBoot.stage='game script';
 
 const ENGINE=TevinEngine;
@@ -1618,6 +1618,7 @@ function paintCar(id,color=cars[id]?.color){const m=cm[id],c=cars[id];if(!m||!c|
 function preparePaint(m,color){const mats=new Set();m.traverse(o=>{for(const mat of (Array.isArray(o.material)?o.material:[o.material]))if(mat?.color&&mat.color.getHex()===color)mats.add(mat)});m.userData.paintMaterials=[...mats];for(const mat of mats){mat.roughness=.72;mat.metalness=.04;mat.envMapIntensity=.5;if('clearcoat' in mat)mat.clearcoat=0;}}
 function showPodium(){const winner=score[0]>score[1]?0:1;$('end').setAttribute('data-winner',winner?'orange':'blue');$('winner-team').textContent=(winner?'ORANGE':'BLUE')+' TEAM';$('winner-team').style.color=teamHex(winner);$('end').style.setProperty('--winner-color',teamHex(winner));$('podium-cards').innerHTML='';const winning=cars.filter(c=>c.enabled&&c.team===winner);for(const c of winning){const card=document.createElement('div');card.className='podium-card';card.style.borderColor='#'+c.color.toString(16).padStart(6,'0');const humanPlayer=MP.active?!!MP.seats[c.id]:c===P1;card.textContent=(c===localPlayer()?'YOU':humanPlayer?(MP.seats[c.id]?.name||'PLAYER '+(c.id+1)):'AI '+(c.id+1))+' · '+c.goals+' GOALS · '+c.touches+' TOUCHES';$('podium-cards').appendChild(card)}}
 // INLINE:showroom.js
+// INLINE:car-finish.js
 
 function syncMenuSettings(){for(const {button,key,value} of settingButtons){const selected=cfg[key]===value;button.classList.toggle('on',selected);button.setAttribute('aria-pressed',String(selected))}updateBotBrief();$('playlist-note').textContent=cfg.mode?'HEATSEEKER · First to 7. Touch to redirect. Backboards return fire.':'SOCCAR · Timed match. Highest score wins. Sudden-death overtime.'}
 
@@ -1652,10 +1653,10 @@ function setupMenu(){
  $('private-create').onclick=()=>choosePrivateAction('create');$('private-join').onclick=()=>choosePrivateAction('join');$('party-create-tab').onclick=()=>choosePartyAction('create');$('party-join-tab').onclick=()=>choosePartyAction('join');$('quick-manage-party').onclick=()=>showMenuScreen('party');$('party-private-link').onclick=()=>{chooseRoute('online');showMenuScreen('play')};
  for(const name of ['quick','offline','online','training'])$('choose-'+name).onclick=()=>chooseRoute(name);
  BODY_NAMES.forEach((name,i)=>{const b=document.createElement('button');b.textContent=name.toUpperCase();b.setAttribute('aria-pressed',String(cfg.body===i));b.onclick=()=>{cfg.body=i;P1.body=i;for(const [j,button] of Array.from($('body-options').children).entries())button.setAttribute('aria-pressed',String(i===j));savePresentation();updateMatchSummary();previewGarage()};$('body-options').appendChild(b)});
- $('performance-mode').checked=!cfg.hi;$('performance-mode').onchange=()=>{cfg.hi=$('performance-mode').checked?0:1;cfg.models=1;try{localStorage.setItem("tevin.graphics.v9",cfg.hi?"detail":"chromebook")}catch(_){}savePresentation();$('quality-description').textContent=cfg.hi?'DETAIL · Stadium reflections, soft shadows, ambient occlusion and bloom. Best on faster devices.':'CHROMEBOOK · Stadium reflections, matte paint and crisp native resolution. Lighter turf for smooth play.';$('garage-performance').hidden=true;updateMatchSummary()};$('performance-mode').onchange();
+ $('performance-mode').checked=!cfg.hi;$('performance-mode').onchange=()=>{cfg.hi=$('performance-mode').checked?0:1;cfg.models=1;try{localStorage.setItem("tevin.graphics.v9",cfg.hi?"detail":"chromebook")}catch(_){}savePresentation();$('quality-description').textContent=cfg.hi?'DETAIL · Stadium reflections, soft shadows, ambient occlusion and bloom. Best on faster devices.':'CHROMEBOOK · Dense painted turf, focused car shadows, matte paint and crisp native resolution.';$('garage-performance').hidden=true;updateMatchSummary()};$('performance-mode').onchange();
  $('paint-name').textContent=paintName(cfg);chooseRoute('offline');showMenuScreen('home');
 }
-function createCarVisual(c){const visual=cfg.models?ENGINE.importedCar(ren,BODY_IDS[c.body||0],c.color,assetTextures):carMesh2('#'+c.color.toString(16).padStart(6,'0'),'#d9efff');const m=fitCarVisual(visual,c);m.userData.body=c.body||0;m.userData.simple=!cfg.models;preparePaint(m,c.color);m.traverse(o=>{o.castShadow=!!o.isMesh&&!o.material.transparent});prepareCameraFade(m);return m}
+function createCarVisual(c){const visual=cfg.models?ENGINE.importedCar(ren,BODY_IDS[c.body||0],c.color,assetTextures):carMesh2('#'+c.color.toString(16).padStart(6,'0'),'#d9efff');const m=fitCarVisual(visual,c);m.userData.body=c.body||0;m.userData.simple=!cfg.models;preparePaint(m,c.color);styleCarSurfaces(m);m.traverse(o=>{o.castShadow=!!o.isMesh&&!o.material.transparent});prepareCameraFade(m);return m}
 function fitCarVisual(visual,c){
  const spec=bodyPhysics(c),flame=visual.userData.f;visual.remove(flame);const box=new THREE.Box3().setFromObject(visual),size=box.getSize(new V3());visual.add(flame);const m=new THREE.Group();m.userData={...visual.userData};
  const lengthScale=spec.half[0]*2*1.06/size.x;
@@ -1949,6 +1950,7 @@ function face(a,sg,mat,skip){
 function wallMat(col){return championshipWallMaterial(col)}
 // INLINE:arena-walls.js
 // INLINE:arena-style.js
+// INLINE:pitch-detail.js
 // INLINE:stadium-detail.js
 // INLINE:arena-exterior.js
 // INLINE:boost-pickups.js
@@ -2094,7 +2096,7 @@ let windFlags=[];
 
 function updateWind(dt,showcase=false){
 
- const windAllowed=RIVAL_PREF.motion&&!matchMedia('(prefers-reduced-motion: reduce)').matches;GU.wind.value=windAllowed?1:0;if(windAllowed)GU.t.value+=dt;
+ const windAllowed=RIVAL_PREF.motion&&!matchMedia('(prefers-reduced-motion: reduce)').matches;for(const uniforms of GU.layers||[GU]){uniforms.wind.value=windAllowed?1:0;if(windAllowed)uniforms.t.value+=dt;}
 
  for(let k=0;k<7;k++){const p=GU['c'+k].value,v=GU['v'+k].value;if(showcase){if(k===0)p.copy(cm[0].position);else p.set(1000,1000,1000);v.set(0,0,0)}else if(k<cars.length&&k<6&&cars[k].enabled!==false&&!carDemolished(cars[k])){p.copy(cars[k].p);v.copy(cars[k].v)}else if(k===6){p.copy(ball.p);v.copy(ball.v)}else {p.set(1000,1000,1000);v.set(0,0,0)}}
 
@@ -2111,7 +2113,7 @@ function dispose3d(){
  inited=0;scene=ren=cam=sun=pipeline=grassM=envTarget=null;graphicsPreset=-1;
  const geos=new Set(),mats=new Set(),textures=new Set(),release=value=>{try{value?.dispose?.()}catch(error){console.warn('Graphics resource cleanup',error)}};
  if(oldScene)oldScene.traverse(o=>{if(o.geometry)geos.add(o.geometry);for(const m of (Array.isArray(o.material)?o.material:[o.material]))if(m){mats.add(m);for(const v of Object.values(m))if(v?.isTexture)textures.add(v)}});
- for(const t of [oldScene?.background,GT,PITCH_TEXTURE,...Object.values(assetTextures||{}),...Object.values(FX?.maps||{})])if(t?.isTexture)textures.add(t);
+ for(const t of [oldScene?.background,GT,PITCH_TEXTURE,...Object.values(TURF_SURFACE_ASSETS||{}),...Object.values(assetTextures||{}),...Object.values(FX?.maps||{})])if(t?.isTexture)textures.add(t);
  // Render targets own their attachments. Shared maps and geometries are freed
  // once, while unused imported body textures are still included in cleanup.
  textures.delete(oldEnvironment?.texture);textures.delete(oldShadow?.texture);
@@ -2119,7 +2121,7 @@ function dispose3d(){
  const old=$('cv');if(old)old.replaceWith(old.cloneNode(false));
  if(oldRenderer){if(oldRenderer.isWebGPURenderer)oldRenderer.onDeviceLost=()=>{};release(oldRenderer);try{oldRenderer.forceContextLoss?.()}catch(error){console.warn('Graphics context cleanup',error)}}
  resetCelebrationEffects();clearMatchEffects();MATCH_EFFECTS.group=MATCH_EFFECTS.ribbon=MATCH_EFFECTS.skids=null;MATCH_EFFECTS.rings=[];MATCH_EFFECTS.smoke=[];OPENING.visuals=null;BOMB.visuals=null;BOOST_PICKUPS.visuals=null;FX=null;garageStage=null;RIVALS.visuals=null;RIVALS.trim=null;RIVALS.crowd=null;$('driver-markers')?.replaceChildren();
- bm=pts=GT=GU=PITCH_TEXTURE=assetTextures=null;cm=[];WM=[];windFlags=[];contactShadows=[];goalLights=[];SHOWROOM.ready=false;$('menu')?.classList.remove('live-preview');document.body.classList.remove('arena-ready');
+ bm=pts=GT=GU=PITCH_TEXTURE=assetTextures=TURF_SURFACE_ASSETS=null;cm=[];WM=[];windFlags=[];contactShadows=[];goalLights=[];SHOWROOM.ready=false;$('menu')?.classList.remove('live-preview');document.body.classList.remove('arena-ready');
 
 }
 
@@ -2142,7 +2144,7 @@ async function build3d(forceGL){
 
  // Static filtered environment avoids the periodic six-pass cube-camera hitch.
 
-  ren.outputColorSpace=THREE.SRGBColorSpace;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=STADIUM_LIGHTING.exposure;ren.shadowMap.enabled=!!cfg.hi;ren.shadowMap.autoUpdate=false;ren.shadowMap.needsUpdate=!!cfg.hi;
+  ren.outputColorSpace=THREE.SRGBColorSpace;ren.toneMapping=THREE.ACESFilmicToneMapping;ren.toneMappingExposure=STADIUM_LIGHTING.exposure;ren.shadowMap.enabled=true;ren.shadowMap.autoUpdate=false;ren.shadowMap.needsUpdate=true;
 
  scene=new THREE.Scene();scene.background=new THREE.Color(0x5caee5);scene.fog=new THREE.Fog(STADIUM_LIGHTING.fogColor,STADIUM_LIGHTING.fogNear,STADIUM_LIGHTING.fogFar);
 
@@ -2152,6 +2154,7 @@ async function build3d(forceGL){
  const sky=await loadStadiumSky();scene.background=sky.visible;try{envTarget=await ENGINE.environment(ren,sky.lighting)}finally{sky.lighting.dispose()}scene.environment=envTarget.texture;scene.environmentIntensity=STADIUM_LIGHTING.environment;scene.backgroundIntensity=1;document.body.dataset.arenaLight='matchday-key-fill-5';
  ({sun,goalLights}=stadiumLightRig(ren,scene,!!cfg.hi));
 
+ await loadingStage(34,'Preparing photographed turf surfaces');await loadTurfSurfaceAssets();
  const side=wallMat('#3cf'),bw=wallMat('#38f'),ow=wallMat('#f93');WM=[side,bw,ow];
 
  face(1,-1,floorMat(),(u,v)=>Math.abs(u)<GX&&Math.abs(v)>HZ-R);face(0,1,side);face(0,-1,side);face(2,-1,bw,(u,v)=>Math.abs(u)<GX&&v<GH-HH/2);face(2,1,ow,(u,v)=>Math.abs(u)<GX&&v<GH-HH/2);
@@ -2207,8 +2210,8 @@ async function build3d(forceGL){
 
  // Three small decals also ground the ball in Performance mode without a shadow map.
 
- const contactMap=stadiumContactShadowTexture();
- for(let k=0;k<cars.length+1;k++){const shadow=new THREE.Mesh(new THREE.PlaneGeometry(k<cars.length?1.6:2.2,k<cars.length?1.04:2.2).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({map:contactMap,color:0x000000,transparent:true,opacity:.3,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1}));shadow.name='Contact shadow';shadow.renderOrder=1;scene.add(shadow);contactShadows.push(shadow)}
+ const contactMap=stadiumContactShadowTexture(true),ballContactMap=stadiumContactShadowTexture();
+ for(let k=0;k<cars.length+1;k++){const shadow=new THREE.Mesh(new THREE.PlaneGeometry(k<cars.length?1.6:2.2,k<cars.length?1.04:2.2).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({map:k<cars.length?contactMap:ballContactMap,color:0x000000,transparent:true,opacity:.3,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1}));shadow.name='Contact shadow';shadow.renderOrder=1;scene.add(shadow);contactShadows.push(shadow)}
 
  const bc=cvs(512,256),bg=bc.getContext('2d');bg.fillStyle='#e8eef5';bg.fillRect(0,0,512,256);bg.fillStyle='#1a2330';for(let i=0;i<30;i++){bg.beginPath();bg.arc(Math.random()*512,Math.random()*256,10+Math.random()*14,0,7);bg.fill()}bg.strokeStyle='#8899aa';bg.lineWidth=3;for(let i=0;i<9;i++){bg.strokeRect(i*60,0,60,256)}
 
@@ -2289,7 +2292,7 @@ function render(dt){
 
  bm.position.lerpVectors(ball.frameP,ball.p,alpha);if(DED.active)bm.position.add(DED.ballOffset);const sp=ball.v.length(),wl=ball.w.length();if(wl>.01){spinAxis.copy(ball.w).divideScalar(wl);spinQ.setFromAxisAngle(spinAxis,wl*dt*(st=='GOAL'?.3:1));bm.quaternion.premultiply(spinQ).normalize()}updateOpeningVisuals();updateGraphicsEffects(dt);
 
- for(let k=0;k<cars.length+1;k++){const shadow=contactShadows[k],p=k<cars.length?cm[k].position:bm.position,height=Math.max(0,p.y-(k<cars.length?.485:BR));
+ for(let k=0;k<cars.length+1;k++){const shadow=contactShadows[k],p=k<cars.length?cm[k].position:bm.position,height=Math.max(0,p.y-(k<cars.length?bodyPhysics(cars[k]).height:BR));
 
   shadow.visible=(k===cars.length||cars[k].enabled&&!carDemolished(cars[k]))&&Math.abs(p.x)<36.5&&Math.abs(p.z)<46.5&&height<10;shadow.position.set(p.x,.018,p.z);shadow.material.opacity=(cfg.hi?.32:.47)*Math.exp(-height*.42);shadow.scale.setScalar(1+Math.min(height,10)*.055);
 
@@ -2335,7 +2338,7 @@ function render(dt){
 
  for(let k=0;k<goalLights.length;k++)goalLights[k].intensity=goalLights[k].userData.base*(1+goalPulse*.7);
 
- applyMatchCamera(presentationDelta||dt);updateRivalVisuals(dt);animateArenaAccents(dt);uploadParticles();updateCelebrations(dt);updateMatchEffects(dt);updateBoostPickups(dt);updateBombScene(dt);pipeline.render();
+ applyMatchCamera(presentationDelta||dt);updateRivalVisuals(dt);animateArenaAccents(dt);uploadParticles();updateCelebrations(dt);updateMatchEffects(dt);updateBoostPickups(dt);updateBombScene(dt);updateStadiumShadow();pipeline.render();
 
   if(st==='PLAY'){perfEMA+=(dt-perfEMA)*.03;perfTimer+=dt;if(perfTimer>4){perfTimer=0;const next=1;if(next!==renderScale){renderScale=next;ren.setPixelRatio(pixelRatio());pipeline.resize(innerWidth,innerHeight,pixelRatio())}}}
 
@@ -2401,7 +2404,7 @@ setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();se
 
 window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:120,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,multiplayer:DED.active?'Phoenix dedicated':'offline',rtt:DED.rtt,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
 
-window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 10.1.1 · REFINED · Ready to play');
+window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 10.2.0 · CHAMPIONSHIP · Ready to play');
 
 
 } catch(error) { window.tevinBoot.error=String(error.message||error);window.tevinBoot.show("Startup failed at "+window.tevinBoot.stage+": "+window.tevinBoot.error);console.error(error); }

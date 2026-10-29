@@ -12,6 +12,7 @@ for(const file of ['bootstrap.js','engine.bundle.js','game.js']) {
  code=code.replace(/\/\/ INLINE:([\w.-]+\.js)/g,(_,part)=>read(part));
  code=code.replace('SKY:stadium',()=> 'data:image/jpeg;base64,'+fs.readFileSync(path.join(root,'src/assets/stadium-clouds-2k.jpg')).toString('base64'));
  code=code.replace("'JET:mesh'",()=>JSON.stringify(fs.readFileSync(path.join(root,'src/assets/f22-jet.json'),'utf8')));
+ for(const name of ['diffuse','normal','roughness'])code=code.replace('TURF:'+name,()=> 'data:image/jpeg;base64,'+fs.readFileSync(path.join(root,'src/assets/turf-ground-'+name+'.jpg')).toString('base64'));
  for(const name of ['albedo','normal','surface'])code=code.replace('JET:'+name,()=> 'data:image/jpeg;base64,'+fs.readFileSync(path.join(root,'src/assets/f22-'+name+'.jpg')).toString('base64'));
  if(file==='engine.bundle.js'){
   code=require('./patch-grass.cjs')(code);

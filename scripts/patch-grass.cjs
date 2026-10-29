@@ -7,5 +7,7 @@ module.exports=function patchGrass(code){
  let depth=0,end=-1;for(let i=start+token.length-1;i<code.length;i++){if(code[i]==='{')depth++;if(code[i]==='}'&&--depth===0){end=i+1;break}}
  // Braces are balanced in this known factory, which has no template/string braces.
  if(end<0||!code.slice(start,end).includes('E.positionNode=o'))throw Error('Unrecognized pinned grass factory');
- return code.slice(0,start)+fs.readFileSync(path.join(__dirname,'../src/grass-node.js'),'utf8')+code.slice(end);
+ const exportToken='pitchMaterial:()=>__,';
+ if(code.split(exportToken).length!==2)throw Error('Pinned pitch export changed');
+ return (code.slice(0,start)+fs.readFileSync(path.join(__dirname,'../src/grass-node.js'),'utf8')+'\n'+fs.readFileSync(path.join(__dirname,'../src/pitch-node.js'),'utf8')+code.slice(end)).replace(exportToken,exportToken+'pitchDetail:()=>nivetPitchDetail,');
 };

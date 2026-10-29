@@ -1,6 +1,6 @@
-# Nivet League 10.1.1 — Refined
+# Nivet League 10.2.0 — Championship
 
-Refined follows a review of the maintained game systems. It fixes public queue/departure flow, results arriving while paused, native keyboard controls, controller lobbies/results, phone garage scrolling and respawn controls, graphics recovery, turf spacing and boost-effect alignment. Settings adds music volume/resume and a validated restore path for exported local progress. [Audit and validation](docs/AUDIT-10.1.1.md).
+Championship rebuilds the field and stadium with dense painted grass, photographic surface detail, layered goal tunnels, fuller seating detail, readable concrete and steel, focused car/ball shadows and softer window reflections. [Visual release and validation](docs/RELEASE-10.2.0.md). The preceding [whole-game fixes](docs/AUDIT-10.1.1.md) remain included.
 
 The Matchday effects, authoritative demolitions, smooth high-altitude airshow, matte cars, warm stadium lighting and blue/orange gameplay remain. [Matchday release](docs/RELEASE-10.1.0.md) · [35 effect families and limitations](docs/MATCH-EFFECTS.md).
 
@@ -8,7 +8,7 @@ The first VS AI kickoff retains a five-second opening. The orange leader flies s
 
 Boost pickups use sculpted three-armed housings, floating golden full-boost pills, light curtains and collection/respawn effects. All 34 placements are verified against the standard field. [Boost pickup release details and references](docs/RELEASE-9.9.1.md).
 
-Browser car soccer with Soccar and Heatseeker, 1v1/2v2/3v3, AI, sandbox, private rooms and public matchmaking. [Cloudflare](https://nivet-league.jikdifn.workers.dev/), [GitHub Pages](https://jikjikla.github.io/tevtev123/) and the [versioned Bunny CDN link](https://tevtev123.b-cdn.net/?v=10.1.1) serve the verified 10.1.1 browser game. Bunny's unversioned root still returned an older cached copy during verification; use the versioned link for this release. Online play uses the existing Phoenix dedicated server. The portable `index.html` also supports offline AI and practice. [Current validation and publication record](docs/AUDIT-10.1.1.md).
+Browser car soccer with Soccar and Heatseeker, 1v1/2v2/3v3, AI, sandbox, private rooms and public matchmaking. Play the verified 10.2.0 browser game on [Cloudflare](https://nivet-league.jikdifn.workers.dev/). [GitHub Pages](https://jikjikla.github.io/tevtev123/) and the [versioned Bunny CDN link](https://tevtev123.b-cdn.net/?v=10.2.0) are retained; see the [publication record](docs/RELEASE-10.2.0.md) for rollout verification. Bunny's unversioned root may retain an older cached copy. Online play uses the existing Phoenix dedicated server. The portable `index.html` also supports offline AI and practice.
 
 ## Controls and new features
 

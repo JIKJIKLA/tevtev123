@@ -51,7 +51,7 @@ function renderGoalReplay(dt){
  const f=cl((time-a.t)/Math.max(.001,b.t-a.t),0,1);
  for(let i=0;i<cm.length;i++){const m=cm[i];m.visible=cars[i].enabled&&!(a.cars[i]?.demoTime>0);m.userData.replaySupersonic=!!a.cars[i]?.supersonic;if(!a.cars[i]||!b.cars[i])continue;m.position.fromArray(a.cars[i].p).lerp(replayPose.fromArray(b.cars[i].p),f);m.quaternion.fromArray(a.cars[i].q).slerp(replayRotation.fromArray(b.cars[i].q),f);if(m.userData.f)m.userData.f.visible=false;}
  bm.position.fromArray(a.ball).lerp(replayPose.fromArray(b.ball),f);const direction=positionReplayCamera(r);bm.visible=!direction.exploding;document.body.classList.toggle('cinema-replay',cinemaMotion());updateWind(dt*(direction.slow?.22:1));
- pts.count=0;if(FX)FX.group.visible=false;contactShadows.forEach(s=>s.visible=false);if(RIVALS.visuals)RIVALS.visuals.group.visible=false;$('flash').style.opacity=0;updateCelebrations(dt,{age:direction.exploding?direction.impactAge:99,suppressUI:true});updateMatchEffects(dt,true);updateBoostPickups(dt,a.pads||null,false);pipeline.render();
+ pts.count=0;if(FX)FX.group.visible=false;contactShadows.forEach(s=>s.visible=false);if(RIVALS.visuals)RIVALS.visuals.group.visible=false;$('flash').style.opacity=0;updateCelebrations(dt,{age:direction.exploding?direction.impactAge:99,suppressUI:true});updateMatchEffects(dt,true);updateBoostPickups(dt,a.pads||null,false);updateStadiumShadow();pipeline.render();
  $('replay-label').textContent=direction.exploding?'GOAL EXPLOSION':direction.slow?'FINAL TOUCH · SLOW MOTION':direction.ballFocus>.5?'GOAL REPLAY · FOLLOW THE SHOT':'GOAL REPLAY · THE APPROACH';return true;
 }
 function rivalsFinish(){

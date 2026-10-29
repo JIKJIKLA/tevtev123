@@ -4,11 +4,11 @@ The game already runs as JavaScript in the player's browser. Its HTML contains t
 
 There are two ready options. Neither provisions a paid database, object bucket or multiplayer service.
 
-## Live deployment — 10.1.1
+## Live deployment — 10.2.0
 
-[Play Nivet League on Cloudflare](https://nivet-league.jikdifn.workers.dev/). The existing `nivet-league` Worker serves the exact 10.1.1 Refined browser build as static assets. Other Workers were not changed. Its only bindings are `ASSETS` and the public `GAME_BUILD` version; Workers Caching is disabled, and no paid plan or additional resource was enabled.
+[Play Nivet League on Cloudflare](https://nivet-league.jikdifn.workers.dev/). The existing `nivet-league` Worker serves the exact 10.2.0 Championship browser build as static assets. Other Workers were not changed. Its only bindings are `ASSETS` and the public `GAME_BUILD` version; Workers Caching is disabled, and no paid plan or additional resource was enabled.
 
-Root GET and HEAD return 200, `/health` reports 10.1.1, `/release.json` reports the same build and hash, and an unknown route returns 404. The deployed HTML is 16,798,830 bytes with SHA-256 `d6555ef382f4af61265d4212c07cf8ff547fd6dc6887336a64c5999146a21c4f`. Deployment identifier: `73e2fb071da24a79b7a5a74ef081aad4`.
+Verified 2026-10-29: root GET and HEAD return 200, `/health` reports 10.2.0, `/release.json` reports the same build and hash, and an unknown route returns 404. The deployed HTML is 20,173,014 bytes with SHA-256 `c2b1b40cb3034eadd7dc466308fb8caf45fbc0888d8f6cecb6f542e5f9d33f69`. Active version: `c0e91830-65cc-47f3-958c-ff5f9104a6de` at 100%; deployment identifier: `7ee18925-aef2-4ba6-903b-a52e63c77173`. Worker script ETag: `d453c4d08ccfd917365ea1922c91713a722d569c284b351bf6c152972f97d2f7`.
 
 The connector-assisted update kept scoped, short-lived asset tokens in memory; this update created no token files. `scripts/cloudflare-assets.cjs` prepares bounded manifests, verifies package hashes and uploads only to Cloudflare's fixed asset API. The package retains the usual Wrangler route below for future manual deployments.
 

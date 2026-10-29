@@ -1,22 +1,36 @@
 // A static HDR lighting probe, filtered once by the existing PMREM path. This is
 // image-based lighting, not hardware ray tracing. No recurring cube captures.
 function radianceLinear(value){value=cl(value/255,0,1);return value<=.04045?value/12.92:Math.pow((value+.055)/1.055,2.4);}
-const STADIUM_LIGHTING={exposure:1.02,environment:.46,fogColor:0x91a9ba,fogNear:115,fogFar:340};
+const STADIUM_LIGHTING={exposure:1.02,environment:.56,fogColor:0x91a9b8,fogNear:95,fogFar:300};
 function stadiumLightRig(renderer,scene,detail,palette=teamPalette){
- scene.add(new THREE.HemisphereLight(0xc3dcf7,0x615d3e,.72));
- const sun=new THREE.DirectionalLight(0xfff0d8,3.8);sun.position.set(-40,68,28);sun.castShadow=!!detail;sun.shadow.autoUpdate=false;sun.shadow.needsUpdate=!!detail;sun.shadow.mapSize.set(2048,2048);sun.shadow.radius=2.5;
- const sc=sun.shadow.camera;sc.left=sc.bottom=-70;sc.right=sc.top=70;sc.near=1;sc.far=220;sun.shadow.bias=-.00015;sun.shadow.normalBias=.022;scene.add(sun,sun.target);
+ scene.add(new THREE.HemisphereLight(0xbdd9ed,0x566143,.8));
+ const sun=new THREE.DirectionalLight(0xffedce,3.3);sun.position.set(-40,68,28);sun.userData.shadowOffset=sun.position.clone();sun.castShadow=true;sun.shadow.autoUpdate=false;sun.shadow.needsUpdate=true;sun.shadow.mapSize.set(detail?2048:1024,detail?2048:1024);sun.shadow.radius=2;
+ // Focus one shadow map around the player instead of spreading it over 140 m.
+ // Nearby cars/ball cast real shadows in either preset; stadium geometry is baked.
+ const sc=sun.shadow.camera;sc.left=sc.bottom=detail?-18:-14;sc.right=sc.top=detail?18:14;sc.near=1;sc.far=180;sun.shadow.bias=-.00012;sun.shadow.normalBias=.012;scene.add(sun,sun.target);
  // Broad diffuse fill exposes body shape; high roughness still controls paint highlights.
- const fill=new THREE.DirectionalLight(0xb5cfff,.85);fill.position.set(42,30,-38);scene.add(fill);
- const rim=new THREE.DirectionalLight(0xffb477,.55);rim.position.set(-15,26,-48);scene.add(rim);
+ const fill=new THREE.DirectionalLight(0xc5ddff,.95);fill.position.set(42,30,-38);scene.add(fill);
+ const rim=new THREE.DirectionalLight(0xffb477,.4);rim.position.set(-15,26,-48);scene.add(rim);
  const lights=[];
  for(let team=0;team<2;team++){const sign=team?1:-1,l=new THREE.PointLight(palette[team],64,42,2);l.position.set(0,7,sign*(HZ-3));Object.assign(l.userData,{team,base:64});lights.push(l);scene.add(l);if(detail)for(const x of [-GX,GX]){const lamp=new THREE.PointLight(palette[team],10,12,2);lamp.position.set(x,GH,sign*(HZ-.4));Object.assign(lamp.userData,{team,base:10});lights.push(lamp);scene.add(lamp);}}
  renderer.shadowMap.type=THREE.PCFShadowMap;return{sun,goalLights:lights};
 }
-function stadiumContactShadowTexture(){
- // A compact dark core anchors tyres; the broad glow previously looked detached.
- const c=cvs(64,64),g=c.getContext('2d'),gradient=g.createRadialGradient(32,32,0,32,32,32);
- gradient.addColorStop(0,'rgba(255,255,255,.95)');gradient.addColorStop(.35,'rgba(255,255,255,.78)');gradient.addColorStop(.7,'rgba(255,255,255,.24)');gradient.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gradient;g.fillRect(0,0,64,64);return tex(c);
+function updateStadiumShadow(showcase=false){
+ if(!sun||!ren?.shadowMap||!sun.userData.shadowOffset)return;
+ const player=localPlayer(),model=cm[showcase?0:player.id],focus=model?.position||player.p;
+ sun.target.position.set(focus.x,0,focus.z);sun.position.copy(sun.target.position).add(sun.userData.shadowOffset);sun.target.updateMatrixWorld();
+ sun.shadow.needsUpdate=ren.shadowMap.needsUpdate=true;
+}
+function stadiumContactShadowTexture(car=false){
+ // Tyre contact needs four localized cores, rather than one hovering round blob.
+ // Keep the original radial projection for the ball.
+ const c=cvs(64,64),g=c.getContext('2d');
+ if(!car){const gradient=g.createRadialGradient(32,32,0,32,32,32);gradient.addColorStop(0,'rgba(255,255,255,.95)');gradient.addColorStop(.35,'rgba(255,255,255,.78)');gradient.addColorStop(.7,'rgba(255,255,255,.24)');gradient.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gradient;g.fillRect(0,0,64,64);return tex(c);}
+ const ellipse=(x,y,rx,ry,strength)=>{g.save();g.translate(x,y);g.scale(rx,ry);const shade=g.createRadialGradient(0,0,0,0,0,1);shade.addColorStop(0,`rgba(255,255,255,${strength})`);shade.addColorStop(.45,`rgba(255,255,255,${strength*.55})`);shade.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=shade;g.fillRect(-1,-1,2,2);g.restore();};
+ ellipse(32,32,28,24,.4);
+ // The projection is 1.6 × 1.04 m; these cores cover the measured axle/track area.
+ for(const x of [19,45])for(const y of [13,51])ellipse(x,y,9,8,.93);
+ return tex(c);
 }
 function goalFrameHaloGeometry(){
  const p=[],uv=[],indices=[];
