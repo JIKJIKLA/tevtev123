@@ -1,12 +1,14 @@
-# Nivet League 10.1.0 — Matchday
+# Nivet League 10.1.1 — Refined
 
-Matchday adds authoritative demolitions and three-second respawns, separate supersonic wheel trails, ball streaks, tyre dust/skids and clearer contact feedback. The opening now uses smaller-looking high jets with smooth banks, camera/HUD wake and an independent roof-hatch ball drop. Warm key/cool fill lighting and compact contact shadows preserve matte cars. Black/velvet menus and blue/orange gameplay remain. [Release details](docs/RELEASE-10.1.0.md) · [35 effect families and limitations](docs/MATCH-EFFECTS.md).
+Refined follows a review of the maintained game systems. It fixes public queue/departure flow, results arriving while paused, native keyboard controls, controller lobbies/results, phone garage scrolling and respawn controls, graphics recovery, turf spacing and boost-effect alignment. Settings adds music volume/resume and a validated restore path for exported local progress. [Audit and validation](docs/AUDIT-10.1.1.md).
+
+The Matchday effects, authoritative demolitions, smooth high-altitude airshow, matte cars, warm stadium lighting and blue/orange gameplay remain. [Matchday release](docs/RELEASE-10.1.0.md) · [35 effect families and limitations](docs/MATCH-EFFECTS.md).
 
 The first VS AI kickoff retains a five-second opening. The orange leader flies straight while blue wingmen bank apart at 88 m altitude. The fixed stadium does not shake; the camera/HUD react briefly with a few canopy dust pieces. The ball clears the sliding hatch, bounces and rests at GO. The old wall-impact flyover sound is removed. [Opening and validation](docs/VERIFICATION-10.1.0.md).
 
 Boost pickups use sculpted three-armed housings, floating golden full-boost pills, light curtains and collection/respawn effects. All 34 placements are verified against the standard field. [Boost pickup release details and references](docs/RELEASE-9.9.1.md).
 
-Browser car soccer with Soccar and Heatseeker, 1v1/2v2/3v3, AI, sandbox, private rooms and public matchmaking. [Play on Cloudflare](https://nivet-league.jikdifn.workers.dev/), [GitHub Pages](https://jikjikla.github.io/tevtev123/) or [Bunny CDN](https://tevtev123.b-cdn.net/): all three were verified to serve the identical 10.1.0 game. Online play uses the existing Phoenix dedicated server. The portable `index.html` also supports offline AI and practice. [Deployment evidence](docs/VERIFICATION-10.1.0.md).
+Browser car soccer with Soccar and Heatseeker, 1v1/2v2/3v3, AI, sandbox, private rooms and public matchmaking. [Cloudflare](https://nivet-league.jikdifn.workers.dev/), [GitHub Pages](https://jikjikla.github.io/tevtev123/) and [Bunny CDN](https://tevtev123.b-cdn.net/) host the portable browser game. Online play uses the existing Phoenix dedicated server. The portable `index.html` also supports offline AI and practice. [Current validation and publication record](docs/AUDIT-10.1.1.md).
 
 ## Controls and new features
 

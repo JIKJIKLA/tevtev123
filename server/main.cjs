@@ -19,8 +19,24 @@ function createService(options={}){
  let last=performance.now(),acc=0,ticks=0,droppedTicks=0,closed=false;
  function send(c,value){if(c.ws.readyState===1){if(c.ws.bufferedAmount>131072){c.ws.close(1013,'Connection too slow');return}c.ws.send(JSON.stringify(value))}}
  function roster(r){const seats={};for(const c of r.members.values())seats[c.slot]={session:c.id,...c.profile,ready:c.ready};return seats}
- function lobby(r){r.api.seats(roster(r));const seats=roster(r);for(const c of r.members.values())send(c,{type:'lobby',code:r.code,owner:r.owner,seats,quick:r.quick})}
- function leave(c){const r=c.room;if(!r)return;c.room=null;r.members.delete(c.id);if(!r.members.size){rooms.delete(r.code);return}if(r.owner===c.id)r.owner=r.members.keys().next().value;lobby(r)}
+ function lobby(r){r.api.seats(roster(r),{quick:r.quick});const seats=roster(r);for(const c of r.members.values())send(c,{type:'lobby',code:r.code,owner:r.owner,seats,quick:r.quick})}
+ function leave(c){
+  const r=c.room;if(!r)return;c.room=null;r.members.delete(c.id);
+  if(!r.members.size){rooms.delete(r.code);matchQueue();return;}
+  if(r.owner===c.id)r.owner=r.members.keys().next().value;
+  if(r.quick&&r.api.phase()==='WAIT'){
+   // A public reservation cannot start with a loading/disconnected seat, and
+   // no result has been earned yet. Keep parties and sockets available to retry.
+   rooms.delete(r.code);
+   for(const member of r.members.values()){member.room=null;member.ready=false;send(member,{type:'matchCancelled',code:r.code,reason:'A player left before kickoff. Find another match when you are ready.'});}
+   r.members.clear();matchQueue();return;
+  }
+  lobby(r);
+  if(r.quick&&['COUNT','PLAY','GOAL'].includes(r.api.phase())){
+   const teams=[0,0];for(const member of r.members.values())teams[member.slot%2]++;
+   if(!teams[0]||!teams[1])r.api.forfeit(teams[0]?0:1,'MATCH FORFEIT · OPPOSING TEAM LEFT');
+  }
+ }
  function newRoom(settings,quick=false){if(rooms.size>=maxRooms)throw Error('All match servers are busy. Try again shortly.');const code=reserveInviteCode(new Set([...rooms.keys(),...parties.keys()]),options.inviteRandom),api=physics(settings),state=api.inspect();const r={code,api,settings:{mode:state.cfg.mode,size:state.cfg.size,lvl:state.cfg.lvl,len:state.cfg.len,speed:state.cfg.speed,gravity:state.cfg.gravity,unlimited:state.cfg.unlimited,teamColors:state.cfg.teamColors,series:state.cfg.series},members:new Map(),owner:'',quick,created:Date.now(),lastActive:Date.now(),tick:0};rooms.set(code,r);return r}
  function join(c,r,preferred){
   if(r.api.phase()!=='WAIT')throw Error('This match has already started.');
@@ -103,11 +119,16 @@ function createService(options={}){
    if(!c.ready||!Number.isSafeInteger(m.seq)||m.seq<0||m.seq<=c.seq)return;
    if(!Number.isSafeInteger(m.round)||!Number.isSafeInteger(m.jump)||m.jump<0||m.jump<c.jump)throw Error('Invalid input sequence');
    const input={seq:m.seq,round:m.round,jump:m.jump,held:m.held===true,paused:m.paused===true,controls:controls(m.controls)};
-   c.seq=m.seq;c.jump=m.jump;c.input=input;c.lastInput=performance.now();if(input.paused){c.frames=[];c.applied=input}return;
+    const jumpEdge=input.jump>c.jump;
+    c.seq=m.seq;c.jump=m.jump;c.input=input;c.lastInput=performance.now();
+    // Extend a played room only for valid driver intent. Neutral transport
+    // heartbeats, stale rounds and an open pause menu cannot keep AFK rooms alive.
+    if(!input.paused&&['COUNT','PLAY','GOAL'].includes(r.api.phase())&&input.round===r.api.inspect().MP.round&&(jumpEdge||KEYS.some(key=>input.controls[key]!==0)))r.lastActive=Date.now();
+    if(input.paused){c.frames=[];c.applied=input}return;
   }
   throw Error('Unknown message type');
  }
- const server=http.createServer((req,res)=>{res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');if(req.url==='/health'){res.setHeader('Content-Type','application/json');res.end(JSON.stringify({ok:true,service:'nivet-match-server',wire:WIRE,region:'Phoenix',build:'10.1.0',physicsHz:120,snapshotHz:30,rooms:rooms.size,capacity:maxRooms,droppedTicks}));}else{res.writeHead(404);res.end('Not found')}});
+ const server=http.createServer((req,res)=>{res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');if(req.url==='/health'){res.setHeader('Content-Type','application/json');res.end(JSON.stringify({ok:true,service:'nivet-match-server',wire:WIRE,region:'Phoenix',build:'10.1.1',physicsHz:120,snapshotHz:30,rooms:rooms.size,capacity:maxRooms,droppedTicks}));}else{res.writeHead(404);res.end('Not found')}});
  const wss=new WebSocketServer({noServer:true,maxPayload:4096,perMessageDeflate:false});
  server.on('upgrade',(req,socket,head)=>{
   if(req.url!=='/play'||!origins.has(req.headers.origin)||clients.size>=maxClients){socket.end('HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n');return}

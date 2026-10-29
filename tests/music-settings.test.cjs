@@ -1,0 +1,13 @@
+const {test}=require('node:test'),assert=require('node:assert/strict'),load=require('./harness.cjs');
+function parameter(){return {value:0,last:0,setValueAtTime(v){this.last=v},setTargetAtTime(v){this.last=v},cancelScheduledValues(){},linearRampToValueAtTime(v){this.last=v}};}
+function audioNode(){return {gain:parameter(),connect(){},disconnect(){}};}
+async function audioGame(){const g=load({full:true,source:true});g.window.AudioContext=class{state='running';currentTime=20;destination={};createGain(){return audioNode()}createDynamicsCompressor(){return {connect(){},threshold:parameter(),knee:parameter(),ratio:parameter(),attack:parameter(),release:parameter()}}resume(){this.state='running';return Promise.resolve()}async decodeAudioData(){throw Error('no codec in test')}};await g.api.unlockAudio();return g;}
+test('Settings and title share the saved music volume without enabling music',()=>{
+ const g=load({full:true,source:true}),a=g.api;assert.equal(a.INTRO.enabled,false);assert.equal(g.document.getElementById('music-toggle').disabled,true);assert.equal(a.setMusicVolume(37),true);assert.equal(g.document.getElementById('intro-volume').value,'37');assert.equal(g.document.getElementById('music-volume').value,'37');assert.equal(g.document.getElementById('music-volume-value').textContent,'37%');assert.equal(JSON.parse(g.storage.get('tevin-intro-v2')).music,.37);assert.equal(a.INTRO.enabled,false);assert.equal(a.setMusicVolume(NaN),false);
+});
+test('music can resume and pause from Settings after a hidden-tab pause',async()=>{
+ const g=await audioGame(),a=g.api;const media={paused:true,play(){this.paused=false;return Promise.resolve()},pause(){this.paused=true}};Object.assign(a.INTRO,{enabled:true,started:true,manualPause:true,media});a.syncMusicSettings();assert.equal(g.document.getElementById('music-toggle').textContent,'RESUME MUSIC');await a.toggleMenuMusic();assert.equal(media.paused,false);assert.equal(a.INTRO.manualPause,false);assert.equal(g.document.getElementById('music-toggle').textContent,'PAUSE MUSIC');a.toggleMenuMusic();assert.equal(media.paused,true);assert.equal(a.INTRO.manualPause,true);assert.equal(g.document.body.classList.contains('music-playing'),false);
+});
+test('demolished and locally paused drivers do not keep their engine loops running',async()=>{
+ const g=await audioGame(),a=g.api;a.configureCars();a.setState({st:'PLAY'});const gain=parameter();a.AUDIO.loops.idle={gain:{gain},source:{playbackRate:parameter()}};a.cars[0].demoTime=3;a.updateAudio();assert.equal(gain.last,0);a.cars[0].demoTime=0;a.MP.localPaused=true;a.updateAudio();assert.equal(gain.last,0);a.MP.localPaused=false;a.updateAudio();assert.ok(gain.last>0);
+});

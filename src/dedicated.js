@@ -33,6 +33,7 @@ function dedConnect(){
    if(m.request&&DED.requests.has(m.request)){const p=DED.requests.get(m.request);clearTimeout(p.timer);DED.requests.delete(m.request);m.type==='error'?p.reject(Error(m.message)):p.resolve(m);return}
    if(m.type==='error'){SOC.error=m.message;socialUI();mpStatus(m.message,'bad');return}
    if(m.type==='joined'){DED.entering=dedJoined(m).catch(e=>{mpReset();mpFailure(e)});return}
+   if(m.type==='matchCancelled'){dedMatchCancelled(m).catch(mpFailure);return}
    if(m.type==='lobby'){DED.owner=m.owner;MP.seats=m.seats||{};if(st==='END')updateRematchUI();if(MP.loaded)mpApplySeats();mpLobby();return}
    if(m.type==='state'){dedState(m);return}
    if(m.type==='pong'){DED.rtt=Math.round(performance.now()-m.id);return}
@@ -49,6 +50,13 @@ function dedConnect(){
  }).finally(()=>DED.connecting=null);return DED.connecting;
 }
 function dedReset(){if(DED.active)dedSend({type:'leave'});DED.active=false;DED.owner='';DED.history.length=DED.outbox.length=0;DED.offset.set(0,0,0);DED.seq=DED.lastJump=0;DED.ballOffset.set(0,0,0);dedResetClock()}
+async function dedMatchCancelled(message){
+ // A reservation may be cancelled while assets are still loading. Complete that
+ // transition before quitting, so an in-flight start cannot restore a dead room.
+ if(DED.entering)await DED.entering;
+ if(MP.code!==message.code)return;
+ await quit();chooseRoute('quick');showMenuScreen('play');SOC.error=String(message.reason||'Match cancelled. Find another match.');socialUI();
+}
 async function dedJoined(m){
  if(RIVALS.practiceJob)await RIVALS.practiceJob;RIVALS.queuePractice=false;if(previewJob)await previewJob;mpReset(false);sandbox=false;applySettings(m.settings);
  DED.active=true;DED.owner=m.owner;DED.seq=DED.lastJump=0;DED.history.length=DED.outbox.length=0;DED.offset.set(0,0,0);dedResetClock();

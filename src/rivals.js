@@ -6,7 +6,7 @@ const RIVALS={time:0,clock:0,ring:[],replay:null,goal:null,touches:[],recorded:f
 const DRILL={kind:'free',attempts:0,successes:0,active:false,elapsed:0,touched:false,saved:false,setup:null,hitboxes:false,previousBallZ:0};
 const QUICK_CHAT=['I GOT IT!','DEFENDING','NEED BOOST','NICE SHOT!'];
 const DRILLS={free:'FREE PLAY',shoot:'SHOOTING',save:'GOALKEEPER',aerial:'AERIAL TOUCH',dribble:'DRIBBLE',wall:'WALL TOUCH',recover:'RECOVERY'};
-function saveRivals(){try{localStorage.setItem('tevin.rivals.v1',JSON.stringify({options:RIVAL_PREF,career:CAREER}))}catch(_){} }
+function saveRivals(){try{localStorage.setItem('tevin.rivals.v1',JSON.stringify({options:RIVAL_PREF,career:CAREER}));return true}catch(_){return false} }
 function extraCue(key,volume=.28){if(RIVAL_PREF.extraSounds&&!window.__TEVIN_SERVER__)audioSample(key,volume)}
 function driverName(id){return id===localPlayer().id?'YOU':MP.active&&MP.seats[id]?MP.seats[id].name||'PLAYER '+(id+1):'AI '+(id+1)}
 function earnedTitles(){const list=['ROOKIE'];if(CAREER.drills>=5)list.push('TRAINING GROUND');if(CAREER.goals>=10)list.push('FINISHER');if(CAREER.matches>=10)list.push('ARENA REGULAR');if(CAREER.wins>=10)list.push('MATCH WINNER');return list}
@@ -144,6 +144,7 @@ async function queuePractice(){
  RIVALS.practiceJob=startGame();try{const ready=await RIVALS.practiceJob;if(!ready){RIVALS.queuePractice=false;sandbox=false;return}if(!MP.active){trainingSetup('free');}}finally{RIVALS.practiceJob=null;cfg.allies=allies;cfg.enemies=enemies;}
 }
 function setupRivals(){
+ setupProgressImport();
  for(const [id,key] of [['option-replays','replays'],['option-markers','markers'],['option-motion','motion'],['option-flyby-shake','flybyShake'],['option-cues','extraSounds']]){const el=$(id);el.checked=RIVAL_PREF[key];el.onchange=()=>{RIVAL_PREF[key]=el.checked;saveRivals()};}
  $('goal-style').value=RIVAL_PREF.celebration;$('goal-style').onchange=()=>{RIVAL_PREF.celebration=$('goal-style').value;saveRivals()};$('driver-title').onchange=()=>{RIVAL_PREF.title=$('driver-title').value;saveRivals()};
  for(let i=0;i<3;i++){$('preset-save-'+i).onclick=()=>garagePreset(i,true);$('preset-load-'+i).onclick=()=>garagePreset(i,false)}

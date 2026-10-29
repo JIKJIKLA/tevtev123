@@ -4,6 +4,7 @@
 #touch-controls button{position:absolute;border:1px solid #b5e3ff91;background:linear-gradient(145deg,#174969b8,#071829c9);color:#edfaff;font:800 11px Arial,sans-serif;text-shadow:0 1px 2px #0009;box-shadow:0 3px 12px #0005,inset 0 0 0 3px #a1d9ff12;cursor:pointer}
 #touch-controls button.pressed,#touch-controls button:active{background:#52b9e9dc;border-color:#e8faff;box-shadow:0 0 18px #55bbff66,inset 0 0 0 3px #dff5ff55;color:#032238}
 #touch-controls button:focus-visible{outline:3px solid #e7f6ff;outline-offset:3px}
+#touch-controls button:disabled,#touch-controls.disabled-driving #touch-stick{opacity:.25;pointer-events:none}
 #touch-stick{position:absolute;left:max(20px,env(safe-area-inset-left));bottom:max(22px,env(safe-area-inset-bottom));width:150px;height:150px;border-radius:50%;border:1px solid #a4d5ee60;background:radial-gradient(circle,#16486835 0 37%,#081c3280 38% 68%,#99d8ff15 69% 70%,transparent 71%);box-shadow:inset 0 0 35px #00102533}
 #touch-stick i{position:absolute;inset:35%;border:1px dashed #d0edff6b;border-radius:50%}
 #touch-stick-label{position:absolute;left:0;right:0;bottom:17px;text-align:center;color:#bfdff2c9;font-size:9px;font-weight:bold;letter-spacing:1.2px}

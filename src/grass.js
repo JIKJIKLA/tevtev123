@@ -1,4 +1,13 @@
 let PITCH_TEXTURE=null;
+const TURF_TILE_SIZE=20;
+function turfRootOffsets(count){
+ const off=new Float32Array(count*3),columns=Math.ceil(Math.sqrt(count)),rows=Math.ceil(count/columns);
+ let seed=2031;const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
+ // Both shader paths wrap a square tile. A taller source grid wraps its last
+ // rows onto the first rows and produces a conspicuous strip of denser grass.
+ for(let i=0;i<count;i++){off[i*3]=((i%columns+random())/columns)*TURF_TILE_SIZE;off[i*3+1]=((Math.floor(i/columns)+random())/rows)*TURF_TILE_SIZE;off[i*3+2]=random();}
+ return off;
+}
 function turfGeometry(){
  const positions=[],indices=[];
  for(let blade=0;blade<3;blade++){
@@ -10,9 +19,7 @@ function turfGeometry(){
  const normals=new Float32Array(positions.length);for(let i=1;i<normals.length;i+=3)normals[i]=1;g.setAttribute('normal',new THREE.BufferAttribute(normals,3));return g;
 }
 function makeGrass(){
- const count=cfg.hi?28000:16000,g=turfGeometry(),off=new Float32Array(count*3),columns=Math.ceil(Math.sqrt(count)),rows=Math.ceil(count/columns);
- let seed=2031;const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
- for(let i=0;i<count;i++){off[i*3]=((i%columns+random())/columns)*20;off[i*3+1]=((Math.floor(i/columns)+random())/rows)*22;off[i*3+2]=random();}
+ const count=cfg.hi?28000:16000,g=turfGeometry(),off=turfRootOffsets(count);
  g.setAttribute('off',new THREE.InstancedBufferAttribute(off,3));g.instanceCount=count;
  GU={t:{value:0},wind:{value:1},paint:{value:PITCH_TEXTURE},fieldSize:{value:new THREE.Vector2(2*HX,2*HZ)}};
  for(let k=0;k<7;k++){GU['c'+k]={value:new V3(1000,1000,1000)};GU['v'+k]={value:new V3()};}
@@ -20,7 +27,7 @@ function makeGrass(){
  if(!ren.isWebGPURenderer){material.name='Painted wind turf / WebGL';material.onBeforeCompile=shader=>{
   Object.assign(shader.uniforms,GU);
   shader.vertexShader='attribute vec3 off;uniform float t,wind;uniform sampler2D paint;uniform vec2 fieldSize;uniform vec3 c0,c1,c2,c3,c4,c5,c6,v0,v1,v2,v3,v4,v5,v6;varying vec3 turfPigment;\n'+shader.vertexShader;
-  shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`float r=off.z,h=position.y;vec2 w=mod(off.xy-cameraPosition.xz+10.,20.)+cameraPosition.xz-10.;float fade=(1.-smoothstep(6.,9.7,length(cameraPosition.xz-w)))*step(abs(w.x),36.8)*step(abs(w.y),46.8);float ht=(.052+.052*r)*fade;
+  shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`float r=off.z,h=position.y;float tileSize=${TURF_TILE_SIZE.toFixed(1)};vec2 w=mod(off.xy-cameraPosition.xz+tileSize*.5,tileSize)+cameraPosition.xz-tileSize*.5;float fade=(1.-smoothstep(6.,9.7,length(cameraPosition.xz-w)))*step(abs(w.x),36.8)*step(abs(w.y),46.8);float ht=(.052+.052*r)*fade;
    float a=r*6.2831;vec3 transformed=vec3(w.x+(position.x*cos(a)-position.z*sin(a))*fade,.008+h*ht,w.y+(position.x*sin(a)+position.z*cos(a))*fade);
    float wave=(sin(t*1.25+w.x*.42+w.y*.24)*.35+sin(t*2.1+w.y*.71+r*9.)*.09)*h*h*ht*2.4*wind;transformed.xz+=vec2(wave,wave*.55);
    vec3 ob[7];ob[0]=c0;ob[1]=c1;ob[2]=c2;ob[3]=c3;ob[4]=c4;ob[5]=c5;ob[6]=c6;vec3 vel[7];vel[0]=v0;vel[1]=v1;vel[2]=v2;vel[3]=v3;vel[4]=v4;vel[5]=v5;vel[6]=v6;float contactShade=1.;

@@ -8,10 +8,11 @@ if(window.__TEVIN_SERVER__){
    rivalsStart();seriesStart(true);score=[0,0];tl=cfg.len;ot=0;kickoff(false);st='WAIT';
    return matchSettings();
   },
-  seats(seats){MP.seats=seats;const sessions=new Set(Object.values(seats).map(s=>s.session));for(const id of Object.keys(MP.inputs))if(!sessions.has(id)){delete MP.inputs[id];delete MP.seenJumps[id]}mpApplySeats()},
+  seats(seats,options={}){MP.seats=seats;MP.quick=options.quick?'phoenix':'';const sessions=new Set(Object.values(seats).map(s=>s.session));for(const id of Object.keys(MP.inputs))if(!sessions.has(id)){delete MP.inputs[id];delete MP.seenJumps[id]}mpApplySeats()},
   input(session,packet){MP.inputs[session]=packet},
   teamIntent(slot,phrase){if(phrase===0)RIVALS.claim={slot,team:cars[slot]?.team,until:simTime+2}},
-  start(){if(st!=='WAIT'&&st!=='END')return false;seriesStart(st==='WAIT');rivalsStart();for(const c of cars)c.goals=c.touches=c.topSpeed=c.boostUsed=0;score=[0,0];tl=cfg.len;ot=0;MP.matchBegun=true;kickoff();return true},
+  start(){if(st!=='WAIT'&&st!=='END')return false;seriesStart(st==='WAIT');rivalsStart();for(const c of cars)c.goals=c.touches=c.topSpeed=c.boostUsed=0;score=[0,0];tl=cfg.len;ot=0;MP.endReason='';MP.matchBegun=true;kickoff();return true},
+  forfeit(winner,reason){if(![0,1].includes(winner)||!['COUNT','PLAY','GOAL'].includes(st))return false;MP.endReason=String(reason||'MATCH FORFEIT');score[winner]=Math.max(...score)+1;endMatch(false);return true},
   step(){
    const dt=DT;
    if(st==='COUNT'){cnt-=dt;if(cnt<=0)st='PLAY'}

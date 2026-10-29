@@ -2,9 +2,8 @@
 const DEVICE={form:'desktop',input:'keyboard',lastInput:'keyboard',preference:'auto',touchCapable:false,portrait:false,compact:false,stickId:null,pointers:new Map(),shown:false,ready:false,wordmarkHold:null};
 const touchInput={active:false,thr:0,steer:0,pitch:0,yaw:0,roll:0,boost:0,ps:0,jump:false};
 try{const value=JSON.parse(localStorage.getItem('tevin.device.v1')||'null');if(['auto','touch','keyboard'].includes(value?.input))DEVICE.preference=value.input;}catch(_){}
-function deviceCanPlay(count=false){
- return !window.__TEVIN_SERVER__&&inputFocused&&!document.hidden&&!LOADING.active&&!INTRO.active&&!MP.localPaused&&!carDemolished(localPlayer())&&!(SECRET.open&&!SECRET.minimized)&&(st==='PLAY'||count&&st==='COUNT');
-}
+function deviceMatchOpen(count=false){return !window.__TEVIN_SERVER__&&inputFocused&&!document.hidden&&!LOADING.active&&!INTRO.active&&!MP.localPaused&&!(SECRET.open&&!SECRET.minimized)&&(st==='PLAY'||count&&st==='COUNT');}
+function deviceCanPlay(count=false){return deviceMatchOpen(count)&&!carDemolished(localPlayer());}
 function setDeviceInput(kind){
  if(!['keyboard','touch','controller'].includes(kind))return;
  const newTouch=kind==='touch'&&!DEVICE.touchCapable;DEVICE.lastInput=kind;if(kind==='touch')DEVICE.touchCapable=true;
@@ -93,10 +92,11 @@ function updateDeviceUI(){
  if(!DEVICE.ready)return;
  updateMobilePlaybar();
  if(DEVICE.preference==='auto'&&padInput.connected&&(Math.abs(padInput.thr)+Math.abs(padInput.steer)+Math.abs(padInput.pitch)+Math.abs(padInput.roll)+padInput.boost+padInput.ps+(padInput.jump?1:0)>.15))setDeviceInput('controller');
- const show=DEVICE.input==='touch'&&deviceCanPlay(true);
- if(!show&&(touchInput.active||DEVICE.pointers.size))clearTouchInput();
+ const show=DEVICE.input==='touch'&&deviceMatchOpen(true),drive=show&&deviceCanPlay(true);
+ if(!drive&&(touchInput.active||DEVICE.pointers.size))clearTouchInput();
  const panel=$('touch-controls');if(panel.hidden===show)panel.hidden=!show;DEVICE.shown=show;
- const airborne=show&&!localPlayer().ground;panel.classList.toggle('airborne',airborne);
+ panel.classList.toggle('disabled-driving',show&&!drive);const stick=$('touch-stick');if(stick.getAttribute('aria-disabled')!==String(!drive))stick.setAttribute('aria-disabled',String(!drive));for(const kind of ['boost','jump','slide','roll-left','roll-right','camera']){const button=$('touch-'+kind);if(button.disabled!==!drive)button.disabled=!drive;}
+ const airborne=drive&&!localPlayer().ground;panel.classList.toggle('airborne',airborne);
  const hint=$('touch-landscape-hint');hint.hidden=!show||!DEVICE.portrait;
 }
 function setupDevice(){

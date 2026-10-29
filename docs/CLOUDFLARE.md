@@ -4,13 +4,13 @@ The game already runs as JavaScript in the player's browser. Its HTML contains t
 
 There are two ready options. Neither provisions a paid database, object bucket or multiplayer service.
 
-## Live deployment — 10.1.0
+## Live deployment — 10.1.1
 
-[Play Nivet League on Cloudflare](https://nivet-league.jikdifn.workers.dev/). The new `nivet-league` Worker serves the exact 10.1.0 browser build as static assets. Existing Workers were not overwritten. Its only bindings are `ASSETS` and the public `GAME_BUILD` version; Workers Caching is disabled, and no paid plan or additional resource was enabled.
+[Play Nivet League on Cloudflare](https://nivet-league.jikdifn.workers.dev/). The existing `nivet-league` Worker serves the exact 10.1.1 Refined browser build as static assets. Other Workers were not changed. Its only bindings are `ASSETS` and the public `GAME_BUILD` version; Workers Caching is disabled, and no paid plan or additional resource was enabled.
 
-Root GET and HEAD return 200, `/health` reports 10.1.0, and an unknown route returns 404. The deployed HTML is 16,783,916 bytes with SHA-256 `5d4f3c8e58caa19901c8e5fcb72971920721c51583ed0fbddc1930dba4029bb5`. Deployment identifier: `6ffb7d7a64e345cba35df9f0368f5ed7`.
+Root GET and HEAD return 200, `/health` reports 10.1.1, `/release.json` reports the same build and hash, and an unknown route returns 404. The deployed HTML is 16,798,830 bytes with SHA-256 `d6555ef382f4af61265d4212c07cf8ff547fd6dc6887336a64c5999146a21c4f`. Deployment identifier: `73e2fb071da24a79b7a5a74ef081aad4`.
 
-The connector-assisted upload used scoped, short-lived asset tokens; temporary token files were removed after activation. `scripts/cloudflare-assets.cjs` prepares bounded manifests, verifies package hashes and uploads only to Cloudflare's fixed asset API. The package retains the usual Wrangler route below for future manual deployments.
+The connector-assisted update kept scoped, short-lived asset tokens in memory; this update created no token files. `scripts/cloudflare-assets.cjs` prepares bounded manifests, verifies package hashes and uploads only to Cloudflare's fixed asset API. The package retains the usual Wrangler route below for future manual deployments.
 
 ## Recommended: tiny Worker plus static assets
 

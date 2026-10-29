@@ -2,7 +2,7 @@
 try {
 
 
-/* Nivet League 10.1.0 — Matchday. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
+/* Nivet League 10.1.1 — Refined. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
 window.tevinBoot.stage='game script';
 
 const ENGINE=TevinEngine;
@@ -1225,8 +1225,12 @@ addEventListener('keydown',e=>{if(st==='PRANK'||SECRET.open&&!SECRET.minimized)r
 
  }
 
+ // Native controls own their arrows and activation keys, including descendants
+ // inside summaries/links. Binding capture above still takes priority.
+ if(e.target?.closest?.('select,summary,a[href]'))return;
+
  if(navigateMenuKey(e))return;
- const k=mappedKey(e);heldCodes.set(e.code,k);const menuState=['MENU','PAUSE','END'].includes(st),btn=e.target instanceof HTMLButtonElement;
+ const k=mappedKey(e);heldCodes.set(e.code,k);const menuState=['MENU','PAUSE','END'].includes(st),btn=!!e.target?.closest?.('button');
 
  if(k==='tab')return;
 
@@ -1246,7 +1250,7 @@ addEventListener('keydown',e=>{if(st==='PRANK'||SECRET.open&&!SECRET.minimized)r
 
   if(k==='escape'){if(st==='MENU')menuBack();else pause()}
 
- if(k==='enter'&&menuState&&!btn){if(st==='MENU')startOfflineGame();else if(st==='END')$('rm').onclick();else if(st==='PAUSE'&&(!MP.active||MP.localPaused))pause()}
+ if(k==='enter'&&menuState&&!btn){if(st==='MENU')startOfflineGame();else if(st==='END'&&!$('rm').disabled)$('rm').click();else if(st==='PAUSE'&&(!MP.active||MP.localPaused))pause()}
 
   if(k===' '&&st==='PLAY'){localPlayer().jp=1;if(MP.active&&MP.role==='guest')MP.jump++}}
 
@@ -1281,7 +1285,7 @@ function unlockAudio(){
    AC=new Context({latencyHint:'interactive'});AUDIO.master=AC.createGain();AUDIO.effects=AC.createGain();AUDIO.engines=AC.createGain();
    AUDIO.limiter=AC.createDynamicsCompressor();AUDIO.limiter.threshold.value=-12;AUDIO.limiter.knee.value=16;AUDIO.limiter.ratio.value=5;AUDIO.limiter.attack.value=.004;AUDIO.limiter.release.value=.18;
    AUDIO.effects.connect(AUDIO.master);AUDIO.engines.connect(AUDIO.master);AUDIO.master.connect(AUDIO.limiter);AUDIO.limiter.connect(AC.destination);audioMixSettings();
-   AC.onstatechange=audioStatus;
+   AC.onstatechange=()=>{audioStatus();syncMusicSettings()};
    // Decode failures are isolated: a missing clip never prevents kickoff.
    AUDIO.loading=(async()=>{for(const [key,base64] of Object.entries({...ENGINE.AUDIO_DATA,...window.TEVIN_MENU_AUDIO?.effects,...RIVAL_AUDIO})){
     try{const raw=atob(base64),bytes=new Uint8Array(raw.length);for(let i=0;i<raw.length;i++)bytes[i]=raw.charCodeAt(i);AUDIO.buffers[key]=await AC.decodeAudioData(bytes.buffer);AUDIO.ready++;if(['idle','drive','muscle','octane','boost'].includes(key))audioCreateLoop(key)}catch(_){AUDIO.failed++}
@@ -1333,7 +1337,7 @@ function updateAudio(){
  if(st==='COUNT'){const key=MP.round+':'+Math.ceil(cnt);if(key!==AUDIO.countKey){AUDIO.countKey=key;if(cnt<=3&&!audioSample('tick',.48))snd(440,'sine',.12,.06)}}
  if(st==='PLAY'&&previous==='COUNT'){if(!audioSample('go',.55))snd(880,'sine',.25,.08)}
  if(st==='GOAL'){const key=score[0]+':'+score[1];if(key!==AUDIO.goalKey){AUDIO.goalKey=key;if(!audioSample('goal',.72))snd(140,'triangle',.8,.15,35)}}
- if(!AC||AC.state!=='running')return;const c=localPlayer(),live=st==='PLAY'&&!document.hidden,speed=cl(c.v.length()/23,0,1),throttle=Math.abs(c.inp.thr),boost=live&&!!c.bst;
+ if(!AC||AC.state!=='running')return;const c=localPlayer(),live=st==='PLAY'&&!document.hidden&&!MP.localPaused&&!carDemolished(c),speed=cl(c.v.length()/23,0,1),throttle=Math.abs(c.inp.thr),boost=live&&!!c.bst;
  if(boost!==AUDIO.boosting&&live)audioSample(boost?'boostStart':'boostEnd',boost?.22:.26);AUDIO.boosting=boost;
  const body=c.body??cfg.body,load=body===2?'muscle':body===0?'octane':'drive',t=AC.currentTime;
  for(const key in AUDIO.loops){const loop=AUDIO.loops[key];let volume=0,rate=1;
@@ -1344,7 +1348,7 @@ function updateAudio(){
 function setupAudioUI(){for(const key of ['master','effects','engines']){const input=$('audio-'+key);input.value=Math.round(AUDIO.settings[key]*100);const output=$('audio-'+key+'-value');output.textContent=input.value+'%';input.addEventListener('input',()=>{AUDIO.settings[key]=cl(Number(input.value)/100,0,1);output.textContent=input.value+'%';saveAudioSettings()})}
  const mute=$('audio-muted');mute.checked=AUDIO.settings.muted;mute.addEventListener('change',()=>{AUDIO.settings.muted=mute.checked;saveAudioSettings()});$('audio-test').onclick=async()=>{await unlockAudio();if(!AUDIO.settings.muted)audioSample('go',.5);audioStatus()};audioStatus();
 }
-function saveAudioSettings(){audioMixSettings();try{localStorage.setItem('tevin-audio-v1',JSON.stringify(AUDIO.settings))}catch(_){}}
+function saveAudioSettings(){audioMixSettings();syncMusicSettings();try{localStorage.setItem('tevin-audio-v1',JSON.stringify(AUDIO.settings))}catch(_){}}
 addEventListener('pointerdown',()=>{unlockAudio()},{passive:true});
 addEventListener('click',e=>{const b=e.target?.closest?.('button');if(!b||b.disabled||st!=='MENU'||performance.now()-(AUDIO.gate.menu??-1000)<70)return;AUDIO.gate.menu=performance.now();const key=b.closest?.('#swatches')?'uiPaint':['menu-back','quick-cancel','party-leave'].includes(b.id)?'uiBack':'uiClick';if(!['party-ready','quick-find','menu-back'].includes(b.id))audioSample(key,key==='uiPaint'?.25:.38)});
 addEventListener('pagehide',audioSilence);
@@ -1359,6 +1363,7 @@ try{INTRO.enabled=localStorage.getItem('tevin-music-enabled-v1')==='true'}catch(
 // FLOW 8.2: audio-clock automation makes the six-second fade independent of FPS.
 function introMix(){if(!INTRO.gain||!AC)return;const now=AC.currentTime,g=INTRO.gain.gain,remaining=Math.max(0,INTRO.fadeEnd-now),fraction=remaining?cl((now-INTRO.fadeStart)/6,0,1):1;g.cancelScheduledValues(now);g.setValueAtTime(INTRO.music*fraction,now);if(remaining)g.linearRampToValueAtTime(INTRO.music,INTRO.fadeEnd);else g.setTargetAtTime(INTRO.music,now,.08)}
 function introPreferences(){try{localStorage.setItem('tevin-intro-v2',JSON.stringify({music:INTRO.music,motion:INTRO.motion}))}catch(_){}introMix()}
+// INLINE:music-settings.js
 function introMessage(text){$('intro-status').textContent=text}
 async function introStart(automatic=false){
  if(!INTRO.enabled||st!=='MENU'||INTRO.stopped)return;unlockAudio();if(!AC){introMessage('Audio unavailable. You can still choose Play.');return}
@@ -1368,7 +1373,8 @@ async function introStart(automatic=false){
    INTRO.node=AC.createMediaElementSource(m);INTRO.gain=AC.createGain();INTRO.gain.gain.setValueAtTime(0,AC.currentTime);INTRO.analyser=AC.createAnalyser();INTRO.analyser.fftSize=2048;INTRO.analyser.smoothingTimeConstant=.55;
    INTRO.node.connect(INTRO.analyser);INTRO.analyser.connect(INTRO.gain);INTRO.gain.connect(AUDIO.master);
    m.addEventListener('waiting',()=>{if(INTRO.active)introMessage('Loading your soundtrack… Play is available now.')});
-   m.addEventListener('error',()=>{if(INTRO.active)introMessage('Soundtrack could not load. Play is still available.')});
+   m.addEventListener('error',()=>{if(INTRO.active)introMessage('Soundtrack could not load. Play is still available.');syncMusicSettings()});
+   m.addEventListener('play',syncMusicSettings);m.addEventListener('pause',syncMusicSettings);
   }
   const wasPlaying=INTRO.started&&!INTRO.media.paused&&AC.state==='running';
   // An autoplay-blocked resume promise can remain pending. Each user gesture can
@@ -1378,10 +1384,10 @@ async function introStart(automatic=false){
   await Promise.all([resume,play]);
   if(!INTRO.enabled||st!=='MENU'||INTRO.stopped){INTRO.media.pause();return}if(attempt!==INTRO.attempt){if(INTRO.manualPause)INTRO.media.pause();return;}
   if(!wasPlaying){INTRO.fadeStart=AC.currentTime;INTRO.fadeEnd=INTRO.fadeStart+6;introMix()}
-  INTRO.started=true;INTRO.manualPause=false;document.body.classList.add('music-playing');$('intro-start').hidden=true;$('intro-sound').hidden=false;$('intro-sound').textContent='PAUSE MUSIC';introMessage('MUSIC ON · FADING IN · CHOOSE PLAY WHEN READY');
+  INTRO.started=true;INTRO.manualPause=false;document.body.classList.add('music-playing');$('intro-start').hidden=true;$('intro-sound').hidden=false;$('intro-sound').textContent='PAUSE MUSIC';introMessage('MUSIC ON · FADING IN · CHOOSE PLAY WHEN READY');syncMusicSettings();
  }catch(_){if(attempt!==INTRO.attempt||!INTRO.active)return;introMessage('CLICK OR PRESS A KEY TO START MUSIC · PLAY IS READY');$('intro-start').hidden=false}
 }
-function introStop(){INTRO.stopped=true;INTRO.active=false;INTRO.media?.pause();INTRO.pulse=0;$('intro').hidden=true;for(const e of $('menu').children)if(e.id!=='intro')e.inert=false;$('intro-stage').style.transform='none';}
+function introStop(){INTRO.stopped=true;INTRO.active=false;INTRO.media?.pause();INTRO.pulse=0;$('intro').hidden=true;for(const e of $('menu').children)if(e.id!=='intro')e.inert=false;$('intro-stage').style.transform='none';syncMusicSettings();}
 async function openPlaySelection(){
  if(starting||LOADING.active)return;starting=true;let transition;
  try{transition=await loadingBegin('CHOOSE YOUR MATCH','1v1, 2v2 or 3v3. Your arena. Your rules.',true);
@@ -1393,13 +1399,15 @@ async function openPlaySelection(){
 function introPlay(){if(starting||LOADING.active)return;if(!INTRO.manualPause)introStart();return INTRO.active?enterArenaHome():openPlaySelection();}
 // INLINE:visualizer.js
 function setupIntro(){
+ setupMusicSettings();
  const preference=window.matchMedia?.('(prefers-reduced-motion: reduce)');INTRO.reduced=!!preference?.matches;preference?.addEventListener?.('change',e=>INTRO.reduced=e.matches);
  const openMusicSettings=()=>{INTRO.active=false;$('intro').hidden=true;for(const e of $('menu').children)e.inert=false;showMenuScreen('settings');};
  $('menu-music').onclick=openMusicSettings;$('menu-music').textContent='MUSIC SETTINGS';
- $('music-enabled').checked=INTRO.enabled;$('music-enabled').onchange=()=>{INTRO.enabled=$('music-enabled').checked;try{localStorage.setItem('tevin-music-enabled-v1',String(INTRO.enabled))}catch(_){}if(INTRO.enabled){INTRO.manualPause=false;introStart()}else{INTRO.attempt++;INTRO.media?.pause();document.body.classList.remove('music-playing');introMessage('MUSIC OFF · ENABLE IN SETTINGS')}};
+ $('music-enabled').checked=INTRO.enabled;$('music-enabled').onchange=()=>{INTRO.enabled=$('music-enabled').checked;try{localStorage.setItem('tevin-music-enabled-v1',String(INTRO.enabled))}catch(_){}if(INTRO.enabled){INTRO.manualPause=false;introStart()}else{INTRO.attempt++;INTRO.media?.pause();document.body.classList.remove('music-playing');introMessage('MUSIC OFF · ENABLE IN SETTINGS')}syncMusicSettings()};
  $('intro-start').onclick=()=>introStart();$('intro-play').onclick=introPlay;$('intro-skip').onclick=openMusicSettings;
- $('intro-sound').onclick=()=>{if(!INTRO.media)return;if(INTRO.media.paused){introStart();$('intro-sound').textContent='PAUSE MUSIC'}else{INTRO.manualPause=true;INTRO.media.pause();$('intro-sound').textContent='RESUME MUSIC';introMessage('MUSIC PAUSED · CHOOSE PLAY WHEN YOU’RE READY')}};
- $('intro-volume').value=Math.round(INTRO.music*100);$('intro-volume').oninput=()=>{INTRO.music=Number($('intro-volume').value)/100;introPreferences()};
+ $('intro-sound').onclick=toggleMenuMusic;
+ $('intro-volume').value=Math.round(INTRO.music*100);$('intro-volume').oninput=()=>setMusicVolume($('intro-volume').value);
+ $('music-volume').oninput=()=>setMusicVolume($('music-volume').value);$('music-toggle').onclick=toggleMenuMusic;syncMusicSettings();
  $('intro-motion').checked=INTRO.motion;$('intro-motion').onchange=()=>{INTRO.motion=$('intro-motion').checked;introPreferences()};
  for(let i=0;i<32;i++)$('intro-spectrum').appendChild(document.createElement('i'));
  for(const e of $('menu').children)if(e.id!=='intro')e.inert=true;
@@ -1407,7 +1415,7 @@ function setupIntro(){
  const firstGesture=e=>{if(INTRO.active&&!INTRO.leaving&&!INTRO.manualPause&&(!INTRO.started||INTRO.media?.paused)&&!['intro-play','intro-skip','intro-start','intro-sound'].includes(e.target?.id))introStart()};
  addEventListener('pointerdown',firstGesture);
  if(document.readyState==='complete')introStart(true);else addEventListener('load',()=>introStart(true),{once:true});
- addEventListener('visibilitychange',()=>{if(document.hidden){INTRO.manualPause=true;INTRO.media?.pause();if(INTRO.started){$('intro-sound').textContent='RESUME MUSIC';introMessage('MUSIC PAUSED · PRESS RESUME MUSIC')}}});
+ addEventListener('visibilitychange',()=>{if(document.hidden){INTRO.manualPause=true;INTRO.media?.pause();if(INTRO.started){$('intro-sound').textContent='RESUME MUSIC';introMessage('MUSIC PAUSED · PRESS RESUME MUSIC')}syncMusicSettings()}});
  addEventListener('pagehide',()=>INTRO.media?.pause());
 }
 // Project the incoming shot only for audio feedback; it never changes physics.
@@ -1437,7 +1445,7 @@ function loadingAbort(id){if(id!==LOADING.serial)return;LOADING.serial++;LOADING
 // Twelve pooled impact/goal sprites and one exhaust flare per car. No geometry,
 // materials, textures or vectors are allocated by the steady-state update loop.
 let FX=null;
-const fxOffset=new V3(),fxReduced=!!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+const fxOffset=new V3();
 function setupGraphicsUI(){for(const [key,url] of Object.entries(ENGINE.GRAPHICS_DATA||{}))$('menu').parentElement?.style.setProperty('--gfx-'+key,'url("'+url+'")')}
 async function createGraphicsEffects(){
  const maps=await ENGINE.loadEffectTextures(),group=new THREE.Group(),pool=[],boost=[];
@@ -1451,12 +1459,12 @@ function graphicsBurst(p,strength=10,color=0xffffff,goal=false){if(!FX||!p)retur
  const count=goal?4:2;for(let i=0;i<count;i++){const e=FX.pool[FX.next++%FX.pool.length];e.sprite.position.set(p.x,p.y,p.z);e.total=e.life=goal?.85:.24;e.size=goal?8:cl(strength*.09,.5,2);e.sprite.material.color.setHex(color);e.sprite.material.rotation=e.wide?0:Math.random()*6.28;e.sprite.visible=true}
 }
 function graphicsRemoteCue(kind,strength,position,color,cid=-1){if(kind==='hit'&&position&&FX)graphicsBurst(fxOffset.fromArray(position),strength,color||ball.color||0xffffff);matchContactCue(kind,strength,position,cid,color);}
-function updateGraphicsEffects(dt){if(!FX)return;const playing=st==='PLAY'||st==='GOAL';FX.group.visible=playing;
+function updateGraphicsEffects(dt){if(!FX)return;const playing=st==='PLAY'||st==='GOAL',motion=celebrationMotion();FX.group.visible=playing;
  $('bo').classList.toggle('boosting',playing&&!!localPlayer().bst);
  const key=score.join(':');if(st==='GOAL'&&FX.goalKey!==key){FX.goalKey=key;graphicsBurst(ball.p,35,ball.color||0xffffff,true);$('msg').classList.add('goal-burst')}else if(st!=='GOAL')$('msg').classList.remove('goal-burst');
- if(st==='COUNT')FX.goalKey='';if(!playing){for(const e of FX.pool)e.life=0;return}FX.time+=dt;
- for(const e of FX.pool){e.life=Math.max(0,e.life-dt);e.sprite.visible=e.life>0;if(!e.life)continue;const t=1-e.life/e.total,s=e.size*(.45+t*1.4);e.sprite.scale.set(s*(e.wide?2.8:1),s*(e.wide?.45:1),1);e.sprite.material.opacity=Math.pow(1-t,2)*(fxReduced?.2:.65)}
- for(let i=0;i<FX.boost.length;i++){const c=cars[i],s=FX.boost[i];s.visible=!!c.enabled&&!!c.bst;if(!s.visible)continue;fxOffset.set(-1.1,.02,0).applyQuaternion(cm[i].quaternion);s.position.copy(cm[i].position).add(fxOffset);s.material.color.setHex(c.color);s.material.opacity=fxReduced?.12:.26;s.scale.set(.8+Math.sin(FX.time*19+i)*.07,.25,1)}
+ if(st==='COUNT')FX.goalKey='';if(!playing){for(const e of FX.pool)e.life=0;return}if(motion)FX.time+=dt;
+ for(const e of FX.pool){e.life=Math.max(0,e.life-dt);e.sprite.visible=e.life>0;if(!e.life)continue;const t=1-e.life/e.total,s=e.size*(motion?.45+t*1.4:.6);e.sprite.scale.set(s*(e.wide?2.8:1),s*(e.wide?.45:1),1);e.sprite.material.opacity=Math.pow(1-t,2)*(motion?.65:.2)}
+ for(let i=0;i<FX.boost.length;i++){const c=cars[i],s=FX.boost[i];s.visible=!!c.enabled&&!!c.bst;if(!s.visible)continue;fxOffset.set(-1.1,.02,0).applyQuaternion(cm[i].quaternion);s.position.copy(cm[i].position).add(fxOffset);s.material.color.setHex(c.color);s.material.opacity=motion?.26:.12;s.scale.set(motion?.8+Math.sin(FX.time*19+i)*.07:.8,.25,1)}
 }
 
 
@@ -1501,7 +1509,7 @@ function mpSetPause(value){if(DED.active)return dedPause(value);if(!MP.active||!
 function mpPlayersReady(){for(const k in MP.seats){const seat=MP.seats[k],p=MP.presence[seat.session];if(!p?.ready||!p.connected||p.paused)return false;if(+k!==0&&!MP.inputs[seat.session])return false}return !!MP.presence[MP.session]?.ready}
 async function mpStartMatch(){if(DED.active)return dedStart();if(!MP.active||MP.role!=='host'||MP.startRequested||MP.matchBegun)return;if(!mpPlayersReady()){mpStatus('Waiting for every player to load and resume.');return}MP.startRequested=true;mpLobby();try{const result=await MP.room.child('meta').transaction(m=>{if(m===null)return null;if(m.host!==MP.session)return;if(Object.values(m.seats||{}).some(seat=>!MP.presence[seat.session]?.ready||!MP.presence[seat.session]?.connected||MP.presence[seat.session]?.paused))return;m.locked=true;return m},undefined,false);if(!result.committed||!result.snapshot.val()?.locked)throw Error('A player is still loading. Try Start again.');MP.matchBegun=true;kickoff();mpStatus('LIVE · PLAYER 1','good');MP.force=true}catch(e){mpStatus(e.message,'bad')}finally{MP.startRequested=false;mpLobby()}}
 function mpPauseGate(){if(!MP.active||!MP.loaded)return;if(MP.role==='guest'){if(MP.closed||!MP.transport||MP.lastSnapshot&&performance.now()-MP.lastSnapshot>2200)mpFreeze('CONNECTION INTERRUPTED');return}if(!MP.matchBegun){if(MP.localPaused)mpFreeze('LOBBY PAUSED');else{st='WAIT';$('pause').classList.remove('on')}$('msg').style.opacity=0;mpLobby();if(Object.keys(MP.seats).length===cfg.size*2&&mpPlayersReady())mpStartMatch();return}let blocked=MP.closed||!MP.transport,stale=blocked;for(const k in MP.seats){const s=MP.seats[k].session,p=MP.presence[s];if(!p?.ready||!p.connected)blocked=stale=true;if(p?.paused)blocked=true;if(+k!==0&&performance.now()-(MP.lastInputs[s]||0)>2200)blocked=stale=true}if(blocked)mpFreeze(stale?'CONNECTION INTERRUPTED':'MATCH PAUSED');else if(st==='PAUSE'){st=ps_||'COUNT';mpClearInput();$('pause').classList.remove('on');MP.force=true}mpLobby()}
-function mpApplySeats(){for(let k=0;k<cars.length;k++){cars[k].color=driverPaint(MP.seats[k],k%2);cars[k].body=cl(Math.round(Number(MP.seats[k]?.body??k%3)),0,2);cars[k].enabled=true}applyTeamColors();refreshCarModels()}
+function mpApplySeats(){for(let k=0;k<cars.length;k++){cars[k].color=driverPaint(MP.seats[k],k%2);cars[k].body=cl(Math.round(Number(MP.seats[k]?.body??k%3)),0,2);cars[k].enabled=!MP.quick||!!MP.seats[k]}applyTeamColors();refreshCarModels()}
 function attachRoomListeners(){const room=MP.room;mpListen(room.child('presence'),'value',s=>{MP.presence=s.val()||{};if(MP.loaded&&MP.matchBegun&&Object.values(MP.seats).some(x=>MP.presence[x.session]?.paused))mpFreeze('MATCH PAUSED');MP.force=true});
  mpListen(room.child('meta'),'value',s=>{const m=s.val();if(!m?.host){if(MP.quick&&MP.loaded){MP.closed=true;quit();chooseRoute('quick');showMenuScreen('play');SOC.error='The host left. Your party is still together; find another match.';socialUI();return}MP.closed=true;if(MP.loaded){mpFreeze('ROOM CLOSED');mpStatus('The host left. Quit to make or join another room.','bad')}return}const previousSeats=MP.seats;MP.seats=m.seats||{};if(MP.quick&&MP.role==='host'&&MP.matchBegun&&st!=='END'){const departed=Object.keys(previousSeats).find(k=>!MP.seats[k]);if(departed!==undefined){const winner=1-(Number(departed)%2);score[winner]=Math.max(score[0],score[1])+1;MP.endReason='MATCH FORFEIT · A PLAYER LEFT';$('s0').textContent=score[0];$('s1').textContent=score[1];endMatch();mpStatus('MATCH ENDED · PLAYER LEFT','good')}}if(MP.seats[MP.slot]?.session!==MP.session){MP.closed=true;mpFreeze('SEAT CLOSED');return}applySettings(m.settings);mpApplySeats();mpLobby()});
  if(MP.role==='host')mpListen(room.child('inputs'),'value',s=>{const values=s.val()||{};for(const id in values){const v=values[id];if(Number.isInteger(v.seq)&&v.seq>(MP.inputs[id]?.seq??-1)){MP.inputs[id]=v;MP.lastInputs[id]=performance.now()}}});
@@ -1519,7 +1527,7 @@ function packetValid(p){return p&&[p.x,p.y,p.z].every(x=>Number.isFinite(x)&&Mat
 function mpReadCar(c,p,blend,age,previous=p){if(!packetValid(p)||!packetValid(previous))return;const discontinuity=(p.demoSeq||0)!==(previous.demoSeq||0)||(p.respawnSeq||0)!==(previous.respawnSeq||0);if(discontinuity){blend=1;age=0;}readDemoPacket(c,p);_a.set(previous.x,previous.y,previous.z);_b.set(p.x,p.y,p.z);c.p.lerpVectors(_a,_b,blend);_b.fromArray(p.v);c.p.addScaledVector(_b,age);c.q.fromArray(previous.q).normalize();_q1.fromArray(p.q).normalize();c.q.slerp(_q1,blend);c.v.copy(_b);if(p.w?.length===3)c.w.fromArray(p.w);if(p.n?.length===3)c.n.fromArray(p.n);c.boost=p.boost;c.ground=p.ground;c.bst=p.boosting?1:0;c.color=validPaint(p.color)?p.color:PALETTE[c.team];c.touches=p.touches||0;c.goals=p.goals||0;c.topSpeed=p.topSpeed||0;c.boostUsed=p.boostUsed||0;Object.assign(c.inp,p.input||Z);c.frameP.copy(c.p);c.frameQ.copy(c.q);c.prevP.copy(c.p);c.prevQ.copy(c.q);if(c.id<2)updateScorePaint()}
 function applyMultiplayer(dt,snap=false){if(MP.role!=='guest'||!MP.snapshot)return;let a=MP.snapshot,b=a,blend=1,age=0;const target=DED.active?dedRenderTime(performance.now(),dt):performance.now()-100,buf=MP.buffer,stamp=item=>DED.active?(item.time??item.at):item.at;if(!snap&&a.phase==='PLAY'&&buf.length){a=b=buf[0].state;for(let k=1;k<buf.length;k++){if(stamp(buf[k])>=target){a=buf[k-1].state;b=buf[k].state;blend=cl((target-stamp(buf[k-1]))/Math.max(1,stamp(buf[k])-stamp(buf[k-1])),0,1);break}a=b=buf[k].state}if(target>stamp(buf[buf.length-1]))age=Math.min(.05,(target-stamp(buf[buf.length-1]))/1000)}for(let k=0;k<cars.length;k++)if(!DED.active||snap||k!==MP.slot)mpReadCar(cars[k],b.cars[k],blend,age,a.cars[k]);if((!DED.active||snap)&&a.ball?.p?.length===3&&b.ball?.p?.length===3){_a.fromArray(a.ball.p);_b.fromArray(b.ball.p);ball.p.lerpVectors(_a,_b,blend);ball.v.fromArray(b.ball.v);ball.p.addScaledVector(ball.v,age);ball.w.fromArray(b.ball.w);ball.last=b.ball.last;ball.lastPlayer=b.ball.lastPlayer;ball.color=b.ball.color;ball.frameP.copy(ball.p);ball.prevP.copy(ball.p)}}
 function publishMatch(){MP.force=true}
-function handleRemoteMatch(s){if(!MP.loaded||MP.role!=='guest')return;const changed=st!==s.phase,roundChanged=MP.round!==s.round;heat.server=Number.isInteger(s.serve)?s.serve:-1;readHeatState(s.heat);if(s.series&&[1,3,5].includes(s.series.bestOf)&&Array.isArray(s.series.wins)&&s.series.wins.length===2&&s.series.wins.every(n=>Number.isInteger(n)&&n>=0&&n<=3))Object.assign(SERIES,s.series);MP.round=s.round;MP.endReason=s.endReason||'';tl=s.clock;cnt=s.count;gt=s.goalTime;ot=s.overtime?1:0;MP.matchBegun=s.phase!=='WAIT';if(Array.isArray(s.score)){score[0]=s.score[0];score[1]=s.score[1];$('s0').textContent=score[0];$('s1').textContent=score[1]}if(s.pads)for(let k=0;k<PADS.length;k++)PADS[k].t=s.pads[k]||0;if(roundChanged){presentSceneCut('kickoff');if(s.score[0]===0&&s.score[1]===0){RIVALS.recorded=false;SERIES.counted=false;RIVALS.goalSeen='';}kickoff(false);MP.round=s.round;mpClearInput();$('end').classList.remove('on');$('hud').style.display='block'}if(s.phase==='PAUSE'){applyMultiplayer(0,true);ps_=s.resume;mpFreeze('MATCH PAUSED')}else if(MP.localPaused){mpFreeze('PAUSE REQUESTED')}else{st=s.phase;$('pause').classList.remove('on');if(changed||roundChanged){mpClearInput();applyMultiplayer(0,true);if(st==='PLAY')msg('GO!',.8,'#4f8');if(st==='GOAL'){goalPulse=1;msg('GOAL!',3.2,'#fff');rivalsGoal(s.goal||{team:score[0]>score[1]?0:1,scorer:s.ball.lastPlayer,assist:-1,speed:Math.round(Math.hypot(...s.ball.v)*3.6)})}if(st==='END')endMatch(false)}}audioReceive(s);updateServeHint();if(st==='COUNT')msg(kickoffLabel(cnt),1.2,'#fff');mpStatus('LIVE · PLAYER '+(MP.slot+1),'good')}
+function handleRemoteMatch(s){if(!MP.loaded||MP.role!=='guest')return;const changed=st!==s.phase,roundChanged=MP.round!==s.round;heat.server=Number.isInteger(s.serve)?s.serve:-1;readHeatState(s.heat);if(s.series&&[1,3,5].includes(s.series.bestOf)&&Array.isArray(s.series.wins)&&s.series.wins.length===2&&s.series.wins.every(n=>Number.isInteger(n)&&n>=0&&n<=3))Object.assign(SERIES,s.series);MP.round=s.round;MP.endReason=s.endReason||'';tl=s.clock;cnt=s.count;gt=s.goalTime;ot=s.overtime?1:0;MP.matchBegun=s.phase!=='WAIT';if(Array.isArray(s.score)){score[0]=s.score[0];score[1]=s.score[1];$('s0').textContent=score[0];$('s1').textContent=score[1]}if(s.pads)for(let k=0;k<PADS.length;k++)PADS[k].t=s.pads[k]||0;if(roundChanged){presentSceneCut('kickoff');if(s.score[0]===0&&s.score[1]===0){RIVALS.recorded=false;SERIES.counted=false;RIVALS.goalSeen='';}kickoff(false);MP.round=s.round;mpClearInput();$('end').classList.remove('on');$('hud').style.display='block'}if(s.phase==='PAUSE'){applyMultiplayer(0,true);ps_=s.resume;mpFreeze('MATCH PAUSED')}else if(s.phase==='END'){MP.localPaused=false;st='END';$('pause').classList.remove('on');if(changed||roundChanged||!$('end').classList.contains('on')){mpClearInput();applyMultiplayer(0,true);endMatch(false)}}else if(MP.localPaused){mpFreeze('PAUSE REQUESTED')}else{st=s.phase;$('pause').classList.remove('on');if(changed||roundChanged){mpClearInput();applyMultiplayer(0,true);if(st==='PLAY')msg('GO!',.8,'#4f8');if(st==='GOAL'){goalPulse=1;msg('GOAL!',3.2,'#fff');rivalsGoal(s.goal||{team:score[0]>score[1]?0:1,scorer:s.ball.lastPlayer,assist:-1,speed:Math.round(Math.hypot(...s.ball.v)*3.6)})}if(st==='END')endMatch(false)}}audioReceive(s);updateServeHint();if(st==='COUNT')msg(kickoffLabel(cnt),1.2,'#fff');mpStatus('LIVE · PLAYER '+(MP.slot+1),'good')}
 async function mpLoaded(){if(DED.active)return dedLoaded();if(multiplayerStore?.readyRoom)await multiplayerStore.readyRoom(MP.code);MP.loaded=true;MP.localPaused=false;kickoff(false);st='WAIT';mpClearInput();$('copy-status').textContent='';mpLobby();MP.force=true;await MP.room.child('presence/'+MP.session).set({ready:true,paused:false,connected:true});if(MP.role==='guest'&&MP.snapshot)handleRemoteMatch(MP.snapshot)}
 
 
@@ -1635,9 +1643,9 @@ function choosePrivateAction(action){privateAction=action;privateMenuUI();$('mp-
 function choosePartyAction(action){partyAction=action;socialUI();if(action==='join')$('party-code-input').focus?.()}
 function menuBack(){audioSample('uiBack',.38);showMenuScreen(menuScreen==='party'?partyReturn:'home')}
 function chooseRoute(route){if(typeof SOC!=='undefined'&&SOC.searching&&route!=='quick')cancelQuickMatch();playRoute=route;$('quick-panel').hidden=route!=='quick';for(const name of ['quick','offline','online','training'])$('choose-'+name).setAttribute('aria-pressed',String(name===route));$('go').hidden=route!=='offline';$('sandbox-start').hidden=route!=='training';$('mp-panel').hidden=route!=='online';$('mp-status').hidden=route!=='online';$('route-help').textContent=route==='quick'?'Play against other people online. Search solo or with a party on your team.':route==='online'?'Play in an invite-only match. Friends join individually with a match code.':route==='training'?'Endless practice. Change AI and boost with F2; reset the ball with R.':'Play a complete match with AI teammates and opponents.';updateMatchSummary();socialUI();privateMenuUI()}
-function showMenuScreen(screen){if(screen==='party'&&menuScreen!=='party')partyReturn=menuScreen;menuScreen=screen;for(const name of ['home','play','garage','settings','party'])$(name+'-panel').hidden=name!==screen;$('menu').setAttribute('data-screen',screen);$('menu-back').hidden=screen==='home';$('menu-back').textContent=screen==='party'&&partyReturn!=='home'?'← BACK TO '+partyReturn.toUpperCase():'← HOME';$('menu-location').textContent=screen==='home'?'HOME':screen==='party'?'QUICK MATCH / PARTY':'HOME / '+screen.toUpperCase();$('menu').classList.toggle('live-preview',!!inited);$('start-status').textContent='';if(screen==='play')chooseRoute(playRoute);if(screen==='garage')previewGarage();updateMatchSummary();socialUI();focusMenuScreen(screen)}
+function showMenuScreen(screen){const changed=menuScreen!==screen;if(screen==='party'&&menuScreen!=='party')partyReturn=menuScreen;menuScreen=screen;for(const name of ['home','play','garage','settings','party'])$(name+'-panel').hidden=name!==screen;$('menu').setAttribute('data-screen',screen);$('menu-back').hidden=screen==='home';$('menu-back').textContent=screen==='party'&&partyReturn!=='home'?'← BACK TO '+partyReturn.toUpperCase():'← HOME';$('menu-location').textContent=screen==='home'?'HOME':screen==='party'?'QUICK MATCH / PARTY':'HOME / '+screen.toUpperCase();$('menu').classList.toggle('live-preview',!!inited);$('start-status').textContent='';if(changed)resetMenuScroll();if(screen==='play')chooseRoute(playRoute);if(screen==='garage')previewGarage();updateMatchSummary();socialUI();focusMenuScreen(screen)}
 async function previewGarage(){if(previewJob)return previewJob;if(starting)return;starting=true;$('go').disabled=$('sandbox-start').disabled=true;$('preview-car').disabled=true;$('garage-status').textContent='Preparing your '+BODY_NAMES[cfg.body]+'…';
- previewJob=(async()=>{let transition;try{configureCars();transition=await loadingBegin('YOUR GARAGE',BODY_NAMES[cfg.body]+' · Preparing your car',graphicsReady());await init3d();const changed=cm.some((m,i)=>m.userData.body!==(cars[i].body||0)||m.userData.simple===!!cfg.models);refreshCarModels();if(changed&&ren?.compileAsync){await loadingStage(94,'Preparing your selected car');ENGINE.status.warming=true;try{await ren.compileAsync(scene,cam)}finally{ENGINE.status.warming=false}}if(menuScreen==='garage')$('menu').classList.add('live-preview');$('garage-status').textContent=BODY_NAMES[cfg.body]+' · '+paintName(cfg)+' · READY';await loadingEnd(transition);$('preview-car').focus?.()}catch(e){loadingAbort(transition);try{dispose3d()}catch(_){}$('menu').classList.remove('live-preview');$('garage-status').textContent='Preview unavailable. Try Performance mode in Settings.';console.warn('Garage preview',e)}finally{starting=false;$('go').disabled=$('sandbox-start').disabled=false;$('preview-car').disabled=false;previewJob=null}})();return previewJob;
+ previewJob=(async()=>{let transition;try{configureCars();transition=await loadingBegin('YOUR GARAGE',BODY_NAMES[cfg.body]+' · Preparing your car',graphicsReady());await init3d();const changed=cm.some((m,i)=>m.userData.body!==(cars[i].body||0)||m.userData.simple===!!cfg.models);refreshCarModels();if(changed&&ren?.compileAsync){await loadingStage(94,'Preparing your selected car');ENGINE.status.warming=true;try{await graphicsDeadline(ren.compileAsync(scene,cam),BODY_NAMES[cfg.body]+' preview')}finally{ENGINE.status.warming=false}}if(menuScreen==='garage')$('menu').classList.add('live-preview');$('garage-status').textContent=BODY_NAMES[cfg.body]+' · '+paintName(cfg)+' · READY';await loadingEnd(transition)}catch(e){loadingAbort(transition);try{dispose3d()}catch(_){}$('menu').classList.remove('live-preview');$('garage-status').textContent='Preview unavailable. Try Performance mode in Settings.';console.warn('Garage preview',e)}finally{starting=false;$('go').disabled=$('sandbox-start').disabled=false;$('preview-car').disabled=false;previewJob=null}})();return previewJob;
 }
 function setupMenu(){
  $('nav-play').onclick=()=>{if(!INTRO.manualPause)introStart();openPlaySelection()};$('nav-garage').onclick=()=>showMenuScreen('garage');$('nav-settings').onclick=()=>showMenuScreen('settings');$('nav-training').onclick=()=>{chooseRoute('training');showMenuScreen('play')};$('menu-back').onclick=menuBack;$('preview-car').onclick=previewGarage;
@@ -1801,7 +1809,7 @@ async function startGame(){
  await loadingEnd(transition);starting=false;last=performance.now();acc=0;
  if(MP.active){MP.matchBegun=false;MP.localPaused=false;try{await mpLoaded()}catch(e){mpFailure(e)}}return true}
 
-function startOfflineGame(training=false){if(starting||mpBusy||SOC.searching||SOC.busy)return;if(training!==true&&st==='MENU'&&menuScreen==='home'){showMenuScreen('play');return}if(training!==true&&st==='MENU'&&(playRoute==='online'||playRoute==='quick'))return;sandbox=training===true||playRoute==='training';if(MP.active)mpReset();startGame()}
+function startOfflineGame(training=false){if(starting||mpBusy||SOC.searching||SOC.busy)return;if(training!==true&&st==='MENU'&&menuScreen!=='play'){if(menuScreen==='home')showMenuScreen('play');return}if(training!==true&&st==='MENU'&&(playRoute==='online'||playRoute==='quick'))return;sandbox=training===true||playRoute==='training';if(MP.active)mpReset();startGame()}
 
 function finishQuit(){resetMatchPresentation();resetViewFade();clearCelebration();clearMatchEffects();stopReplay();sandbox=false;RIVALS.queuePractice=false;DRILL.active=false;mt=0;$('msg').style.opacity=0;if(SOC.searching)cancelQuickMatch();st='MENU';syncMenuSettings();if(MP.active)mpReset();learnFlush();learnUI();['pause','end'].forEach(x=>$(x).classList.remove('on'));$('menu').classList.add('on');showMenuScreen('home');$('training-hud').hidden=true;$('hud').style.display='none';$('msg').style.opacity=0;audioSilence()}
 
@@ -2097,30 +2105,32 @@ function updateWind(dt,showcase=false){
 
 
 function dispose3d(){
-
- const geos=new Set(),mats=new Set(),textures=new Set();
-
- if(scene)scene.traverse(o=>{if(o.geometry)geos.add(o.geometry);for(const m of (Array.isArray(o.material)?o.material:[o.material]))if(m){mats.add(m);for(const v of Object.values(m))if(v&&v.isTexture)textures.add(v)}});
-
- if(scene?.background?.isTexture)textures.add(scene.background);
- geos.forEach(g=>g.dispose());mats.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());
-
-  if(envTarget)envTarget.dispose();if(sun&&sun.shadow.map)sun.shadow.map.dispose();
-
- const old=$('cv');old.replaceWith(old.cloneNode(false));if(pipeline){pipeline.dispose();pipeline=null}if(ren){ren.dispose();if(ren.forceContextLoss)ren.forceContextLoss()}
-
-  resetCelebrationEffects();clearMatchEffects();MATCH_EFFECTS.group=MATCH_EFFECTS.ribbon=MATCH_EFFECTS.skids=null;OPENING.visuals=null;BOMB.visuals=null;BOOST_PICKUPS.visuals=null;FX=null;garageStage=null;RIVALS.visuals=null;RIVALS.trim=null;RIVALS.crowd=null;$('driver-markers').replaceChildren();scene=ren=cam=sun=grassM=GT=GU=envTarget=null;cm=[];WM=[];windFlags=[];contactShadows=[];goalLights=[];inited=0;graphicsPreset=-1;
+ // Detach the active frame first. Failed builds never reached inited, but own
+ // exactly the same resources and must be safe to release or retry repeatedly.
+ const oldScene=scene,oldRenderer=ren,oldPipeline=pipeline,oldEnvironment=envTarget,oldShadow=sun?.shadow?.map;
+ inited=0;scene=ren=cam=sun=pipeline=grassM=envTarget=null;graphicsPreset=-1;
+ const geos=new Set(),mats=new Set(),textures=new Set(),release=value=>{try{value?.dispose?.()}catch(error){console.warn('Graphics resource cleanup',error)}};
+ if(oldScene)oldScene.traverse(o=>{if(o.geometry)geos.add(o.geometry);for(const m of (Array.isArray(o.material)?o.material:[o.material]))if(m){mats.add(m);for(const v of Object.values(m))if(v?.isTexture)textures.add(v)}});
+ for(const t of [oldScene?.background,GT,PITCH_TEXTURE,...Object.values(assetTextures||{}),...Object.values(FX?.maps||{})])if(t?.isTexture)textures.add(t);
+ // Render targets own their attachments. Shared maps and geometries are freed
+ // once, while unused imported body textures are still included in cleanup.
+ textures.delete(oldEnvironment?.texture);textures.delete(oldShadow?.texture);
+ release(oldPipeline);geos.forEach(release);mats.forEach(release);textures.forEach(release);release(oldEnvironment);release(oldShadow);
+ const old=$('cv');if(old)old.replaceWith(old.cloneNode(false));
+ if(oldRenderer){if(oldRenderer.isWebGPURenderer)oldRenderer.onDeviceLost=()=>{};release(oldRenderer);try{oldRenderer.forceContextLoss?.()}catch(error){console.warn('Graphics context cleanup',error)}}
+ resetCelebrationEffects();clearMatchEffects();MATCH_EFFECTS.group=MATCH_EFFECTS.ribbon=MATCH_EFFECTS.skids=null;MATCH_EFFECTS.rings=[];MATCH_EFFECTS.smoke=[];OPENING.visuals=null;BOMB.visuals=null;BOOST_PICKUPS.visuals=null;FX=null;garageStage=null;RIVALS.visuals=null;RIVALS.trim=null;RIVALS.crowd=null;$('driver-markers')?.replaceChildren();
+ bm=pts=GT=GU=PITCH_TEXTURE=assetTextures=null;cm=[];WM=[];windFlags=[];contactShadows=[];goalLights=[];SHOWROOM.ready=false;$('menu')?.classList.remove('live-preview');document.body.classList.remove('arena-ready');
 
 }
 
 async function init3d(forceGL=FORCE_GL){
-
  try{return await build3d(forceGL)}catch(error){
-
-  if(ren?.isWebGPURenderer&&!forceGL){ENGINE.status.fallbackReason=String(error);dispose3d();return build3d(true)}throw error;
-
+  const fallback=!!ren?.isWebGPURenderer&&!forceGL;
+  if(fallback)ENGINE.status.fallbackReason=String(error);
+  dispose3d();
+  if(!fallback)throw error;
+  try{return await build3d(true)}catch(fallbackError){dispose3d();throw fallbackError}
  }
-
 }
 
 async function build3d(forceGL){
@@ -2139,7 +2149,7 @@ async function build3d(forceGL){
  cam=new THREE.PerspectiveCamera(77,innerWidth/innerHeight,.1,700);
 
  await loadingStage(28,'Preparing stadium lighting');
- const sky=await loadStadiumSky();try{envTarget=await ENGINE.environment(ren,sky.lighting)}finally{sky.lighting.dispose()}scene.environment=envTarget.texture;scene.environmentIntensity=STADIUM_LIGHTING.environment;scene.background=sky.visible;scene.backgroundIntensity=1;document.body.dataset.arenaLight='matchday-key-fill-5';
+ const sky=await loadStadiumSky();scene.background=sky.visible;try{envTarget=await ENGINE.environment(ren,sky.lighting)}finally{sky.lighting.dispose()}scene.environment=envTarget.texture;scene.environmentIntensity=STADIUM_LIGHTING.environment;scene.backgroundIntensity=1;document.body.dataset.arenaLight='matchday-key-fill-5';
  ({sun,goalLights}=stadiumLightRig(ren,scene,!!cfg.hi));
 
  const side=wallMat('#3cf'),bw=wallMat('#38f'),ow=wallMat('#f93');WM=[side,bw,ow];
@@ -2265,7 +2275,7 @@ addEventListener('resize',()=>{if(!inited)return;ren.setPixelRatio(pixelRatio())
 
 function render(dt){
 
- if(!inited||st==='PAUSE')return;updateGoalTransition(presentationDelta||dt);updateGraphicsEffects(dt);if(renderGoalReplay(dt))return;if(st==='MENU'||st==='END'){renderShowcase(dt);return}bm.visible=true;garageStage.visible=false;grassM.visible=true;if(cam.view?.enabled)cam.clearViewOffset();const alpha=cl(acc/SIM_DT,0,1);
+ if(!inited||st==='PAUSE')return;updateGoalTransition(presentationDelta||dt);if(renderGoalReplay(dt))return;if(st==='MENU'||st==='END'){updateGraphicsEffects(dt);renderShowcase(dt);return}bm.visible=true;garageStage.visible=false;grassM.visible=true;if(cam.view?.enabled)cam.clearViewOffset();const alpha=cl(acc/SIM_DT,0,1);
 
  for(let k=0;k<cars.length;k++){const c=cars[k],m=cm[k];m.visible=c.enabled&&!carDemolished(c);if(!c.enabled)continue;paintCar(k);m.position.lerpVectors(c.frameP,c.p,alpha);m.quaternion.copy(c.frameQ).slerp(c.q,alpha);if(DED.active&&k===MP.slot){m.position.add(DED.offset);m.quaternion.multiply(DED.rotationOffset);}
 
@@ -2277,7 +2287,7 @@ function render(dt){
 
    if(c.bst){renderEffect.copy(renderForward).multiplyScalar(-.58).add(c.p);for(let j=0;j<(cfg.hi?3:1);j++)emit(renderEffect.x,renderEffect.y,renderEffect.z,c.v.x*.5+(Math.random()-.5)*2,c.v.y*.5+(Math.random()-.5),c.v.z*.5+(Math.random()-.5)*2,.35,((c.color>>16)&255)/255,((c.color>>8)&255)/255,(c.color&255)/255)}}
 
- bm.position.lerpVectors(ball.frameP,ball.p,alpha);if(DED.active)bm.position.add(DED.ballOffset);const sp=ball.v.length(),wl=ball.w.length();if(wl>.01){spinAxis.copy(ball.w).divideScalar(wl);spinQ.setFromAxisAngle(spinAxis,wl*dt*(st=='GOAL'?.3:1));bm.quaternion.premultiply(spinQ).normalize()}updateOpeningVisuals();
+ bm.position.lerpVectors(ball.frameP,ball.p,alpha);if(DED.active)bm.position.add(DED.ballOffset);const sp=ball.v.length(),wl=ball.w.length();if(wl>.01){spinAxis.copy(ball.w).divideScalar(wl);spinQ.setFromAxisAngle(spinAxis,wl*dt*(st=='GOAL'?.3:1));bm.quaternion.premultiply(spinQ).normalize()}updateOpeningVisuals();updateGraphicsEffects(dt);
 
  for(let k=0;k<cars.length+1;k++){const shadow=contactShadows[k],p=k<cars.length?cm[k].position:bm.position,height=Math.max(0,p.y-(k<cars.length?.485:BR));
 
@@ -2371,6 +2381,7 @@ function frame(t){requestAnimationFrame(frame);presentationDelta=cl((t-last)/100
  publishMultiplayer(dt);updateAudio();render(dt)}
 
 // INLINE:rivals.js
+// INLINE:progress.js
 // INLINE:cinematics.js
 // INLINE:camera-director.js
 // INLINE:jet-flyby.js
@@ -2390,7 +2401,7 @@ setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();se
 
 window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:120,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,multiplayer:DED.active?'Phoenix dedicated':'offline',rtt:DED.rtt,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
 
-window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 10.1.0 · MATCHDAY · Ready to play');
+window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 10.1.1 · REFINED · Ready to play');
 
 
 } catch(error) { window.tevinBoot.error=String(error.message||error);window.tevinBoot.show("Startup failed at "+window.tevinBoot.stage+": "+window.tevinBoot.error);console.error(error); }

@@ -4,7 +4,8 @@ function b_(C){
  const {uniform,attribute,cameraPosition:camera,vec2,vec3,float,sin,cos,mod,smoothstep,step,abs,normalize,mix,texture,varying,normalViewGeometry}=h;
  const time=uniform(0),wind=uniform(1);C.t=time;C.wind=wind;
  const position=attribute('position','vec3'),off=attribute('off','vec3'),r=off.z,height=position.y;
- const w=mod(off.xy.sub(camera.xz).add(10),20).add(camera.xz).sub(10);
+ const tileSize=20,halfTile=tileSize/2;
+ const w=mod(off.xy.sub(camera.xz).add(halfTile),tileSize).add(camera.xz).sub(halfTile);
  const fade=float(1).sub(smoothstep(6,9.7,camera.xz.sub(w).length())).mul(step(abs(w.x),36.8)).mul(step(abs(w.y),46.8));
  const length=float(.052).add(r.mul(.052)).mul(fade),a=r.mul(6.2831);
  let p=vec3(w.x.add(position.x.mul(cos(a)).sub(position.z.mul(sin(a))).mul(fade)),height.mul(length).add(.008),w.y.add(position.x.mul(sin(a)).add(position.z.mul(cos(a))).mul(fade)));

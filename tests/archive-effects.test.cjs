@@ -1,0 +1,9 @@
+const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
+const vector=()=>({x:0,y:0,z:0,set(x,y,z){Object.assign(this,{x,y,z});return this},copy(v){return this.set(v.x,v.y,v.z)},add(v){this.x+=v.x;this.y+=v.y;this.z+=v.z;return this},applyQuaternion(){return this}});
+test('archive flares use the supplied current pose and respect motion preference changes without a reload',()=>{
+ const source=fs.readFileSync(path.join(__dirname,'../src/game.js'),'utf8').replace(/\r\n/g,'\n'),start=source.indexOf('function updateGraphicsEffects('),code=source.slice(start,source.indexOf('\n}\n',start)+3),classes={toggle(){},remove(){},add(){}},prefs={motion:true,reduced:false},sprite={position:vector(),scale:vector(),material:{color:{setHex(){}},opacity:0}},impact={sprite:{scale:vector(),material:{}},life:1,total:1,size:2,wide:false},car={enabled:true,bst:1,color:0x123456};
+ const ctx=vm.createContext({FX:{group:{},pool:[impact],boost:[sprite],time:0},st:'PLAY',score:[0,0],fxOffset:vector(),localPlayer:()=>car,cars:[car],cm:[{position:{x:12,y:1,z:4},quaternion:{}}],celebrationMotion:()=>prefs.motion&&!prefs.reduced,$:()=>({classList:classes})});
+ vm.runInContext(code+'\nthis.tick=updateGraphicsEffects;',ctx);ctx.tick(.01);assert.equal(sprite.position.x,10.9);assert.equal(sprite.position.y,1.02);assert.equal(sprite.position.z,4);assert.equal(sprite.material.opacity,.26);assert.equal(ctx.FX.time,.01);
+ prefs.motion=false;ctx.tick(.02);assert.equal(ctx.FX.time,.01);assert.equal(sprite.scale.x,.8);assert.equal(impact.sprite.scale.x,1.2);assert.equal(sprite.material.opacity,.12);
+ prefs.motion=true;prefs.reduced=true;ctx.tick(.02);assert.equal(ctx.FX.time,.01);assert.equal(sprite.scale.x,.8);prefs.reduced=false;ctx.tick(.02);assert.equal(ctx.FX.time,.03);assert.equal(sprite.material.opacity,.26);
+});

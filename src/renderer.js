@@ -1,5 +1,8 @@
 // Renderer choice is independent of visual quality. Never reuse a canvas whose
 // context type was claimed by a failed WebGPU/WebGL initialization.
+async function graphicsDeadline(work,label,ms=12000){
+ let timer;try{return await Promise.race([work,new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error(label+' timed out. Select this car again to retry.')),ms)})])}finally{clearTimeout(timer)}
+}
 async function rendererWithFallback(create, fresh, lightweight, forceGL=false) {
  const failures=[];
  for(const attempt of [()=>create(fresh(),forceGL),()=>lightweight(fresh())]) {
@@ -21,6 +24,6 @@ function graphicsFailure(error){
 }
 async function retryGraphics(){
  if(starting||LOADING.active)return;starting=true;let id;
- try{$('graphics-error').hidden=true;id=await loadingBegin('RECONNECTING GRAPHICS','Checking your graphics device',false);configureCars();await init3d();await loadingEnd(id);$('start-status').textContent='Graphics ready. Choose your match to continue.';}
+ try{$('graphics-error').hidden=true;id=await loadingBegin('RECONNECTING GRAPHICS','Checking your graphics device',false);configureCars();await init3d();$('menu').classList.add('live-preview');document.body.classList.add('arena-ready');SHOWROOM.ready=true;await loadingEnd(id);$('start-status').textContent='Graphics ready. Choose your match to continue.';}
  catch(error){loadingAbort(id);try{dispose3d()}catch(_){}graphicsFailure(error)}finally{starting=false}
 }

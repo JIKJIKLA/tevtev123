@@ -1,6 +1,6 @@
 const test=require('node:test'),assert=require('node:assert/strict'),load=require('./harness.cjs');
 function phone(){
- const g=load({full:true}),a=g.api;g.window.innerWidth=390;g.window.innerHeight=844;g.window.navigator.maxTouchPoints=5;g.window.matchMedia=()=>({matches:true});a.updateDeviceProfile();a.setDeviceInput('touch');a.INTRO.active=false;a.LOADING.active=false;a.configureCars();a.setState({st:'PLAY'});a.updateDeviceUI();return{...g,a};
+ const g=load({source:true,full:true}),a=g.api;g.window.innerWidth=390;g.window.innerHeight=844;g.window.navigator.maxTouchPoints=5;g.window.matchMedia=()=>({matches:true});a.updateDeviceProfile();a.setDeviceInput('touch');a.INTRO.active=false;a.LOADING.active=false;a.configureCars();a.setState({st:'PLAY'});a.updateDeviceUI();return{...g,a};
 }
 function pointer(id,element,x=80,y=80){return{pointerId:id,pointerType:'touch',currentTarget:element,clientX:x,clientY:y,preventDefault(){}};}
 test('phone capability layout follows touch, controller and keyboard without identifying hardware',()=>{
@@ -29,4 +29,13 @@ test('virtual-keyboard editing keeps touch layout and the hidden logo hold cance
  const g=phone(),a=g.a,d=g.document,input=d.getElementById('secret-code'),key=new g.Event('keydown',{bubbles:true,cancelable:true});Object.assign(key,{key:'a',code:'KeyA'});input.dispatchEvent(key);assert.equal(a.DEVICE.input,'touch');assert.equal(key.defaultPrevented,false);
  const jobs=[];g.window.setTimeout=fn=>{jobs.push(fn);return jobs.length;};a.deviceSecretHoldStart({pointerType:'touch',pointerId:31,clientX:10,clientY:10});a.deviceSecretHoldMove({pointerId:31,clientX:30,clientY:10});jobs.shift()();assert.equal(a.SECRET.open,false);
  a.deviceSecretHoldStart({pointerType:'touch',pointerId:32,clientX:10,clientY:10});jobs.shift()();assert.equal(a.SECRET.open,true);
+});
+
+test('demolished touch players retain pause/fullscreen while all driving input is cleared and blocked',()=>{
+ const g=phone(),{a,document:d}=g,car=a.cars[0];a.touchActionStart('boost',pointer(1,d.getElementById('touch-boost')));a.touchActionStart('jump',pointer(2,d.getElementById('touch-jump')));car.demoTime=3;a.updateDeviceUI();
+ assert.equal(d.getElementById('touch-controls').hidden,false);assert.equal(d.getElementById('touch-pause').disabled,false);assert.equal(d.getElementById('touch-fullscreen').disabled,false);assert.equal(a.touchInput.active,false);assert.equal(a.touchInput.boost,0);assert.equal(a.touchInput.jump,false);assert.equal(car.jp,0);
+ for(const kind of ['boost','jump','slide','roll-left','roll-right','camera'])assert.equal(d.getElementById('touch-'+kind).disabled,true,kind);
+ a.touchActionStart('boost',pointer(3,d.getElementById('touch-boost')));a.touchStickStart(pointer(4,d.getElementById('touch-stick'),80,20),{left:0,top:0,width:160,height:160});a.keys.w=a.keys.shift=1;a.human(car);assert.equal(a.touchInput.active,false);assert.equal(car.inp.thr,0);assert.equal(car.inp.boost,0);assert.equal(car.jp,0);
+ let fullscreen=0;d.documentElement.requestFullscreen=()=>{fullscreen++;return Promise.resolve();};const click=new g.Event('click',{bubbles:true});click.detail=0;d.getElementById('touch-fullscreen').dispatchEvent(click);assert.equal(fullscreen,1);d.getElementById('touch-pause').dispatchEvent(click);assert.equal(a.getState().st,'PAUSE');
+ a.setState({st:'PLAY'});car.demoTime=0;a.updateDeviceUI();assert.equal(d.getElementById('touch-boost').disabled,false);assert.equal(d.getElementById('touch-stick').getAttribute('aria-disabled'),'false');
 });
