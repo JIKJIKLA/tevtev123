@@ -26,6 +26,44 @@ function arenaSky(reflection=false){
 
 function arenaPitchMaterial(){return championshipPitchMaterial();}
 
+// Startup-only indexing of already baked, immutable arena batches. Equal bytes
+// across every attribute preserve hard normals, UV seams and expanded triangles.
+// No visual LOD, geometry simplification or attribute quantization is involved.
+function compactArenaGeometry(source){
+ if(source.index||Object.keys(source.morphAttributes||{}).length)return source;
+ const attributes=Object.entries(source.attributes),position=source.getAttribute('position');
+ if(!position||!attributes.length||attributes.some(([,a])=>a.isInterleavedBufferAttribute||a.isInstancedBufferAttribute||a.isFloat16BufferAttribute||a.count!==position.count||!ArrayBuffer.isView(a.array)))return source;
+ const count=position.count,views=attributes.map(([,a])=>({bytes:new Uint8Array(a.array.buffer,a.array.byteOffset,a.array.byteLength),stride:a.itemSize*a.array.BYTES_PER_ELEMENT})),unique=[],next=[],lookup=new Map(),indices=new Uint32Array(count);
+ for(let i=0;i<count;i++){
+  let hash=2166136261;for(const {bytes,stride} of views){const offset=i*stride;for(let j=0;j<stride;j++)hash=Math.imul(hash^bytes[offset+j],16777619);}hash>>>=0;
+  const head=lookup.get(hash);let index=head;
+  // Hashes only select a small bucket. Full byte comparison prevents collisions
+  // from merging a normal, UV seam or color that merely has the same hash.
+  while(index!==undefined){let equal=true;for(const {bytes,stride} of views){const a=i*stride,b=unique[index]*stride;for(let j=0;j<stride;j++)if(bytes[a+j]!==bytes[b+j]){equal=false;break;}if(!equal)break;}if(equal)break;index=next[index];}
+  if(index===undefined){index=unique.length;unique.push(i);next.push(head);lookup.set(hash,index);}indices[i]=index;
+ }
+ if(unique.length===count)return source;
+ const geometry=new THREE.BufferGeometry();geometry.name=source.name;geometry.userData={...source.userData};
+ for(const [name,a] of attributes){
+  const data=new a.array.constructor(unique.length*a.itemSize);for(let i=0;i<unique.length;i++)data.set(a.array.subarray(unique[i]*a.itemSize,(unique[i]+1)*a.itemSize),i*a.itemSize);
+  const attribute=new THREE.BufferAttribute(data,a.itemSize,a.normalized);attribute.name=a.name;attribute.setUsage(a.usage);attribute.gpuType=a.gpuType;geometry.setAttribute(name,attribute);
+ }
+ geometry.setIndex(new THREE.BufferAttribute(unique.length<=65535?new Uint16Array(indices):indices,1));
+ for(const g of source.groups)geometry.addGroup(g.start,g.count,g.materialIndex);geometry.setDrawRange(source.drawRange.start,source.drawRange.count);
+ geometry.boundingBox=source.boundingBox?.clone()||null;geometry.boundingSphere=source.boundingSphere?.clone()||null;
+ if(!geometry.boundingBox)geometry.computeBoundingBox();if(!geometry.boundingSphere)geometry.computeBoundingSphere();return geometry;
+}
+function compactStaticArena(group){
+ const cache=new Map();group.updateMatrixWorld(true);
+ group.traverse(object=>{
+  if(object.isMesh&&!object.isInstancedMesh&&!object.isSkinnedMesh){let geometry=cache.get(object.geometry);if(!geometry){geometry=compactArenaGeometry(object.geometry);cache.set(object.geometry,geometry);if(!geometry.boundingBox)geometry.computeBoundingBox();if(!geometry.boundingSphere)geometry.computeBoundingSphere();}object.geometry=geometry;}
+  // These explicit architecture groups never animate object transforms. Keep
+  // world updates enabled so attaching them to a parent still works normally.
+  object.matrixAutoUpdate=false;
+ });
+ for(const [source,geometry] of cache)if(source!==geometry)source.dispose();return group;
+}
+
 function arenaPanelMaterial(color=0x536579){
  const c=cvs(256,256),g=c.getContext('2d');g.fillStyle='#a5adb0';g.fillRect(0,0,256,256);
  for(let y=0;y<256;y+=64)for(let x=0;x<256;x+=128){
@@ -74,7 +112,7 @@ function decorateArenaGoals(target=scene){
    const chevron=box(side*(GX+4+j*2),2.6+half*.2,sign*(HZ+.25),.09,.65,.06,strip);chevron.rotation.z=side*half*.65;
   }
  }
- batchMeshes(group);group.traverse(o=>{o.castShadow=false;o.receiveShadow=true;});target.add(group);return group;
+ batchMeshes(group);compactStaticArena(group);group.traverse(o=>{o.castShadow=false;o.receiveShadow=true;});target.add(group);return group;
 }
 
 function championshipFanGeometry(){

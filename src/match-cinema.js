@@ -77,8 +77,8 @@ function updateGoalTransition(dt){
  if(!f.element&&result.opacity>0){const el=document.createElement('div');el.id='match-dissolve';el.setAttribute('aria-hidden','true');document.body.appendChild(el);f.element=el;}if(f.element)f.element.style.opacity=result.opacity.toFixed(4);
 }
 function renderQuickChat(){
- const panel=$('quick-chat'),log=$('chat-log');if(!panel||!log)return;const color=teamHex(localPlayer().team);panel.style.setProperty('--chat-color',color);log.style.setProperty('--chat-color',color);
- const ready=RIVALS.time-RIVALS.chatAt>=1.2;for(let i=0;i<4;i++)if($('chat-'+i).disabled===ready)$('chat-'+i).disabled=!ready;const status=$('chat-ready');if(status)status.textContent=ready?'READY':'SENT';
+ const panel=$('quick-chat'),log=$('chat-log');if(!panel||!log)return;const color=teamHex(localPlayer().team);if(panel.style.getPropertyValue('--chat-color')!==color)panel.style.setProperty('--chat-color',color);if(log.style.getPropertyValue('--chat-color')!==color)log.style.setProperty('--chat-color',color);
+ const ready=RIVALS.time-RIVALS.chatAt>=1.2;for(let i=0;i<4;i++)if($('chat-'+i).disabled===ready)$('chat-'+i).disabled=!ready;const status=$('chat-ready'),statusText=ready?'READY':'SENT';if(status&&status.textContent!==statusText)status.textContent=statusText;
  const signature=RIVALS.messages.map(m=>m.name+'\t'+m.text+'\t'+m.until).join('\n');if(log.dataset.messages===signature)return;log.dataset.messages=signature;log.replaceChildren();
  for(const m of RIVALS.messages){const row=document.createElement('div'),name=document.createElement('strong'),text=document.createElement('span'),tag=document.createElement('small');row.className='team-chat-message';row.dataset.own=String(m.name==='YOU');tag.textContent='TEAM';name.textContent=m.name;text.textContent=m.text;row.append(tag,name,text);log.appendChild(row);}
 }

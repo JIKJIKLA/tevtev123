@@ -34,5 +34,5 @@ function buildArenaWallStructure(target=scene){
  for(const side of [-1,1])for(let z=-42;z<=42;z+=12){const team=z<0?0:1;box(side*(HX+.16),12.1,z,.18,16,.23,steel);box(side*(HX+.09),4.3,z,.11,.55,.66,steel);box(side*(HX+.02),4.31,z,.04,.12,.43,trim[team]);box(side*(HX+.1),19.7,z,.07,.55,.22,trim[team]);}
  for(const sign of [-1,1])for(let x=-30;x<=30;x+=10){const low=Math.abs(x)<GX+.3?GH+1.2:4.1;box(x,(low+20.1)/2,sign*(HZ+.16),.23,20.1-low,.18,steel);box(x,19.7,sign*(HZ+.1),.22,.55,.07,trim[sign>0?1:0]);}
  for(const sign of [-1,1])for(const side of [-1,1]){box(side*(GX+1.15),4.05,sign*(HZ+.14),1.8,.18,.18,steel);for(let i=0;i<3;i++)box(side*(GX+1.7+i*3.8),4.17,sign*(HZ+.05),2,.06,.04,trim[sign>0?1:0]);}
- batchMeshes(group);group.traverse(o=>{o.castShadow=false;o.receiveShadow=false;});target.add(group);document.body.dataset.walls='machined-championship-v4';return group;
+ batchMeshes(group);compactStaticArena(group);group.traverse(o=>{o.castShadow=false;o.receiveShadow=false;});target.add(group);document.body.dataset.walls='machined-championship-v4';return group;
 }

@@ -12,11 +12,13 @@ function cinemaMessage(el){
  for(const animation of el.getAnimations())animation.cancel();
  el.animate([{scale:'1.12',translate:'0 0',opacity:0},{scale:'1.02',translate:'-2px 0',opacity:1,offset:.45},{scale:'1',translate:'2px 0',offset:.65},{scale:'1',translate:'-1px 0',offset:.8},{scale:'1',translate:'0 0'}],{duration:300,easing:'ease-out'});
 }
+const DRIVER_TAG_TRANSFORMS=new WeakMap();
 function positionDriverTag(el,position,camera,project,width,height){
  project.copy(position);project.y+=1.15;project.project(camera);
  if(!Number.isFinite(project.x+project.y+project.z)||project.z<=-1||project.z>=1||Math.abs(project.x)>.92||Math.abs(project.y)>.86)return false;
  const scale=cl(1.08-position.distanceTo(camera.position)*.004,.76,1.04);
- el.style.transform=`translate3d(${((project.x*.5+.5)*width).toFixed(2)}px,${((-project.y*.5+.5)*height).toFixed(2)}px,0) translate(-50%,-100%) scale(${scale.toFixed(3)})`;
+ const transform=`translate3d(${((project.x*.5+.5)*width).toFixed(2)}px,${((-project.y*.5+.5)*height).toFixed(2)}px,0) translate(-50%,-100%) scale(${scale.toFixed(3)})`;
+ if(DRIVER_TAG_TRANSFORMS.get(el)!==transform){el.style.transform=transform;DRIVER_TAG_TRANSFORMS.set(el,transform);}
  return true;
 }
 

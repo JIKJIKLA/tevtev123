@@ -2,7 +2,7 @@
 try {
 
 
-/* Nivet League 10.2.0 — Championship. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
+/* Nivet League 10.2.1 — Championship. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
 window.tevinBoot.stage='game script';
 
 const ENGINE=TevinEngine;
@@ -1858,25 +1858,20 @@ let ren,scene,cam,sun,cm=[],bm,pts,cd=new V3(1,0,0),cpos=new V3(),lookPos=new V3
 
 const renderForward=new V3(),renderRight=new V3(),renderEffect=new V3(),camDesired=new V3(),camLook=new V3(),camToBall=new V3(),shadowCenter=new V3();
 
-const particleMatrix=new THREE.Matrix4(),particlePosition=new V3(),particleScale=new V3(),particleColor=new THREE.Color();
+const particleMatrix=new THREE.Matrix4(),particlePosition=new V3(),particleScale=new V3();
 
 function uploadParticles(){
 
  pts.count=particleCount;
+ if(!particleCount)return;
 
+ // Every quad uses the same camera rotation and size. Compose this basis once,
+ // then upload only each particle's translation/color into the existing buffers.
+ const size=.9*Math.tan(cam.fov*Math.PI/360);particleScale.set(size,size,size);particlePosition.set(0,0,0);particleMatrix.compose(particlePosition,cam.quaternion,particleScale);
+ const basis=particleMatrix.elements,matrices=pts.instanceMatrix.array,colors=pts.instanceColor.array;
  for(let k=0;k<particleCount;k++){
 
-  const o=k*3;particlePosition.set(pp[o],pp[o+1],pp[o+2]);
-
-  // Legacy PointsMaterial uses a pixel-height factor rather than perspective FOV.
-
-  // Match its approximate world footprint while keeping the original soft texture.
-
-  const size=.9*Math.tan(cam.fov*Math.PI/360);particleScale.set(size,size,size);
-
-  particleMatrix.compose(particlePosition,cam.quaternion,particleScale);pts.setMatrixAt(k,particleMatrix);
-
-  particleColor.setRGB(pc[o],pc[o+1],pc[o+2]);pts.setColorAt(k,particleColor);
+  const o=k*3,m=k*16;matrices.set(basis,m);matrices[m+12]=pp[o];matrices[m+13]=pp[o+1];matrices[m+14]=pp[o+2];colors[o]=pc[o];colors[o+1]=pc[o+1];colors[o+2]=pc[o+2];
 
  }
 
@@ -2100,7 +2095,7 @@ function updateWind(dt,showcase=false){
 
  for(let k=0;k<7;k++){const p=GU['c'+k].value,v=GU['v'+k].value;if(showcase){if(k===0)p.copy(cm[0].position);else p.set(1000,1000,1000);v.set(0,0,0)}else if(k<cars.length&&k<6&&cars[k].enabled!==false&&!carDemolished(cars[k])){p.copy(cars[k].p);v.copy(cars[k].v)}else if(k===6){p.copy(ball.p);v.copy(ball.v)}else {p.set(1000,1000,1000);v.set(0,0,0)}}
 
- for(let k=0;k<windFlags.length;k++){const a=windFlags[k],v=a.array;for(let i=0;i<v.length;i+=3){const u=(v[i]+1.5)/3;v[i+2]=u*(Math.sin(GU.t.value*1.4-u*5+k)*.16+Math.sin(GU.t.value*2.4+k)*.05)}a.needsUpdate=true}
+ prepareTurfMotion(GU);for(let k=0;k<windFlags.length;k++){const a=windFlags[k],v=a.array;for(let i=0;i<v.length;i+=3){const u=(v[i]+1.5)/3;v[i+2]=u*(Math.sin(GU.t.value*1.4-u*5+k)*.16+Math.sin(GU.t.value*2.4+k)*.05)}a.needsUpdate=true}
 
 }
 
@@ -2241,7 +2236,7 @@ async function build3d(forceGL){
 
  // Photographic sky is a scene background, so it has no clipping sphere or parallax.
 
- const stadium=ENGINE.championshipStadium(ren,teamPalette,cfg.hi);styleChampionshipStadium(stadium);batchMeshes(stadium);stadium.traverse(o=>o.castShadow=false);scene.add(stadium);addSpectators();buildArenaExterior();buildArenaAtmosphere();
+ const stadium=ENGINE.championshipStadium(ren,teamPalette,cfg.hi);styleChampionshipStadium(stadium);batchMeshes(stadium);compactStaticArena(stadium);stadium.traverse(o=>o.castShadow=false);scene.add(stadium);addSpectators();buildArenaExterior();buildArenaAtmosphere();
 
  cm.forEach(m=>m.traverse(o=>{o.castShadow=!!o.isMesh&&(o.material.userData?.cameraBaseOpaque??!o.material.transparent)}));
 
@@ -2404,7 +2399,7 @@ setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();se
 
 window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:120,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,multiplayer:DED.active?'Phoenix dedicated':'offline',rtt:DED.rtt,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
 
-window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 10.2.0 · CHAMPIONSHIP · Ready to play');
+window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 10.2.1 · CHAMPIONSHIP · Ready to play');
 
 
 } catch(error) { window.tevinBoot.error=String(error.message||error);window.tevinBoot.show("Startup failed at "+window.tevinBoot.stage+": "+window.tevinBoot.error);console.error(error); }

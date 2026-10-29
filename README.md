@@ -1,6 +1,6 @@
-# Nivet League 10.2.0 — Championship
+# Nivet League 10.2.1 — Championship
 
-Championship rebuilds the field and stadium with dense painted grass, photographic surface detail, layered goal tunnels, fuller seating detail, readable concrete and steel, focused car/ball shadows and softer window reflections. [Visual release and validation](docs/RELEASE-10.2.0.md). The preceding [whole-game fixes](docs/AUDIT-10.1.1.md) remain included.
+Championship keeps the dense painted grass, photographed turf, layered stadium and matte cars from [10.2.0](docs/RELEASE-10.2.0.md), while avoiding redundant grass calculations, static geometry storage, particle work, idle UI updates and unchanged garage shadow passes. [Performance changes and validation](docs/PERFORMANCE-10.2.1.md). The preceding [whole-game fixes](docs/AUDIT-10.1.1.md) remain included.
 
 The Matchday effects, authoritative demolitions, smooth high-altitude airshow, matte cars, warm stadium lighting and blue/orange gameplay remain. [Matchday release](docs/RELEASE-10.1.0.md) · [35 effect families and limitations](docs/MATCH-EFFECTS.md).
 
@@ -8,7 +8,7 @@ The first VS AI kickoff retains a five-second opening. The orange leader flies s
 
 Boost pickups use sculpted three-armed housings, floating golden full-boost pills, light curtains and collection/respawn effects. All 34 placements are verified against the standard field. [Boost pickup release details and references](docs/RELEASE-9.9.1.md).
 
-Browser car soccer with Soccar and Heatseeker, 1v1/2v2/3v3, AI, sandbox, private rooms and public matchmaking. Play the verified 10.2.0 browser game on [Cloudflare](https://nivet-league.jikdifn.workers.dev/), [GitHub Pages](https://jikjikla.github.io/tevtev123/) or [Bunny CDN](https://tevtev123.b-cdn.net/?v=10.2.0). All three hosts returned the same tested artifact; see the [publication record](docs/RELEASE-10.2.0.md). Refresh an older open game tab to load this release. Online play uses the existing Phoenix dedicated server. The portable `index.html` also supports offline AI and practice.
+Browser car soccer with Soccar and Heatseeker, 1v1/2v2/3v3, AI, sandbox, private rooms and public matchmaking. Play on [Cloudflare](https://nivet-league.jikdifn.workers.dev/), [GitHub Pages](https://jikjikla.github.io/tevtev123/) or [Bunny CDN](https://tevtev123.b-cdn.net/?v=10.2.1). See the [10.2.1 performance and publication record](docs/PERFORMANCE-10.2.1.md). Refresh an older open game tab to load the optimized release. Online play uses the existing Phoenix dedicated server. The portable `index.html` also supports offline AI and practice.
 
 ## Controls and new features
 

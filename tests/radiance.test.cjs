@@ -14,7 +14,7 @@ test('goal source halos are finite, bounded and shared as one small geometry per
 });
 
 test('focused sunlight follows the rendered driver and garage car without following the simulation or airborne height',()=>{
- const T=load().api.THREE,player={id:2,p:new T.Vector3(-23,11,40)},models=[new T.Group(),new T.Group(),new T.Group()],renderer={shadowMap:{}},ctx={THREE:T,teamPalette:[0x2a6bff,0xff7a20],HZ:51.2,GX:8.93,GH:6.42,ren:renderer,cm:models,localPlayer:()=>player};
+ const T=load().api.THREE,player={id:2,p:new T.Vector3(-23,11,40)},models=[new T.Group(),new T.Group(),new T.Group()],renderer={shadowMap:{}},ctx={THREE:T,teamPalette:[0x2a6bff,0xff7a20],HZ:51.2,GX:8.93,GH:6.42,ren:renderer,cm:models,bm:new T.Group(),localPlayer:()=>player};
  vm.createContext(ctx);vm.runInContext(fs.readFileSync(path.join(__dirname,'../src/radiance.js'),'utf8')+'\nthis.lighting={stadiumLightRig,updateStadiumShadow};',ctx);
  const scene=new T.Scene(),rig=ctx.lighting.stadiumLightRig(renderer,scene,false);ctx.sun=rig.sun;const offset=rig.sun.userData.shadowOffset.clone();models[2].position.set(6.2,4.3,-17.8);models[0].position.set(.3,.18,2.5);
  const check=(focus)=>{assert.deepEqual(Array.from(rig.sun.target.position.toArray()),[focus.x,0,focus.z]);assert.ok(rig.sun.position.clone().sub(rig.sun.target.position).distanceTo(offset)<1e-12,'sun direction stays constant as the shadow focus moves');assert.deepEqual(Array.from(new T.Vector3().setFromMatrixPosition(rig.sun.target.matrixWorld).toArray()),[focus.x,0,focus.z]);assert.equal(rig.sun.shadow.needsUpdate,true);assert.equal(renderer.shadowMap.needsUpdate,true);assert.equal(rig.sun.shadow.autoUpdate,false);};
@@ -23,4 +23,15 @@ test('focused sunlight follows the rendered driver and garage car without follow
  models[2]=null;ctx.lighting.updateStadiumShadow();check(player.p);
  // During teardown or a failed graphics retry there is no owned shadow to update.
  ctx.sun=null;assert.doesNotThrow(()=>ctx.lighting.updateStadiumShadow());ctx.sun=rig.sun;ctx.ren=null;assert.doesNotThrow(()=>ctx.lighting.updateStadiumShadow());ctx.ren=renderer;delete rig.sun.userData.shadowOffset;assert.doesNotThrow(()=>ctx.lighting.updateStadiumShadow());
+});
+
+test('unchanged showroom poses reuse their exact shadow image while geometry changes and live play invalidate it',()=>{
+ const T=load().api.THREE,model=new T.Group(),wheel=new T.Mesh(),axle=new T.Group(),ball=new T.Group(),renderer={shadowMap:{}},player={id:0,p:new T.Vector3()},ctx={THREE:T,teamPalette:[0x2a6bff,0xff7a20],HZ:51.2,GX:8.93,GH:6.42,ren:renderer,cm:[model],bm:ball,localPlayer:()=>player};
+ axle.add(wheel);model.add(axle);model.userData.wheels=[wheel];ball.visible=false;
+ vm.createContext(ctx);vm.runInContext(fs.readFileSync(path.join(__dirname,'../src/radiance.js'),'utf8')+'\nthis.lighting={stadiumLightRig,updateStadiumShadow};',ctx);ctx.sun=ctx.lighting.stadiumLightRig(renderer,new T.Scene(),false).sun;
+ const update=ctx.lighting.updateStadiumShadow,clear=()=>{ctx.sun.shadow.needsUpdate=renderer.shadowMap.needsUpdate=false;},dirty=()=>ctx.sun.shadow.needsUpdate&&renderer.shadowMap.needsUpdate;
+ update(true);assert.ok(dirty());clear();update(true);assert.equal(dirty(),false,'fixed poses reuse the map');
+ const changes=[()=>model.rotation.y=.2,()=>wheel.rotation.z=.4,()=>axle.rotation.y=.1,()=>model.scale.x=1.1,()=>model.position.x=2,()=>ball.visible=true,()=>ball.position.y=1.2,()=>{ctx.cm[0]=model.clone();ctx.cm[0].userData.wheels=[];}];
+ for(const change of changes){change();update(true);assert.ok(dirty(),'visible caster changes refresh the map');clear();update(true);assert.equal(dirty(),false);}
+ update(false);assert.ok(dirty());clear();update(false);assert.ok(dirty(),'live play never reuses a stale dynamic shadow');clear();update(true);assert.ok(dirty(),'returning from play invalidates the showcase cache');
 });

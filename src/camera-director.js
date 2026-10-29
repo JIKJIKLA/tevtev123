@@ -28,13 +28,17 @@ function carBlocksBall(cameraPosition,ballPosition,car,mesh){
 }
 function prepareCameraFade(mesh){
  if(mesh.userData.cameraFade)return;const clones=new Map(),materials=[];
- const copy=original=>{if(clones.has(original))return clones.get(original);const material=original.clone();material.userData.cameraBaseOpaque=!original.transparent;material.transparent=true;materials.push({material,opacity:original.opacity??1,depthWrite:original.depthWrite});clones.set(original,material);return material;};
+ const copy=original=>{if(clones.has(original))return clones.get(original);const material=original.clone();material.userData.cameraBaseOpaque=!original.transparent;materials.push({material,opacity:original.opacity??1,depthWrite:original.depthWrite,transparent:original.transparent});clones.set(original,material);return material;};
  mesh.traverse(o=>{if(o.material)o.material=Array.isArray(o.material)?o.material.map(copy):copy(o.material);});
  mesh.userData.paintMaterials=(mesh.userData.paintMaterials||[]).map(m=>clones.get(m)||m);mesh.userData.cameraFade={materials,opacity:1};
 }
 function setCameraCarOpacity(mesh,opacity){
- prepareCameraFade(mesh);const state=mesh.userData.cameraFade,value=cl(Number.isFinite(opacity)?opacity:1,.33,1);state.opacity=value;
- for(const entry of state.materials){entry.material.opacity=entry.opacity*value;entry.material.depthWrite=value>.995&&entry.depthWrite;}
+ const value=cl(Number.isFinite(opacity)?opacity:1,.33,1);
+ // Ordinary driving keeps the original opaque materials and avoids even cloning
+ // them. Retained fade clones remain scene-owned for the normal resource disposer.
+ if(!mesh.userData.cameraFade){if(value===1)return;prepareCameraFade(mesh);}
+ const state=mesh.userData.cameraFade;if(state.opacity===value)return;state.opacity=value;
+ for(const entry of state.materials){const transparent=entry.transparent||value<1;if(entry.material.transparent!==transparent){entry.material.transparent=transparent;entry.material.needsUpdate=true;}entry.material.opacity=entry.opacity*value;entry.material.depthWrite=value>.995&&entry.depthWrite;}
 }
 function resetViewFade(){VIEW.clipped=VIEW.obscured=false;VIEW.hold=VIEW.wallMix=0;for(const m of cm)if(m.userData.cameraFade)setCameraCarOpacity(m,1);document.body.classList.remove('camera-car-faded');}
 function updateViewFade(dt,clipped,car,mesh){

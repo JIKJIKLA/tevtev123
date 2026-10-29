@@ -15,8 +15,24 @@ function stadiumLightRig(renderer,scene,detail,palette=teamPalette){
  for(let team=0;team<2;team++){const sign=team?1:-1,l=new THREE.PointLight(palette[team],64,42,2);l.position.set(0,7,sign*(HZ-3));Object.assign(l.userData,{team,base:64});lights.push(l);scene.add(l);if(detail)for(const x of [-GX,GX]){const lamp=new THREE.PointLight(palette[team],10,12,2);lamp.position.set(x,GH,sign*(HZ-.4));Object.assign(lamp.userData,{team,base:10});lights.push(lamp);scene.add(lamp);}}
  renderer.shadowMap.type=THREE.PCFShadowMap;return{sun,goalLights:lights};
 }
+function shadowPoseValue(cache,value){const i=cache.at++;if(cache.values[i]!==value){cache.changed=true;cache.values[i]=value;}}
+function showcaseShadowChanged(){
+ const cache=sun.userData.showcaseShadow||(sun.userData.showcaseShadow={valid:false,objects:[],values:[],at:0,changed:true});
+ cache.at=0;cache.changed=!cache.valid;
+ for(let i=0;i<=cm.length;i++){
+  const model=i<cm.length?cm[i]:bm;if(cache.objects[i]!==model){cache.objects[i]=model;cache.changed=true;}
+  shadowPoseValue(cache,!!model?.visible);if(!model?.visible)continue;
+  const p=model.position,q=model.quaternion,s=model.scale;shadowPoseValue(cache,p.x);shadowPoseValue(cache,p.y);shadowPoseValue(cache,p.z);shadowPoseValue(cache,q.x);shadowPoseValue(cache,q.y);shadowPoseValue(cache,q.z);shadowPoseValue(cache,q.w);shadowPoseValue(cache,s.x);shadowPoseValue(cache,s.y);shadowPoseValue(cache,s.z);
+  const wheels=model.userData.wheels||[];shadowPoseValue(cache,wheels.length);for(const wheel of wheels){shadowPoseValue(cache,wheel.rotation.z);shadowPoseValue(cache,wheel.parent?.rotation.y||0);}
+ }
+ if(cache.values.length!==cache.at){cache.values.length=cache.at;cache.changed=true;}cache.valid=true;return cache.changed;
+}
 function updateStadiumShadow(showcase=false){
  if(!sun||!ren?.shadowMap||!sun.userData.shadowOffset)return;
+ // A fixed title/garage pose needs the same shadow image while wind, lighting
+ // receivers and camera orbit continue rendering. Live play still updates each frame.
+ if(showcase&&!showcaseShadowChanged())return;
+ if(!showcase&&sun.userData.showcaseShadow)sun.userData.showcaseShadow.valid=false;
  const player=localPlayer(),model=cm[showcase?0:player.id],focus=model?.position||player.p;
  sun.target.position.set(focus.x,0,focus.z);sun.position.copy(sun.target.position).add(sun.userData.shadowOffset);sun.target.updateMatrixWorld();
  sun.shadow.needsUpdate=ren.shadowMap.needsUpdate=true;
