@@ -6,7 +6,7 @@ This is a source and behavior review of the maintained game and its existing tes
 
 ## Verification state
 
-The final combined build passed **181 frontend tests and 34 server tests: 215 total**. Native-browser and phone checks below exercised the actual build. Phoenix and Cloudflare are deployed and verified at 10.1.1. Final WebGL gameplay and GitHub/Pages/Bunny publication checks are recorded separately below.
+The final combined build passed **181 frontend tests and 34 server tests: 215 total**. Native-browser and phone checks below exercised the actual build. Phoenix, Cloudflare and GitHub Pages are deployed and verified at 10.1.1. The versioned Bunny link also returns the exact build; the unversioned CDN root still served an older cached copy at verification.
 
 | Check | Result | Evidence and boundary |
 | --- | --- | --- |
@@ -18,14 +18,17 @@ The final combined build passed **181 frontend tests and 34 server tests: 215 to
 | Combined server tests | Passed: 34 tests | Includes 16 server match-flow checks covering the completed activity guard; these are included in 34, not additional tests |
 | Actual native-browser controls | Passed locally | Select ArrowDown/Enter retained Settings; opt-in music at 35% and Pause/Resume mirrored title/Settings |
 | Actual backup file restore | Passed locally | Native file chooser → validated preview → Confirm restored 650 XP and four matches on localhost only; browser warning/error logs were empty |
-| Actual phone garage | Passed at 390 × 844 | Scrolled Settings → Home → Garage; `main.menu-pages.scrollTop` was 0 and OCTANE received focus. Workspace screenshot: `nivet-refined-phone-garage-10.1.1.png` |
+| Actual phone garage and match launch | Passed at 390 × 844 | Scrolled Settings → Home → Garage; `main.menu-pages.scrollTop` was 0 and OCTANE received focus. The persistent Play action launched VS AI, and the touch Pause/QUIT flow returned to the lobby. Workspace screenshot: `nivet-refined-phone-garage-10.1.1.png` |
 | Actual WebGPU graphics | Default preload and garage passed | Rendered local build; this is distinct from the WebGL path and does not certify every GPU |
-| Current WebGL visual QA | Pending | Release owner to complete the combined-build browser check |
+| Current WebGL visual QA and deployed private play | Passed | Explicit `?renderer=webgl` rendered the deployed build with `data-turf-backend=webgl`. Private room 911 connected to Phoenix, started with AI, reached live driving at 70 km/h, used boost/pickups, played goal replays and returned through Pause/QUIT to the lobby. Browser warning/error logs stayed empty; zero server rooms remained afterward. |
 | Phoenix server deployment | Passed at 10.1.1 | Shared-solver 3v3 Heatseeker preflight, versioned health, live two-client and personal-paint checks; zero rooms after cleanup |
 | Cloudflare frontend | Passed at 10.1.1 | Exact final HTML hash, GET/HEAD 200, health and release metadata; unknown route 404. Deployment `73e2fb071da24a79b7a5a74ef081aad4` |
-| GitHub, Pages and Bunny publication | Pending | Verify CI/deployment conclusions and direct response hashes after publication |
+| GitHub and Pages publication | Passed | Game/source commit `5d3cadad5e9135cca0adc2d3baa47922a8ef5c9c`; [Verify game](https://github.com/JIKJIKLA/tevtev123/actions/runs/40809641457) and [Pages deployment](https://github.com/JIKJIKLA/tevtev123/actions/runs/40809640495) both succeeded. Direct Pages GET returned the final bytes/hash. |
+| Bunny CDN delivery | Versioned URL passed; root cache is stale | [The release URL](https://tevtev123.b-cdn.net/?v=10.1.1) returned HTTP 200 and the final bytes/hash. Unversioned `/` still returned 10.1.0, so it is not described as a verified 10.1.1 root. No Bunny account purge was performed. |
 
 Final frontend SHA-256: `d6555ef382f4af61265d4212c07cf8ff547fd6dc6887336a64c5999146a21c4f`.
+
+Portable HTML Git blob: `fe4d1ff0c80f97f46454889bd7ab02fa4801e488`. Cloudflare, Pages and the versioned Bunny URL each returned HTTP 200 with exactly 16,798,830 bytes and that SHA-256. Workspace outputs retain `nivet-league-10.1.1.html`, the phone garage capture and `nivet-refined-menu-10.1.1.png`. This publication receipt is a documentation-only follow-up; the verified game bytes are unchanged.
 
 Phoenix rollback backup: `/home/ubuntu/tevin-before-refined-10.1.1.tar.gz`. Live checks observed 31 ms latency; this is one observation, not a latency guarantee or a population-wide benchmark.
 
@@ -61,7 +64,7 @@ No new images, audio recordings, generated assets, subscriptions or paid resourc
 
 ## Residual work and honest limits
 
-- Complete current WebGL QA and verify Cloudflare/GitHub/Pages frontend publication before marking that frontend live. The Phoenix 10.1.1 server is already deployed and checked.
+- Bunny's unversioned root remains an observed stale cache; use the verified release link above. Existing open game tabs also retain their loaded JavaScript until refreshed.
 - Phone garage scroll/focus and native browser selects have actual browser evidence. Continue hardware testing of a real gamepad through a completed match and mobile keyboard behavior; automated DOM events do not certify those platform-specific paths.
 - Reconnect/session resumption and public backfill remain outside this update. Cancellation/forfeit and cleanup provide a defined outcome, not seamless recovery.
 - Browser graphics/context availability, shader compilation time, network latency and device thermals vary. No Chromebook/mobile hardware performance certification or universal frame-rate claim is made.
