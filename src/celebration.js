@@ -1,5 +1,5 @@
 // Bounded presentation only: no match, car or ball physics is changed here.
-const CELEBRATION={group:null,boostOuter:null,boostCore:null,trail:null,shards:null,rings:[],boostClock:[],clock:0,age:99,team:0,color:0x2a6bff,key:'',origin:new V3(),nextTrail:0,
+const CELEBRATION={group:null,goalFire:null,goalSmoke:null,boostOuter:null,boostCore:null,trail:null,shards:null,rings:[],boostClock:[],clock:0,age:99,team:0,color:0x2a6bff,key:'',origin:new V3(),nextTrail:0,
  trailLife:new Float32Array(96),trailTotal:new Float32Array(96),trailPosition:new Float32Array(96*3),trailVelocity:new Float32Array(96*3),trailColor:new Uint32Array(96),shardDirection:[],shardSpeed:[],ui:null};
 const ceMatrix=new THREE.Matrix4(),cePosition=new V3(),ceScale=new V3(),ceDirection=new V3(),ceColor=new THREE.Color(),ceRotation=new Qn(),ceZ=new V3(0,0,1);
 function celebrationMotion(){return RIVAL_PREF.motion&&!matchMedia('(prefers-reduced-motion: reduce)').matches;}
@@ -14,9 +14,11 @@ function createCelebrationEffects(){
  const nozzle=new THREE.ConeGeometry(1,1,8,1,true).rotateZ(Math.PI/2).translate(-.5,0,0);
  e.boostOuter=new THREE.InstancedMesh(nozzle,additive({map:FX?.maps.soft||glowTex(),opacity:.45,side:THREE.DoubleSide}),12);
  e.boostCore=new THREE.InstancedMesh(nozzle,additive({map:FX?.maps.soft||glowTex(),opacity:.62,side:THREE.DoubleSide}),12);
+ e.goalFire=new THREE.InstancedMesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({map:FX?.maps.fire||glowTex(),color:0xffffff,transparent:true,opacity:.8,depthWrite:false,toneMapped:false}),12);
+ e.goalSmoke=new THREE.InstancedMesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({map:FX?.maps.smoke||glowTex(),color:0xc4beb4,transparent:true,opacity:.48,depthWrite:false,toneMapped:false}),24);
  e.trail=new THREE.InstancedMesh(new THREE.PlaneGeometry(1,1),additive({map:FX?.maps?.soft||glowTex(),opacity:.65}),96);
  e.shards=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),additive({opacity:.9}),72);
- for(const mesh of [e.boostOuter,e.boostCore,e.trail,e.shards]){mesh.count=0;mesh.frustumCulled=false;mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);mesh.setColorAt(0,ceColor.setHex(0xffffff));mesh.instanceColor.setUsage(THREE.DynamicDrawUsage);mesh.userData.skipAO=true;group.add(mesh);}
+ for(const mesh of [e.boostOuter,e.boostCore,e.trail,e.shards,e.goalFire,e.goalSmoke]){mesh.count=0;mesh.frustumCulled=false;mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);mesh.setColorAt(0,ceColor.setHex(0xffffff));mesh.instanceColor.setUsage(THREE.DynamicDrawUsage);mesh.userData.skipAO=true;group.add(mesh);}
  for(let i=0;i<3;i++){const ring=new THREE.Mesh(new THREE.RingGeometry(i===2?.97:.9,1,64),additive({side:THREE.DoubleSide,opacity:0}));ring.name='Goal shockwave '+i;ring.frustumCulled=false;ring.userData.skipAO=true;group.add(ring);e.rings.push(ring);}
  for(let i=0;i<72;i++){const angle=i*2.399963,spread=.24+(i%9)/9*.75;e.shardDirection.push(new V3(Math.cos(angle)*spread,.15+(i*13%23)/23*.9,Math.sin(angle)*spread).normalize());e.shardSpeed.push(6+(i*17%23)*.45);}
  clearCelebration();for(const ring of e.rings){ring.visible=true;ring.material.opacity=0;}return true;
@@ -36,9 +38,9 @@ function triggerCelebration(info){
 }
 function clearCelebration(){
  const e=CELEBRATION;e.age=99;e.key='';e.trailLife.fill(0);e.nextTrail=0;e.boostClock.fill(0);document.body.classList.remove('goal-impact','boost-thrust','goal-presentation');if(e.ui)e.ui.el.hidden=true;
- for(const mesh of [e.boostOuter,e.boostCore,e.trail,e.shards])if(mesh)mesh.count=0;for(const ring of e.rings)ring.visible=false;
+ for(const mesh of [e.boostOuter,e.boostCore,e.trail,e.shards,e.goalFire,e.goalSmoke])if(mesh)mesh.count=0;for(const ring of e.rings)ring.visible=false;
 }
-function resetCelebrationEffects(){clearCelebration();CELEBRATION.group=null;CELEBRATION.boostOuter=CELEBRATION.boostCore=CELEBRATION.trail=CELEBRATION.shards=null;CELEBRATION.rings=[];}
+function resetCelebrationEffects(){clearCelebration();CELEBRATION.group=CELEBRATION.goalFire=CELEBRATION.goalSmoke=null;CELEBRATION.boostOuter=CELEBRATION.boostCore=CELEBRATION.trail=CELEBRATION.shards=null;CELEBRATION.rings=[];}
 function celebrationTrail(c,m){
  const e=CELEBRATION,i=e.nextTrail++%96,o=i*3;cePosition.set(-.72,.1,(i%2?1:-1)*.17).applyQuaternion(m.quaternion).add(m.position);ceDirection.set(-1,0,0).applyQuaternion(m.quaternion);
  e.trailPosition[o]=cePosition.x;e.trailPosition[o+1]=cePosition.y;e.trailPosition[o+2]=cePosition.z;
@@ -67,7 +69,7 @@ function updateCelebrations(dt,presentation=null){
  }
  e.trail.count=trail;if(trail){e.trail.instanceMatrix.needsUpdate=e.trail.instanceColor.needsUpdate=true;}
  const intensity=celebrationEnvelope(effectAge),exploding=goal&&motion&&!quiet&&intensity>0;
- e.shards.count=exploding?72:0;
+ e.shards.count=exploding?72:0;updateGoalClouds(effectAge,goal&&motion&&!quiet);
  if(exploding){
   for(let i=0;i<72;i++){
    const d=e.shardDirection[i],speed=e.shardSpeed[i],age=Math.min(effectAge,2.8);ceDirection.copy(d);ceDirection.z=Math.abs(d.z)*(e.team===0?-1:1);cePosition.copy(e.origin).addScaledVector(ceDirection,speed*age);cePosition.y=Math.max(.08,cePosition.y-age*age*2.5);
@@ -78,3 +80,5 @@ function updateCelebrations(dt,presentation=null){
   const ring=e.rings[i],age=effectAge-i*.12;ring.visible=exploding&&age>=0;if(!ring.visible)continue;const radius=.9+age*(i===1?11:8);ring.position.copy(e.origin);if(i===1){ring.rotation.x=-Math.PI/2;ring.position.y=.09;}else{ring.rotation.x=0;ring.position.z+=(e.team===0?-1:1)*(.15+i*.06);}ring.scale.setScalar(radius);ring.material.color.setHex(i===2?0xffecc6:e.color);ring.material.opacity=intensity*(i===2?.35:.65);
  }
 }
+
+function updateGoalClouds(age,active){const e=CELEBRATION;if(!e.goalFire||!e.goalSmoke)return;const life=Math.max(0,age),fire=active&&life<1.8,smoke=active&&life<3.2;e.goalFire.count=fire?12:0;e.goalSmoke.count=smoke?24:0;const sign=e.team===0?-1:1;for(const [mesh,count,kind] of [[e.goalFire,12,0],[e.goalSmoke,24,1]]){if(!mesh.count)continue;const env=Math.min(1,life/(kind?.2:.08))*Math.pow(Math.max(0,1-life/(kind?3.2:1.8)),kind?.7:1.1);for(let i=0;i<count;i++){const angle=i*2.399963,t=life,spread=(kind?1.5:1)+t*(kind?2.5:3);cePosition.copy(e.origin);cePosition.x+=Math.sin(angle)*spread;cePosition.y=Math.max(.6,cePosition.y+(i%4)*.4+t*(kind?2.8:1.8));cePosition.z+=sign*(Math.cos(angle)*spread*.3+t*(kind?1.8:3));const size=(kind?3.5+t*3:3+t*6)*env;ceScale.set(size*(kind?.64:.86),size,1);ceMatrix.compose(cePosition,cam.quaternion,ceScale);mesh.setMatrixAt(i,ceMatrix);}mesh.material.opacity=env*(kind?.48:.82);mesh.instanceMatrix.needsUpdate=true;}}

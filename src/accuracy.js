@@ -1,5 +1,5 @@
 // Reference measurements are linked in docs/ACCURACY.md. Metres, seconds; Y up.
-const BUILD='10.2.1';
+const BUILD='10.3.0';
 const PRESENTATION_TIMING=Object.freeze({goalHold:8.5,replayDelay:.8,replayDuration:7.7,replayShot:6.6,goalFade:.9});
 const PROTOCOL=4;
 function airRotation(velocity,input,acceleration,damping,dt,roll=false){return velocity+(input*acceleration-damping*(roll?1:1-Math.abs(input))*velocity)*dt;}
@@ -30,6 +30,7 @@ const BODY_PHYSICS=[
  {half:[.652135,.169,.4288995],center:[.09,.1575,0],height:.1705}
 ].map((p,index)=>{
  const [hx,hy,hz]=p.half,[cx,cy,cz]=p.center;
+ p.radius=Math.hypot(hx,hy,hz);
  const front=index===2?.503:.5125,rear=index===2?-.3475:-.3375,fw=index===2?.311:.259,rw=index===2?.33:.295;
  p.wheels=[[front,-p.height,fw],[front,-p.height,-fw],[rear,-p.height,rw],[rear,-p.height,-rw]];
  p.inertia={x:180*(hy*hy+hz*hz)/3,y:180*(hx*hx+hz*hz)/3,z:180*(hx*hx+hy*hy)/3};

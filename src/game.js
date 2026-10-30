@@ -2,7 +2,7 @@
 try {
 
 
-/* Nivet League 10.2.1 — Championship. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
+/* Nivet League 10.3.0 — Matchday. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
 window.tevinBoot.stage='game script';
 
 const ENGINE=TevinEngine;
@@ -88,7 +88,7 @@ const PHYS={
 
   hitC:[0,.04,0],hitH:[1,.34,.48],                                                          // ball hitbox: centre offset, half extents
 
-  chain:[-.6,0,.6],chainR:.52,carE:.45},                                                    // car-car collision spheres
+  chain:[-.6,0,.6],chainR:.52,carE:.1,carMu:.09},                                            // measured car-car restitution/friction; legacy chain values retained for recovery
 
   ground:{engineF:3060,engineVmax:14.1,engineKnee:14,engineFloor:.1,brakeF:6300,coastF:945,drag:0,                    // throttle force fades to 0 at engineVmax
 
@@ -108,7 +108,7 @@ const PHYS={
 
  air:{throttleF:120,reverseF:60,T:{roll:380,yaw:680,pitch:780},wmax:5.5,damp:1.2,damp0:5},                            // control torques, max spin, damping (active / released)
 
-  surf:{align:20,tol:.10,retain:.035,rest:.015,spring:120,damping:21,adhesion:40,hullFric:.6,rightDelay:.35,rightRate:6,rightSpeed:4.2}, // retain is grounded-only wheel reach hysteresis, disabled by jump lock and sharp goal corners
+  surf:{align:20,tol:.10,retain:.035,rest:.015,spring:120,damping:21,adhesion:40,hullFric:.6,rightDelay:.35,rightRate:6,rightSpeed:4.2,recoveryDelay:.12,recoveryRate:3.2}, // retain is grounded-only wheel reach hysteresis, disabled by jump lock and sharp goal corners
 
  ball:{mass:30,e:.6,mu:.25,roll:.05,drag:.030562,max:60,maxSpin:6,sub:.35},                               // restitution, surface friction, rolling decay, air drag, speed cap, substep length
 
@@ -226,6 +226,9 @@ function stepCar(c,dt){
 
  const jumpOK=ground;c.canJ=jumpOK?1:0;
 
+ const surfaceDriving=!ground&&contact&&!c.jl&&c.dT<=0&&!c.jp&&Math.abs(i.roll)<.1&&Math.abs(c.n.y)>.55;
+ const recoverBody=surfaceDriving&&(c.hullContact||c.wheelsOn)&&c.cT>P.surf.recoveryDelay;
+ if(recoverBody){rightCar(c,c.n,P.surf.recoveryRate,dt);c.w.multiplyScalar(Math.exp(-12*dt));}
  if(!ground&&contact&&!c.jl){
 
   // Only a small tangential scrape on the roof/sides; never erase uphill velocity on a wheel miss.
@@ -309,7 +312,10 @@ function stepCar(c,dt){
 
    const spin=c.w.length();if(spin>1e-5){_a.copy(c.w).divideScalar(spin);q.multiply(_q1.setFromAxisAngle(_a,spin*active))}flipping=true;if(!c.dT)c.w.multiplyScalar(.20)}
 
-  else{const ws=c.w;ws.x=airRotation(ws.x,i.roll,38.34,4.76,dt,true);ws.y=airRotation(ws.y,-i.yaw,9.11,1.90,dt);ws.z=airRotation(ws.z,-i.pitch,12.46,2.86,dt);if(ws.lengthSq()>A.wmax*A.wmax)ws.setLength(A.wmax)}
+  // Floor/partial-wheel contact should recover a driving pose rather than
+  // interpreting W/A/S/D as free-flight pitch/yaw. Explicit roll, jump/dodge,
+  // walls and genuine flight retain their existing aerial control.
+  else if(!recoverBody){const ws=c.w;ws.x=airRotation(ws.x,i.roll,38.34,4.76,dt,true);ws.y=airRotation(ws.y,surfaceDriving?0:-i.yaw,9.11,1.90,dt);ws.z=airRotation(ws.z,surfaceDriving?0:-i.pitch,12.46,2.86,dt);if(ws.lengthSq()>A.wmax*A.wmax)ws.setLength(A.wmax)}
 
  const m=c.w.length();if(m>1e-4&&!flipping){_a.copy(c.w).divideScalar(m);q.multiply(_q1.setFromAxisAngle(_a,m*dt))}c.v.multiplyScalar(Math.exp(-Gd.drag*c.v.length()*dt*.5));
 
@@ -450,19 +456,11 @@ function stepBall(dt){
 
 function carCar(){for(let i=0;i<cars.length;i++)for(let j=i+1;j<cars.length;j++)if(cars[i].enabled&&cars[j].enabled&&!carDemolished(cars[i])&&!carDemolished(cars[j]))carPair(cars[i],cars[j])}
 
+// INLINE:car-contact.js
+
 function carPair(a,b){
-
- if(carDemolished(a)||carDemolished(b)||demolitionPair(a,b))return;
- const P=PHYS.car,ap=bodyPhysics(a),bp=bodyPhysics(b),R2=ap.half[2]+bp.half[2];
-
- for(const f of [-1,0,1]){const xa=ap.center[0]+f*Math.max(0,ap.half[0]-ap.half[2]);_a.set(xa,ap.center[1],0).applyQuaternion(a.q).add(a.p);
-
-  for(const f of [-1,0,1]){const xb=bp.center[0]+f*Math.max(0,bp.half[0]-bp.half[2]);_b.set(xb,bp.center[1],0).applyQuaternion(b.q).add(b.p);_c.copy(_b).sub(_a);const d=_c.length();
-
-   if(d<R2){if(d>1e-4)_c.divideScalar(d);else _c.set(1,0,0);const o=(R2-d)/2;a.p.addScaledVector(_c,-o);b.p.addScaledVector(_c,o);
-
-    const rv=_d.copy(b.v).sub(a.v).dot(_c);if(rv<0){const j=-(1+P.carE)*rv/(2/CM);a.v.addScaledVector(_c,-j/CM);b.v.addScaledVector(_c,j/CM);bumpFx(-rv)}}}}
-
+ if(carDemolished(a)||carDemolished(b)||!carBoxContact(a,b)||demolitionPair(a,b))return;
+ resolveCarContact(a,b);
 }
 
 function padStep(dt){for(const p of PADS){
@@ -1427,7 +1425,7 @@ function audioSave(c,wasThreat){if(wasThreat&&!audioGoalThreat(c)&&simTime-(c.la
 // after the overlay clears, so a hidden countdown cannot give another player a lead.
 const LOADING={active:false,serial:0,progress:0,cached:false};
 const loadingDelay=ms=>new Promise(resolve=>setTimeout(resolve,ms));
-function graphicsReady(){return !!inited&&graphicsPreset===cfg.hi+cfg.models*2+cars.length*10}
+function graphicsReady(){return !!inited&&graphicsPreset===graphicsKey()}
 async function loadingBegin(title,detail,cached=false){
  const id=++LOADING.serial;Object.assign(LOADING,{active:true,progress:0,cached,opened:performance.now()});
  const el=$('loading-screen');el.hidden=false;el.classList.remove('leaving');el.classList.toggle('cached',cached);el.setAttribute('aria-busy','true');
@@ -1441,6 +1439,8 @@ async function loadingEnd(id){if(id!==LOADING.serial)return;loadingProgress(100,
 function loadingAbort(id){if(id!==LOADING.serial)return;LOADING.serial++;LOADING.active=false;$('loading-screen').hidden=true;$('menu').inert=false;}
 
 
+// INLINE:effect-photos.js
+
 // ARCHIVE FX v7.4: converted TGA textures + bounded, event-driven animation.
 // Twelve pooled impact/goal sprites and one exhaust flare per car. No geometry,
 // materials, textures or vectors are allocated by the steady-state update loop.
@@ -1448,10 +1448,10 @@ let FX=null;
 const fxOffset=new V3();
 function setupGraphicsUI(){for(const [key,url] of Object.entries(ENGINE.GRAPHICS_DATA||{}))$('menu').parentElement?.style.setProperty('--gfx-'+key,'url("'+url+'")')}
 async function createGraphicsEffects(){
- const maps=await ENGINE.loadEffectTextures(),group=new THREE.Group(),pool=[],boost=[];
+ const loaded=await Promise.all([ENGINE.loadEffectTextures(),loadEffectPhotos()]),maps=Object.assign(loaded[0],loaded[1]),group=new THREE.Group(),pool=[],boost=[];
  function sprite(map){const s=new THREE.Sprite(new THREE.SpriteMaterial({map:map||glowTex(),transparent:true,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false,opacity:0}));s.userData.skipAO=true;s.frustumCulled=false;group.add(s);return s}
  for(let i=0;i<12;i++)pool.push({sprite:sprite(i%2?maps.flare:maps.impact),life:0,total:1,size:1,wide:!!(i%2)});
- for(let i=0;i<cars.length;i++)boost.push(sprite(maps.flare));
+ for(let i=0;i<VISUAL_SEATS;i++)boost.push(sprite(maps.flare));
  scene.add(group);FX={group,pool,boost,next:0,time:0,goalKey:'',score:score.join(':'),maps};
  // Visible zero-alpha sprites compile during the existing shader warmup.
 }
@@ -1464,7 +1464,7 @@ function updateGraphicsEffects(dt){if(!FX)return;const playing=st==='PLAY'||st==
  const key=score.join(':');if(st==='GOAL'&&FX.goalKey!==key){FX.goalKey=key;graphicsBurst(ball.p,35,ball.color||0xffffff,true);$('msg').classList.add('goal-burst')}else if(st!=='GOAL')$('msg').classList.remove('goal-burst');
  if(st==='COUNT')FX.goalKey='';if(!playing){for(const e of FX.pool)e.life=0;return}if(motion)FX.time+=dt;
  for(const e of FX.pool){e.life=Math.max(0,e.life-dt);e.sprite.visible=e.life>0;if(!e.life)continue;const t=1-e.life/e.total,s=e.size*(motion?.45+t*1.4:.6);e.sprite.scale.set(s*(e.wide?2.8:1),s*(e.wide?.45:1),1);e.sprite.material.opacity=Math.pow(1-t,2)*(motion?.65:.2)}
- for(let i=0;i<FX.boost.length;i++){const c=cars[i],s=FX.boost[i];s.visible=!!c.enabled&&!!c.bst;if(!s.visible)continue;fxOffset.set(-1.1,.02,0).applyQuaternion(cm[i].quaternion);s.position.copy(cm[i].position).add(fxOffset);s.material.color.setHex(c.color);s.material.opacity=motion?.26:.12;s.scale.set(motion?.8+Math.sin(FX.time*19+i)*.07:.8,.25,1)}
+ for(let i=0;i<FX.boost.length;i++){const c=cars[i],s=FX.boost[i];s.visible=!!c?.enabled&&!!c.bst;if(!s.visible)continue;fxOffset.set(-1.1,.02,0).applyQuaternion(cm[i].quaternion);s.position.copy(cm[i].position).add(fxOffset);s.material.color.setHex(c.color);s.material.opacity=motion?.26:.12;s.scale.set(motion?.8+Math.sin(FX.time*19+i)*.07:.8,.25,1)}
 }
 
 
@@ -1646,7 +1646,7 @@ function menuBack(){audioSample('uiBack',.38);showMenuScreen(menuScreen==='party
 function chooseRoute(route){if(typeof SOC!=='undefined'&&SOC.searching&&route!=='quick')cancelQuickMatch();playRoute=route;$('quick-panel').hidden=route!=='quick';for(const name of ['quick','offline','online','training'])$('choose-'+name).setAttribute('aria-pressed',String(name===route));$('go').hidden=route!=='offline';$('sandbox-start').hidden=route!=='training';$('mp-panel').hidden=route!=='online';$('mp-status').hidden=route!=='online';$('route-help').textContent=route==='quick'?'Play against other people online. Search solo or with a party on your team.':route==='online'?'Play in an invite-only match. Friends join individually with a match code.':route==='training'?'Endless practice. Change AI and boost with F2; reset the ball with R.':'Play a complete match with AI teammates and opponents.';updateMatchSummary();socialUI();privateMenuUI()}
 function showMenuScreen(screen){const changed=menuScreen!==screen;if(screen==='party'&&menuScreen!=='party')partyReturn=menuScreen;menuScreen=screen;for(const name of ['home','play','garage','settings','party'])$(name+'-panel').hidden=name!==screen;$('menu').setAttribute('data-screen',screen);$('menu-back').hidden=screen==='home';$('menu-back').textContent=screen==='party'&&partyReturn!=='home'?'← BACK TO '+partyReturn.toUpperCase():'← HOME';$('menu-location').textContent=screen==='home'?'HOME':screen==='party'?'QUICK MATCH / PARTY':'HOME / '+screen.toUpperCase();$('menu').classList.toggle('live-preview',!!inited);$('start-status').textContent='';if(changed)resetMenuScroll();if(screen==='play')chooseRoute(playRoute);if(screen==='garage')previewGarage();updateMatchSummary();socialUI();focusMenuScreen(screen)}
 async function previewGarage(){if(previewJob)return previewJob;if(starting)return;starting=true;$('go').disabled=$('sandbox-start').disabled=true;$('preview-car').disabled=true;$('garage-status').textContent='Preparing your '+BODY_NAMES[cfg.body]+'…';
- previewJob=(async()=>{let transition;try{configureCars();transition=await loadingBegin('YOUR GARAGE',BODY_NAMES[cfg.body]+' · Preparing your car',graphicsReady());await init3d();const changed=cm.some((m,i)=>m.userData.body!==(cars[i].body||0)||m.userData.simple===!!cfg.models);refreshCarModels();if(changed&&ren?.compileAsync){await loadingStage(94,'Preparing your selected car');ENGINE.status.warming=true;try{await graphicsDeadline(ren.compileAsync(scene,cam),BODY_NAMES[cfg.body]+' preview')}finally{ENGINE.status.warming=false}}if(menuScreen==='garage')$('menu').classList.add('live-preview');$('garage-status').textContent=BODY_NAMES[cfg.body]+' · '+paintName(cfg)+' · READY';await loadingEnd(transition)}catch(e){loadingAbort(transition);try{dispose3d()}catch(_){}$('menu').classList.remove('live-preview');$('garage-status').textContent='Preview unavailable. Try Performance mode in Settings.';console.warn('Garage preview',e)}finally{starting=false;$('go').disabled=$('sandbox-start').disabled=false;$('preview-car').disabled=false;previewJob=null}})();return previewJob;
+ previewJob=(async()=>{let transition;try{configureCars();transition=await loadingBegin('YOUR GARAGE',BODY_NAMES[cfg.body]+' · Preparing your car',graphicsReady());await init3d();const changed=cm.some((m,i)=>cars[i]&&(m.userData.body!==(cars[i].body||0)||m.userData.simple===!cfg.models));refreshCarModels();if(changed&&ren?.compileAsync){await loadingStage(94,'Preparing your selected car');ENGINE.status.warming=true;try{await graphicsDeadline(ren.compileAsync(scene,cam),BODY_NAMES[cfg.body]+' preview')}finally{ENGINE.status.warming=false}}if(menuScreen==='garage')$('menu').classList.add('live-preview');$('garage-status').textContent=BODY_NAMES[cfg.body]+' · '+paintName(cfg)+' · READY';await loadingEnd(transition)}catch(e){loadingAbort(transition);try{dispose3d()}catch(_){}$('menu').classList.remove('live-preview');$('garage-status').textContent='Preview unavailable. Try Performance mode in Settings.';console.warn('Garage preview',e)}finally{starting=false;$('go').disabled=$('sandbox-start').disabled=false;$('preview-car').disabled=false;previewJob=null}})();return previewJob;
 }
 function setupMenu(){
  $('nav-play').onclick=()=>{if(!INTRO.manualPause)introStart();openPlaySelection()};$('nav-garage').onclick=()=>showMenuScreen('garage');$('nav-settings').onclick=()=>showMenuScreen('settings');$('nav-training').onclick=()=>{chooseRoute('training');showMenuScreen('play')};$('menu-back').onclick=menuBack;$('preview-car').onclick=previewGarage;
@@ -1667,7 +1667,7 @@ function fitCarVisual(visual,c){
  const targetTrack=spec.wheels.reduce((sum,p)=>sum+Math.abs(p[2])*2,0)/spec.wheels.length,trackScale=centers.length>=4&&track>.01?cl(targetTrack/(track*lengthScale),.85,1.2):1;
  visual.scale.set(lengthScale,lengthScale,lengthScale*trackScale);visual.position.set(spec.center[0]-(box.min.x+size.x/2)*visual.scale.x,-spec.height-box.min.y*visual.scale.y,-(box.min.z+size.z/2)*visual.scale.z);m.userData.trackScale=trackScale;m.add(visual);return m;
 }
-function refreshCarModels(){if(!inited)return;for(let k=0;k<cars.length;k++){const old=cm[k],c=cars[k];if(!old||old.userData.body===(c.body||0)&&old.userData.simple===!cfg.models)continue;const next=createCarVisual(c);next.position.copy(old.position);next.quaternion.copy(old.quaternion);scene.remove(old);scene.add(next);cm[k]=next;const geos=new Set(),mats=new Set();old.traverse(o=>{if(o.geometry)geos.add(o.geometry);for(const m of Array.isArray(o.material)?o.material:[o.material])if(m)mats.add(m)});geos.forEach(g=>g.dispose());mats.forEach(m=>m.dispose());if(pipeline?.refreshVisibility)pipeline.refreshVisibility();ren.shadowMap.needsUpdate=true;sun.shadow.needsUpdate=true;}}
+function refreshCarModels(){if(!inited)return;for(let k=0;k<cm.length;k++){const old=cm[k],c=cars[k];if(!c){old.visible=false;continue;}if(old&&old.userData.body===(c.body||0)&&old.userData.simple===!cfg.models)continue;const next=createCarVisual(c);if(old){next.position.copy(old.position);next.quaternion.copy(old.quaternion);scene.remove(old);}scene.add(next);cm[k]=next;if(old){const geos=new Set(),mats=new Set();old.traverse(o=>{if(o.geometry)geos.add(o.geometry);for(const m of Array.isArray(o.material)?o.material:[o.material])if(m)mats.add(m)});geos.forEach(g=>g.dispose());mats.forEach(m=>m.dispose());}if(pipeline?.refreshVisibility)pipeline.refreshVisibility();ren.shadowMap.needsUpdate=true;sun.shadow.needsUpdate=true;}syncVisualSeats();}
 
 
 // Public matchmaking. Supabase is a client-coordinated relay, not a trusted
@@ -1684,6 +1684,7 @@ function memberLive(m,now=socialNow()){return m.connected!==false&&now-m.seen<SO
 function partyLeader(){return !SOC.party||SOC.partyData?.leader===SOC.id}
 function socialError(e){SOC.error=e.message||String(e);socialUI();console.warn('Social lobby',e)}
 function socialUI(){
+ syncMenuDriver();
  const members=partyMembers(),leader=partyLeader(),live=members.filter(([,m])=>memberLive(m));
  $('queue-dock').hidden=!SOC.searching||menuScreen==='play';$('queue-dock').textContent=SOC.entering?'MATCH FOUND · LOADING':'SEARCHING · VIEW QUEUE';
  $('party-toggle').textContent=SOC.party?'PARTY · '+live.length+'/3':'QUICK MATCH PARTY';$('party-actions').hidden=!!SOC.party;$('party-create').hidden=!!SOC.party||partyAction!=='create';$('party-join-row').hidden=!!SOC.party||partyAction!=='join';$('party-create-tab').setAttribute('aria-pressed',String(partyAction==='create'));$('party-join-tab').setAttribute('aria-pressed',String(partyAction==='join'));
@@ -1720,7 +1721,7 @@ function queuePlan(tickets,size,now){const groups=Object.entries(tickets||{}).fi
 }
 function cleanQueue(q,now){q=q||{};q.tickets=q.tickets||{};q.matches=q.matches||{};for(const [id,m] of Object.entries(q.matches))if(now-m.created>120000)delete q.matches[id];for(const [id,t] of Object.entries(q.tickets))if(now-t.seen>SOCIAL_LEASE&&!t.match||t.match&&!q.matches[t.match])delete q.tickets[id];return q}
 async function findQuickMatch(){if(DED.enabled){if(SOC.searching||SOC.busy||starting||MP.active)return;return dedSocial('queue',{settings:matchSettings()})}if(SOC.searching||SOC.busy||starting||MP.active||st!=='MENU')return;SOC.busy=true;SOC.error='';socialUI();try{const db=await socialConnect();await socialHeartbeat();const members=SOC.party?partyMembers((await SOC.party.once('value')).val()):[[SOC.id,{...socialProfile(),seen:socialNow(),connected:true,ready:true}]];
- if(!partyLeader())throw Error('Only the party leader can start Quick Match.');if(members.length>cfg.size)throw Error('Your party needs '+members.length+'v'+members.length+' or larger.');if(members.some(([,m])=>m.protocol!==PROTOCOL))throw Error('Every party member must reload version 9.2 before searching.');if(members.some(([,m])=>!memberLive(m)||!m.ready))throw Error('Every party member must be online and ready first.');
+ if(!partyLeader())throw Error('Only the party leader can start Quick Match.');if(members.length>cfg.size)throw Error('Your party needs '+members.length+'v'+members.length+' or larger.');if(members.some(([,m])=>m.protocol!==PROTOCOL))throw Error('Every party member must reload the latest Nivet League before searching.');if(members.some(([,m])=>!memberLive(m)||!m.ready))throw Error('Every party member must be online and ready first.');
  const ticket=crypto.randomUUID(),key=(cfg.mode?'heat':'soccar')+'-v4-'+cfg.size,ref=db.ref(SOCIAL_ROOT+'/queues/'+key),now=socialNow(),epoch=++SOC.epoch;
  SOC.ticket=ticket;SOC.queue=ref;SOC.owner=true;SOC.since=now;
  const entries=members.map(([id,m])=>({session:id,name:m.name,body:m.body||0,color:m.color||0,teamColors:m.teamColors!==false}));
@@ -1801,7 +1802,7 @@ async function startGame(){
 
   const continuing=st==='END';rivalsStart();seriesStart(!continuing);unlockAudio();AUDIO.goalKey="";AUDIO.countKey="";AUDIO.events.length=0;
 
-  let transition;try{configureCars();transition=await loadingBegin('ENTERING THE ARENA',(cfg.mode?'HEATSEEKER':'SOCCAR')+' · '+cfg.size+'v'+cfg.size,graphicsReady());trainingLabels();$('training-panel').hidden=!sandbox;await init3d();refreshCarModels()}catch(err){loadingAbort(transition);console.error(err);try{dispose3d()}catch(_){}starting=false;st='MENU';$('menu').classList.add('on');$('go').disabled=false;$('go').innerHTML='RETRY KICKOFF <small>ENTER ↵</small>';graphicsFailure(err);if(MP.active)mpReset();return false}$('go').disabled=false;$('go').textContent='START OFFLINE MATCH';$('start-status').textContent='';last=performance.now();acc=0;$('cv').style.filter='none';['menu','end','pause'].forEach(x=>$(x).classList.remove('on'));$('hud').style.display='block';
+  let transition;try{configureCars();transition=await loadingBegin('ENTERING THE ARENA',(cfg.mode?'HEATSEEKER':'SOCCAR')+' · '+cfg.size+'v'+cfg.size,graphicsReady());trainingLabels();$('training-panel').hidden=!sandbox;await init3d();refreshCarModels();await warmSceneOnce()}catch(err){loadingAbort(transition);console.error(err);try{dispose3d()}catch(_){}starting=false;st='MENU';$('menu').classList.add('on');$('go').disabled=false;$('go').innerHTML='RETRY KICKOFF <small>ENTER ↵</small>';graphicsFailure(err);if(MP.active)mpReset();return false}$('go').disabled=false;$('go').textContent='START OFFLINE MATCH';$('start-status').textContent='';last=performance.now();acc=0;$('cv').style.filter='none';['menu','end','pause'].forEach(x=>$(x).classList.remove('on'));$('hud').style.display='block';
 
   for(const k in keys)keys[k]=0;particleCount=particleReplace=0;shake=flash=0;score=[0,0];tl=cfg.len;ot=0;Object.assign(matchStats,{touches:0,topSpeed:0,boost:0,lastTouch:-1e9});const role=MP.active?((MP.quick?'QUICK MATCH':MP.role.toUpperCase())+' · YOU ARE '+(localPlayer().team?'ORANGE':'BLUE')):['ROOKIE','PRO','ALL-STAR'][cfg.lvl]+' · YOU ARE BLUE';$('matchlevel').textContent=role;$('s0').textContent=$('s1').textContent=0;
 
@@ -2105,7 +2106,7 @@ function dispose3d(){
  // Detach the active frame first. Failed builds never reached inited, but own
  // exactly the same resources and must be safe to release or retry repeatedly.
  const oldScene=scene,oldRenderer=ren,oldPipeline=pipeline,oldEnvironment=envTarget,oldShadow=sun?.shadow?.map;
- inited=0;scene=ren=cam=sun=pipeline=grassM=envTarget=null;graphicsPreset=-1;
+ inited=0;if(typeof SCENE_WARM!=='undefined'){SCENE_WARM.owner=null;SCENE_WARM.models=new WeakSet();SCENE_WARM.job=null;}scene=ren=cam=sun=pipeline=grassM=envTarget=null;graphicsPreset=-1;
  const geos=new Set(),mats=new Set(),textures=new Set(),release=value=>{try{value?.dispose?.()}catch(error){console.warn('Graphics resource cleanup',error)}};
  if(oldScene)oldScene.traverse(o=>{if(o.geometry)geos.add(o.geometry);for(const m of (Array.isArray(o.material)?o.material:[o.material]))if(m){mats.add(m);for(const v of Object.values(m))if(v?.isTexture)textures.add(v)}});
  for(const t of [oldScene?.background,GT,PITCH_TEXTURE,...Object.values(TURF_SURFACE_ASSETS||{}),...Object.values(assetTextures||{}),...Object.values(FX?.maps||{})])if(t?.isTexture)textures.add(t);
@@ -2132,7 +2133,7 @@ async function init3d(forceGL=FORCE_GL){
 
 async function build3d(forceGL){
 
- if(inited&&graphicsPreset===cfg.hi+cfg.models*2+cars.length*10)return;if(inited)dispose3d();graphicsPreset=cfg.hi+cfg.models*2+cars.length*10;
+ if(inited&&graphicsPreset===graphicsKey())return;if(inited)dispose3d();graphicsPreset=graphicsKey();
 
  await loadingStage(12,'Connecting graphics device');
   ren=await createGameRenderer(forceGL);renderScale=1;perfEMA=1/60;perfTimer=0;ren.setPixelRatio(pixelRatio());ren.setSize(innerWidth,innerHeight);
@@ -2183,7 +2184,7 @@ async function build3d(forceGL){
  await loadingStage(55,'Loading car models and textures');
  const importedTextures=assetTextures=cfg.models?await ENGINE.loadImportedTextures():null;
 
- cm=cars.map(createCarVisual);
+ cm=Array.from({length:VISUAL_SEATS},(_,i)=>createCarVisual(visualSeatSpec(i)));
 
  // Both factories return unattached groups. Attach here, before shader warming.
 
@@ -2206,7 +2207,7 @@ async function build3d(forceGL){
  // Three small decals also ground the ball in Performance mode without a shadow map.
 
  const contactMap=stadiumContactShadowTexture(true),ballContactMap=stadiumContactShadowTexture();
- for(let k=0;k<cars.length+1;k++){const shadow=new THREE.Mesh(new THREE.PlaneGeometry(k<cars.length?1.6:2.2,k<cars.length?1.04:2.2).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({map:k<cars.length?contactMap:ballContactMap,color:0x000000,transparent:true,opacity:.3,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1}));shadow.name='Contact shadow';shadow.renderOrder=1;scene.add(shadow);contactShadows.push(shadow)}
+ for(let k=0;k<VISUAL_SEATS+1;k++){const shadow=new THREE.Mesh(new THREE.PlaneGeometry(k<VISUAL_SEATS?1.6:2.2,k<VISUAL_SEATS?1.04:2.2).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({map:k<VISUAL_SEATS?contactMap:ballContactMap,color:0x000000,transparent:true,opacity:.3,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-1,polygonOffsetUnits:-1}));shadow.name='Contact shadow';shadow.renderOrder=1;scene.add(shadow);contactShadows.push(shadow)}
 
  const bc=cvs(512,256),bg=bc.getContext('2d');bg.fillStyle='#e8eef5';bg.fillRect(0,0,512,256);bg.fillStyle='#1a2330';for(let i=0;i<30;i++){bg.beginPath();bg.arc(Math.random()*512,Math.random()*256,10+Math.random()*14,0,7);bg.fill()}bg.strokeStyle='#8899aa';bg.lineWidth=3;for(let i=0;i<9;i++){bg.strokeRect(i*60,0,60,256)}
 
@@ -2218,9 +2219,9 @@ async function build3d(forceGL){
 
  const sp=cvs(64,64),sg=sp.getContext('2d'),rg=sg.createRadialGradient(32,32,0,32,32,32);rg.addColorStop(0,'#fff');rg.addColorStop(.3,'rgba(255,255,255,.5)');rg.addColorStop(1,'rgba(255,255,255,0)');sg.fillStyle=rg;sg.fillRect(0,0,64,64);
 
-  await loadingStage(63,'Preparing the three-jet airshow');await loadJetAssets();buildBoostPickups();OPENING.visuals=createOpeningVisuals();scene.add(OPENING.visuals.group);buildBombDrop();
+  await loadingStage(63,'Preparing the three-jet airshow');await loadJetAssets();buildBoostPickups();OPENING.visuals=createOpeningVisuals();scene.add(OPENING.visuals.group);
 
-  await createGraphicsEffects();createCelebrationEffects();createMatchEffects();
+  await createGraphicsEffects();buildBombDrop();createCelebrationEffects();createMatchEffects();
 
  // Instanced camera-facing quads preserve the soft additive particle appearance.
 
@@ -2245,11 +2246,11 @@ async function build3d(forceGL){
  const lp=localPlayer();cam.position.copy(cpos);cam.lookAt(lookPos);
 
  await loadingStage(90,'Compiling materials and effects');
- OPENING.visuals.group.visible=OPENING.visuals.airshow.group.visible=BOMB.visuals.ball.visible=BOMB.visuals.effects.visible=true;OPENING.visuals.airshow.jets.forEach(j=>j.visible=true);try{await ENGINE.prewarm(ren,scene,cam,pipeline,cm,pts);clearMatchEffects()}finally{OPENING.visuals.group.visible=true;OPENING.visuals.airshow.group.visible=BOMB.visuals.ball.visible=BOMB.visuals.effects.visible=false;OPENING.visuals.airshow.jets.forEach(j=>j.visible=false)}
+ createRivalVisuals();await warmSceneOnce('Uploading cars and warming all match effects');clearMatchEffects();
 
  if(ren.isWebGPURenderer)ren.onDeviceLost=handleDeviceLoss;
 
- createRivalVisuals();inited=1;arenaThemeKey='';applyArenaTheme();$('cv').addEventListener('webglcontextlost',e=>{e.preventDefault();if(e.currentTarget!==$('cv'))return;quit();$('go').disabled=true;document.querySelector('.hint').textContent='The graphics context was lost. Reload the page to restart.'});
+ inited=1;arenaThemeKey='';applyArenaTheme();$('cv').addEventListener('webglcontextlost',e=>{e.preventDefault();if(e.currentTarget!==$('cv'))return;quit();$('go').disabled=true;document.querySelector('.hint').textContent='The graphics context was lost. Reload the page to restart.'});
 
 }
 
@@ -2287,11 +2288,9 @@ function render(dt){
 
  bm.position.lerpVectors(ball.frameP,ball.p,alpha);if(DED.active)bm.position.add(DED.ballOffset);const sp=ball.v.length(),wl=ball.w.length();if(wl>.01){spinAxis.copy(ball.w).divideScalar(wl);spinQ.setFromAxisAngle(spinAxis,wl*dt*(st=='GOAL'?.3:1));bm.quaternion.premultiply(spinQ).normalize()}updateOpeningVisuals();updateGraphicsEffects(dt);
 
- for(let k=0;k<cars.length+1;k++){const shadow=contactShadows[k],p=k<cars.length?cm[k].position:bm.position,height=Math.max(0,p.y-(k<cars.length?bodyPhysics(cars[k]).height:BR));
-
-  shadow.visible=(k===cars.length||cars[k].enabled&&!carDemolished(cars[k]))&&Math.abs(p.x)<36.5&&Math.abs(p.z)<46.5&&height<10;shadow.position.set(p.x,.018,p.z);shadow.material.opacity=(cfg.hi?.32:.47)*Math.exp(-height*.42);shadow.scale.setScalar(1+Math.min(height,10)*.055);
-
-  if(k<cars.length){renderForward.set(1,0,0).applyQuaternion(cm[k].quaternion);shadow.rotation.y=-Math.atan2(renderForward.z,renderForward.x)}}
+ for(let k=0;k<contactShadows.length;k++){const isCar=k<VISUAL_SEATS,c=cars[k],shadow=contactShadows[k],p=isCar?cm[k].position:bm.position,height=Math.max(0,p.y-(isCar&&c?bodyPhysics(c).height:BR));
+  shadow.visible=(!isCar||!!c?.enabled&&!carDemolished(c))&&Math.abs(p.x)<36.5&&Math.abs(p.z)<46.5&&height<10;shadow.position.set(p.x,.018,p.z);shadow.material.opacity=(cfg.hi?.32:.47)*Math.exp(-height*.42);shadow.scale.setScalar(1+Math.min(height,10)*.055);
+  if(isCar&&c){renderForward.set(1,0,0).applyQuaternion(cm[k].quaternion);shadow.rotation.y=-Math.atan2(renderForward.z,renderForward.x)}}
 
   const glow=ball.last>=0?ball.color||PALETTE[ball.last]:0x222222;if(bm.userData.glow!==glow){bm.material.emissive.setHex(glow);bm.userData.glow=glow}
 
@@ -2321,7 +2320,7 @@ function render(dt){
 
   if(cameraSettings.shake&&shake>.002){cam.position.x+=(Math.random()-.5)*shake;cam.position.y+=(Math.random()-.5)*shake;shake*=Math.exp(-dt*13)}else shake=0;
 
-  if(sp>20)emit(ball.p.x,ball.p.y,ball.p.z,0,0,0,.45,((ball.color>>16)&255)/255,((ball.color>>8)&255)/255,(ball.color&255)/255);cam.lookAt(lookPos);updateViewFade(dt,cameraClipped,c,cm[c.id]);
+  if(sp>20)emit(ball.p.x,ball.p.y,ball.p.z,0,0,0,.45,((ball.color>>16)&255)/255,((ball.color>>8)&255)/255,(ball.color&255)/255);cam.lookAt(lookPos);keepCarInFrame(cam,c,cm[c.id]);updateViewFade(dt,cameraClipped,c,cm[c.id]);
 
   const fov=2*Math.atan(Math.tan((cameraSettings.fov+(Math.max(104,cameraSettings.fov)-cameraSettings.fov)*VIEW.wallMix)*Math.PI/360)/(16/9))*180/Math.PI;cam.fov+=(fov-cam.fov)*(1-Math.exp(-dt*6));if(Math.abs(fov-cam.fov)>.015)cam.updateProjectionMatrix();
 
@@ -2357,7 +2356,7 @@ const cameraAnchor=new V3(),camAnchorDelta=new V3();let cameraAnchorReady=false;
 const spinAxis=new V3(),spinQ=new Qn();let DBG=0,last=0,acc=0,presentationDelta=0;
 
 function frame(t){requestAnimationFrame(frame);presentationDelta=cl((t-last)/1000||0,0,1);const dt=Math.min(.1,presentationDelta);last=t;pollController();updateDeviceUI();introFrame(dt);
- if(LOADING.active){acc=0;if(inited&&!ENGINE.status.warming)render(dt);return}
+ if(LOADING.active){acc=0;if(inited&&!ENGINE.status.warming&&!SCENE_WARM.job)render(dt);return}
 
  tickBombDrop(presentationDelta);rivalsTick(dt);if(mt>0){mt=Math.max(0,(msgDeadline-t)/1000);if(!mt)$('msg').style.opacity=0;}
  if(DED.active){dedFrame(dt);return}
@@ -2392,6 +2391,7 @@ function frame(t){requestAnimationFrame(frame);presentationDelta=cl((t-last)/100
 // INLINE:celebration.js
 // INLINE:match-effects.js
 // INLINE:ui-cinema.js
+// INLINE:scene-ready.js
 // INLINE:preload.js
 // INLINE:server-api.js
 // INLINE:test-hooks.js
@@ -2399,7 +2399,7 @@ setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();se
 
 window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:120,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,multiplayer:DED.active?'Phoenix dedicated':'offline',rtt:DED.rtt,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
 
-window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 10.2.1 · CHAMPIONSHIP · Ready to play');
+window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD 10.3.0 · MATCHDAY · Ready to play');
 
 
 } catch(error) { window.tevinBoot.error=String(error.message||error);window.tevinBoot.show("Startup failed at "+window.tevinBoot.stage+": "+window.tevinBoot.error);console.error(error); }

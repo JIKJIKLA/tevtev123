@@ -49,7 +49,7 @@ function renderGoalReplay(dt){
  const time=replayPlaybackTime(r);let a=r.frames[0],b=a;
  for(let i=1;i<r.frames.length;i++){b=r.frames[i];if(b.t>=time)break;a=b}
  const f=cl((time-a.t)/Math.max(.001,b.t-a.t),0,1);
- for(let i=0;i<cm.length;i++){const m=cm[i];m.visible=cars[i].enabled&&!(a.cars[i]?.demoTime>0);m.userData.replaySupersonic=!!a.cars[i]?.supersonic;if(!a.cars[i]||!b.cars[i])continue;m.position.fromArray(a.cars[i].p).lerp(replayPose.fromArray(b.cars[i].p),f);m.quaternion.fromArray(a.cars[i].q).slerp(replayRotation.fromArray(b.cars[i].q),f);if(m.userData.f)m.userData.f.visible=false;}
+ for(let i=0;i<cm.length;i++){const m=cm[i];m.visible=!!cars[i]?.enabled&&!(a.cars[i]?.demoTime>0);m.userData.replaySupersonic=!!a.cars[i]?.supersonic;if(!a.cars[i]||!b.cars[i])continue;m.position.fromArray(a.cars[i].p).lerp(replayPose.fromArray(b.cars[i].p),f);m.quaternion.fromArray(a.cars[i].q).slerp(replayRotation.fromArray(b.cars[i].q),f);if(m.userData.f)m.userData.f.visible=false;}
  bm.position.fromArray(a.ball).lerp(replayPose.fromArray(b.ball),f);const direction=positionReplayCamera(r);bm.visible=!direction.exploding;document.body.classList.toggle('cinema-replay',cinemaMotion());updateWind(dt*(direction.slow?.22:1));
  pts.count=0;if(FX)FX.group.visible=false;contactShadows.forEach(s=>s.visible=false);if(RIVALS.visuals)RIVALS.visuals.group.visible=false;$('flash').style.opacity=0;updateCelebrations(dt,{age:direction.exploding?direction.impactAge:99,suppressUI:true});updateMatchEffects(dt,true);updateBoostPickups(dt,a.pads||null,false);updateStadiumShadow();pipeline.render();
  $('replay-label').textContent=direction.exploding?'GOAL EXPLOSION':direction.slow?'FINAL TOUCH · SLOW MOTION':direction.ballFocus>.5?'GOAL REPLAY · FOLLOW THE SHOT':'GOAL REPLAY · THE APPROACH';return true;
@@ -93,11 +93,11 @@ function createRivalVisuals(){
  const ring=new THREE.Mesh(new THREE.RingGeometry(BR*.9,BR*1.04,40).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:0xe0f9ff,transparent:true,opacity:.7,depthWrite:false,toneMapped:false}));group.add(ring);
  const pulse=new THREE.Mesh(new THREE.RingGeometry(.94,1,48).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,depthWrite:false,toneMapped:false}));group.add(pulse);
  const box=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1,1,1)),new THREE.LineBasicMaterial({color:0x6dffbe,transparent:true,opacity:.85,depthTest:false}));group.add(box);
- const labels=cars.map(c=>{const el=document.createElement('span');el.className='driver-marker';$('driver-markers').appendChild(el);return el});
+ const labels=Array.from({length:6},()=>{const el=document.createElement('span');el.className='driver-marker';el.hidden=true;$('driver-markers').appendChild(el);return el});
  RIVALS.visuals={group,ring,pulse,box,labels,project:new V3()};
 }
 function updateRivalVisuals(dt){
- const v=RIVALS.visuals;if(!v)return;while(v.labels.length<cars.length){const el=document.createElement('span');el.className='driver-marker';$('driver-markers').appendChild(el);v.labels.push(el)}v.group.visible=st!=='MENU'&&st!=='END'&&st!=='PRANK';const p=bm.position;
+ const v=RIVALS.visuals;if(!v)return;while(v.labels.length<cars.length){const el=document.createElement('span');el.className='driver-marker';$('driver-markers').appendChild(el);v.labels.push(el)}for(let i=cars.length;i<v.labels.length;i++)v.labels[i].hidden=true;v.group.visible=st!=='MENU'&&st!=='END'&&st!=='PRANK';const p=bm.position;
  v.ring.visible=RIVAL_PREF.markers&&Math.abs(p.x)<HX-3&&Math.abs(p.z)<HZ-3;v.ring.position.set(p.x,.035,p.z);v.ring.scale.setScalar(1+Math.min(8,Math.max(0,p.y-BR))*.035);v.ring.material.color.setHex(ball.last>=0?teamPalette[ball.last]:0xe0f9ff);
  v.box.visible=sandbox&&!MP.active&&DRILL.hitboxes;const c=localPlayer();if(v.box.visible){const body=bodyPhysics(c);v.box.position.fromArray(body.center).applyQuaternion(c.q).add(cm[c.id].position);v.box.quaternion.copy(c.q);v.box.scale.set(body.half[0]*2,body.half[1]*2,body.half[2]*2);}
  v.pulse.visible=goalPulse>.01&&RIVAL_PREF.celebration!=='quiet';if(v.pulse.visible){v.pulse.position.set(0,.055,RIVALS.goal?.team===0?HZ-3:-HZ+3);v.pulse.scale.setScalar(2+(1-goalPulse)*24);v.pulse.material.color.setHex(teamPalette[RIVALS.goal?.team||0]);v.pulse.material.opacity=goalPulse*.65;}
@@ -127,6 +127,7 @@ function rivalsTick(dt){
  if($('practice-queue-status')){$('practice-queue-status').hidden=!RIVALS.queuePractice;$('practice-queue-status').textContent=SOC.searching?'SEARCHING FOR PLAYERS · Practice while you wait':'SEARCH ENDED · Free play';}
 }
 function renderCareer(){
+ syncMenuDriver();
  const e=$('career-summary');if(!e)return;e.textContent='LEVEL '+(1+Math.floor(CAREER.xp/500))+' · '+CAREER.xp+' XP · '+CAREER.matches+' MATCHES · '+CAREER.wins+' WINS · '+CAREER.goals+' GOALS · '+CAREER.drills+' DRILLS';
  const list=$('career-history');list.replaceChildren();for(const h of CAREER.history.slice(0,5)){const p=document.createElement('p');p.textContent=h.result+' '+h.score+' · '+h.mode+' '+h.size+'v'+h.size+' · '+(h.online?'ONLINE':'VS AI');list.appendChild(p)}
  const titles=$('driver-title');titles.replaceChildren();for(const name of earnedTitles()){const o=document.createElement('option');o.value=o.textContent=name;titles.appendChild(o)}if(!earnedTitles().includes(RIVAL_PREF.title))RIVAL_PREF.title='ROOKIE';titles.value=RIVAL_PREF.title;

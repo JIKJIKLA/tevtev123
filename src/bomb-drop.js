@@ -16,8 +16,8 @@ function armBombDrop(){
  BOMB.chosen=rollBombDrop();BOMB.phase=BOMB.chosen?'armed':'idle';BOMB.age=0;BOMB.target.copy(ball.p);document.body.dataset.bombPhase=BOMB.phase;return BOMB.chosen;
 }
 function bombBlastSample(age,motion=true){
- const t=Math.max(0,age),flash=motion?Math.max(0,1-t/.9):0;
- return{radius:Math.min(115,t*58),core:motion?Math.max(0,Math.sin(Math.min(1,t/.95)*Math.PI))*4.6:0,fire:motion?Math.min(1,t/.09)*Math.pow(Math.max(0,1-t/1.6),1.6):0,smoke:motion?Math.min(1,t/.3)*Math.max(0,1-t/3.1):0,shake:flash*flash*.065,result:t>=1.6,done:t>=3.5};
+ const t=Math.max(0,age),flash=motion?Math.max(0,1-t/1.1):0;
+ return{radius:Math.min(130,t*78),core:motion?Math.max(0,Math.sin(Math.min(1,t/1.2)*Math.PI))*13.5:0,fire:motion?Math.min(1,t/.09)*Math.pow(Math.max(0,1-t/3.4),1.6):0,smoke:motion?Math.min(1,t/.3)*Math.max(0,1-t/6.8):0,shake:flash*flash*.16,result:t>=1.6,done:t>=6.8};
 }
 function bombCarBlast(age,position,origin,motion=true){
  const delay=Math.hypot(position.x-origin.x,position.z-origin.z)/58,local=age-delay;
@@ -44,10 +44,11 @@ function createBombVisuals(glowMap=glowTex()){
  const fireGeometry=new THREE.IcosahedronGeometry(1,2),vertices=fireGeometry.getAttribute('position');for(let i=0;i<vertices.count;i++){const x=vertices.getX(i),y=vertices.getY(i),z=vertices.getZ(i),s=1+.13*Math.sin(x*9+y*7+z*11);vertices.setXYZ(i,x*s,y*s,z*s);}fireGeometry.computeVertexNormals();
  const fire=mesh(effects,fireGeometry,additive({color:0xff6a22,opacity:.28}));
  const rings=[];for(let i=0;i<3;i++){const ring=mesh(effects,new THREE.RingGeometry(i===1?.96:.9,1,64),additive({color:i===2?0xffc96b:0xffa444,opacity:.6,side:THREE.DoubleSide}));ring.frustumCulled=false;rings.push(ring);}
- const sparks=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),additive({opacity:.9}),96),carFire=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1,1),additive({opacity:.75}),6),smoke=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1,1),new THREE.MeshBasicMaterial({color:0x48505a,transparent:true,opacity:.24,depthWrite:false}),64),fuse=new THREE.InstancedMesh(new THREE.PlaneGeometry(1,1),additive({map:glowMap,opacity:.85}),12);
+ const fireCloud=new THREE.InstancedMesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({map:FX?.maps.fire||glowMap,color:0xffffff,transparent:true,opacity:.86,depthWrite:false,toneMapped:false}),24);fireCloud.instanceMatrix.setUsage(THREE.DynamicDrawUsage);fireCloud.frustumCulled=false;fireCloud.userData.skipAO=true;effects.add(fireCloud);
+ const sparks=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),additive({opacity:.9}),96),carFire=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1,1),additive({opacity:.75}),6),smoke=new THREE.InstancedMesh(new THREE.PlaneGeometry(1,1),new THREE.MeshBasicMaterial({map:FX?.maps.smoke||glowMap,color:0xc1b5a5,transparent:true,opacity:.63,depthWrite:false,toneMapped:false}),64),fuse=new THREE.InstancedMesh(new THREE.PlaneGeometry(1,1),additive({map:glowMap,opacity:.85}),12);
  for(const m of [sparks,carFire,smoke,fuse]){m.frustumCulled=false;m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);m.setColorAt(0,bombColor.setHex(0xffc97b));m.instanceColor.setUsage(THREE.DynamicDrawUsage);m.userData.skipAO=true;effects.add(m);}
  effects.remove(fuse);shell.add(fuse);
- shell.visible=effects.visible=false;group.traverse(o=>{o.castShadow=false;o.receiveShadow=false;});return{group,ball:shell,effects,core,fire,rings,sparks,carFire,smoke,fuse,ember,glow};
+ shell.visible=effects.visible=false;group.traverse(o=>{o.castShadow=false;o.receiveShadow=false;});return{group,ball:shell,effects,core,fire,rings,sparks,carFire,smoke,fireCloud,fuse,ember,glow};
 }
 function syncBombBall(){
  const v=BOMB.visuals;if(!v)return;const armed=BOMB.phase==='armed'&&bombEligible()&&st==='COUNT';v.ball.visible=armed;if(!armed)return;
@@ -57,7 +58,7 @@ function showBombResult(){
  if(BOMB.phase!=='blast')return;BOMB.phase='result';document.body.classList.add('bomb-result');document.body.dataset.bombPhase='result';if(BOMB.ui){BOMB.ui.hidden=false;$('bomb-again')?.focus?.();}
 }
 function tickBombDrop(dt){
- if(st!=='PRANK'||!['blast','result'].includes(BOMB.phase))return;BOMB.age=Math.min(5,BOMB.age+Math.max(0,dt));if(bombBlastSample(BOMB.age).result)showBombResult();
+ if(st!=='PRANK'||!['blast','result'].includes(BOMB.phase))return;BOMB.age=Math.min(8,BOMB.age+Math.max(0,dt));if(bombBlastSample(BOMB.age).result)showBombResult();
 }
 function updateBombScene(dt){
  const v=BOMB.visuals;if(!v)return;const motion=cinemaMotion();syncBombBall();
@@ -68,16 +69,18 @@ function updateBombScene(dt){
  }
  v.fuse.count=0;if(st!=='PRANK'||!['blast','result'].includes(BOMB.phase)){v.effects.visible=false;return;}
  const age=BOMB.age,s=bombBlastSample(age,motion),origin=BOMB.target;v.ball.visible=false;v.effects.visible=!s.done;bm.visible=false;pts.count=0;if(FX)FX.group.visible=false;if(RIVALS.visuals)RIVALS.visuals.group.visible=false;for(const shadow of contactShadows)shadow.visible=false;
- const mix=cinemaEase(age/1.25);bombEye.set(origin.x+12,10.5,origin.z-23).lerp(BOMB.cameraStart,1-mix);bombAim.copy(origin);bombAim.y+=.5;constrainArenaCamera(origin,bombEye,cam.position);cam.lookAt(bombAim);cam.fov=62+cinemaEase(age/1.7)*9;if(motion){cam.position.x+=Math.sin(age*91)*s.shake;cam.position.y+=Math.sin(age*113)*s.shake*.65;}cam.updateProjectionMatrix();
- v.core.position.copy(origin);v.core.scale.setScalar(s.core*2.2);v.core.material.opacity=s.fire*.8;v.fire.position.copy(origin);v.fire.scale.setScalar(s.fire*(2.4+age*7));v.fire.rotation.set(age*.6,age*.9,0);v.fire.material.opacity=s.fire*.28;
+ const mix=cinemaEase(age/1.25);bombEye.set(origin.x+20,16.5,origin.z-35).lerp(BOMB.cameraStart,1-mix);bombAim.copy(origin);bombAim.y+=6;constrainArenaCamera(origin,bombEye,cam.position);cam.lookAt(bombAim);cam.fov=62+cinemaEase(age/1.7)*9;if(motion){cam.position.x+=Math.sin(age*91)*s.shake;cam.position.y+=Math.sin(age*113)*s.shake*.65;}cam.updateProjectionMatrix();
+ v.core.position.copy(origin);v.core.scale.setScalar(s.core*2.2);v.core.material.opacity=s.fire*.8;v.fire.position.copy(origin);v.fire.scale.setScalar(s.fire*(2.4+age*7));v.fire.rotation.set(age*.6,age*.9,0);v.fire.material.opacity=FX?.maps.fire?0:s.fire*.28;
  for(let i=0;i<3;i++){const ring=v.rings[i],radius=Math.max(0,s.radius-i*3.5);ring.visible=motion&&age<1.65&&radius>0;ring.position.set(origin.x,.08+i*.035,origin.z);ring.rotation.x=-Math.PI/2;ring.scale.setScalar(radius);ring.material.opacity=Math.max(0,1-age/1.65)*(i===0?.55:.24);}
  let carCount=0;for(let i=0;i<BOMB.carPoses.length;i++){const saved=BOMB.carPoses[i],car=cm[i];if(!saved.enabled||!car)continue;const c=bombCarBlast(age,saved.p,origin,motion);car.visible=c.visible;
   if(c.local>=0&&c.local<.12&&motion){bombPoint.copy(saved.p).sub(origin).setY(0).normalize();car.position.copy(saved.p).addScaledVector(bombPoint,c.local*9);car.position.y+=c.local*7;bombRotation.setFromAxisAngle(bombAxis,c.local*4);car.quaternion.copy(saved.q).multiply(bombRotation);}
   bombPoint.copy(saved.p);bombPoint.y+=.65;bombScale.setScalar(c.fire*(1.3+Math.max(0,c.local)*2));bombRotation.identity();bombMatrix.compose(bombPoint,bombRotation,bombScale);v.carFire.setMatrixAt(carCount,bombMatrix);v.carFire.setColorAt(carCount++,bombColor.setHex(0xffa14d).multiplyScalar(c.fire));
  }v.carFire.count=motion?carCount:0;v.carFire.instanceMatrix.needsUpdate=v.carFire.instanceColor.needsUpdate=true;
+ v.fireCloud.count=motion&&age<4.5?24:0;for(let i=0;i<v.fireCloud.count;i++){const delay=(i%6)*.045,t=Math.max(0,age-delay),angle=i*2.399963,radial=(i<8?1:3+t*6),fade=Math.min(1,t/.11)*Math.pow(Math.max(0,1-t/4.5),1.2);bombPoint.set(origin.x+Math.cos(angle)*radial,origin.y+2+t*(i<8?9:5)+(i%4)*1.5,origin.z+Math.sin(angle)*radial);const size=(8+t*13)*(i<8?1.15:.72)*fade;bombScale.set(size*.86,size,1);bombRotation.copy(cam.quaternion);bombMatrix.compose(bombPoint,bombRotation,bombScale);v.fireCloud.setMatrixAt(i,bombMatrix);}v.fireCloud.instanceMatrix.needsUpdate=true;v.fireCloud.material.opacity=Math.max(0,1-age/4.5)*.86;
+ if(motion)flash=Math.max(flash,Math.max(0,1-age/.45)*.55);
  if(s.done)return;
- v.sparks.count=motion&&age<2.4?96:0;for(let i=0;i<v.sparks.count;i++){const a=i*2.399963,speed=12+i%17,up=4+i%11;bombPoint.set(origin.x+Math.cos(a)*speed*age,Math.max(.08,origin.y+up*age-4*age*age),origin.z+Math.sin(a)*speed*age);const fade=Math.max(0,1-age/2.4);bombScale.set(.04*fade,.04*fade,(.25+i%5*.08)*fade);bombRotation.setFromAxisAngle(bombAxis,a+age);bombMatrix.compose(bombPoint,bombRotation,bombScale);v.sparks.setMatrixAt(i,bombMatrix);v.sparks.setColorAt(i,bombColor.setHex(i%4?0xffa23a:0xffe4a2).multiplyScalar(fade));}v.sparks.instanceMatrix.needsUpdate=v.sparks.instanceColor.needsUpdate=true;
- v.smoke.count=s.smoke>0?64:0;for(let i=0;i<v.smoke.count;i++){const p=i<16?origin:BOMB.carPoses[(i-16)%BOMB.carPoses.length]?.p||origin,a=i*2.399963,spread=.3+age*(.7+i%4*.15);bombPoint.set(p.x+Math.cos(a)*spread,p.y+.4+age*(.5+i%3*.16),p.z+Math.sin(a)*spread);bombScale.setScalar((.3+age*.8)*s.smoke);bombRotation.setFromAxisAngle(bombAxis,a);bombMatrix.compose(bombPoint,bombRotation,bombScale);v.smoke.setMatrixAt(i,bombMatrix);v.smoke.setColorAt(i,bombColor.setHex([0x59616b,0x333e4c,0x6a5d53][i%3]));}v.smoke.instanceMatrix.needsUpdate=v.smoke.instanceColor.needsUpdate=true;
+ v.sparks.count=motion&&age<4.6?96:0;for(let i=0;i<v.sparks.count;i++){const a=i*2.399963,speed=12+i%17,up=4+i%11;bombPoint.set(origin.x+Math.cos(a)*speed*age,Math.max(.08,origin.y+up*age-4*age*age),origin.z+Math.sin(a)*speed*age);const fade=Math.max(0,1-age/4.6);bombScale.set(.04*fade,.04*fade,(.8+i%5*.25)*fade);bombRotation.setFromAxisAngle(bombAxis,a+age);bombMatrix.compose(bombPoint,bombRotation,bombScale);v.sparks.setMatrixAt(i,bombMatrix);v.sparks.setColorAt(i,bombColor.setHex(i%4?0xffa23a:0xffe4a2).multiplyScalar(fade));}v.sparks.instanceMatrix.needsUpdate=v.sparks.instanceColor.needsUpdate=true;
+ v.smoke.count=s.smoke>0?64:0;for(let i=0;i<v.smoke.count;i++){const p=i<16?origin:BOMB.carPoses[(i-16)%BOMB.carPoses.length]?.p||origin,a=i*2.399963,spread=1+age*(2.2+i%4*.55);bombPoint.set(p.x+Math.cos(a)*spread,p.y+2+age*(2.6+i%3*.65),p.z+Math.sin(a)*spread);bombScale.set((5+age*5)*s.smoke*.65,(5+age*5)*s.smoke,1);bombRotation.copy(cam.quaternion);bombMatrix.compose(bombPoint,bombRotation,bombScale);v.smoke.setMatrixAt(i,bombMatrix);v.smoke.setColorAt(i,bombColor.setHex([0xcac2b5,0x9c9a97,0xe0d1bb][i%3]));}v.smoke.instanceMatrix.needsUpdate=v.smoke.instanceColor.needsUpdate=true;
 }
 function buildBombDrop(){BOMB.visuals=createBombVisuals();scene.add(BOMB.visuals.group);}
 function setupBombUI(){

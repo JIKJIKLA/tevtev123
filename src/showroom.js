@@ -17,7 +17,7 @@ function renderShowcase(dt){
  // The same pitch is retained behind every menu. Cars stand at their real wheel baseline.
  garageStage.visible=false;grassM.visible=true;cam.fov=ending?62:title?60:43;cam.updateProjectionMatrix();
  const winner=score[0]>score[1]?0:1,count=cars.filter(c=>c.enabled&&c.team===winner).length,fieldZ=ending||title?0:SHOWROOM_FIELD_Z;let n=0;
- for(let k=0;k<cm.length;k++){const m=cm[k],c=cars[k];m.visible=ending?c.enabled&&c.team===winner:!title&&k===0;paintCar(k,ending?c.color:driverPaint(cfg));if(m.visible){const x=ending?(n++-(count-1)/2)*2:0;m.position.set(x,bodyPhysics(c).height+.016,fieldZ);m.quaternion.setFromAxisAngle(Y3,ending?Math.PI*.4:SHOWROOM.yaw);if(m.userData.f)m.userData.f.visible=false;}}
+ for(let k=0;k<cm.length;k++){const m=cm[k],c=cars[k];if(!c){m.visible=false;continue;}m.visible=ending?c.enabled&&c.team===winner:!title&&k===0;paintCar(k,ending?c.color:driverPaint(cfg));if(m.visible){const x=ending?(n++-(count-1)/2)*2:0;m.position.set(x,bodyPhysics(c).height+.016,fieldZ);m.quaternion.setFromAxisAngle(Y3,ending?Math.PI*.4:SHOWROOM.yaw);if(m.userData.f)m.userData.f.visible=false;}}
  bm.visible=title;if(title)bm.position.set(0,BR,-8);
  for(let k=0;k<contactShadows.length;k++){const shadow=contactShadows[k],m=cm[k];shadow.visible=!!m?.visible;if(shadow.visible){shadow.position.set(m.position.x,.018,m.position.z);shadow.material.opacity=.5;shadow.scale.setScalar(1);shadow.rotation.y=ending?Math.PI*.4:SHOWROOM.yaw;}}
  if(cam.view?.enabled)cam.clearViewOffset();

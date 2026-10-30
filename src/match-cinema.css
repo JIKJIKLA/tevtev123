@@ -27,7 +27,7 @@ body.opening-cinematic #msg{font-size:cl(48px,8vw,96px);font-weight:500;letter-s
 body.cinema-replay :is(#goal-detail,#quick-chat,#chat-log,#camtag,#bo,#spd,#matchtag,#rival-title){display:none!important}
 body.bomb-prank :is(#hud,#msg,#touch-controls,#training-hud,#driver-markers,#secret-notice,#secret-restore){visibility:hidden!important;pointer-events:none!important}
 body.bomb-prank::before,body.bomb-prank::after{transform:translateY(0)}
-#bomb-result{position:fixed;inset:0;z-index:70;display:grid;place-items:center;box-sizing:border-box;padding:max(22px,env(safe-area-inset-top)) 22px;background:radial-gradient(ellipse at 50% 40%,#0b193934,#061222d9 80%);overflow-y:auto;color:#fff3d8;font-family:'Segoe UI',Arial,sans-serif;isolation:isolate}
+#bomb-result{position:fixed;inset:0;z-index:70;display:grid;place-items:center;box-sizing:border-box;padding:max(22px,env(safe-area-inset-top)) 22px;background:radial-gradient(ellipse at 50% 40%,#0b122b26,#080b20a8 80%);overflow-y:auto;color:#fff3d8;font-family:'Segoe UI',Arial,sans-serif;isolation:isolate}
 .bomb-result-card{width:min(540px,100%);text-align:center;padding:26px 0;position:relative}
 .bomb-result-kicker{font-size:10px;letter-spacing:.22em;font-weight:750;color:#edba71}
 .bomb-crown{display:grid;place-items:center;width:58px;height:58px;margin:25px auto 16px;border:1px solid #e8b8769c;border-radius:14px;transform:rotate(-8deg);background:linear-gradient(140deg,#e9bb6c24,#ca7c3812);box-shadow:0 0 45px #faab4824;color:#ffd395;font-size:30px;font-weight:900;font-style:italic}

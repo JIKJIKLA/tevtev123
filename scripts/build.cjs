@@ -4,7 +4,8 @@ const read=name=>fs.readFileSync(path.join(root,'src',name),'utf8');
 let html=read('shell.html');
 for(const name of ['base','blue','orange'])html=html.replaceAll('HUD:'+name,'data:image/png;base64,'+fs.readFileSync(path.join(root,'src/hud',name+'.png')).toString('base64'));
 html=html.replace('<!-- INLINE:menu-design.css -->',()=>read('menu-design.css')+'\n'+read('gauges.css')+'\n'+read('presentation-upgrade.css')+'\n'+read('match-cinema.css'));
-html=html.replace('<!-- INLINE:precision.css -->',()=>read('precision.css')+'\n'+read('aftershock.css')+'\n'+read('rivals.css')+'\n'+read('cinematics.css')+'\n'+read('secret.css')+'\n'+read('paint.css')+'\n'+read('celebration.css')+'\n'+read('device.css')+'\n'+read('match-effects.css'));
+html=html.replace('<!-- INLINE:precision.css -->',()=>read('precision.css')+'\n'+read('aftershock.css')+'\n'+read('rivals.css')+'\n'+read('cinematics.css')+'\n'+read('secret.css')+'\n'+read('paint.css')+'\n'+read('celebration.css')+'\n'+read('device.css')+'\n'+read('match-effects.css')+'\n'+read('matchday-ui.css'));
+html=html.replace('UIFONT:rajdhani',()=> 'data:font/woff2;base64,'+fs.readFileSync(path.join(root,'src/assets/rajdhani-medium.woff2')).toString('base64'));
 for(const file of ['bootstrap.js','engine.bundle.js','game.js']) {
  // The recovered 8.2 artifact retains the original bundled engine and embedded assets.
  // Keep it byte-for-byte: it is also the release recovery copy.
@@ -12,6 +13,7 @@ for(const file of ['bootstrap.js','engine.bundle.js','game.js']) {
  code=code.replace(/\/\/ INLINE:([\w.-]+\.js)/g,(_,part)=>read(part));
  code=code.replace('SKY:stadium',()=> 'data:image/jpeg;base64,'+fs.readFileSync(path.join(root,'src/assets/stadium-clouds-2k.jpg')).toString('base64'));
  code=code.replace("'JET:mesh'",()=>JSON.stringify(fs.readFileSync(path.join(root,'src/assets/f22-jet.json'),'utf8')));
+ for(const [key,name] of [['fire','explosion'],['smoke','smoke'],['dust','dust']])code=code.replace('FXPHOTO:'+key,()=> 'data:image/png;base64,'+fs.readFileSync(path.join(root,'src/assets/fx-'+name+'.png')).toString('base64'));
  for(const name of ['diffuse','normal','roughness'])code=code.replace('TURF:'+name,()=> 'data:image/jpeg;base64,'+fs.readFileSync(path.join(root,'src/assets/turf-ground-'+name+'.jpg')).toString('base64'));
  for(const name of ['albedo','normal','surface'])code=code.replace('JET:'+name,()=> 'data:image/jpeg;base64,'+fs.readFileSync(path.join(root,'src/assets/f22-'+name+'.jpg')).toString('base64'));
  if(file==='engine.bundle.js'){

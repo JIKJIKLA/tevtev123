@@ -1,6 +1,6 @@
 {
   "name": "nivet-league",
-  "version": "10.2.1",
+  "version": "10.3.0",
   "private": true,
   "scripts": {
     "build": "node scripts/build.cjs",

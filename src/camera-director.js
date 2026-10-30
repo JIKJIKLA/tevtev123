@@ -1,6 +1,7 @@
 // Camera-only geometry queries. The solver and arena dimensions are never changed.
-const VIEW={clipped:false,obscured:false,hold:0,wallMix:0,wallSide:1};
-const viewAnchor=new V3(),viewEnd=new V3(),viewProbe=new V3(),viewOrigin=new V3(),viewRay=new V3(),viewInverse=new Qn();
+const VIEW={clipped:false,obscured:false,hold:0,blockedFor:0,wallMix:0,wallSide:1};
+const viewAnchor=new V3(),viewEnd=new V3(),viewProbe=new V3(),viewOrigin=new V3(),viewRay=new V3(),viewInverse=new Qn(),viewRight=new V3(),viewUp=new V3(),viewBall=new V3(),viewForward=new V3(),viewFramePoint=new V3(),viewFrameBounds=new V3();
+const VIEW_BALL_SAMPLES=[[0,0],[.65,0],[-.65,0],[0,.65],[0,-.65],[.46,.46],[.46,-.46],[-.46,.46],[-.46,-.46]];
 function cameraInterior(point,radius=.42){
  for(let i=0;i<12;i++){surf(point);if(SS>=radius-1e-5)return;point.addScaledVector(SN,radius-SS+.002);}
 }
@@ -15,17 +16,29 @@ function constrainArenaCamera(anchor,desired,out){
  }
  out.copy(viewEnd);cameraInterior(out);return clipped;
 }
-function carBlocksBall(cameraPosition,ballPosition,car,mesh){
- if(cameraPosition.distanceToSquared(mesh.position)>100)return false;
- const body=bodyPhysics(car);viewInverse.copy(mesh.quaternion).invert();viewOrigin.copy(cameraPosition).sub(mesh.position).applyQuaternion(viewInverse);viewRay.copy(ballPosition).sub(cameraPosition).applyQuaternion(viewInverse);
+function carViewRayHits(body,origin,ray,padding=.035){
  let enter=0,leave=1;
  for(let axis=0;axis<3;axis++){
-  const o=viewOrigin.getComponent(axis)-body.center[axis],d=viewRay.getComponent(axis),half=body.half[axis]+(axis===1?.16:.15);
+  const o=origin.getComponent(axis)-body.center[axis],d=ray.getComponent(axis),half=body.half[axis]+padding;
   if(Math.abs(d)<1e-7){if(Math.abs(o)>half)return false;continue;}
   let a=(-half-o)/d,b=(half-o)/d;if(a>b)[a,b]=[b,a];enter=Math.max(enter,a);leave=Math.min(leave,b);if(enter>leave)return false;
  }
  return leave>.015&&enter<.985;
 }
+function cameraInsideCar(cameraPosition,car,mesh){
+ const body=bodyPhysics(car);viewInverse.copy(mesh.quaternion).invert();viewOrigin.copy(cameraPosition).sub(mesh.position).applyQuaternion(viewInverse);
+ for(let axis=0;axis<3;axis++)if(Math.abs(viewOrigin.getComponent(axis)-body.center[axis])>body.half[axis]+.035)return false;
+ return true;
+}
+function carBallOcclusion(cameraPosition,ballPosition,car,mesh){
+ if(mesh.visible===false||car.enabled===false||car.demoTime>0||cameraPosition.distanceToSquared(mesh.position)>100)return 0;
+ const distance=viewForward.copy(ballPosition).sub(cameraPosition).length();if(distance<.01)return 0;viewForward.divideScalar(distance);
+ viewRight.crossVectors(viewForward,Y3);if(viewRight.lengthSq()<.0001)viewRight.set(1,0,0);else viewRight.normalize();viewUp.crossVectors(viewRight,viewForward).normalize();
+ const body=bodyPhysics(car);viewInverse.copy(mesh.quaternion).invert();viewOrigin.copy(cameraPosition).sub(mesh.position).applyQuaternion(viewInverse);
+ let covered=0;for(let i=0;i<VIEW_BALL_SAMPLES.length;i++){const sample=VIEW_BALL_SAMPLES[i];viewBall.copy(ballPosition).addScaledVector(viewRight,sample[0]*BR).addScaledVector(viewUp,sample[1]*BR);viewRay.copy(viewBall).sub(cameraPosition).applyQuaternion(viewInverse);if(carViewRayHits(body,viewOrigin,viewRay))covered++;}
+ return covered/VIEW_BALL_SAMPLES.length;
+}
+function carBlocksBall(cameraPosition,ballPosition,car,mesh){return carBallOcclusion(cameraPosition,ballPosition,car,mesh)>=5/9;}
 function prepareCameraFade(mesh){
  if(mesh.userData.cameraFade)return;const clones=new Map(),materials=[];
  const copy=original=>{if(clones.has(original))return clones.get(original);const material=original.clone();material.userData.cameraBaseOpaque=!original.transparent;materials.push({material,opacity:original.opacity??1,depthWrite:original.depthWrite,transparent:original.transparent});clones.set(original,material);return material;};
@@ -40,12 +53,29 @@ function setCameraCarOpacity(mesh,opacity){
  const state=mesh.userData.cameraFade;if(state.opacity===value)return;state.opacity=value;
  for(const entry of state.materials){const transparent=entry.transparent||value<1;if(entry.material.transparent!==transparent){entry.material.transparent=transparent;entry.material.needsUpdate=true;}entry.material.opacity=entry.opacity*value;entry.material.depthWrite=value>.995&&entry.depthWrite;}
 }
-function resetViewFade(){VIEW.clipped=VIEW.obscured=false;VIEW.hold=VIEW.wallMix=0;for(const m of cm)if(m.userData.cameraFade)setCameraCarOpacity(m,1);document.body.classList.remove('camera-car-faded');}
+function resetViewFade(){VIEW.clipped=VIEW.obscured=false;VIEW.hold=VIEW.blockedFor=VIEW.wallMix=0;for(const m of cm)if(m.userData.cameraFade)setCameraCarOpacity(m,1);document.body.classList.remove('camera-car-faded');}
 function updateViewFade(dt,clipped,car,mesh){
- const blocked=ballCam&&carBlocksBall(cam.position,bm.position,car,mesh);VIEW.clipped=clipped;VIEW.obscured=blocked;
- if(clipped||blocked)VIEW.hold=.16;else VIEW.hold=Math.max(0,VIEW.hold-dt);
- const current=mesh.userData.cameraFade?.opacity??1,target=VIEW.hold>0?.33:1,next=current+(target-current)*(1-Math.exp(-dt*14));setCameraCarOpacity(mesh,Math.abs(next-target)<.006?target:next);
+ const visible=mesh.visible!==false&&car.enabled!==false&&!(car.demoTime>0),current=mesh.userData.cameraFade?.opacity??1;
+ const coverage=visible&&ballCam?carBallOcclusion(cam.position,bm.position,car,mesh):0,blocked=coverage>=(current<.99?4/9:5/9),inside=visible&&clipped&&cameraInsideCar(cam.position,car,mesh);VIEW.clipped=!!clipped;VIEW.obscured=blocked;
+ // Wall correction alone is not obstruction. Require a substantial ball-disk
+ // overlap to persist briefly; a camera actually inside a clipped car is immediate.
+ if(blocked||inside){VIEW.blockedFor+=dt;if(inside||VIEW.blockedFor>=.065||current<.99)VIEW.hold=.07;}else{VIEW.blockedFor=0;VIEW.hold=Math.max(0,VIEW.hold-dt);}
+ if(!visible)VIEW.hold=VIEW.blockedFor=0;
+ const target=VIEW.hold>0?.33:1,next=current+(target-current)*(1-Math.exp(-dt*(target<current?14:22)));setCameraCarOpacity(mesh,Math.abs(next-target)<.006?target:next);
  document.body.classList.toggle('camera-car-faded',target<1);
+}
+function includeCarFramePoint(camera,hx,hz){
+ const along=(viewFramePoint.x-camera.position.x)*hx+(viewFramePoint.z-camera.position.z)*hz;if(along<.12)return false;const angle=Math.atan2(viewFramePoint.y-camera.position.y,along);viewFrameBounds.x=Math.min(viewFrameBounds.x,angle);viewFrameBounds.y=Math.max(viewFrameBounds.y,angle);return true;
+}
+function keepCarInFrame(camera,car,mesh){
+ if(mesh.visible===false||car.enabled===false||car.demoTime>0)return false;
+ camera.getWorldDirection(viewForward);const horizontal=Math.hypot(viewForward.x,viewForward.z);if(horizontal<.001)return false;
+ const hx=viewForward.x/horizontal,hz=viewForward.z/horizontal,pitch=Math.atan2(viewForward.y,horizontal),body=bodyPhysics(car);viewFrameBounds.set(Infinity,-Infinity,0);
+ for(let i=0;i<8;i++){viewFramePoint.set(body.center[0]+(i&1?1:-1)*(body.half[0]+.08),body.center[1]+(i&2?1:-1)*(body.half[1]+.08),body.center[2]+(i&4?1:-1)*(body.half[2]+.06)).applyQuaternion(mesh.quaternion).add(mesh.position);if(!includeCarFramePoint(camera,hx,hz))return false;}
+ for(const wheel of body.wheels){viewFramePoint.fromArray(wheel).applyQuaternion(mesh.quaternion).add(mesh.position);if(!includeCarFramePoint(camera,hx,hz))return false;}
+ const tanHalf=Math.tan(camera.fov*Math.PI/360),minPitch=viewFrameBounds.y-Math.atan(.82*tanHalf),maxPitch=viewFrameBounds.x+Math.atan(.88*tanHalf);
+ const nextPitch=minPitch<=maxPitch?cl(pitch,minPitch,maxPitch):(minPitch+maxPitch)*.5;if(Math.abs(nextPitch-pitch)<.0005)return false;
+ viewFramePoint.set(hx*Math.cos(nextPitch),Math.sin(nextPitch),hz*Math.cos(nextPitch)).add(camera.position);camera.lookAt(viewFramePoint);camera.updateMatrixWorld();return true;
 }
 const wallTangent=new V3(),wallDesired=new V3(),wallCarRay=new V3(),wallBallRay=new V3(),wallLook=new V3();
 function wallCameraPose(position,normal,side,distance,out){

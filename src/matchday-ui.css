@@ -1,0 +1,305 @@
+/* Original Nivet interface, informed by the owner-supplied Rocket League screens.
+   Font: Rajdhani Medium, Indian Type Foundry; SIL Open Font License 1.1.
+   The complete license is appended below and in assets/rajdhani-OFL.txt. */
+@font-face{font-family:NivetDisplay;src:url('UIFONT:rajdhani') format('woff2');font-weight:500;font-style:normal;font-display:swap}
+:root{--nivet-display:NivetDisplay,'Arial Narrow','Segoe UI',sans-serif;--nivet-paper:#f6f2fb;--nivet-accent:#d7b4ee;--nivet-ink:#110e18;--nivet-panel:#100d17e8}
+#menu,#intro,#lobby,#pause,#end{font-family:var(--nivet-display)}
+#menu{padding:0!important;overflow:hidden!important;isolation:isolate}
+#menu:after{background:linear-gradient(90deg,#09070e85,transparent 48%),linear-gradient(0deg,#08050d9e,transparent 24%)!important}
+#menu .menu-top{height:70px;min-height:70px;padding:20px 2.25vw;background:linear-gradient(#0b071165,transparent);align-items:flex-start;gap:18px}
+#menu .wordmark{font-family:var(--nivet-display);font-size:27px;line-height:.85;letter-spacing:-.02em;font-weight:500;color:#fff}
+#menu .wordmark span{color:#e2c8f4;font-weight:500}
+#menu .wordmark small{font:500 8px/1.5 var(--nivet-display);letter-spacing:.26em;color:#cbb7d9;margin-top:7px}
+#menu #menu-music{margin-left:auto;background:#100d169c;border:1px solid #c9a8dc33;border-radius:0;padding:7px 12px;color:#e4d5ef;font:500 12px/1 var(--nivet-display);letter-spacing:.06em}
+#menu #menu-location{font:500 12px var(--nivet-display);letter-spacing:.13em;color:#b5a6c1;line-height:24px}
+#menu #home-panel{inset:70px 0 112px}
+#menu .home-actions{left:2.25vw;top:49%;bottom:auto;width:clamp(202px,19vw,272px);gap:5px;transform:translateY(-12%)}
+#menu .home-actions button,#menu #nav-play{min-height:35px;padding:6px 18px 5px;border:0;border-radius:0;border-left:0;background:linear-gradient(90deg,#0a090ce8,#0b0910da);color:#f5eef9;clip-path:polygon(3.5% 0,100% 0,96.5% 100%,0 100%);transform:none;box-shadow:none;text-shadow:0 1px 2px #0009;transition:background-color .12s,color .12s}
+#menu .home-actions button b,#menu #nav-play b{font:500 clamp(20px,1.65vw,25px)/1.1 var(--nivet-display);letter-spacing:.015em}
+#menu .home-actions button:hover,#menu .home-actions button:focus-visible,#menu #nav-play{background:linear-gradient(90deg,#f6eaff,#bb8ed3);color:#25132f;text-shadow:none;box-shadow:inset 0 1px #fff8}
+#menu .home-actions button:focus-visible{outline:2px solid #f8eaff;outline-offset:3px}
+#menu #car-inspect{left:26%;right:2%;top:90px;bottom:125px}
+#menu #car-inspect span{font:500 10px var(--nivet-display);letter-spacing:.13em;color:#d7c5e49c;bottom:4px}
+#menu .menu-footer{left:0;right:0;bottom:0;min-height:23px;padding:6px 2.25vw;box-sizing:border-box;border-top:1px solid #a285bc80;background:#0a0711df;color:#a999ba;font:500 10px/1.1 var(--nivet-display);letter-spacing:.08em}
+#menu #boot-status{font:500 10px/1.1 var(--nivet-display)!important;letter-spacing:.035em;color:#b3a1c2!important;max-width:65%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#menu #start-status{left:2.25vw;bottom:114px;max-width:65vw;font:500 14px/1.3 var(--nivet-display);background:#140b1cdb;padding:7px 12px}
+.menu-player-strip{position:fixed;z-index:8;left:2.25vw;bottom:32px;display:grid;grid-template-columns:48px minmax(150px,240px);grid-template-rows:48px 5px;gap:0 8px;pointer-events:none;min-width:225px;color:var(--nivet-paper);font-family:var(--nivet-display);--career-progress:0%}
+.menu-player-emblem{grid-row:1;display:grid;place-items:center;position:relative;border:1px solid #c9a5e6;background:linear-gradient(145deg,#30203f,#0c0a14);color:#ede1fa;box-shadow:inset 0 0 0 3px #120c1b}
+.menu-player-emblem svg{width:32px;height:32px;fill:none;stroke:currentColor;stroke-width:1.4}
+#menu-player-level{position:absolute;bottom:-7px;left:calc(50% - 10px);height:17px;min-width:18px;padding:0 2px;text-align:center;line-height:17px;background:#261933;border:1px solid #c8a5e3;color:#f2e9fa;font-size:13px;clip-path:polygon(0 0,100% 0,100% 65%,50% 100%,0 65%)}
+.menu-player-copy{padding:3px 16px 2px 10px;background:linear-gradient(95deg,#281b39ed,#17101ed9);border-left:2px solid #bd95dd;clip-path:polygon(0 0,100% 0,97% 100%,0 100%);overflow:hidden}
+#menu-player-name{display:block;max-width:230px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:24px;line-height:25px;font-weight:500;letter-spacing:.01em}
+#menu-player-title{display:block;font-size:11px;line-height:16px;letter-spacing:.09em;color:#c8b2db;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.menu-player-progress{grid-column:2;grid-row:2;background:#201729;border-top:1px solid #d4b0ed36;position:relative}
+.menu-player-progress:before{content:'';display:block;width:var(--career-progress);max-width:100%;height:100%;background:linear-gradient(90deg,#9265bc,#e4ccf4);box-shadow:1px 0 7px #edcfff66}
+#menu #party-toggle{position:fixed;left:clamp(285px,29vw,425px);bottom:49px;top:auto;margin:0;background:transparent;border:0;padding:8px 3px;border-radius:0;color:#dac7e8;box-shadow:none;font:500 14px var(--nivet-display);letter-spacing:.025em;text-transform:uppercase;z-index:8}
+#menu #party-toggle:before{content:'+';display:inline-grid;place-items:center;width:15px;height:15px;margin-right:7px;border:1px solid #d7b3ef9c;color:#f3dcff;font-size:15px;line-height:1}
+#menu #party-toggle:hover,#menu #party-toggle:focus-visible{color:#fff;background:#25172e9c;outline-offset:4px}
+#menu #menu-back{position:fixed;left:2.25vw;bottom:110px;top:auto;margin:0;z-index:8;min-width:113px;padding:7px 23px;background:#0c0b11dc;border:0;border-radius:0;clip-path:polygon(5% 0,100% 0,95% 100%,0 100%);color:#f3eafa;font:500 19px/1.2 var(--nivet-display);letter-spacing:.025em;text-align:left}
+#menu #menu-back:focus-visible,#menu #menu-back:hover{background:#c4a2df;color:#201029}
+#menu .menu-pages{top:90px!important;bottom:139px!important;right:3vw;width:min(500px,42vw);max-height:none;scrollbar-width:thin;scrollbar-color:#86669a #120d1a55;overscroll-behavior:contain}
+#menu .menu-pages>section,#menu #garage-panel,#menu #settings-panel,#menu #party-panel{border:0;border-radius:0;border-top:1px solid #c7a6dc8c;background:linear-gradient(95deg,#100c17ed,#120e1bdc);padding:20px 24px;box-shadow:none}
+#menu .menu-pages h2{font:500 36px/.95 var(--nivet-display)!important;letter-spacing:.02em;margin:8px 0 24px!important;text-transform:uppercase}
+#menu .menu-pages .eyebrow{font:500 11px var(--nivet-display);letter-spacing:.16em;color:#bfa4d2}
+#menu[data-screen=garage] .menu-pages{left:2.25vw;right:auto;width:min(330px,29vw);max-width:none;transform:none;margin:0!important}
+#menu[data-screen=garage] #car-inspect{left:31%;top:80px;bottom:120px}
+#menu #garage-panel{background:linear-gradient(95deg,#0d0a13e8,#110c17b8)}
+#menu #garage-panel h2{font-size:31px!important;margin-bottom:19px!important}
+#menu #body-options{gap:4px;flex-direction:column}
+#menu #body-options button{flex:none;text-align:left;font:500 19px var(--nivet-display);padding:7px 14px;background:#100b16c9;border:0;border-left:2px solid transparent;color:#e3d4ed;clip-path:polygon(3% 0,100% 0,97% 100%,0 100%)}
+#menu #body-options button[aria-pressed=true]{background:linear-gradient(90deg,#e9d5f6,#ae83c6);color:#23132d;border-left-color:#fff;box-shadow:none}
+#menu #swatches{grid-template-columns:repeat(4,1fr);gap:5px}
+#menu #swatches button{height:31px;border-radius:0;font:500 11px var(--nivet-display)}
+#menu :is(.section-label,#settings-panel h3,.rival-panel h3){font:500 13px var(--nivet-display);letter-spacing:.1em}
+#menu .rival-panel,#menu .audio-settings,#menu .performance-card,#menu #custom-paint{border-radius:0;box-shadow:none;background:#24182d8c;padding:12px;border-color:#ae8dc130}
+#menu :is(.rival-panel button,.preset-row button,#preview-car,#forget){border-radius:0;font:500 12px var(--nivet-display);letter-spacing:.02em}
+#menu[data-screen=play] .menu-pages{left:50%;right:auto;top:86px!important;bottom:150px!important;width:min(950px,86vw);transform:translateX(-50%);margin:0;overflow-y:auto;overflow-x:hidden}
+#menu #play-panel{display:flex;flex-direction:column;position:relative;background:linear-gradient(95deg,#0d0d18b8,#12101cc7);border:0;padding:18px 25px 21px;border-radius:0;box-shadow:none}
+#menu #play-panel>.eyebrow{display:none}
+#menu #play-panel h2{font-size:42px!important;font-weight:500!important;margin:0 0 13px!important;letter-spacing:.035em}
+#menu #mode-rows{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:25px;order:1;margin:0 0 17px;padding:0;border:0}
+#menu #mode-rows .row{display:flex;flex-wrap:nowrap;gap:4px;margin:0;align-items:center}
+#menu #mode-rows .row label{width:auto;min-width:65px;flex:none;margin:0 5px 0 0;font:500 12px var(--nivet-display);letter-spacing:.11em;text-align:left;color:#c5b2d4}
+#menu #mode-rows .seg{padding:7px 10px;min-height:34px;font:500 20px/1 var(--nivet-display);letter-spacing:.025em;border:0;border-bottom:2px solid #cbb2e133;border-radius:0;background:#1e17299e;color:#d6c5e2;transform:none}
+#menu #mode-rows .seg.on{color:#fff;background:#6b477b8c;border-bottom-color:#edccff;box-shadow:none}
+#menu #mode-rows .seg.on:after{display:none}
+#menu #play-panel .destination-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;order:2;margin:0 0 14px}
+#menu #play-panel .destination-tabs button{position:relative;min-height:clamp(135px,21vh,190px);padding:100px 18px 13px;text-align:left;isolation:isolate;border:1px solid #a27bc7a3;border-radius:0;background-color:#251835!important;background-position:center;background-size:cover;box-shadow:inset 0 0 0 1px #080811;transform:none;overflow:hidden;transition:border-color .12s,box-shadow .12s}
+#menu #play-panel .destination-tabs button:before{content:'';display:block!important;position:absolute;inset:0;background:linear-gradient(0deg,#090b1cf2,transparent 85%);z-index:-1;pointer-events:none}
+#menu #play-panel .destination-tabs button:after{content:'';display:block!important;position:absolute;inset:0;border:3px solid transparent;pointer-events:none;background:none}
+#menu #play-panel .destination-tabs button .mode-glyph{display:none}
+#menu #play-panel .destination-tabs button strong{font:500 clamp(23px,2.3vw,32px)/1 var(--nivet-display);color:#fff;letter-spacing:.015em;text-shadow:0 2px 3px #0008}
+#menu #play-panel .destination-tabs button small{font:500 12px/1.2 var(--nivet-display);margin-top:5px;color:#d0c9df;max-width:none;text-shadow:0 1px 2px #0009}
+#menu #play-panel .destination-tabs button .mode-check{display:none!important}
+#menu #play-panel .destination-tabs button:hover{border-color:#e5c5ff;box-shadow:inset 0 0 0 1px #ddafff,0 0 0 1px #b48ee5;transform:none}
+#menu #play-panel .destination-tabs button[aria-pressed=true]{border:1px solid #ead1ff;box-shadow:0 0 0 2px #d4aaf2;outline:none}
+#menu #play-panel .destination-tabs button[aria-pressed=true]:after{border-color:#d5b1f780}
+#menu #play-panel .destination-tabs button:focus-visible{outline:3px solid #fff0ff;outline-offset:3px}
+#menu #route-help{order:3;font:500 14px/1.35 var(--nivet-display)!important;margin:0 0 12px!important}
+#menu #team-colors-control{order:4;min-height:0;padding:8px 11px;gap:9px;border:1px solid #b496c633;border-radius:0;background:#1d152488;margin:0 0 11px;font-family:var(--nivet-display)}
+#menu #team-colors-control b{font-size:13px;letter-spacing:.08em}
+#menu #team-colors-control small{font:500 12px/1.25 var(--nivet-display);color:#bbaac8}
+#menu #private-actions{order:5}
+#menu #playlist-note{order:6}
+#menu #custom-rules{order:7;margin:0 0 9px;border-color:#ab86c42d}
+#menu #custom-rules summary{padding:11px 0;font:500 14px var(--nivet-display);letter-spacing:.07em}
+#menu #custom-rules summary span{font:500 12px var(--nivet-display);letter-spacing:0}
+#menu #match-summary{order:8;margin:0;padding:8px 10px;font:500 14px var(--nivet-display);letter-spacing:.05em;border-radius:0}
+#menu #play-panel>:is(#quick-panel,#go,#sandbox-start,#mp-panel,#mp-status){order:9}
+#menu #graphics-error{order:0}
+#menu #quick-panel .queue-team{margin:10px 0}
+#menu .queue-note{font:500 12px/1.4 var(--nivet-display);letter-spacing:0}
+#menu #mobile-playbar{left:50%;right:auto;bottom:80px;transform:translateX(-50%);width:min(950px,86vw);border:0;border-top:1px solid #c9a8dc70;border-radius:0;background:#0f0b17e8;padding:9px 14px;box-shadow:none;display:flex;align-items:center;gap:18px}
+#menu #mobile-play-summary{flex:1;margin:0;font:500 15px/1.15 var(--nivet-display);letter-spacing:.04em;text-align:left;color:#d4c2df}
+#menu #mobile-play{width:280px;max-width:50%;min-height:39px;padding:9px 22px;border:0;border-radius:0;clip-path:polygon(3% 0,100% 0,97% 100%,0 100%);background:linear-gradient(95deg,#f1e5fc,#b991d2);color:#24142e;font:500 23px/1 var(--nivet-display);letter-spacing:.06em;box-shadow:none}
+#menu #mobile-play:focus-visible{outline:2px solid #fff;outline-offset:3px}
+#menu #mobile-play:active{transform:none;background:#e8cffb}
+#menu[data-screen=play] #menu-back{bottom:84px;left:2.25vw;min-width:70px;font-size:16px;padding:8px 14px;z-index:11}
+#menu[data-screen=play] #start-status{bottom:130px}
+#menu .join-row input,#menu #party-code-input,#menu #player-name{border-radius:0;font:500 23px var(--nivet-display)}
+#menu .btn,#menu .inline-action{border-radius:0;font-family:var(--nivet-display);font-weight:500;letter-spacing:.055em}
+#intro .intro-title{top:22%;width:95%}
+#intro .intro-title h1{font:500 clamp(70px,10.5vw,158px)/.76 var(--nivet-display);letter-spacing:-.025em;text-shadow:0 4px 18px #08030fbd}
+#intro .intro-title h1 span{color:#e8d3f8;-webkit-text-fill-color:#e8d3f8}
+#intro .intro-controls{bottom:20%;width:min(540px,90vw);gap:6px}
+#intro #intro-play{min-height:56px;padding:12px 34px;border:0;border-radius:0;clip-path:polygon(3% 0,100% 0,97% 100%,0 100%);font:500 29px/1 var(--nivet-display);letter-spacing:.11em;background:linear-gradient(95deg,#eee3fa,#bf96d6);box-shadow:0 6px 22px #08030f35}
+#intro #intro-play span{font:500 10px var(--nivet-display);letter-spacing:.17em}
+#intro :is(#intro-skip,#intro-status,.intro-top,.intro-options,.intro-track){font-family:var(--nivet-display);font-weight:500}
+#intro .intro-top{font-size:11px;letter-spacing:.15em}
+#intro .intro-track{font-size:12px}
+#sb{top:9px;border:0;border-radius:1px;background:#070b15d9;box-shadow:0 1px 4px #0003;overflow:hidden;align-items:stretch}
+#sb span{padding:0!important;min-width:63px!important;font:500 44px/49px var(--nivet-display)!important;letter-spacing:.01em;color:#fff!important;text-align:center;text-shadow:0 1px 3px #0005;border-radius:0}
+#sb #clk{display:flex;align-items:center;justify-content:center;min-width:126px!important;padding:0 12px!important;line-height:49px!important;font-size:38px!important;letter-spacing:.045em;background:#070b15e6}
+#sb #s0:before,#sb #s1:before{display:none!important}
+#sb #s0,#sb #s1{box-shadow:inset 0 -1px #0003,inset 0 1px #ffffff40}
+#camtag{left:2.25vw;bottom:31px;padding:0;border:0;border-radius:0;background:none;color:#ff9c66;font:500 23px/1 var(--nivet-display);letter-spacing:.025em;text-shadow:0 1px 4px #0009;box-shadow:none}
+#camtag:before{content:'';display:inline-block;width:8px;height:8px;margin:0 8px 3px 0;border-radius:50%;background:#ff975d;box-shadow:0 0 7px #ff905999}
+#camtag[data-camera=car]{color:#d7e3ee}
+#camtag[data-camera=car]:before{background:#a5b8c8;box-shadow:none}
+body:not(.device-touch) #bo{width:176px;height:176px;right:24px;bottom:20px}
+body:not(.device-touch) #spd{width:118px;height:118px;right:198px;bottom:24px;opacity:.9}
+.gauge-label{font-family:var(--nivet-display);font-weight:500;letter-spacing:1px}
+.gauge-bars .lit{filter:none}
+.gauge-bars{filter:drop-shadow(0 0 2px #ffad4355)}
+#matchtag{left:2.25vw;top:19px;font:500 11px/1.3 var(--nivet-display);letter-spacing:.08em;text-shadow:0 1px 3px #000}
+#matchtag small{font-family:var(--nivet-display);font-size:9px;letter-spacing:.13em}
+#rival-title{left:2.25vw;top:70px;font:500 10px var(--nivet-display);letter-spacing:.13em;color:#b2c6d4}
+#quick-chat{left:2.25vw;bottom:89px;min-width:0;max-width:245px;border:0;border-left:2px solid var(--chat-color,#79cfff);border-radius:0;background:#081321b5;box-shadow:none}
+#quick-chat summary{gap:7px;min-height:23px;padding:7px 9px;font:500 12px/1.1 var(--nivet-display);letter-spacing:.045em}
+#quick-chat summary svg{width:17px;height:17px}
+#quick-chat summary small{font:500 9px var(--nivet-display);letter-spacing:.08em;margin-top:1px}
+#quick-chat kbd{font:500 10px var(--nivet-display);padding:2px 4px;border-radius:0;background:#ffffff05}
+#quick-chat button{font:500 14px var(--nivet-display);min-height:38px;padding:6px 8px;border-radius:0}
+#quick-chat button small{font:500 11px var(--nivet-display)}
+#chat-log,.team-chat-message{font-family:var(--nivet-display);font-size:14px}
+.team-chat-message{padding:5px 9px;border-radius:0;background:#081321c4;box-shadow:none}
+#msg{font-family:var(--nivet-display);font-weight:500;letter-spacing:.02em;text-shadow:0 2px 12px #0005}
+#match-award{font-family:var(--nivet-display)}
+#match-award strong{font-size:clamp(20px,2.7vw,35px);font-weight:500}
+#match-award span{font-size:23px;font-family:var(--nivet-display)}
+#goal-detail,#replay-label,#replay-controls,#opening-caption{font-family:var(--nivet-display);font-weight:500;border-radius:0}
+#lobby{background:#110b1be8;border-radius:0;font-family:var(--nivet-display)}
+#lobby h2,#pause-title{font:500 46px var(--nivet-display);letter-spacing:.04em}
+#lobby :is(button,input),#pause :is(#res,#q1){font:500 21px var(--nivet-display);border-radius:0;min-width:150px;padding:11px 20px;letter-spacing:.03em}
+#pause .pause-card,#pause{font-family:var(--nivet-display)}
+#end .winner-heading h1{font-family:var(--nivet-display);font-weight:500;letter-spacing:.04em}
+#end :is(.btn,#endt,#ends,#end-reason,#recap,#earned-progress){font-family:var(--nivet-display);font-weight:500}
+@media(min-width:1500px){#menu .home-actions{top:47%;gap:7px}#menu .home-actions button{min-height:42px;padding-top:8px;padding-bottom:7px}#menu .menu-pages{top:110px!important}#menu[data-screen=play] .menu-pages{top:110px!important}}
+@media(max-height:660px) and (min-width:801px){#menu .menu-top{height:58px;min-height:58px;padding-top:12px}#menu .home-actions{top:45%;gap:4px}#menu .home-actions button{min-height:32px}#menu .menu-pages,#menu[data-screen=play] .menu-pages{top:65px!important;bottom:130px!important}#menu #play-panel h2{font-size:33px!important}#menu #play-panel .destination-tabs button{min-height:119px;padding-top:77px}#menu #mode-rows{margin-bottom:10px}#menu #play-panel .destination-tabs{gap:8px}#menu #mobile-playbar{bottom:75px}#menu[data-screen=play] #menu-back{bottom:80px}}
+@media(max-width:900px){#menu .menu-top{padding:17px 18px;gap:12px}#menu .wordmark{font-size:24px}#menu #menu-location{font-size:10px}#menu .home-actions{left:20px;width:218px}#menu .home-actions button b{font-size:23px}#menu .menu-player-strip{left:20px;grid-template-columns:43px minmax(140px,210px);grid-template-rows:43px 4px}#menu-player-name{font-size:21px;line-height:23px}#menu-player-title{font-size:10px}#menu #party-toggle{left:300px;bottom:44px;font-size:12px}#menu .menu-pages,#menu[data-screen=play] .menu-pages{width:90vw;right:auto;left:50%;transform:translateX(-50%)}#menu[data-screen=garage] .menu-pages{left:20px;transform:none;width:285px;max-width:37vw}#menu #play-panel{padding:16px}#menu #mode-rows{gap:10px}#menu #mode-rows .row{gap:3px}#menu #mode-rows .row label{min-width:54px;font-size:10px}#menu #mode-rows .seg{font-size:16px;padding:7px 6px}#menu #play-panel .destination-tabs button strong{font-size:25px}#menu #mobile-playbar{width:90vw}#menu[data-screen=play] #menu-back{left:12px;bottom:31px;font-size:14px}#menu .menu-footer{padding-left:20px;padding-right:20px}#camtag{left:20px}}
+@media(max-width:800px){#menu .menu-top{height:67px;min-height:67px}#menu .home-actions{left:18px;top:53%;bottom:auto;width:210px;gap:5px;transform:translateY(-10%)}#menu .home-actions button{min-height:35px}#menu #car-inspect{left:35%;right:0;top:72px;bottom:143px}#menu .menu-pages,#menu[data-screen=play] .menu-pages{top:76px!important;bottom:153px!important;margin:0!important}#menu #play-panel .destination-tabs button{min-height:122px;padding:74px 13px 12px}#menu #play-panel .destination-tabs button strong{font-size:24px}#menu #play-panel .destination-tabs button small{font-size:11px}#menu[data-screen=garage] .menu-pages{top:40vh!important;bottom:104px!important;left:18px;right:18px;transform:none;width:auto;max-width:none}#menu #garage-panel{max-height:none;overflow:visible;padding:14px 16px}#menu #body-options{flex-direction:row}#menu #body-options button{flex:1;text-align:center;font-size:16px;padding:9px 5px}#menu #garage-panel h2{display:block;font-size:27px!important;margin-bottom:13px!important}#menu #garage-panel>.eyebrow{display:none}#menu #mobile-playbar{bottom:81px}#menu #mobile-play{font-size:21px;min-height:43px}#menu #mobile-play-summary{font-size:13px}#menu #start-status{bottom:134px}.menu-player-strip{bottom:31px}#intro .intro-title{top:25%}#intro .intro-title h1{font-size:clamp(65px,13vw,100px)}#intro .intro-controls{bottom:24%}#intro #intro-play{font-size:23px;min-height:50px}#sb span{min-width:53px!important;font-size:37px!important;line-height:43px!important}#sb #clk{font-size:32px!important;line-height:43px!important;min-width:100px!important}body:not(.device-touch) #bo{width:148px;height:148px;right:12px;bottom:17px}body:not(.device-touch) #spd{width:102px;height:102px;right:158px;bottom:19px}#camtag{font-size:19px;bottom:23px}#quick-chat{bottom:70px}}
+body:is(.device-phone,.device-tablet) #menu .menu-pages{touch-action:pan-y pinch-zoom;overflow-y:auto!important;overflow-x:hidden!important;overscroll-behavior-y:contain;max-height:none!important;-webkit-overflow-scrolling:touch;scroll-padding:14px}
+body:is(.device-phone,.device-tablet) #menu .menu-pages>section{max-height:none!important;overflow:visible!important}
+body:is(.device-phone,.device-tablet) #menu #play-panel .destination-tabs{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+body:is(.device-phone,.device-tablet) #menu #play-panel .destination-tabs button{min-height:124px;padding:78px 12px 12px;touch-action:pan-y}
+body:is(.device-phone,.device-tablet) #menu #play-panel .destination-tabs button strong{font-size:22px}
+body:is(.device-phone,.device-tablet) #menu #play-panel .destination-tabs button small{font-size:11px;line-height:1.25}
+body:is(.device-phone,.device-tablet).mobile-match-menu #menu .menu-pages{bottom:calc(155px + env(safe-area-inset-bottom))!important}
+body:is(.device-phone,.device-tablet) #menu #mobile-playbar{bottom:max(76px,calc(67px + env(safe-area-inset-bottom)));left:12px;right:12px;width:auto;transform:none;padding:9px 12px;display:flex;gap:12px}
+body:is(.device-phone,.device-tablet) #menu #mobile-play{max-width:none;width:48%;min-height:48px;font-size:20px;padding:10px 13px}
+body:is(.device-phone,.device-tablet) #menu #mobile-play-summary{font-size:12px;max-width:50%;line-height:1.3}
+body.device-phone #menu .menu-top{height:66px;min-height:66px;padding:14px 15px;flex-wrap:nowrap}
+body.device-phone #menu .wordmark{font-size:23px;line-height:.85}
+body.device-phone #menu .wordmark small{font-size:7px;letter-spacing:.18em}
+body.device-phone #menu #menu-music{padding:8px;font-size:10px;margin-left:auto}
+body.device-phone #menu #menu-location{display:none}
+body.device-phone #menu .home-actions{left:16px;top:auto;bottom:22px;transform:none;width:min(205px,52vw);gap:5px}
+body.device-phone #menu .home-actions button{min-height:42px;padding:9px 14px}
+body.device-phone #menu .home-actions button b{font-size:22px}
+body.device-phone #menu #car-inspect{left:31%;right:0;top:82px;bottom:265px}
+body.device-phone #menu .menu-pages,body.device-phone #menu[data-screen=play] .menu-pages{left:12px;right:12px;top:74px!important;bottom:146px!important;width:auto;transform:none}
+body.device-phone #menu .menu-pages>section{padding:16px 13px}
+body.device-phone #menu .menu-pages h2{font-size:31px!important;margin-bottom:15px!important}
+body.device-phone #menu #play-panel h2{font-size:37px!important}
+body.device-phone #menu #mode-rows{grid-template-columns:1fr;gap:9px;margin-bottom:14px}
+body.device-phone #menu #mode-rows .row label{min-width:62px;font-size:11px}
+body.device-phone #menu #mode-rows .seg{font-size:20px;min-height:38px;padding:8px 7px}
+body.device-phone #menu #team-colors-control small{font-size:11px}
+body.device-phone #menu #custom-rules summary{font-size:13px}
+body.device-phone #menu #custom-rules summary span{display:block;float:none;font-size:11px;margin-top:3px}
+body.device-phone #menu .menu-player-strip{left:12px;bottom:max(31px,calc(23px + env(safe-area-inset-bottom)));grid-template-columns:36px minmax(110px,160px);grid-template-rows:36px 4px;gap:0 6px;min-width:0}
+body.device-phone #menu .menu-player-emblem svg{width:26px;height:26px}
+body.device-phone #menu-player-name{font-size:19px;line-height:21px}
+body.device-phone #menu-player-title{font-size:8px;line-height:11px;letter-spacing:.05em}
+body.device-phone #menu-player-level{font-size:11px;min-width:15px;height:15px;line-height:15px;left:calc(50% - 9px);bottom:-5px}
+body.device-phone #menu #party-toggle{left:auto;right:14px;bottom:max(40px,calc(32px + env(safe-area-inset-bottom)));max-width:calc(100vw - 234px);font-size:10px;line-height:1.1;text-align:right;padding:8px 1px;min-height:32px}
+body.device-phone #menu #party-toggle:before{width:12px;height:12px;font-size:12px;margin-right:4px}
+body.device-phone #menu #menu-back{left:12px;bottom:max(123px,calc(114px + env(safe-area-inset-bottom)));font-size:14px;padding:5px 12px;min-width:80px}
+body.device-phone #menu[data-screen=play] #menu-back{bottom:max(131px,calc(122px + env(safe-area-inset-bottom)));z-index:12}
+body.device-phone #menu #start-status{left:12px;right:12px;bottom:139px;max-width:none;font-size:12px}
+body.device-phone #menu .menu-footer{padding:6px 12px;font-size:8px;letter-spacing:0}
+body.device-phone #menu #boot-status{font-size:8px!important;max-width:62%}
+body.device-phone #menu #garage-panel{padding:14px 13px}
+body.device-phone #menu[data-screen=garage] .menu-pages{top:43vh!important;bottom:94px!important}
+body.device-phone #menu[data-screen=garage] #car-inspect{left:6%;right:0;top:68px;bottom:56vh}
+body.device-phone #menu #body-options button{font-size:16px;padding:10px 4px}
+body.device-touch #camtag{left:14px;bottom:185px;font-size:17px}
+body.device-touch #quick-chat{left:14px;bottom:226px;min-width:0;max-width:195px}
+body.device-touch #quick-chat summary{min-height:28px;padding:6px 8px}
+body.device-touch #sb span{min-width:43px!important;font-size:32px!important;line-height:39px!important}
+body.device-touch #sb #clk{min-width:87px!important;font-size:29px!important;line-height:39px!important;padding:0 7px!important}
+@media(max-height:500px) and (orientation:landscape){#menu .menu-top{height:56px;min-height:56px;padding-top:10px}body.device-phone #menu .menu-top{height:56px;min-height:56px;padding:10px 16px}#menu .home-actions,body.device-phone #menu .home-actions{top:38%;bottom:auto;transform:none;gap:3px;width:190px}#menu .home-actions button,body.device-phone #menu .home-actions button{min-height:31px;padding:6px 13px}#menu .home-actions button b,body.device-phone #menu .home-actions button b{font-size:19px}#menu #car-inspect,body.device-phone #menu #car-inspect{left:34%;top:64px;bottom:82px}#menu .menu-pages,#menu[data-screen=play] .menu-pages,body.device-phone #menu .menu-pages,body.device-phone #menu[data-screen=play] .menu-pages{top:63px!important;bottom:124px!important}body:is(.device-phone,.device-tablet).mobile-match-menu #menu .menu-pages{bottom:137px!important}#menu #play-panel h2,body.device-phone #menu #play-panel h2{font-size:29px!important}#menu #mode-rows,body.device-phone #menu #mode-rows{grid-template-columns:1fr 1fr;gap:13px;margin-bottom:11px}#menu #mode-rows .row label,body.device-phone #menu #mode-rows .row label{min-width:49px;font-size:10px}#menu #mode-rows .seg,body.device-phone #menu #mode-rows .seg{min-height:31px;font-size:17px;padding:6px}#menu #play-panel .destination-tabs button,body:is(.device-phone,.device-tablet) #menu #play-panel .destination-tabs button{min-height:107px;padding:64px 13px 11px}#menu #play-panel .destination-tabs button strong,body:is(.device-phone,.device-tablet) #menu #play-panel .destination-tabs button strong{font-size:22px}#menu #mobile-playbar,body:is(.device-phone,.device-tablet) #menu #mobile-playbar{bottom:65px;left:50%;right:auto;transform:translateX(-50%);width:min(700px,88vw);padding:7px 12px}#menu #mobile-play,body:is(.device-phone,.device-tablet) #menu #mobile-play{min-height:39px;width:45%;font-size:20px}#menu #menu-back,body.device-phone #menu #menu-back,body.device-phone #menu[data-screen=play] #menu-back{left:14px;bottom:108px;font-size:13px;min-width:70px;padding:5px 11px}.menu-player-strip,body.device-phone #menu .menu-player-strip{bottom:26px;grid-template-columns:32px minmax(115px,170px);grid-template-rows:32px 3px;left:15px}#menu-player-name,body.device-phone #menu-player-name{font-size:18px;line-height:20px}#menu-player-title,body.device-phone #menu-player-title{font-size:8px;line-height:10px}#menu #party-toggle,body.device-phone #menu #party-toggle{left:260px;right:auto;bottom:29px;font-size:10px;max-width:40vw}#menu .menu-footer{min-height:18px;padding:4px 16px;font-size:8px}#menu #boot-status{font-size:8px!important}body.device-phone #menu[data-screen=garage] .menu-pages{top:64px!important;left:14px;right:auto;max-width:none;width:270px;bottom:80px!important}body.device-phone #menu[data-screen=garage] #car-inspect{left:38%;right:0;top:62px;bottom:80px}body.device-phone #menu #garage-panel h2{display:block}body.device-phone #menu #body-options{flex-direction:column}#intro .intro-title{top:20%}#intro .intro-title h1{font-size:clamp(54px,11vw,85px)}#intro .intro-controls{bottom:20%}#intro #intro-play{min-height:42px;font-size:20px;padding:10px 24px}#intro .intro-options,#intro .intro-track{bottom:3%}body.device-touch #quick-chat{bottom:150px}body.device-touch #camtag{bottom:120px;font-size:15px}body.device-touch #matchtag{top:12px!important}body.device-touch #rival-title{display:none}}
+@media(prefers-reduced-motion:reduce){#menu :is(button,.destination-tabs button){transition:none}.menu-player-progress:before{box-shadow:none}.gauge-bars{filter:none}}
+
+/*
+Copyright (c) 2014, Indian Type Foundry (info@indiantypefoundry.com).
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is copied below, and is also available with a FAQ at:
+http://scripts.sil.org/OFL
+
+
+-----------------------------------------------------------
+SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
+-----------------------------------------------------------
+
+PREAMBLE
+The goals of the Open Font License (OFL) are to stimulate worldwide
+development of collaborative font projects, to support the font creation
+efforts of academic and linguistic communities, and to provide a free and
+open framework in which fonts may be shared and improved in partnership
+with others.
+
+The OFL allows the licensed fonts to be used, studied, modified and
+redistributed freely as long as they are not sold by themselves. The
+fonts, including any derivative works, can be bundled, embedded, 
+redistributed and/or sold with any software provided that any reserved
+names are not used by derivative works. The fonts and derivatives,
+however, cannot be released under any other type of license. The
+requirement for fonts to remain under this license does not apply
+to any document created using the fonts or their derivatives.
+
+DEFINITIONS
+"Font Software" refers to the set of files released by the Copyright
+Holder(s) under this license and clearly marked as such. This may
+include source files, build scripts and documentation.
+
+"Reserved Font Name" refers to any names specified as such after the
+copyright statement(s).
+
+"Original Version" refers to the collection of Font Software components as
+distributed by the Copyright Holder(s).
+
+"Modified Version" refers to any derivative made by adding to, deleting,
+or substituting -- in part or in whole -- any of the components of the
+Original Version, by changing formats or by porting the Font Software to a
+new environment.
+
+"Author" refers to any designer, engineer, programmer, technical
+writer or other person who contributed to the Font Software.
+
+PERMISSION & CONDITIONS
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of the Font Software, to use, study, copy, merge, embed, modify,
+redistribute, and sell modified and unmodified copies of the Font
+Software, subject to the following conditions:
+
+1) Neither the Font Software nor any of its individual components,
+in Original or Modified Versions, may be sold by itself.
+
+2) Original or Modified Versions of the Font Software may be bundled,
+redistributed and/or sold with any software, provided that each copy
+contains the above copyright notice and this license. These can be
+included either as stand-alone text files, human-readable headers or
+in the appropriate machine-readable metadata fields within text or
+binary files as long as those fields can be easily viewed by the user.
+
+3) No Modified Version of the Font Software may use the Reserved Font
+Name(s) unless explicit written permission is granted by the corresponding
+Copyright Holder. This restriction only applies to the primary font name as
+presented to the users.
+
+4) The name(s) of the Copyright Holder(s) or the Author(s) of the Font
+Software shall not be used to promote, endorse or advertise any
+Modified Version, except to acknowledge the contribution(s) of the
+Copyright Holder(s) and the Author(s) or with their explicit written
+permission.
+
+5) The Font Software, modified or unmodified, in part or in whole,
+must be distributed entirely under this license, and must not be
+distributed under any other license. The requirement for fonts to
+remain under this license does not apply to any document created
+using the Font Software.
+
+TERMINATION
+This license becomes null and void if any of the above conditions are
+not met.
+
+DISCLAIMER
+THE FONT SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT
+OF COPYRIGHT, PATENT, TRADEMARK, OR OTHER RIGHT. IN NO EVENT SHALL THE
+COPYRIGHT HOLDER BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
+DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
+OTHER DEALINGS IN THE FONT SOFTWARE.
+
+*/
+
+/* Four original SVG scene illustrations; no copied game art or runtime image request. */
+#menu #play-panel #choose-quick{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20480%20250%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22back%22%20x2%3D%22.7%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%231e777a%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23091222%22%2F%3E%3C%2FlinearGradient%3E%3CradialGradient%20id%3D%22spot%22%3E%3Cstop%20stop-color%3D%22%23dbf5ff%22%20stop-opacity%3D%22.35%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23c4eeff%22%20stop-opacity%3D%220%22%2F%3E%3C%2FradialGradient%3E%3ClinearGradient%20id%3D%22glass%22%20x2%3D%22.4%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23174660%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23091321%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20fill%3D%22url(%23back)%22%20d%3D%22M0%200h480v250H0z%22%2F%3E%3Cellipse%20fill%3D%22url(%23spot)%22%20cx%3D%22280%22%20cy%3D%2270%22%20rx%3D%22300%22%20ry%3D%22220%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23c8e8ff%22%20stroke-opacity%3D%22.12%22%3E%3Cpath%20d%3D%22M0%20175h480M0%20205h480M10%20250%20120%20125M120%20250l75-125M260%20250V125M400%20250l-60-125M480%20235%20385%20125%22%2F%3E%3Cpath%20d%3D%22M5%20125V20h470v105M28%20125V45h424v80%22%2F%3E%3C%2Fg%3E%3Cpath%20d%3D%22M-20%20120%20225%2068%22%20stroke%3D%22%2342e5dd%22%20stroke-width%3D%2224%22%20opacity%3D%22.2%22%2F%3E%3Cpath%20d%3D%22M-20%20143%20260%2087%22%20stroke%3D%22%23e6fdff%22%20stroke-width%3D%223%22%20opacity%3D%22.5%22%2F%3E%3Cg%20transform%3D%22translate(412%2036)%22%3E%3Ccircle%20r%3D%2254%22%20fill%3D%22%23aec5cc%22%20stroke%3D%22%23e2f7ff%22%20stroke-width%3D%223%22%2F%3E%3Cg%20fill%3D%22%2321374a%22%20stroke%3D%22%23608995%22%20stroke-width%3D%221.6%22%3E%3Cpath%20d%3D%22M-13-18%2010-20%2024-2%2010%2018-14%2013-23-5Z%22%2F%3E%3Cpath%20d%3D%22M-33-32-21-46%202-46-8-29Z%22%2F%3E%3Cpath%20d%3D%22m30%2014%2018-5%201%2024-21%2011-6-15Z%22%2F%3E%3Cpath%20d%3D%22m-31%2023%2015%2015-6%2017-23-9Z%22%2F%3E%3C%2Fg%3E%3Cpath%20d%3D%22M-13-18-8-29M10-20%2023-34M24-2%2042-9M10%2018%2020%2029M-14%2013-31%2023M-23-5-43-9%22%20fill%3D%22none%22%20stroke%3D%22%235d8391%22%20stroke-width%3D%222%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(65%20-13)%20scale(1.12)%22%3E%3Cellipse%20cx%3D%22202%22%20cy%3D%22158%22%20rx%3D%22128%22%20ry%3D%2216%22%20fill%3D%22%23020711%22%20opacity%3D%22.6%22%2F%3E%3Cg%20transform%3D%22translate(110%20139)%22%3E%3Cellipse%20rx%3D%2225%22%20ry%3D%2223.5%22%20fill%3D%22%23080e18%22%20stroke%3D%22%23223b50%22%20stroke-width%3D%224%22%2F%3E%3Cellipse%20rx%3D%2216%22%20ry%3D%2216.5%22%20fill%3D%22%23142435%22%20stroke%3D%22%23bdd1d9%22%20stroke-width%3D%222%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%238fb1c2%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22M0%200%200%2015.5%22%2F%3E%3Cpath%20d%3D%22M0%200%2012.118387978254463%209.66409192881037%22%2F%3E%3Cpath%20d%3D%22M0%200%2015.111382638818267%20-3.4490744763228722%22%2F%3E%3Cpath%20d%3D%22M0%200%206.725197956322152%20-13.965017452487496%22%2F%3E%3Cpath%20d%3D%22M0%200%20-6.725197956322149%20-13.965017452487496%22%2F%3E%3Cpath%20d%3D%22M0%200%20-15.111382638818267%20-3.4490744763228762%22%2F%3E%3Cpath%20d%3D%22M0%200%20-12.118387978254463%209.664091928810366%22%2F%3E%3C%2Fg%3E%3Ccircle%20r%3D%224%22%20fill%3D%22%23c3e2ed%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(282%20143)%22%3E%3Cellipse%20rx%3D%2229%22%20ry%3D%2227.259999999999998%22%20fill%3D%22%23080e18%22%20stroke%3D%22%23223b50%22%20stroke-width%3D%224%22%2F%3E%3Cellipse%20rx%3D%2218.56%22%20ry%3D%2219.14%22%20fill%3D%22%23142435%22%20stroke%3D%22%23bdd1d9%22%20stroke-width%3D%222%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%238fb1c2%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22M0%200%200%2017.98%22%2F%3E%3Cpath%20d%3D%22M0%200%2014.057330054775177%2011.21034663742003%22%2F%3E%3Cpath%20d%3D%22M0%200%2017.52920386102919%20-4.000926392534532%22%2F%3E%3Cpath%20d%3D%22M0%200%207.801229629333697%20-16.199420244885495%22%2F%3E%3Cpath%20d%3D%22M0%200%20-7.801229629333693%20-16.199420244885495%22%2F%3E%3Cpath%20d%3D%22M0%200%20-17.52920386102919%20-4.000926392534536%22%2F%3E%3Cpath%20d%3D%22M0%200%20-14.057330054775178%2011.210346637420026%22%2F%3E%3C%2Fg%3E%3Ccircle%20r%3D%224%22%20fill%3D%22%23c3e2ed%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22%2309131d%22%20stroke-width%3D%222%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m73%2099%2083-28%20101%2010%2058%2038-13%2025-26-16-138-3-28%2017-18-15Z%22%20fill%3D%22%232d91af%22%2F%3E%3Cpath%20d%3D%22m158%2075%2023-34%2054%204%2029%2036-19-4-17-25-39-4-20%2031Z%22%20fill%3D%22%238ce7e6%22%2F%3E%3Cpath%20d%3D%22m171%2074%2018-26%2039%204%2019%2025Z%22%20fill%3D%22url(%23glass)%22%2F%3E%3Cpath%20d%3D%22m80%2098%2055-17%2016%2045-21-4-23%2017-16-13Z%22%20fill%3D%22%238ce7e6%22%2F%3E%3Cpath%20d%3D%22m169%2083%2086%201%2048%2033-28%2011-105-6Z%22%20fill%3D%22%232d91af%22%2F%3E%3Cpath%20d%3D%22m250%2084%2053%2033-28%2011-24-12Z%22%20fill%3D%22%238ce7e6%22%2F%3E%3Cpath%20d%3D%22m296%20120%2019-2-3%2012-18%208Z%22%20fill%3D%22%23142433%22%2F%3E%3Cpath%20d%3D%22m290%20108%2015%207-6%206-15-8Z%22%20fill%3D%22%23e8fcff%22%20stroke%3D%22%2372a5bc%22%2F%3E%3Cpath%20d%3D%22m74%2069%2061-6%203%2010-61%208Z%22%20fill%3D%22%238ce7e6%22%2F%3E%3Cpath%20d%3D%22m86%2081%204%2018m34-20%204%2019%22%20fill%3D%22none%22%20stroke%3D%22%23142a3a%22%20stroke-width%3D%224%22%2F%3E%3Cpath%20d%3D%22m152%2084%207%2036%2085%202%22%20fill%3D%22none%22%20stroke%3D%22%238ce7e6%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22m117%2092%2018-4m-16%209%2018-4%22%20fill%3D%22none%22%20stroke%3D%22%23091521%22%20stroke-width%3D%223%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(267%20-12)%20scale(0.48)%22%3E%3Cellipse%20cx%3D%22202%22%20cy%3D%22158%22%20rx%3D%22128%22%20ry%3D%2216%22%20fill%3D%22%23020711%22%20opacity%3D%22.6%22%2F%3E%3Cg%20transform%3D%22translate(110%20139)%22%3E%3Cellipse%20rx%3D%2225%22%20ry%3D%2223.5%22%20fill%3D%22%23080e18%22%20stroke%3D%22%23223b50%22%20stroke-width%3D%224%22%2F%3E%3Cellipse%20rx%3D%2216%22%20ry%3D%2216.5%22%20fill%3D%22%23142435%22%20stroke%3D%22%23bdd1d9%22%20stroke-width%3D%222%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%238fb1c2%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22M0%200%200%2015.5%22%2F%3E%3Cpath%20d%3D%22M0%200%2012.118387978254463%209.66409192881037%22%2F%3E%3Cpath%20d%3D%22M0%200%2015.111382638818267%20-3.4490744763228722%22%2F%3E%3Cpath%20d%3D%22M0%200%206.725197956322152%20-13.965017452487496%22%2F%3E%3Cpath%20d%3D%22M0%200%20-6.725197956322149%20-13.965017452487496%22%2F%3E%3Cpath%20d%3D%22M0%200%20-15.111382638818267%20-3.4490744763228762%22%2F%3E%3Cpath%20d%3D%22M0%200%20-12.118387978254463%209.664091928810366%22%2F%3E%3C%2Fg%3E%3Ccircle%20r%3D%224%22%20fill%3D%22%23c3e2ed%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(282%20143)%22%3E%3Cellipse%20rx%3D%2229%22%20ry%3D%2227.259999999999998%22%20fill%3D%22%23080e18%22%20stroke%3D%22%23223b50%22%20stroke-width%3D%224%22%2F%3E%3Cellipse%20rx%3D%2218.56%22%20ry%3D%2219.14%22%20fill%3D%22%23142435%22%20stroke%3D%22%23bdd1d9%22%20stroke-width%3D%222%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%238fb1c2%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22M0%200%200%2017.98%22%2F%3E%3Cpath%20d%3D%22M0%200%2014.057330054775177%2011.21034663742003%22%2F%3E%3Cpath%20d%3D%22M0%200%2017.52920386102919%20-4.000926392534532%22%2F%3E%3Cpath%20d%3D%22M0%200%207.801229629333697%20-16.199420244885495%22%2F%3E%3Cpath%20d%3D%22M0%200%20-7.801229629333693%20-16.199420244885495%22%2F%3E%3Cpath%20d%3D%22M0%200%20-17.52920386102919%20-4.000926392534536%22%2F%3E%3Cpath%20d%3D%22M0%200%20-14.057330054775178%2011.210346637420026%22%2F%3E%3C%2Fg%3E%3Ccircle%20r%3D%224%22%20fill%3D%22%23c3e2ed%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22%2309131d%22%20stroke-width%3D%222%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m73%2099%2083-28%20101%2010%2058%2038-13%2025-26-16-138-3-28%2017-18-15Z%22%20fill%3D%22%23d9812d%22%2F%3E%3Cpath%20d%3D%22m158%2075%2023-34%2054%204%2029%2036-19-4-17-25-39-4-20%2031Z%22%20fill%3D%22%23ffcb5b%22%2F%3E%3Cpath%20d%3D%22m171%2074%2018-26%2039%204%2019%2025Z%22%20fill%3D%22url(%23glass)%22%2F%3E%3Cpath%20d%3D%22m80%2098%2055-17%2016%2045-21-4-23%2017-16-13Z%22%20fill%3D%22%23ffcb5b%22%2F%3E%3Cpath%20d%3D%22m169%2083%2086%201%2048%2033-28%2011-105-6Z%22%20fill%3D%22%23d9812d%22%2F%3E%3Cpath%20d%3D%22m250%2084%2053%2033-28%2011-24-12Z%22%20fill%3D%22%23ffcb5b%22%2F%3E%3Cpath%20d%3D%22m296%20120%2019-2-3%2012-18%208Z%22%20fill%3D%22%23142433%22%2F%3E%3Cpath%20d%3D%22m290%20108%2015%207-6%206-15-8Z%22%20fill%3D%22%23e8fcff%22%20stroke%3D%22%2372a5bc%22%2F%3E%3Cpath%20d%3D%22m74%2069%2061-6%203%2010-61%208Z%22%20fill%3D%22%23ffcb5b%22%2F%3E%3Cpath%20d%3D%22m86%2081%204%2018m34-20%204%2019%22%20fill%3D%22none%22%20stroke%3D%22%23142a3a%22%20stroke-width%3D%224%22%2F%3E%3Cpath%20d%3D%22m152%2084%207%2036%2085%202%22%20fill%3D%22none%22%20stroke%3D%22%23ffcb5b%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22m117%2092%2018-4m-16%209%2018-4%22%20fill%3D%22none%22%20stroke%3D%22%23091521%22%20stroke-width%3D%223%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3Cpath%20d%3D%22m20%2038%2013-10%2013%2010-13%2010Z%22%20fill%3D%22%23a4f2db%22%20opacity%3D%22.8%22%2F%3E%3C%2Fsvg%3E")}
+#menu #play-panel #choose-offline{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20480%20250%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22back%22%20x2%3D%22.7%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23a95d23%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23091222%22%2F%3E%3C%2FlinearGradient%3E%3CradialGradient%20id%3D%22spot%22%3E%3Cstop%20stop-color%3D%22%23dbf5ff%22%20stop-opacity%3D%22.35%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23c4eeff%22%20stop-opacity%3D%220%22%2F%3E%3C%2FradialGradient%3E%3ClinearGradient%20id%3D%22glass%22%20x2%3D%22.4%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23174660%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23091321%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20fill%3D%22url(%23back)%22%20d%3D%22M0%200h480v250H0z%22%2F%3E%3Cellipse%20fill%3D%22url(%23spot)%22%20cx%3D%22280%22%20cy%3D%2270%22%20rx%3D%22300%22%20ry%3D%22220%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23c8e8ff%22%20stroke-opacity%3D%22.12%22%3E%3Cpath%20d%3D%22M0%20175h480M0%20205h480M10%20250%20120%20125M120%20250l75-125M260%20250V125M400%20250l-60-125M480%20235%20385%20125%22%2F%3E%3Cpath%20d%3D%22M5%20125V20h470v105M28%20125V45h424v80%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23ffd657%22%20opacity%3D%22.25%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22m47%2011%2022-13%2022%2013v26L69%2050%2047%2037Z%20M91%2011l22-13%2022%2013v26l-22%2013-22-13Z%20M135%2011l22-13%2022%2013v26l-22%2013-22-13Z%20M69%2050l22-13%2022%2013v26L91%2089%2069%2076Z%22%2F%3E%3Ccircle%20cx%3D%22407%22%20cy%3D%2278%22%20r%3D%2251%22%2F%3E%3Cpath%20d%3D%22M407%204v24m0%20101v24m-74-75h24m101%200h22%22%2F%3E%3C%2Fg%3E%3Cpath%20d%3D%22m-15%20115%20340-72%22%20stroke%3D%22%23ffba3f%22%20stroke-width%3D%2222%22%20opacity%3D%22.22%22%2F%3E%3Cg%20transform%3D%22translate(59%20-8)%20scale(1.15)%22%3E%3Cellipse%20cx%3D%22202%22%20cy%3D%22158%22%20rx%3D%22128%22%20ry%3D%2216%22%20fill%3D%22%23020711%22%20opacity%3D%22.6%22%2F%3E%3Cg%20transform%3D%22translate(110%20139)%22%3E%3Cellipse%20rx%3D%2225%22%20ry%3D%2223.5%22%20fill%3D%22%23080e18%22%20stroke%3D%22%23223b50%22%20stroke-width%3D%224%22%2F%3E%3Cellipse%20rx%3D%2216%22%20ry%3D%2216.5%22%20fill%3D%22%23142435%22%20stroke%3D%22%23bdd1d9%22%20stroke-width%3D%222%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%238fb1c2%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22M0%200%200%2015.5%22%2F%3E%3Cpath%20d%3D%22M0%200%2012.118387978254463%209.66409192881037%22%2F%3E%3Cpath%20d%3D%22M0%200%2015.111382638818267%20-3.4490744763228722%22%2F%3E%3Cpath%20d%3D%22M0%200%206.725197956322152%20-13.965017452487496%22%2F%3E%3Cpath%20d%3D%22M0%200%20-6.725197956322149%20-13.965017452487496%22%2F%3E%3Cpath%20d%3D%22M0%200%20-15.111382638818267%20-3.4490744763228762%22%2F%3E%3Cpath%20d%3D%22M0%200%20-12.118387978254463%209.664091928810366%22%2F%3E%3C%2Fg%3E%3Ccircle%20r%3D%224%22%20fill%3D%22%23c3e2ed%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(282%20143)%22%3E%3Cellipse%20rx%3D%2229%22%20ry%3D%2227.259999999999998%22%20fill%3D%22%23080e18%22%20stroke%3D%22%23223b50%22%20stroke-width%3D%224%22%2F%3E%3Cellipse%20rx%3D%2218.56%22%20ry%3D%2219.14%22%20fill%3D%22%23142435%22%20stroke%3D%22%23bdd1d9%22%20stroke-width%3D%222%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%238fb1c2%22%20stroke-width%3D%222%22%3E%3Cpath%20d%3D%22M0%200%200%2017.98%22%2F%3E%3Cpath%20d%3D%22M0%200%2014.057330054775177%2011.21034663742003%22%2F%3E%3Cpath%20d%3D%22M0%200%2017.52920386102919%20-4.000926392534532%22%2F%3E%3Cpath%20d%3D%22M0%200%207.801229629333697%20-16.199420244885495%22%2F%3E%3Cpath%20d%3D%22M0%200%20-7.801229629333693%20-16.199420244885495%22%2F%3E%3Cpath%20d%3D%22M0%200%20-17.52920386102919%20-4.000926392534536%22%2F%3E%3Cpath%20d%3D%22M0%200%20-14.057330054775178%2011.210346637420026%22%2F%3E%3C%2Fg%3E%3Ccircle%20r%3D%224%22%20fill%3D%22%23c3e2ed%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22%2309131d%22%20stroke-width%3D%222%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22m73%2099%2083-28%20101%2010%2058%2038-13%2025-26-16-138-3-28%2017-18-15Z%22%20fill%3D%22%23d96923%22%2F%3E%3Cpath%20d%3D%22m158%2075%2023-34%2054%204%2029%2036-19-4-17-25-39-4-20%2031Z%22%20fill%3D%22%23ffd166%22%2F%3E%3Cpath%20d%3D%22m171%2074%2018-26%2039%204%2019%2025Z%22%20fill%3D%22url(%23glass)%22%2F%3E%3Cpath%20d%3D%22m80%2098%2055-17%2016%2045-21-4-23%2017-16-13Z%22%20fill%3D%22%23ffd166%22%2F%3E%3Cpath%20d%3D%22m169%2083%2086%201%2048%2033-28%2011-105-6Z%22%20fill%3D%22%23d96923%22%2F%3E%3Cpath%20d%3D%22m250%2084%2053%2033-28%2011-24-12Z%22%20fill%3D%22%23ffd166%22%2F%3E%3Cpath%20d%3D%22m296%20120%2019-2-3%2012-18%208Z%22%20fill%3D%22%23142433%22%2F%3E%3Cpath%20d%3D%22m290%20108%2015%207-6%206-15-8Z%22%20fill%3D%22%23e8fcff%22%20stroke%3D%22%2372a5bc%22%2F%3E%3Cpath%20d%3D%22m74%2069%2061-6%203%2010-61%208Z%22%20fill%3D%22%23ffd166%22%2F%3E%3Cpath%20d%3D%22m86%2081%204%2018m34-20%204%2019%22%20fill%3D%22none%22%20stroke%3D%22%23142a3a%22%20stroke-width%3D%224%22%2F%3E%3Cpath%20d%3D%22m152%2084%207%2036%2085%202%22%20fill%3D%22none%22%20stroke%3D%22%23ffd166%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22m117%2092%2018-4m-16%209%2018-4%22%20fill%3D%22none%22%20stroke%3D%22%23091521%22%20stroke-width%3D%223%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3Cg%20fill%3D%22%23fff1ad%22%20transform%3D%22translate(401%2070)%22%3E%3Cpath%20d%3D%22m-15-16%2014-8%2019%2010v25l-18%2011-18-11Z%22%20fill%3D%22none%22%20stroke%3D%22%23ffe493%22%20stroke-width%3D%223%22%2F%3E%3Ccircle%20cx%3D%22-6%22%20cy%3D%22-3%22%20r%3D%223%22%2F%3E%3Ccircle%20cx%3D%227%22%20cy%3D%22-3%22%20r%3D%223%22%2F%3E%3Cpath%20d%3D%22M-7%209H8%22%20stroke%3D%22%23ffe493%22%20stroke-width%3D%223%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E")}
+#menu #play-panel #choose-online{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20480%20250%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22back%22%20x2%3D%22.7%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%2359317a%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23091222%22%2F%3E%3C%2FlinearGradient%3E%3CradialGradient%20id%3D%22spot%22%3E%3Cstop%20stop-color%3D%22%23dbf5ff%22%20stop-opacity%3D%22.35%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23c4eeff%22%20stop-opacity%3D%220%22%2F%3E%3C%2FradialGradient%3E%3ClinearGradient%20id%3D%22glass%22%20x2%3D%22.4%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23174660%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23091321%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20fill%3D%22url(%23back)%22%20d%3D%22M0%200h480v250H0z%22%2F%3E%3Cellipse%20fill%3D%22url(%23spot)%22%20cx%3D%22280%22%20cy%3D%2270%22%20rx%3D%22300%22%20ry%3D%22220%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23c8e8ff%22%20stroke-opacity%3D%22.12%22%3E%3Cpath%20d%3D%22M0%20175h480M0%20205h480M10%20250%20120%20125M120%20250l75-125M260%20250V125M400%20250l-60-125M480%20235%20385%20125%22%2F%3E%3Cpath%20d%3D%22M5%20125V20h470v105M28%20125V45h424v80%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23d3b6ff%22%20stroke-width%3D%225%22%20opacity%3D%22.18%22%3E%3Ccircle%20cx%3D%22100%22%20cy%3D%2245%22%20r%3D%2276%22%2F%3E%3Ccircle%20cx%3D%22370%22%20cy%3D%22160%22%20r%3D%2297%22%2F%3E%3Cpath%20d%3D%22M0%20210%20480%206%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(267%2092)%20rotate(-10)%22%3E%3Cpath%20d%3D%22m0-80%2088%2026v58C88%2049%2039%2080%200%20101-39%2080-88%2049-88%204v-58Z%22%20fill%3D%22%23281c4b%22%20stroke%3D%22%23cba7f8%22%20stroke-width%3D%225%22%2F%3E%3Cpath%20d%3D%22m0-64%2071%2022v48C71%2040%2030%2067%200%2083-30%2067-71%2040-71%206v-48Z%22%20fill%3D%22none%22%20stroke%3D%22%236e559d%22%20stroke-width%3D%223%22%2F%3E%3Crect%20x%3D%22-34%22%20y%3D%22-9%22%20width%3D%2268%22%20height%3D%2255%22%20rx%3D%225%22%20fill%3D%22%23d8b5ed%22%20stroke%3D%22%23f5e6ff%22%20stroke-width%3D%222%22%2F%3E%3Cpath%20d%3D%22M-23-9v-19a23%2023%200%200%201%2046%200v19%22%20fill%3D%22none%22%20stroke%3D%22%23dcc1ee%22%20stroke-width%3D%2210%22%2F%3E%3Ccircle%20cy%3D%2212%22%20r%3D%227%22%20fill%3D%22%2343295f%22%2F%3E%3Cpath%20d%3D%22M-3%2014h6v16h-6Z%22%20fill%3D%22%2343295f%22%2F%3E%3C%2Fg%3E%3Cg%20fill%3D%22%23efccff%22%3E%3Cpath%20d%3D%22m77%20103%2013%205%205%2013-5%2013-13%205-13-5-5-13%205-13Z%22%20opacity%3D%22.7%22%2F%3E%3Cpath%20d%3D%22m399%2035%209%203%203%209-3%209-9%203-9-3-3-9%203-9Z%22%20opacity%3D%22.8%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E")}
+#menu #play-panel #choose-training{background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20480%20250%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22back%22%20x2%3D%22.7%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23165c85%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23091222%22%2F%3E%3C%2FlinearGradient%3E%3CradialGradient%20id%3D%22spot%22%3E%3Cstop%20stop-color%3D%22%23dbf5ff%22%20stop-opacity%3D%22.35%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23c4eeff%22%20stop-opacity%3D%220%22%2F%3E%3C%2FradialGradient%3E%3ClinearGradient%20id%3D%22glass%22%20x2%3D%22.4%22%20y2%3D%221%22%3E%3Cstop%20stop-color%3D%22%23174660%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%23091321%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Cpath%20fill%3D%22url(%23back)%22%20d%3D%22M0%200h480v250H0z%22%2F%3E%3Cellipse%20fill%3D%22url(%23spot)%22%20cx%3D%22280%22%20cy%3D%2270%22%20rx%3D%22300%22%20ry%3D%22220%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23c8e8ff%22%20stroke-opacity%3D%22.12%22%3E%3Cpath%20d%3D%22M0%20175h480M0%20205h480M10%20250%20120%20125M120%20250l75-125M260%20250V125M400%20250l-60-125M480%20235%20385%20125%22%2F%3E%3Cpath%20d%3D%22M5%20125V20h470v105M28%20125V45h424v80%22%2F%3E%3C%2Fg%3E%3Cpath%20d%3D%22M23%20173C102%2023%20265%208%20427%2096%22%20fill%3D%22none%22%20stroke%3D%22%2395eaff%22%20stroke-width%3D%224%22%20stroke-dasharray%3D%2211%209%22%20opacity%3D%22.8%22%2F%3E%3Cg%20transform%3D%22translate(250%20126)%20rotate(-12)%22%3E%3Cellipse%20rx%3D%22141%22%20ry%3D%2248%22%20fill%3D%22%23175a77%22%20stroke%3D%22%236ddfff%22%20stroke-width%3D%223%22%2F%3E%3Cellipse%20rx%3D%2292%22%20ry%3D%2230%22%20fill%3D%22none%22%20stroke%3D%22%2372b7da%22%20stroke-width%3D%223%22%2F%3E%3Cellipse%20rx%3D%2245%22%20ry%3D%2214%22%20fill%3D%22%23207f98%22%20stroke%3D%22%23a1ecf3%22%20stroke-width%3D%223%22%2F%3E%3C%2Fg%3E%3Cg%20transform%3D%22translate(286%2064)%22%3E%3Ccircle%20r%3D%2251%22%20fill%3D%22%23aec5cc%22%20stroke%3D%22%23e2f7ff%22%20stroke-width%3D%223%22%2F%3E%3Cg%20fill%3D%22%2321374a%22%20stroke%3D%22%23608995%22%20stroke-width%3D%221.6%22%3E%3Cpath%20d%3D%22M-13-18%2010-20%2024-2%2010%2018-14%2013-23-5Z%22%2F%3E%3Cpath%20d%3D%22M-33-32-21-46%202-46-8-29Z%22%2F%3E%3Cpath%20d%3D%22m30%2014%2018-5%201%2024-21%2011-6-15Z%22%2F%3E%3Cpath%20d%3D%22m-31%2023%2015%2015-6%2017-23-9Z%22%2F%3E%3C%2Fg%3E%3Cpath%20d%3D%22M-13-18-8-29M10-20%2023-34M24-2%2042-9M10%2018%2020%2029M-14%2013-31%2023M-23-5-43-9%22%20fill%3D%22none%22%20stroke%3D%22%235d8391%22%20stroke-width%3D%222%22%2F%3E%3C%2Fg%3E%3Cg%20stroke%3D%22%239aeffc%22%20fill%3D%22none%22%20stroke-width%3D%223%22%3E%3Cpath%20d%3D%22M74%2060v48m-24-24h48m326%2024v38m-19-19h38%22%2F%3E%3C%2Fg%3E%3Cpath%20d%3D%22m50%20174%2022-12%2021%2012-21%2013Z%22%20fill%3D%22%23bceaff%22%20opacity%3D%22.8%22%2F%3E%3C%2Fsvg%3E")}

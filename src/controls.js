@@ -32,7 +32,7 @@ function renderBindings(){
  const labels={forward:'Accelerate / pitch',reverse:'Brake / pitch',left:'Steer left',right:'Steer right',jump:'Jump / dodge',boost:'Boost',rollLeft:'Air roll left',rollRight:'Air roll right',slide:'Powerslide',camera:'Ball camera'};
  for(const action in bindings){const button=document.createElement('button');button.className='binding-button';button.textContent=labels[action]+' · '+(bindingCapture===action?'PRESS A KEY':keyLabel(bindings[action]));button.onclick=()=>{bindingCapture=action;renderBindings();$('binding-status').textContent='Press a key. Escape cancels. Used bindings swap places.'};box.appendChild(button);}
  if(!bindingCapture)$('binding-status').textContent='Changes save automatically. Arrow keys also drive. R / T reset training; F2 opens training settings.';
- $('camtag').textContent=(ballCam?'BALL CAM':'CAR CAM')+' · '+keyLabel(bindings.camera);
+ $('camtag').dataset.camera=ballCam?'ball':'car';$('camtag').textContent=(ballCam?'BALL CAM':'CAR CAM')+' · '+keyLabel(bindings.camera);
 }
 function menuNavigationReady(){return st==='MENU'&&!INTRO.active&&!LOADING.active&&!bindingCapture&&!(SECRET.open&&!SECRET.minimized)&&!document.hidden&&inputFocused&&!!$('menu')?.classList.contains('on');}
 function menuControlVisible(element,root=$('menu')){
