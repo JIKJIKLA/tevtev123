@@ -40,4 +40,14 @@ These optional textures are embedded in the portable build. A failed optional de
 
 ## Validation and publication
 
-The combined build passes **236 frontend tests and 34 dedicated-server tests**. New regressions cover measured-box separation and momentum/energy response, all body profiles, sideways/roof recovery with real keyboard input, preserved aerial/wall controls, all playlist/roster combinations, camera fade/framing, warm-up context races and cleanup, functional UI routes and profile/font packaging. Publication and live browser checks are recorded after deployment below.
+The combined build passes **236 frontend tests and 34 dedicated-server tests**. New regressions cover measured-box separation and momentum/energy response, all body profiles, sideways/roof recovery with real keyboard input, preserved aerial/wall controls, all playlist/roster combinations, camera fade/framing, warm-up context races and cleanup, functional UI routes and profile/font packaging. Publication and live browser checks are recorded below.
+
+
+### Published verification — 2026-10-29
+
+- Source/build commit: [12bba0a](https://github.com/JIKJIKLA/tevtev123/commit/12bba0aec9e3ed9791253a45ae48ed2fa6400382). GitHub Verify game and Pages deployment workflows both completed successfully.
+- [GitHub Pages](https://jikjikla.github.io/tevtev123/), [Bunny root](https://tevtev123.b-cdn.net/) and [Cloudflare](https://nivet-league.jikdifn.workers.dev/) all serve the identical **20,964,843-byte** HTML, SHA-256 `e603c3f6fa43f807b62929c344d00cf9f2c166dd71f11607ed212b57e67513eb`. Bunny's versioned URL also matched; root returned a fresh cache MISS during verification.
+- Cloudflare version `7427c510-29f1-4780-b314-b9346ba6983f` is deployed at 100%, deployment `cd527e0a-3b1b-4910-b455-5ea921733c26`. GET/HEAD, health, release hash and unknown-path 404 checks passed. The tiny Worker script and existing bindings/configuration remain unchanged except the public build value/assets.
+- Phoenix reports build 10.3.0, wire 1, 120 Hz physics, 30 Hz snapshots and zero dropped ticks at verification. All 45 staged shared-code files match their local SHA-256. Both existing live private-room and team/personal-paint checks passed; the test rooms were closed and the final room count was zero. Deployment used an idle guard and rollback backup.
+- Browser checks: title/home/garage/play navigation, illustrated mode selection, automatic-graphics 3v3 Heatseeker through real goals, GO expiration, WebGL garage/grass/HUD, rare-blast peak, and portrait setup/rules scrolling. The phone launch action remained within the viewport and the topmost clickable target after scrolling expanded rules. Browser console checks found no game errors. Browser screenshot capture of the automatic renderer was unavailable in this test surface; WebGL screenshots supplied visual inspection. These checks do not establish FPS on physical Chromebooks or phones.
+- Existing host/account plans, database rules, audio samples, private keys and infrastructure access were not changed. Packet layouts remain compatible (protocol 4 / dedicated wire 1); reload old tabs to use the new shared handling and UI.

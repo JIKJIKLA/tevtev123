@@ -4,7 +4,11 @@ The game already runs as JavaScript in the player's browser. Its HTML contains t
 
 There are two ready options. Neither provisions a paid database, object bucket or multiplayer service.
 
-## Live deployment — 10.2.1
+## Live deployment — 10.3.0 Matchday
+
+[Play Nivet League](https://nivet-league.jikdifn.workers.dev/). Verified 2026-10-29: exact shared HTML, 20,964,843 bytes, SHA-256 `e603c3f6fa43f807b62929c344d00cf9f2c166dd71f11607ed212b57e67513eb`. Active version `7427c510-29f1-4780-b314-b9346ba6983f` at 100%, deployment `cd527e0a-3b1b-4910-b455-5ea921733c26`. GET/HEAD, health, release metadata and unknown-path 404 checks passed. Existing ASSETS/GAME_BUILD bindings, disabled caching, 1% observability and the tiny Worker script were preserved. Short-lived upload tokens stayed in memory and were cleared. No account-plan or resource changes were made. [Complete release validation](MATCHDAY-10.3.0.md).
+
+## Previous deployment — 10.2.1
 
 [Play Nivet League on Cloudflare](https://nivet-league.jikdifn.workers.dev/). The existing `nivet-league` Worker serves the exact 10.2.1 Championship optimization build as static assets. Other Workers were not changed. Its only bindings are `ASSETS` and the public `GAME_BUILD` version; Workers Caching is disabled, and no paid plan or additional resource was enabled.
 
