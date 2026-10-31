@@ -53,3 +53,11 @@ The arena uses analytic rounded surfaces rather than an exact map mesh. Tire/sus
 
 The values describe controlled Nivet probes. They are not current Rocket League recording errors or a universal feel score. The detailed reports retain all conditions and the unverified advanced-mechanic/geometry gaps.
 
+
+
+## Publication receipt
+
+The source/build commit is [a15423aa70c5c9bd0afabc872e282b56e514b0ea](https://github.com/JIKJIKLA/tevtev123/commit/a15423aa70c5c9bd0afabc872e282b56e514b0ea). Both [Verify game](https://github.com/JIKJIKLA/tevtev123/actions/runs/41234606849) and [Pages deployment](https://github.com/JIKJIKLA/tevtev123/actions/runs/41234606168) completed successfully. Exact root-document byte/SHA-256 matches were independently fetched from [GitHub Pages](https://jikjikla.github.io/tevtev123/), [Bunny CDN](https://tevtev123.b-cdn.net/) and [Cloudflare](https://nivet-league.jikdifn.workers.dev/), not inferred from release labels.
+
+Cloudflare version629c7076-c69e-4eac-ab82-94dbf627ef45 is active at100%, deployment5d8530db-d964-40d1-9f93-7627350136e3. Its Worker source ETag remains d453c4d08ccfd917365ea1922c91713a722d569c284b351bf6c152972f97d2f7; only assets/build metadata changed. Phoenix rollback backup: /home/ubuntu/tevin-before-control-10.4.0-20261031T192744Z.tar.gz. The source ZIP contains the playable HTML, maintained source/assets, tests, scripts, measured reports and verification logs; every archived file was SHA-256 compared with its staged source. Private keys and dependency trees are excluded.
+The published Pages build was also played through a private Phoenix lobby in the actual browser: create, three-digit code, start with AI, authoritative countdown, driving/boost, pause and quit. No console errors were captured. The GO message had computed opacity 0 during play, and the service returned to zero rooms after cleanup. This supplements the two-client WebSocket checks; it is not independent multi-device playtesting.
