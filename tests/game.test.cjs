@@ -1,5 +1,5 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),load=require('./harness.cjs');
-test('headless engine and gameplay initialize',()=>{const {api}=load();assert.equal(api.PROTOCOL,4);assert.equal(api.PADS.length,34);});
+test('headless engine and gameplay initialize',()=>{const {api}=load();assert.equal(api.PROTOCOL,5);assert.equal(api.PADS.length,34);});
 test('complete menu boots with camera and binding settings',()=>{const g=load({full:true});assert.equal(g.document.querySelectorAll('.binding-button').length,10);assert.equal(g.document.querySelectorAll('.camera-row').length,5);assert.equal(g.api.cfg.hi,0);assert.equal(g.api.cfg.models,1);});
 function setup(){const g=load(),a=g.api;a.configureCars();a.setState({st:'PLAY',sandbox:true});a.cars[1].enabled=false;const c=a.cars[0];a.resetCar(c,0,0);c.q.identity();return {...g,a,c};}
 function drive(a,c,seconds,input){Object.assign(c.inp,input);for(let k=0;k<Math.round(seconds/a.DT);k++){a.stepCar(c,a.DT);c.p.x=0;c.p.z=0;}return c;}
@@ -42,7 +42,7 @@ test('keyboard remapping and analog controller feed the same player inputs',()=>
 });
 test('reject malformed multiplayer vectors and incompatible queue tickets',()=>{
  const {a}=setup();const packet={x:0,y:1,z:0,boost:30,q:[0,0,0,1],v:[0,0,0],w:[0,0,0],n:[0,1,0]};assert.ok(a.packetValid(packet));assert.equal(a.packetValid({...packet,v:[NaN,0,0]}),false);assert.equal(a.packetValid({...packet,q:[0,0,0,0]}),false);
- const member=id=>({session:id}),ticket=(id,protocol)=>({protocol,seen:100,created:100,members:[member(id)]});assert.equal(a.queuePlan({a:ticket('a',3),b:ticket('b',4)},1,101),null);assert.ok(a.queuePlan({a:ticket('a',4),b:ticket('b',4)},1,101));
+ const member=id=>({session:id}),ticket=(id,protocol)=>({protocol,seen:100,created:100,members:[member(id)]});assert.equal(a.queuePlan({a:ticket('a',4),b:ticket('b',5)},1,101),null);assert.ok(a.queuePlan({a:ticket('a',5),b:ticket('b',5)},1,101));
 });
 test('3v3 simulation soak preserves finite state and arena constraints',()=>{
  const {a}=setup();a.cfg.size=3;a.cfg.lvl=2;a.cfg.allies=2;a.cfg.enemies=3;a.configureCars();a.kickoff();a.setState({st:'PLAY',sandbox:true});

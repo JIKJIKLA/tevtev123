@@ -84,9 +84,10 @@ function trainingTick(dt){
  if(!DRILL.saved)$('drill-status').textContent=DRILLS[DRILL.kind]+' · '+DRILL.successes+'/'+DRILL.attempts+' COMPLETE · '+DRILL.elapsed.toFixed(1)+'s · R REPEAT';
 }
 function cameraBallTarget(carPos,ballPos,out){
- // Limit upward aim to the angular space that still contains the car at close range.
- out.copy(ballPos).sub(carPos);const horizontal=Math.hypot(out.x,out.z);if(horizontal>14){out.x*=14/horizontal;out.z*=14/horizontal;}
- out.y=cl(out.y,-1.1-Math.min(horizontal,14)*.7,1.3+Math.min(horizontal,14)*.38);return out.add(carPos);
+ // Aim at the actual ball. Clamping the horizontal distance around the car
+ // introduced distance-dependent parallax and changed the shot's apparent arc.
+ // Camera collision and the bounded footprint correction handle close overlap.
+ return out.copy(ballPos);
 }
 function createRivalVisuals(){
  $('driver-markers').replaceChildren();const group=new THREE.Group();group.name='Readable match aids';scene.add(group);
@@ -141,8 +142,8 @@ function garagePreset(index,save){
 }
 async function queuePractice(){
  if(!SOC.searching||MP.active||starting||LOADING.active)return;
- RIVALS.queuePractice=true;sandbox=true;const allies=cfg.allies,enemies=cfg.enemies;cfg.allies=cfg.enemies=0;
- RIVALS.practiceJob=startGame();try{const ready=await RIVALS.practiceJob;if(!ready){RIVALS.queuePractice=false;sandbox=false;return}if(!MP.active){trainingSetup('free');}}finally{RIVALS.practiceJob=null;cfg.allies=allies;cfg.enemies=enemies;}
+ RIVALS.queuePractice=true;sandbox=true;
+ RIVALS.practiceJob=startGame();try{const ready=await RIVALS.practiceJob;if(!ready){RIVALS.queuePractice=false;sandbox=false;return}if(!MP.active){trainingSetup('free');}}finally{RIVALS.practiceJob=null;}
 }
 function setupRivals(){
  setupProgressImport();

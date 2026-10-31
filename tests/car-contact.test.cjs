@@ -28,18 +28,27 @@ test('off-center airborne bump transfers angular momentum without creating kinet
  assert.ok(c.v.clone().add(d.v).distanceTo(momentum)<1e-10);assert.ok(energy(a,c)+energy(a,d)<=beforeEnergy+1e-8);assert.ok(c.w.length()+d.w.length()>.3,'off-center contact has a real inertia response');assert.ok(c.w.length()<=5.500001&&d.w.length()<=5.500001);assert.ok([...c.v.toArray(),...d.v.toArray(),...c.w.toArray(),...d.w.toArray()].every(Number.isFinite));
 });
 
-test('human-style throttle and steering recover one-wheel, sideways and roof landings without tumbling',()=>{
+test('input-driven recovery preserves neutral roof poses and recovers partial-wheel landings continuously',()=>{
  const {a,first:c}=match(),X=new a.THREE.Vector3(1,0,0),up=new a.THREE.Vector3();
- for(let body=0;body<3;body++)for(const roll of [65,80,90,120,180]){
-  c.body=body;a.resetCar(c,0,0);c.q.setFromAxisAngle(X,roll*Math.PI/180);c.v.set(8,0,0);Object.assign(c.inp,{thr:1,pitch:1,steer:.2,yaw:.2});let maximumStep=0;
-  for(let k=0;k<240;k++){const previous=c.q.clone();a.stepCar(c,a.DT);maximumStep=Math.max(maximumStep,previous.angleTo(c.q));assert.ok(a.carPenetration(c)<.02);assert.ok(c.v.length()<=23.00001);}
-  assert.ok(up.set(0,1,0).applyQuaternion(c.q).y>.98,'body '+body+' roll '+roll+' did not regain a driving pose');assert.equal(c.ground,1);assert.ok(c.wheelsOn>=3);assert.ok(c.v.x>5);assert.ok(maximumStep<.25,'recovery must remain continuous, not an orientation teleport');
+ for(let body=0;body<3;body++){
+  c.body=body;a.resetCar(c,0,0);c.q.setFromAxisAngle(X,Math.PI);
+  for(let k=0;k<240;k++){a.stepCar(c,a.DT);assert.ok(a.carPenetration(c)<.02);assert.ok(c.w.length()<=5.500001);}
+  assert.ok(up.set(0,1,0).applyQuaternion(c.q).y<-.98,'neutral roof is not silently rotated upright');
+  c.jp=1;for(let k=0;k<120;k++){a.stepCar(c,a.DT);assert.ok(a.carPenetration(c)<.02);assert.ok(c.w.length()<=5.500001);}
+  assert.ok(up.set(0,1,0).applyQuaternion(c.q).y>.98,'an explicit roof jump produces a supported recovery');assert.equal(c.ground,1);
+  for(const roll of [65,80,90,120]){
+   a.resetCar(c,0,0);c.q.setFromAxisAngle(X,roll*Math.PI/180);c.v.set(8,0,0);Object.assign(c.inp,{thr:1,pitch:1,steer:.2,yaw:.2});let maximumStep=0;
+   for(let k=0;k<240;k++){const previous=c.q.clone();a.stepCar(c,a.DT);maximumStep=Math.max(maximumStep,previous.angleTo(c.q));assert.ok(a.carPenetration(c)<.02);assert.ok(c.v.length()<=23.00001);assert.ok(c.w.length()<=5.500001);}
+   assert.ok(up.set(0,1,0).applyQuaternion(c.q).y>.98,'body '+body+' roll '+roll+' did not regain a driving pose');assert.equal(c.ground,1);assert.ok(c.wheelsOn>=3);assert.ok(c.v.x>5);assert.ok(maximumStep<.25,'recovery remains continuous, not an orientation teleport');
+  }
  }
 });
 
-test('genuine aerial inputs and intentional contact air-roll remain active; wheel-grip wall climbing remains stable',()=>{
- const {a,first:c}=match(),T=a.THREE;a.resetCar(c,0,0);c.p.y=8;c.wasG=c.ground=0;c.q.setFromAxisAngle(new T.Vector3(1,0,0),1.1);Object.assign(c.inp,{roll:.7,yaw:.5,pitch:.4});a.stepCar(c,a.DT);assert.ok(Math.abs(c.w.x-.7*38.34*a.DT)<1e-10);assert.ok(Math.abs(c.w.y+.5*9.11*a.DT)<1e-10);assert.ok(Math.abs(c.w.z+.4*12.46*a.DT)<1e-10);
- a.resetCar(c,0,0);c.q.setFromAxisAngle(new T.Vector3(1,0,0),80*Math.PI/180);c.v.set(2,0,0);Object.assign(c.inp,{roll:1});for(let k=0;k<20;k++)a.stepCar(c,a.DT);assert.ok(c.w.x>1,'explicit roll must bypass floor-recovery assistance');
+test('genuine aerial controls, constrained contact air-roll and wheel-grip wall climbing remain active',()=>{
+ const {a,first:c}=match(),T=a.THREE,scale=2*Math.PI*1000/65536;a.resetCar(c,0,0);c.p.y=8;c.wasG=c.ground=0;c.q.setFromAxisAngle(new T.Vector3(1,0,0),1.1);Object.assign(c.inp,{roll:.7,yaw:.5,pitch:.4});a.stepCar(c,a.DT);assert.ok(Math.abs(c.w.x-.7*400*scale*a.DT)<1e-10);assert.ok(Math.abs(c.w.y+.5*95*scale*a.DT)<1e-10);assert.ok(Math.abs(c.w.z+.4*130*scale*a.DT)<1e-10);
+ const poses=[];
+ for(const roll of [-1,0,1]){a.resetCar(c,0,0);c.q.setFromAxisAngle(new T.Vector3(1,0,0),80*Math.PI/180);c.v.set(2,0,0);Object.assign(c.inp,{roll});for(let k=0;k<20;k++){a.stepCar(c,a.DT);assert.ok(a.carPenetration(c)<.02);assert.ok(c.w.length()<=5.500001);}poses.push(c.q.clone());}
+ assert.ok(poses[0].angleTo(poses[1])>.1&&poses[1].angleTo(poses[2])>.1,'explicit contact roll changes the trajectory while real hull impulses constrain penetration');
  for(let body=0;body<3;body++){c.body=body;a.resetCar(c,0,0);c.p.set(40.96-a.bodyPhysics(c).height-.015,8,0);c.q.setFromAxisAngle(new T.Vector3(0,0,1),Math.PI/2);c.n.set(-1,0,0);c.wasG=true;Object.assign(c.inp,{thr:1,pitch:1});for(let k=0;k<120;k++){a.stepCar(c,a.DT);assert.ok(a.carPenetration(c)<.02);}assert.ok(c.p.y>10);assert.ok(c.v.y>3);}
 });
 

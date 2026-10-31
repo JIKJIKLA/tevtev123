@@ -20,10 +20,10 @@ test('goal replay is a bounded copy and idle cleanup preserves the chase camera 
  a.setState({st:'GOAL',score:[1,0]});a.rivalsGoal({team:0,scorer:0,assist:-1,speed:70});assert.equal(a.RIVALS.replay.frames.length,241);
  a.stopReplay();assert.equal(a.RIVALS.replay,null);assert.equal(a.cameraAnchor(),false);
 });
-test('overhead ball framing keeps a bounded vertical aim without moving either body',()=>{
- const {a}=practice(),p=new a.THREE.Vector3(1,1,2),b=new a.THREE.Vector3(1,20,2),out=new a.THREE.Vector3();a.cameraBallTarget(p,b,out);assert.equal(out.y,2.3);assert.equal(b.y,20);
- b.set(101,20,2);a.cameraBallTarget(p,b,out);assert.ok(out.distanceTo(p)<16);assert.ok(out.y<8);
+test('overhead and far ball targets retain the actual aim direction without moving either body',()=>{
+ const {a}=practice(),p=new a.THREE.Vector3(1,1,2),b=new a.THREE.Vector3(1,20,2),out=new a.THREE.Vector3();for(const pose of [[1,20,2],[101,20,2],[-50,8,-30]]){b.fromArray(pose);const car=p.clone(),ball=b.clone();a.cameraBallTarget(p,b,out);assert.ok(out.distanceTo(b)<1e-12);assert.ok(p.equals(car));assert.ok(b.equals(ball));assert.notEqual(out,b);assert.ok(out.toArray().every(Number.isFinite));}
 });
+
 test('Heatseeker target and speed synchronize while invalid state is rejected',()=>{
  const {a}=practice();assert.equal(a.readHeatState({target:-1,speed:38,cooldown:.15}),true);assert.equal(a.heat.target,-1);assert.equal(a.heat.speed,38);
  for(const value of [null,{target:3,speed:22,cooldown:0},{target:1,speed:Infinity,cooldown:0},{target:1,speed:22,cooldown:-1}])assert.equal(a.readHeatState(value),false);

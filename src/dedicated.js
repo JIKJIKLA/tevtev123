@@ -1,6 +1,6 @@
 // Direct Phoenix match transport. No database writes in the gameplay loop.
 const DED={enabled:!window.__TEVIN_SERVER__,url:'wss://tevin-161-153-26-154.sslip.io/play',ws:null,connecting:null,active:false,owner:'',requests:new Map(),request:0,entering:null,history:[],outbox:[],seq:0,lastJump:0,replaying:false,offset:new V3(),ballOffset:new V3(),rtt:0,pingAt:0,lastPacket:0};
-const DRIVER_SCALARS=['demoTime','demoSeq','demoBy','respawnSeq','supersonic','supersonicTime','boostHold','jt','jl','jAge','jumped','jHoldTime','canJ','canD','dT','dcd','aT','cT','wy','grip','wasG','ground','bs','bt','bst','sk','un','righting','clearance','wheelsOn','hullContact'];
+const DRIVER_SCALARS=['demoTime','demoSeq','demoBy','respawnSeq','supersonic','supersonicTime','boostHold','jt','jl','jAge','jumped','jHoldTime','canJ','canD','dT','dcd','aT','cT','wy','grip','wasG','ground','bs','bt','bst','sk','un','righting','clearance','wheelsOn','hullContact','handbrake','autoFlipTime','autoFlipSign','ballHitCooldown'];
 // Draw remote cars on the authority's evenly spaced clock, not packet arrival jitter.
 Object.assign(DED,{clockReady:false,serverOffset:0,serverTime:0,arrival:0,jitter:0,viewDelay:50,viewTime:0,rotationOffset:new Qn()});
 const dedIdentity=new Qn();
@@ -29,7 +29,7 @@ function dedConnect(){
   const ws=new WebSocket(DED.url);DED.ws=ws;let welcomed=false;
   const timer=setTimeout(()=>{ws.close();reject(Error('Phoenix server connection timed out.'))},12000);
   ws.onmessage=e=>{let m;try{m=JSON.parse(e.data)}catch(_){return}
-   if(m.type==='hello'){if(m.wire!==1){ws.close();reject(Error('Reload the latest game.'));return}welcomed=true;clearTimeout(timer);SOC.id=m.session;SOC.connected=true;resolve();return}
+   if(m.type==='hello'){if(m.wire!==DED_WIRE){ws.close();reject(Error('Reload the latest game.'));return}welcomed=true;clearTimeout(timer);SOC.id=m.session;SOC.connected=true;resolve();return}
    if(m.request&&DED.requests.has(m.request)){const p=DED.requests.get(m.request);clearTimeout(p.timer);DED.requests.delete(m.request);m.type==='error'?p.reject(Error(m.message)):p.resolve(m);return}
    if(m.type==='error'){SOC.error=m.message;socialUI();mpStatus(m.message,'bad');return}
    if(m.type==='joined'){DED.entering=dedJoined(m).catch(e=>{mpReset();mpFailure(e)});return}
@@ -58,7 +58,7 @@ async function dedMatchCancelled(message){
  await quit();chooseRoute('quick');showMenuScreen('play');SOC.error=String(message.reason||'Match cancelled. Find another match.');socialUI();
 }
 async function dedJoined(m){
- if(RIVALS.practiceJob)await RIVALS.practiceJob;RIVALS.queuePractice=false;if(previewJob)await previewJob;mpReset(false);sandbox=false;applySettings(m.settings);
+ if(RIVALS.practiceJob)await RIVALS.practiceJob;RIVALS.queuePractice=false;if(previewJob)await previewJob;mpReset(false);endTrainingSettings();sandbox=false;applySettings(m.settings);
  DED.active=true;DED.owner=m.owner;DED.seq=DED.lastJump=0;DED.history.length=DED.outbox.length=0;DED.offset.set(0,0,0);dedResetClock();
  Object.assign(MP,{active:true,role:'guest',slot:m.slot,session:m.session,code:m.code,seats:m.seats,quick:m.quick?'phoenix':'',transport:true,closed:false});
  SOC.searching=false;SOC.entering=false;SOC.ready=false;socialUI();$('room-code').value=m.code;
@@ -66,7 +66,7 @@ async function dedJoined(m){
 }
 async function dedPrivate(type){
  if(mpBusy||starting||SOC.searching||SOC.busy)return;const code=$('room-code').value.trim();if(type==='join'&&!/^\d{3}$/.test(code)){mpStatus('Enter the three-digit match code.','bad');return}
- mpBusyUI(true);try{mpReset();mpStatus('CONNECTING TO PHOENIX…');await dedConnect();await dedRequest({type,wire:1,code,settings:matchSettings(),profile:socialProfile()});await DED.entering}catch(e){mpReset();mpFailure(e)}finally{mpBusyUI(false)}
+ mpBusyUI(true);try{mpReset();mpStatus('CONNECTING TO PHOENIX…');await dedConnect();await dedRequest({type,wire:DED_WIRE,code,settings:matchSettings(),profile:socialProfile()});await DED.entering}catch(e){mpReset();mpFailure(e)}finally{mpBusyUI(false)}
 }
 async function dedLoaded(){MP.loaded=true;MP.localPaused=false;kickoff(false);st='WAIT';mpClearInput();mpApplySeats();mpLobby();await dedRequest({type:'ready'})}
 async function dedStart(){if(DED.owner!==MP.session)return;try{await dedRequest({type:'start'})}catch(e){mpStatus(e.message,'bad')}}
@@ -107,5 +107,5 @@ function dedFrame(dt){
 async function dedSocial(type,extra={}){
  if(type==='partyJoin'&&!/^\d{3}$/.test(extra.code||'')){SOC.error='Enter the three-digit party code.';socialUI();return;}
  if(SOC.busy)return;SOC.busy=true;SOC.error='';socialUI();
- try{await dedConnect();await dedRequest({type,wire:1,profile:socialProfile(),...extra})}catch(e){SOC.error=e.message;if(type==='queue')SOC.searching=false}finally{SOC.busy=false;socialUI()}
+ try{await dedConnect();await dedRequest({type,wire:DED_WIRE,profile:socialProfile(),...extra})}catch(e){SOC.error=e.message;if(type==='queue')SOC.searching=false}finally{SOC.busy=false;socialUI()}
 }

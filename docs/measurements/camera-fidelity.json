@@ -1,0 +1,80 @@
+{
+  "baselineBuild": "10.3.0",
+  "baselineSourceCommit": "12bba0aec9e3ed9791253a45ae48ed2fa6400382",
+  "conditions": "Metres; Y-up/X-forward; active camera block; 16:9; default saved settings unless named; controlled pose paths, no physics/recorded RL footage",
+  "before": {
+    "reverse": {
+      "30": {
+        "secondsTo90Degrees": null,
+        "headingAt2Seconds": 0
+      },
+      "60": {
+        "secondsTo90Degrees": null,
+        "headingAt2Seconds": 0
+      },
+      "120": {
+        "secondsTo90Degrees": null,
+        "headingAt2Seconds": 0
+      }
+    },
+    "directWall": {
+      "relativeEye": [
+        -0.8500000000000014,
+        1.0500000000000007,
+        7.0200000000000005
+      ],
+      "distance": 7.148804095791128
+    },
+    "wallSaved80ActualHorizontalFov": 103.99999999859585,
+    "farBallAngularErrorDegrees": 1.5250955006893168,
+    "traversal": {
+      "maxRelativeCameraStep": 0.1598061897209754,
+      "minInterior": 0.42199999999999616,
+      "finite": true
+    },
+    "aspectFov": {
+      "1.777778": 109.99999999999997,
+      "1.333333": 93.93292347689197,
+      "0.562500": 48.63403801762857,
+      "2.333333": 123.84092000934793
+    }
+  },
+  "after": {
+    "reverse": {
+      "30": {
+        "secondsTo90Degrees": 0.06666666666666667,
+        "headingAt2Seconds": 179.99999988825465
+      },
+      "60": {
+        "secondsTo90Degrees": 0.06666666666666667,
+        "headingAt2Seconds": 179.99999988825465
+      },
+      "120": {
+        "secondsTo90Degrees": 0.06666666666666667,
+        "headingAt2Seconds": 179.99999988825465
+      }
+    },
+    "directWall": {
+      "relativeEye": [
+        -0.8500000000000014,
+        1,
+        2.7
+      ],
+      "distance": 3.0020826104556155
+    },
+    "wallSaved80ActualHorizontalFov": 80.0000000013011,
+    "farBallAngularErrorDegrees": 0,
+    "traversal": {
+      "maxRelativeCameraStep": 0.08121711444563469,
+      "minInterior": 0.42199999999999616,
+      "finite": true
+    },
+    "aspectFov": {
+      "1.777778": 109.99999999999997,
+      "1.333333": 93.93292347689197,
+      "0.562500": 48.63403801762857,
+      "2.333333": 123.84092000934793
+    }
+  },
+  "limits": "Actual Nivet source blocks in Node VM, synthetic deterministic poses; no proprietary camera response measurements, no rendered browser or hardware FPS measurements."
+}

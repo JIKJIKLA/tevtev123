@@ -1,7 +1,24 @@
 // Camera-only geometry queries. The solver and arena dimensions are never changed.
-const VIEW={clipped:false,obscured:false,hold:0,blockedFor:0,wallMix:0,wallSide:1};
+const VIEW={clipped:false,obscured:false,hold:0,blockedFor:0,wallMix:0,wallSide:1,turnSide:1};
 const viewAnchor=new V3(),viewEnd=new V3(),viewProbe=new V3(),viewOrigin=new V3(),viewRay=new V3(),viewInverse=new Qn(),viewRight=new V3(),viewUp=new V3(),viewBall=new V3(),viewForward=new V3(),viewFramePoint=new V3(),viewFrameBounds=new V3();
 const VIEW_BALL_SAMPLES=[[0,0],[.65,0],[-.65,0],[0,.65],[0,-.65],[.46,.46],[.46,-.46],[-.46,.46],[-.46,-.46]];
+// Interpolate angles, not normalized antipodal vectors: linear lerp has no
+// nonzero direction through an exact reversal and can lock forever.
+function cameraHeadingStep(current,desired,rate,dt){
+ const length=Math.hypot(desired.x,desired.z);if(length<1e-7)return current;
+ const x=desired.x/length,z=desired.z/length,currentLength=Math.hypot(current.x,current.z);if(currentLength<1e-7)return current.set(x,0,z);
+ const cx=current.x/currentLength,cz=current.z/currentLength,cross=cx*z-cz*x,dot=cl(cx*x+cz*z,-1,1);let angle;
+ if(dot<-.999999&&Math.abs(cross)<1e-6)angle=Math.PI*VIEW.turnSide;else{angle=Math.atan2(cross,dot);if(Math.abs(angle)>.001)VIEW.turnSide=Math.sign(angle);}
+ const step=angle*(1-Math.exp(-Math.max(0,dt)*rate)),c=Math.cos(step),n=Math.sin(step);return current.set(cx*c-cz*n,0,cx*n+cz*c);
+}
+function carCameraHeading(car,quaternion,out,fallback){
+ // A directional pitch dodge rotates the nose through vertical. Its lateral
+ // axle still supplies a stable yaw; do not turn the view around mid-somersault.
+ if(car.dT>0&&Math.abs(car.flipAxis?.z||0)>.5){out.set(0,0,1).applyQuaternion(quaternion);const x=out.z;out.z=-out.x;out.x=x;}
+ else out.set(1,0,0).applyQuaternion(quaternion);
+ out.y=0;if(out.lengthSq()<.01)return out.copy(fallback);return out.normalize();
+}
+function gameplayVerticalFov(fov){return 2*Math.atan(Math.tan(fov*Math.PI/360)/(16/9))*180/Math.PI;}
 function cameraInterior(point,radius=.42){
  for(let i=0;i<12;i++){surf(point);if(SS>=radius-1e-5)return;point.addScaledVector(SN,radius-SS+.002);}
 }
@@ -53,7 +70,7 @@ function setCameraCarOpacity(mesh,opacity){
  const state=mesh.userData.cameraFade;if(state.opacity===value)return;state.opacity=value;
  for(const entry of state.materials){const transparent=entry.transparent||value<1;if(entry.material.transparent!==transparent){entry.material.transparent=transparent;entry.material.needsUpdate=true;}entry.material.opacity=entry.opacity*value;entry.material.depthWrite=value>.995&&entry.depthWrite;}
 }
-function resetViewFade(){VIEW.clipped=VIEW.obscured=false;VIEW.hold=VIEW.blockedFor=VIEW.wallMix=0;for(const m of cm)if(m.userData.cameraFade)setCameraCarOpacity(m,1);document.body.classList.remove('camera-car-faded');}
+function resetViewFade(){VIEW.clipped=VIEW.obscured=false;VIEW.hold=VIEW.blockedFor=VIEW.wallMix=0;VIEW.turnSide=1;wallFrameTangent.set(0,0,1);for(const m of cm)if(m.userData.cameraFade)setCameraCarOpacity(m,1);document.body.classList.remove('camera-car-faded');}
 function updateViewFade(dt,clipped,car,mesh){
  const visible=mesh.visible!==false&&car.enabled!==false&&!(car.demoTime>0),current=mesh.userData.cameraFade?.opacity??1;
  const coverage=visible&&ballCam?carBallOcclusion(cam.position,bm.position,car,mesh):0,blocked=coverage>=(current<.99?4/9:5/9),inside=visible&&clipped&&cameraInsideCar(cam.position,car,mesh);VIEW.clipped=!!clipped;VIEW.obscured=blocked;
@@ -77,10 +94,12 @@ function keepCarInFrame(camera,car,mesh){
  const nextPitch=minPitch<=maxPitch?cl(pitch,minPitch,maxPitch):(minPitch+maxPitch)*.5;if(Math.abs(nextPitch-pitch)<.0005)return false;
  viewFramePoint.set(hx*Math.cos(nextPitch),Math.sin(nextPitch),hz*Math.cos(nextPitch)).add(camera.position);camera.lookAt(viewFramePoint);camera.updateMatrixWorld();return true;
 }
-const wallTangent=new V3(),wallDesired=new V3(),wallCarRay=new V3(),wallBallRay=new V3(),wallLook=new V3();
-function wallCameraPose(position,normal,side,distance,out){
- wallTangent.crossVectors(Y3,normal);wallTangent.y=0;if(wallTangent.lengthSq()<.01)return out.copy(position).add(new V3(0,1,-4));wallTangent.normalize();
- return out.copy(position).addScaledVector(normal,.85).addScaledVector(wallTangent,side*cl(distance*2.6,6.5,9.5)).addScaledVector(Y3,1.05);
+const wallTangent=new V3(),wallFrameTangent=new V3(0,0,1),wallDesired=new V3(),wallCarRay=new V3(),wallBallRay=new V3(),wallLook=new V3();
+function wallCameraPose(position,normal,side,distance,out,height=1){
+ wallTangent.crossVectors(Y3,normal);wallTangent.y=0;if(wallTangent.lengthSq()>.0001){wallTangent.normalize();wallFrameTangent.copy(wallTangent);}else wallTangent.copy(wallFrameTangent);
+ // Keep the saved trailing distance rather than launching a separate 6.5–9.5m
+ // orbit. Retain the last tangent through nearly horizontal surface normals.
+ return out.copy(position).addScaledVector(normal,.85).addScaledVector(wallTangent,side*distance).addScaledVector(Y3,height*(1+Math.min(0,normal.y)));
 }
 function wallBallTarget(cameraPosition,carPosition,ballPosition,out){
  wallCarRay.copy(carPosition).addScaledVector(Y3,.25).sub(cameraPosition).normalize();wallBallRay.copy(ballPosition).sub(cameraPosition).normalize();
@@ -89,7 +108,7 @@ function wallBallTarget(cameraPosition,carPosition,ballPosition,out){
 function positionWallCamera(car,position,desired,dt){
  const target=car.ground?cl((.8-Math.abs(car.n.y))/.6,0,1):0;VIEW.wallMix+=(target-VIEW.wallMix)*(1-Math.exp(-dt*9));if(VIEW.wallMix<.005)return;
  if(target>.01){wallTangent.crossVectors(Y3,car.n).normalize();wallCarRay.copy(cpos).sub(position);const along=wallCarRay.dot(wallTangent);if(Math.abs(along)>1.2)VIEW.wallSide=Math.sign(along);}
- wallCameraPose(position,car.n,VIEW.wallSide,cameraSettings.distance,wallDesired);desired.lerp(wallDesired,VIEW.wallMix);
+ wallCameraPose(position,car.n,VIEW.wallSide,cameraSettings.distance,wallDesired,cameraSettings.height);desired.lerp(wallDesired,VIEW.wallMix);
 }
 function planGoalReplay(replay){
  const frames=replay.frames,first=frames[0].t,end=frames.at(-1).t,id=replay.focusCar??replay.scorer;

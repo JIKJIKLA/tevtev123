@@ -1,6 +1,6 @@
-# Nivet League 10.3.0 — Matchday
+# Nivet League 10.4.0 — Control
 
-Matchday improves car contacts and sideways recovery, prepares all six visual seats before play, narrows camera fading to actual ball obstruction, and refreshes the interface and bounded smoke/fire effects. [Changes and validation](docs/MATCHDAY-10.3.0.md). Dense painted grass, matte cars and the Championship stadium remain.
+Control updates dodge impulses and recovery, separates physical ball contact from extra hit power, removes the goal-mouth lip, fixes camera reversals and wall framing, and adds isolated instant Free Play plus automatic resolution. [Changes and verification](docs/CONTROL-10.4.0.md) · [fidelity matrix and remaining gaps](docs/FIDELITY-MATRIX.md). Existing assets, audio and visual identity remain.
 
 The Matchday effects, authoritative demolitions, smooth high-altitude airshow, matte cars, warm stadium lighting and blue/orange gameplay remain. [Matchday release](docs/RELEASE-10.1.0.md) · [35 effect families and limitations](docs/MATCH-EFFECTS.md).
 
@@ -8,7 +8,7 @@ The first VS AI kickoff retains a five-second opening. The orange leader flies s
 
 Boost pickups use sculpted three-armed housings, floating golden full-boost pills, light curtains and collection/respawn effects. All 34 placements are verified against the standard field. [Boost pickup release details and references](docs/RELEASE-9.9.1.md).
 
-Browser car soccer with Soccar and Heatseeker, 1v1/2v2/3v3, AI, sandbox, private rooms and public matchmaking. Play on [Cloudflare](https://nivet-league.jikdifn.workers.dev/), [GitHub Pages](https://jikjikla.github.io/tevtev123/) or [Bunny CDN](https://tevtev123.b-cdn.net/?v=10.3.0). See the [10.3.0 update record](docs/MATCHDAY-10.3.0.md). Refresh an older open game tab to load the new release. Online play uses the existing Phoenix dedicated server. The portable `index.html` also supports offline AI and practice.
+Browser car soccer with Soccar and Heatseeker, 1v1/2v2/3v3, AI, sandbox, private rooms and public matchmaking. Play on [Cloudflare](https://nivet-league.jikdifn.workers.dev/), [GitHub Pages](https://jikjikla.github.io/tevtev123/) or [Bunny CDN](https://tevtev123.b-cdn.net/?v=10.4.0). See the [10.4.0 update record](docs/CONTROL-10.4.0.md). Refresh an older open game tab to load the new release. Online play uses the existing Phoenix dedicated server. The portable `index.html` also supports offline AI and practice.
 
 ## Controls and new features
 

@@ -1,7 +1,7 @@
 'use strict';
 const http=require('node:http'),{randomUUID,randomInt}=require('node:crypto');
 const {WebSocketServer}=require('ws'),createPhysics=require('./physics.cjs');
-const WIRE=1,STEP=1/120,KEYS=['thr','steer','pitch','yaw','roll','boost','ps'];
+const WIRE=2,STEP=1/120,KEYS=['thr','steer','pitch','yaw','roll','boost','ps'];
 function controls(value){
  if(!value||typeof value!=='object'||Array.isArray(value))throw Error('Invalid controls');
  const result={};for(const key of KEYS){const v=value[key]??0;if(typeof v!=='number'||!Number.isFinite(v)||Math.abs(v)>1)throw Error('Invalid control value');result[key]=v}return result;
@@ -128,7 +128,7 @@ function createService(options={}){
   }
   throw Error('Unknown message type');
  }
- const server=http.createServer((req,res)=>{res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');if(req.url==='/health'){res.setHeader('Content-Type','application/json');res.end(JSON.stringify({ok:true,service:'nivet-match-server',wire:WIRE,region:'Phoenix',build:'10.3.0',physicsHz:120,snapshotHz:30,rooms:rooms.size,capacity:maxRooms,droppedTicks}));}else{res.writeHead(404);res.end('Not found')}});
+ const server=http.createServer((req,res)=>{res.setHeader('Cache-Control','no-store');res.setHeader('X-Content-Type-Options','nosniff');if(req.url==='/health'){res.setHeader('Content-Type','application/json');res.end(JSON.stringify({ok:true,service:'nivet-match-server',wire:WIRE,region:'Phoenix',build:'10.4.0',physicsHz:120,snapshotHz:30,rooms:rooms.size,capacity:maxRooms,droppedTicks}));}else{res.writeHead(404);res.end('Not found')}});
  const wss=new WebSocketServer({noServer:true,maxPayload:4096,perMessageDeflate:false});
  server.on('upgrade',(req,socket,head)=>{
   if(req.url!=='/play'||!origins.has(req.headers.origin)||clients.size>=maxClients){socket.end('HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n');return}

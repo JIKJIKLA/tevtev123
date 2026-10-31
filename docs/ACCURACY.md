@@ -2,6 +2,8 @@
 
 This is an independent browser simulation. The release improves measured mechanics without claiming to reproduce Rocket League's proprietary engine exactly.
 
+The 10.4.0 audit separates external model agreement, Nivet regressions and stability checks. See the [fidelity matrix](FIDELITY-MATRIX.md), [vehicle report](FIDELITY-VEHICLE.md), [ball/arena report](FIDELITY-BALL-ARENA.md), [camera report](FIDELITY-CAMERA.md) and [network report](FIDELITY-NETWORK.md). Current complete validation is recorded in [Control](CONTROL-10.4.0.md).
+
 ## Reference measurements
 
 - Ground acceleration, braking, coasting and turning: [Samuel Mish's measured ground-control curves](https://www.smish.dev/rocket_league/ground_control/).
@@ -9,7 +11,7 @@ This is an independent browser simulation. The release improves measured mechani
 - Jump impulse, mandatory hold ticks, maximum hold and airborne throttle: [RLBot jumping physics](https://wiki.rlbot.org/v5/botmaking/jumping-physics/).
 - Body dimensions, offsets and wheel placements: [RocketSim CarConfig at c2baacb](https://github.com/ZealanL/RocketSim/blob/c2baacb8f4b441dd8505e63c2aeb5a1679b60b02/src/Sim/Car/CarConfig/CarConfig.cpp). This release uses that project's collision-box dimension convention. It differs slightly from the older commonly quoted hitbox dimensions. Octane and Fennec share one profile; Dominus is longer and lower.
 - Supersonic maintenance, minimum boost burst, demolition timing/contact references: [RocketSim constants](https://github.com/ZealanL/RocketSim/blob/c2baacb8f4b441dd8505e63c2aeb5a1679b60b02/src/RLConst.h) and [Arena contact handling](https://github.com/ZealanL/RocketSim/blob/c2baacb8f4b441dd8505e63c2aeb5a1679b60b02/src/Sim/Arena/Arena.cpp). The implementation remains independent and retains its own compact car-contact manifold.
-- Aerial-control reference: [RLUtilities car simulation](https://github.com/samuelpmish/RLUtilities/blob/master/src/simulation/car.cc). Numerical measurements inform the independent implementation; its simulation code is not incorporated.
+- Aerial-control reference: [RLUtilities car simulation at eb887b3](https://github.com/samuelpmish/RLUtilities/blob/eb887b312e33136b27a64516179ea812c366c2fa/src/simulation/car.cc). Numerical measurements inform the independent implementation; its simulation code is not incorporated.
 
 ## Implemented
 
@@ -24,10 +26,10 @@ This is an independent browser simulation. The release improves measured mechani
 - Zero-second airborne continuation; ground contact ends regulation; ties start a fresh overtime kickoff; a last-second equalizer reaches overtime after the goal celebration.
 - Saved horizontal camera FOV, distance, height, downward angle, stiffness and optional shake.
 - Keyboard rebinding with conflict swapping, standard-controller analog input and edge-triggered jump/camera/pause actions.
-- Chromebook default: detailed cars, crisp native-resolution policy with adaptive scaling, lighter instanced turf and contact shadows. Detail mode adds denser turf, soft shadows and optional postprocessing. See current source budgets; historical resolution caps are not current.
-- Shared gameplay protocol4 and dedicated transport wire1; server-owned public/private matches with numeric validation and reconciliation. Legacy Supabase relay source remains for compatibility only.
+- Chromebook default: detailed cars, bounded automatic drawing-buffer resolution with a saved Native override, lighter instanced turf and contact shadows. Detail mode adds denser turf, soft shadows and optional postprocessing. See current source budgets; historical resolution caps are not current.
+- Shared gameplay protocol5 and dedicated transport wire2; server-owned public/private matches with numeric validation and reconciliation. Legacy Supabase relay source remains for compatibility only.
 
-## Current implementation and remaining differences (10.1.1)
+## Historical 10.1.1 validation and current limitations
 
 The coordinated 10.1.1 build passed 181 frontend and 34 dedicated-server checks (215 total). The automated suite executes actual bundled/source gameplay in a lightweight DOM and shared authority in Node. It covers acceleration, jumps, landings, wall constraints, boost pickups, zero-second/overtime rules, body fitting, frame-rate independence, bot soak, car/ball prediction, replay timing, menu flow, saved settings, graphics failure/retry and real WebSocket lifecycle cases. The Oracle server owns online simulation at 120 Hz and sends 30 Hz snapshots; the browser predicts local contacts/inputs and reconciles to authority. Replays are recorded-state presentation and never pause the online server.
 
@@ -37,7 +39,7 @@ Demolition tests cover contact exclusions, inert victims, the exact simulated ti
 
 Field, goals and ball use the measured scale above. Car wheel tracks are fitted to the physical axle contacts; original height and length proportions remain. New-driver camera defaults are 110° horizontal FOV, 2.7 m distance, 1 m height, 3° tilt; saved cameras remain. The arena always stays blue/orange; normal team-color matches use standard team paint, with explicit personal-paint matches available.
 
-Arena corners use a rounded boundary rather than the exact standard-map collision mesh. Car-car contact uses a compact sphere-chain approximation. Car-ball response, powerslide, flip torque and suspension remain independently tuned approximations. Bots, full flip-reset mechanics and effects are not equivalent to the proprietary game. No ranked-MMR claim or Chromebook hardware frame-rate certification is made.
+Arena corners use a rounded boundary rather than the exact standard-map collision mesh. Car-car contact uses the current oriented-box contact manifold. Car-ball response, powerslide and flip state now follow documented measurement models; tire/suspension contacts and the complete solver remain independent approximations. Bots, full flip-reset mechanics and effects are not equivalent to the proprietary game. No ranked-MMR claim or Chromebook hardware frame-rate certification is made.
 
 The first-AI ball drop changes only the rendered pose until kickoff resumes; it does not collide the staged physics ball through the ceiling. Supplied full-size jets fly above the fixed roof with finite smooth paths and bounded camera/HUD wake.
 

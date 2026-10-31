@@ -4,7 +4,8 @@ const root=path.resolve(__dirname,'..');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]);
 module.exports=function loadGame(options={}){
- const {window}=parseHTML(html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,''));
+ const selectedHTML=options.htmlPath?fs.readFileSync(options.htmlPath,'utf8'):html,selectedScripts=options.htmlPath?[...selectedHTML.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)].map(m=>m[1]):scripts,sourceRoot=options.sourceRoot||path.join(root,'src');
+ const {window}=parseHTML(selectedHTML.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,''));
  const storage=new Map(Object.entries(options.storage||{})),errors=[];let pads=[];
  const sandbox={window:null,self:null,document:window.document,console:{...console,error:(...args)=>errors.push(args.map(String).join(' ')),warn:()=>{}},
   navigator:{userAgent:'Tevin physics tests',getGamepads:()=>pads},location:{search:'',href:'https://test.invalid/'},performance:{now:()=>1000},
@@ -18,8 +19,8 @@ module.exports=function loadGame(options={}){
  if(options.network)Object.assign(sandbox,{fetch,WebSocket,Headers,Request,Response,setTimeout,clearTimeout,setInterval,clearInterval});
  sandbox.window=sandbox;sandbox.self=sandbox;
  const context=vm.createContext(sandbox);
- for(let i=0;i<scripts.length;i++){
-  const code=options.source&&i===2?fs.readFileSync(path.join(root,'src/game.js'),'utf8').replace(/\/\/ INLINE:([\w.-]+\.js)/g,(_,part)=>fs.readFileSync(path.join(root,'src',part),'utf8')):scripts[i];
+ for(let i=0;i<selectedScripts.length;i++){
+  const code=options.source&&i===2?fs.readFileSync(path.join(sourceRoot,'game.js'),'utf8').replace(/\/\/ INLINE:([\w.-]+\.js)/g,(_,part)=>fs.readFileSync(path.join(sourceRoot,part),'utf8')):selectedScripts[i];
   vm.runInContext(code,context,{filename:['bootstrap.js','engine.bundle.js','game.js'][i]});
  }
  if(!sandbox.tevinBoot.ready||errors.length)throw Error('Bootstrap: '+sandbox.tevinBoot.stage+' '+errors.join('; '));
