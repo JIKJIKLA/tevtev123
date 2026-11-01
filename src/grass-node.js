@@ -39,8 +39,8 @@ function b_(C){
  const color=Fn(()=>{
   const pigment=vec3(0).toVar();
   If(fade.greaterThan(0),()=>{
-   const uv=vec2(w.x.div(field.x).add(.5),float(.5).sub(w.y.div(field.y))),variation=sin(w.x.mul(.61).add(w.y.mul(.33))).mul(sin(w.y.mul(.77).sub(w.x.mul(.2)))).mul(.065);
-   const fiber=mix(.60,1.14,height).mul(float(.86).add(r.mul(.26)).add(variation)).mul(data.w.max(.64));
+   const uv=vec2(w.x.div(field.x).add(.5),float(.5).sub(w.y.div(field.y))),variation=sin(w.x.mul(.61).add(w.y.mul(.33))).mul(sin(w.y.mul(.77).sub(w.x.mul(.2)))).mul(.025);
+   const fiber=mix(.76,1.06,height).mul(float(.94).add(r.mul(.12)).add(variation)).mul(data.w.max(.8));
    pigment.assign(texture(C.paint.value,uv).rgb.mul(fiber));
   });
   return pigment;

@@ -1,0 +1,981 @@
+{
+  "conditions": {
+    "simulationHz": 120,
+    "body": 0,
+    "initialPosition": [
+      0,
+      0.1851,
+      0
+    ],
+    "initialForwardSpeed": 10,
+    "initialQuaternion": [
+      0,
+      0,
+      0,
+      1
+    ],
+    "jumpTicks": [
+      0,
+      24
+    ],
+    "heldJumpTicks": [
+      0,
+      11
+    ],
+    "throttle": 1,
+    "boost": 0,
+    "powerslide": 0,
+    "steerStartsAtTick": 150,
+    "steerValue": 0.7,
+    "ball": "No ball interaction is advanced in this car-controller-only probe.",
+    "baselines": "Immutable 10.3/10.4 built HTML loaded by scripts/measure-dodge-recovery.cjs fresh(); candidate current source",
+    "notes": "All input profiles run360fixed steps. Samples stop at2.5s to avoid interpreting subsequent straight-driving wall contact as flat-field recovery. Gaps in10.4are inferred conservatively from its branch conditions; candidate gaps count an absent/unknown explicit control branch. Native browser responsiveness and subjective feel remain separate gates."
+  },
+  "records": [
+    {
+      "variant": "10.3",
+      "input": "neutral-after-dodge",
+      "firstWheel": 1.225,
+      "firstStable": 1.225,
+      "ordinaryControllerGapSeconds": null,
+      "samples": [
+        {
+          "time": 1,
+          "wheels": 0,
+          "ground": 0,
+          "roof": 0.9731133642582986,
+          "heading": 0,
+          "position": [
+            14.130238032387119,
+            1.0950817982355705,
+            0
+          ],
+          "velocity": [
+            15.232409226827281,
+            -2.2130071338521953,
+            0
+          ],
+          "angular": [
+            0,
+            0,
+            -1.2523566695007857
+          ],
+          "penetration": 0,
+          "branch": null
+        },
+        {
+          "time": 1.5,
+          "wheels": 4,
+          "ground": 1,
+          "roof": 0.9999988854514672,
+          "heading": 0,
+          "position": [
+            21.800454663253568,
+            0.18695146954773487,
+            0
+          ],
+          "velocity": [
+            15.36842879513008,
+            0.05598837491737359,
+            0
+          ],
+          "angular": [
+            0,
+            0,
+            0
+          ],
+          "penetration": 0,
+          "branch": null
+        },
+        {
+          "time": 2,
+          "wheels": 4,
+          "ground": 1,
+          "roof": 0.9999999999999977,
+          "heading": 0,
+          "position": [
+            29.484669060818796,
+            0.19450012203126918,
+            0
+          ],
+          "velocity": [
+            15.368428795130063,
+            0.0008180845802568254,
+            0
+          ],
+          "angular": [
+            0,
+            0,
+            0
+          ],
+          "penetration": 0,
+          "branch": null
+        },
+        {
+          "time": 2.5,
+          "wheels": 4,
+          "ground": 1,
+          "roof": 0.9971933011910878,
+          "heading": 0,
+          "position": [
+            37.167936625605726,
+            0.22154897040916213,
+            0
+          ],
+          "velocity": [
+            15.313831105229827,
+            1.1511340058148485,
+            0
+          ],
+          "angular": [
+            0,
+            0,
+            0
+          ],
+          "penetration": 0,
+          "branch": null
+        }
+      ]
+    },
+    {
+      "variant": "10.3",
+      "input": "forward-held",
+      "firstWheel": 2.0166666666666666,
+      "firstStable": 2.0166666666666666,
+      "ordinaryControllerGapSeconds": null,
+      "samples": [
+        {
+          "time": 1,
+          "wheels": 0,
+          "ground": 0,
+          "roof": 0.7664252884005607,
+          "heading": 0,
+          "position": [
+            14.145409576515688,
+            1.08395342094272,
+            0
+          ],
+          "velocity": [
+            15.252258504376062,
+            -2.2553547878856093,
+            0
+          ],
+          "angular": [
+            0,
+            0,
+            -3.802287786824486
+          ],
+          "penetration": 0,
+          "branch": null
+        },
+        {
+          "time": 1.5,
+          "wheels": 0,
+          "ground": 0,
+          "roof": 0.23021621181498964,
+          "heading": 0,
+          "position": [
+            21.224872181499286,
+            0.7314528549620922,
+            0
+          ],
+          "velocity": [
+            12.413234830691449,
+            -0.7156245619250774,
+            0
+          ],
+          "angular": [
+            0,
+            0,
+            -0.13728169081682748
+          ],
+          "penetration": 0,
+          "branch": null
+        },
+        {
+          "time": 2,
+          "wheels": 0,
+          "ground": 0,
+          "roof": 0.574436450640097,
+          "heading": 0,
+          "position": [
+            26.641807985875467,
+            0.6198645902658756,
+            0
+          ],
+          "velocity": [
+            9.553043081763077,
+            -0.5290532003117648,
+            0
+          ],
+          "angular": [
+            0,
+            0,
+            -0.20024710911061602
+          ],
+          "penetration": 0,
+          "branch": null
+        },
+        {
+          "time": 2.5,
+          "wheels": 4,
+          "ground": 1,
+          "roof": 0.9999939903159589,
+          "heading": 0,
+          "position": [
+            31.73845279304719,
+            0.23748259035794408,
+            0
+          ],
+          "velocity": [
+            11.173676795795076,
+            -0.33925649650272777,
+            0
+          ],
+          "angular": [
+            0,
+            0,
+            0
+          ],
+          "penetration": 0,
+          "branch": null
+        }
+      ]
+    },
+    {
+      "variant": "10.3",
+      "input": "forward-held-then-steer",
+      "firstWheel": 2.033333333333333,
+      "firstStable": 2.033333333333333,
+      "ordinaryControllerGapSeconds": null,
+      "samples": [
+        {
+          "time": 1,
+          "wheels": 0,
+          "ground": 0,
+          "roof": 0.7664252884005607,
+          "heading": 0,
+          "position": [
+            14.145409576515688,
+            1.08395342094272,
+            0
+          ],
+          "velocity": [
+            15.252258504376062,
+            -2.2553547878856093,
+            0
+          ],
+          "angular": [
+            0,
+            0,
+            -3.802287786824486
+          ],
+          "penetration": 0,
+          "branch": null
+        },
+        {
+          "time": 1.5,
+          "wheels": 0,
+          "ground": 0,
+          "roof": 0.2302165121393551,
+          "heading": 0.027271057727105048,
+          "position": [
+            21.224872176227514,
+            0.7331654404644684,
+            0.00004206290649122278
+          ],
+          "velocity": [
+            12.413234678697956,
+            -0.7156238594823536,
+            0.00047432542491699547
+          ],
+          "angular": [
+            0,
+            -0.044896560494649795,
+            -0.13728169081682748
+          ],
+          "penetration": 0,
+          "branch": null
+        },
+        {
+          "time": 2,
+          "wheels": 0,
+          "ground": 0,
+          "roof": 0.5744415210052174,
+          "heading": 0.048478934633782285,
+          "position": [
+            26.641805169963924,
+            0.6330512868485242,
+            0.0011418041622866422
+          ],
+          "velocity": [
+            9.55302219436171,
+            -0.4700362333092551,
+            0.004823706628516565
+          ],
+          "angular": [
+            0,
+            -0.10555146890502863,
+            -0.20024710911061602
+          ],
+          "penetration": 0,
+          "branch": null
+        },
+        {
+          "time": 2.5,
+          "wheels": 4,
+          "ground": 1,
+          "roof": 0.9999962461411419,
+          "heading": 0.46458579131638406,
+          "position": [
+            31.578258341438598,
+            0.2449487807376212,
+            0.8113927292661455
+          ],
+          "velocity": [
+            9.993145841485306,
+            -0.3975615992814927,
+            4.836585017493728
+          ],
+          "angular": [
+            0,
+            0,
+            0
+          ],
+          "penetration": 0,
+          "branch": null
+        }
+      ]
+    },
+    {
+      "variant": "10.4",
+      "input": "neutral-after-dodge",
+      "firstWheel": 1.3333333333333333,
+      "firstStable": 1.5833333333333333,
+      "ordinaryControllerGapSeconds": 0.25,
+      "samples": [
+        {
+          "time": 1,
+          "wheels": 0,
+          "ground": 0,
+          "roof": -0.4986208522425828,
+          "heading": 3.141592653589793,
+          "position": [
+            14.15670443697158,
+            1.089087871166233,
+            0
+          ],
+          "velocity": [
+            15.024721479833207,
+            -1.0079354515058552,
+            0
+          ],
+          "angular": [
+            0,
+            0,
+            -3.5539564819048826
+          ],
+          "penetration": 0,
+          "branch": null
+        },
+        {
+          "time": 1.5,
+          "wheels": 2,
+          "ground": 0,
+          "roof": 0.9125641784665515,
+          "heading": -0.10946451102201733,
+          "position": [
+            21.64860187974469,
+            0.30312800169061555,
+            -0.0004010695143671898
+          ],
+          "velocity": [
+            14.996011136480892,
+            -1.5027048922217385,
+            -0.0059628667137087725
+          ],
+          "angular": [
+            -0.3249790400530047,
+            0.04721775559726004,
+            -5.490187529318337
+          ],
+          "penetration": 0,
+          "branch": null
+        },
+        {
+          "time": 2,
+          "wheels": 4,
+          "ground": 1,
+          "roof": 0.9999999999975292,
+          "heading": -0.11855490150924561,
+          "position": [
+            29.08339112588176,
+            0.19602104222862102,
+            -0.7241915742016536
+          ],
+          "velocity": [
+            14.834824532740852,
+            -0.014569954985867516,
+            -1.7670276092976915
+          ],
+          "angular": [
+            0,
+            0,
+            0
+          ],
+          "penetration": 0,
+          "branch": null
+        },
+        {
+          "time": 2.5,
+          "wheels": 4,
+          "ground": 1,
+          "roof": 1,
+          "heading": -0.11855490150813704,
+          "position": [
+            36.500803392253175,
+            0.19458867986805786,
+            -1.607705378842623
+          ],
+          "velocity": [
+            14.834824532742942,
+            -0.00010170246720073856,
+            -1.7670276092812618
+          ],
+          "angular": [
+            0,
+            0,
+            0
+          ],
+          "penetration": 0,
+          "branch": null
+        }
+      ]
+    },
+    {
+      "variant": "10.4",
+      "input": "forward-held",
+      "firstWheel": 1.3333333333333333,
+      "firstStable": 1.9833333333333334,
+      "ordinaryControllerGapSeconds": 0.48333333333333334,
+      "samples": [
+        {
+          "time": 1,
+          "wheels": 0,
+          "ground": 0,
+          "roof": -0.3033567970772475,
+          "heading": 3.141592653589793,
+          "position": [
+            14.139005723797057,
+            1.0881155233946433,
+            0
+          ],
+          "velocity": [
+            14.99980990208434,
+            -0.9917727601813217,
+            0
+          ],
+          "angular": [
+            0,
+            0,
+            -3.5539564819048826
+          ],
+          "penetration": 0,
+          "branch": null
+        },
+        {
+          "time": 1.5,
+          "wheels": 2,
+          "ground": 0,
+          "roof": 0.9973132921442898,
+          "heading": -0.001124427812457975,
+          "position": [
+            21.65311815112615,
+            0.2728556879766704,
+            1.2904094609784452e-7
+          ],
+          "velocity": [
+            15.133355488654578,
+            -1.015198864631445,
+            -0.00001619480916418669
+          ],
+          "angular": [
+            -0.03796734111885262,
+            -3.3191752466889704e-17,
+            -5.4993676642292915
+          ],
+          "penetration": 0,
+          "branch": null
+        },
+        {
+          "time": 2,
+          "wheels": 4,
+          "ground": 1,
+          "roof": 0.9960167876542894,
+          "heading": -0.12093719073662965,
+          "position": [
+            29.29223599357691,
+            0.21352394862751023,
+            -0.020204132424893398
+          ],
+          "velocity": [
+            15.285708220838561,
+            -1.2673440785832157,
+            -1.115733109762892
+          ],
+          "angular": [
+            0,
+            0,
+            0
+          ],
+          "penetration": 0,
+          "branch": null
+        },
+        {
+          "time": 2.5,
+          "wheels": 4,
+          "ground": 1,
+          "roof": 0.9992555872858212,
+          "heading": -0.12215826091287305,
+          "position": [
+            36.88969433530654,
+            0.2032886675318533,
+            -0.9487445212897477
+          ],
+          "velocity": [
+            15.17934162241765,
+            0.5881795274002163,
+            -1.8635711837801687
+          ],
+          "angular": [
+            0,
+            0,
+            0
+          ],
+          "penetration": 0,
+          "branch": null
+        }
+      ]
+    },
+    {
+      "variant": "10.4",
+      "input": "forward-held-then-steer",
+      "firstWheel": 1.325,
+      "firstStable": null,
+      "ordinaryControllerGapSeconds": 1.5916666666666666,
+      "samples": [
+        {
+          "time": 1,
+          "wheels": 0,
+          "ground": 0,
+          "roof": -0.3033567970772475,
+          "heading": 3.141592653589793,
+          "position": [
+            14.139005723797057,
+            1.0881155233946433,
+            0
+          ],
+          "velocity": [
+            14.99980990208434,
+            -0.9917727601813217,
+            0
+          ],
+          "angular": [
+            0,
+            0,
+            -3.5539564819048826
+          ],
+          "penetration": 0,
+          "branch": null
+        },
+        {
+          "time": 1.5,
+          "wheels": 1,
+          "ground": 0,
+          "roof": 0.9955649332734012,
+          "heading": 0.11620922715804635,
+          "position": [
+            21.653131405100325,
+            0.27261476586237343,
+            0.0005608769158927188
+          ],
+          "velocity": [
+            15.133280830664523,
+            -1.032059380110948,
+            0.007603048264458696
+          ],
+          "angular": [
+            -0.4117342981443153,
+            -0.27981277721063674,
+            -5.476853430020088
+          ],
+          "penetration": 0,
+          "branch": null
+        },
+        {
+          "time": 2,
+          "wheels": 2,
+          "ground": 0,
+          "roof": 0.9530764275379934,
+          "heading": 0.4421912795018018,
+          "position": [
+            29.29357578787178,
+            0.29495047414229564,
+            0.01951990621912355
+          ],
+          "velocity": [
+            15.42696348372203,
+            0,
+            0.08334436179407718
+          ],
+          "angular": [
+            -0.12295413962623337,
+            -0.6554515704284285,
+            2.630824158769181
+          ],
+          "penetration": 0,
+          "branch": null
+        },
+        {
+          "time": 2.5,
+          "wheels": 2,
+          "ground": 0,
+          "roof": 0.9404260068687218,
+          "heading": 0.9619826378991647,
+          "position": [
+            37.06394022080299,
+            0.3239944253422603,
+            0.10454158624740456
+          ],
+          "velocity": [
+            15.433024821286802,
+            2.09811638208188,
+            0.27674316068176175
+          ],
+          "angular": [
+            -0.9430931089461375,
+            -0.6554515704284285,
+            -2.723904072303608
+          ],
+          "penetration": 0,
+          "branch": null
+        }
+      ]
+    },
+    {
+      "variant": "current",
+      "input": "neutral-after-dodge",
+      "firstWheel": 1.35,
+      "firstStable": 1.375,
+      "ordinaryControllerGapSeconds": 0,
+      "samples": [
+        {
+          "time": 1,
+          "wheels": 0,
+          "ground": 0,
+          "roof": 0.9983166043703541,
+          "heading": 0,
+          "position": [
+            14.130275292964878,
+            1.086633676596727,
+            0
+          ],
+          "velocity": [
+            15.233275536884225,
+            -1.0762515536340589,
+            0
+          ],
+          "angular": [
+            0,
+            0,
+            -0.312310030062383
+          ],
+          "penetration": 0,
+          "branch": "air"
+        },
+        {
+          "time": 1.5,
+          "wheels": 4,
+          "ground": 1,
+          "roof": 0.9999614042462059,
+          "heading": 0,
+          "position": [
+            21.823745588720865,
+            0.21852909567493523,
+            0
+          ],
+          "velocity": [
+            15.468163173478281,
+            -0.13234813453960298,
+            0
+          ],
+          "angular": [
+            0,
+            0,
+            0
+          ],
+          "penetration": 0,
+          "branch": "stable"
+        },
+        {
+          "time": 2,
+          "wheels": 4,
+          "ground": 1,
+          "roof": 0.9999999999999204,
+          "heading": 0,
+          "position": [
+            29.55782717546003,
+            0.19491714130552934,
+            0
+          ],
+          "velocity": [
+            15.468163173478256,
+            -0.0034263006192493395,
+            0
+          ],
+          "angular": [
+            0,
+            0,
+            0
+          ],
+          "penetration": 0,
+          "branch": "stable"
+        },
+        {
+          "time": 2.5,
+          "wheels": 4,
+          "ground": 1,
+          "roof": 0.9956430275352007,
+          "heading": 0,
+          "position": [
+            37.29029474691599,
+            0.23306337802486793,
+            0
+          ],
+          "velocity": [
+            15.384579278749872,
+            1.4419223612022276,
+            0
+          ],
+          "angular": [
+            0,
+            0,
+            0
+          ],
+          "penetration": 0,
+          "branch": "stable"
+        }
+      ]
+    },
+    {
+      "variant": "current",
+      "input": "forward-held",
+      "firstWheel": 1.4333333333333333,
+      "firstStable": 2.0833333333333335,
+      "ordinaryControllerGapSeconds": 0,
+      "samples": [
+        {
+          "time": 1,
+          "wheels": 0,
+          "ground": 0,
+          "roof": 0.8869202526371317,
+          "heading": 0,
+          "position": [
+            14.145622174443014,
+            1.0800947094151008,
+            0
+          ],
+          "velocity": [
+            15.25669648305106,
+            -1.1092446697080374,
+            0
+          ],
+          "angular": [
+            0,
+            0,
+            -2.352861031941747
+          ],
+          "penetration": 0,
+          "branch": "air"
+        },
+        {
+          "time": 1.5,
+          "wheels": 2,
+          "ground": 0,
+          "roof": 0.6612468533531204,
+          "heading": 0,
+          "position": [
+            21.44953608812857,
+            0.5910905998719171,
+            0
+          ],
+          "velocity": [
+            13.549742625989623,
+            -0.3512387698956715,
+            0
+          ],
+          "angular": [
+            0,
+            0,
+            1.9723093282587911
+          ],
+          "penetration": 0,
+          "branch": "partial"
+        },
+        {
+          "time": 2,
+          "wheels": 2,
+          "ground": 0,
+          "roof": 0.9808022684747753,
+          "heading": 0,
+          "position": [
+            28.368702007989047,
+            0.27579115745239896,
+            0
+          ],
+          "velocity": [
+            14.078971962456892,
+            -0.3321820154484294,
+            0
+          ],
+          "angular": [
+            0,
+            0,
+            0.6883441090955484
+          ],
+          "penetration": 0,
+          "branch": "partial"
+        },
+        {
+          "time": 2.5,
+          "wheels": 4,
+          "ground": 1,
+          "roof": 0.9999999995305336,
+          "heading": 0,
+          "position": [
+            35.42090017800488,
+            0.19799400606904866,
+            0
+          ],
+          "velocity": [
+            14.106075049163653,
+            -0.03237264424318765,
+            0
+          ],
+          "angular": [
+            0,
+            0,
+            0
+          ],
+          "penetration": 0,
+          "branch": "stable"
+        }
+      ]
+    },
+    {
+      "variant": "current",
+      "input": "forward-held-then-steer",
+      "firstWheel": 1.4333333333333333,
+      "firstStable": 1.9916666666666667,
+      "ordinaryControllerGapSeconds": 0,
+      "samples": [
+        {
+          "time": 1,
+          "wheels": 0,
+          "ground": 0,
+          "roof": 0.8869202526371317,
+          "heading": 0,
+          "position": [
+            14.145622174443014,
+            1.0800947094151008,
+            0
+          ],
+          "velocity": [
+            15.25669648305106,
+            -1.1092446697080374,
+            0
+          ],
+          "angular": [
+            0,
+            0,
+            -2.352861031941747
+          ],
+          "penetration": 0,
+          "branch": "air"
+        },
+        {
+          "time": 1.5,
+          "wheels": 2,
+          "ground": 0,
+          "roof": 0.6554590474460903,
+          "heading": 0.18070072229850428,
+          "position": [
+            21.44320038234272,
+            0.5974088416255474,
+            0.06964079301036549
+          ],
+          "velocity": [
+            13.369128989648877,
+            -0.4101264720980384,
+            1.6665854154794206
+          ],
+          "angular": [
+            1.0632826569816627,
+            -1.2168015608462224,
+            1.9289098189251839
+          ],
+          "penetration": 0,
+          "branch": "partial"
+        },
+        {
+          "time": 2,
+          "wheels": 3,
+          "ground": 1,
+          "roof": 0.9888119638940499,
+          "heading": 1.0375616322039884,
+          "position": [
+            27.00100777888795,
+            0.2876724194296887,
+            3.437549319250533
+          ],
+          "velocity": [
+            7.349308219081401,
+            -0.18206024466794496,
+            11.042788115473032
+          ],
+          "angular": [
+            0,
+            0,
+            0
+          ],
+          "penetration": 0,
+          "branch": "stable"
+        },
+        {
+          "time": 2.5,
+          "wheels": 4,
+          "ground": 1,
+          "roof": 0.9999999999768944,
+          "heading": 1.8120513483369798,
+          "position": [
+            27.993069672484157,
+            0.19703007864888572,
+            10.05237604886179
+          ],
+          "velocity": [
+            -3.1871666491227786,
+            -0.024204307308998994,
+            13.705890711564845
+          ],
+          "angular": [
+            0,
+            0,
+            0
+          ],
+          "penetration": 0,
+          "branch": "stable"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+/* Live-play tools occupy separate rows; menus retain the existing velvet layout. */
+body #training-hud{left:2.25vw;top:102px;bottom:auto;display:flex;align-items:center;max-width:calc(100vw - 48px);gap:0;font:500 12px/1.2 var(--nivet-display);letter-spacing:.06em}
+#training-hud[hidden]{display:none}
+#training-hud #match-kind{display:none}
+#training-hud #training-open{min-height:32px;padding:6px 11px;border:1px solid #bdcddd38;border-left:2px solid #c9aae2;border-radius:2px;background:#101825bd;color:#f3f1f9;font:500 13px/1.2 var(--nivet-display);letter-spacing:.045em}
+#quick-chat{bottom:79px;max-width:230px;background:#0c1522d6}
+#quick-chat summary{min-height:25px;font-size:13px}
+#quick-chat summary small{font-size:10px;letter-spacing:.055em}
+#quick-chat button{font-size:15px;min-height:40px}
+#camtag{bottom:25px;font-size:22px}
+#rival-title{color:#d1dce4;text-shadow:0 1px 3px #000a}
+@media(max-width:700px){body:not(.device-touch) #training-hud{top:153px;left:16px}body:not(.device-touch) #rival-title{top:126px;left:16px}body:not(.device-touch) #quick-chat{left:16px;bottom:67px}body:not(.device-touch) #camtag{left:16px;bottom:20px;font-size:18px}}
+body.device-touch #training-hud{top:194px;left:12px;bottom:auto;max-width:170px}
+body.device-touch #training-hud #training-open{font-size:12px;min-height:32px;padding:5px 9px}
+body.device-touch #quick-chat{bottom:226px;max-width:188px}
+@media(max-height:500px) and (orientation:landscape){#rival-title{display:none}body:not(.device-touch) #training-hud{top:58px}body.device-touch #training-hud{top:55px;left:12px}body.device-touch #training-hud #training-open{min-height:28px;font-size:11px}body.device-touch #quick-chat{bottom:151px;max-width:170px}#camtag{font-size:17px;bottom:17px}}

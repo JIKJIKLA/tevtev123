@@ -44,3 +44,31 @@ test('regression: remote car bumps remain authority-owned and a snapshot restore
  let state=clone(p.state());a.dedState({state,tick:0,ack:0,driver:clone(p.driver(0))});a.stepCar(car,a.DT);a.predictLocalBall(a.DT);p.step();
  assert.ok(c.v.x<car.v.x-1,'authority resolves the remote car while local prediction deliberately does not');state=clone(p.state());a.dedState({state,tick:1,ack:0,driver:clone(p.driver(0))});near(car.p.distanceTo(c.p),0);near(car.v.distanceTo(c.v),0);
 });
+
+for(const [wheels,roll,pitch]of [[1,.3,.15],[2,0,.15]])test('reconciliation: actual '+wheels+'-wheel support keeps authority/prediction steering and delayed recovery identical',()=>{
+ const {p,a,c,car}=setup(),T=a.THREE;
+ // Place the actual tyre geometry, rather than overriding wheelsOn. The first
+ // snapshot is taken during partial support, so wasG, yaw and local angular
+ // velocity must restore the same contact transition for pending inputs.
+ c.q.setFromEuler(new T.Euler(roll,0,pitch));
+ c.p.set(0,-Math.min(...a.bodyPhysics(c).wheels.map(v=>new T.Vector3(...v).applyQuaternion(c.q).y))+.015,0);
+ c.v.set(10,0,0);c.w.set(0,0,0);c.wy=1.2;c.n.set(0,1,0);c.ground=c.wasG=1;
+ c.prevP.copy(c.p);c.frameP.copy(c.p);c.prevQ.copy(c.q);c.frameQ.copy(c.q);
+ a.dedState({state:clone(p.state()),tick:0,ack:0,driver:clone(p.driver(0))});
+ let partialSnapshot;
+ for(let tick=1;tick<=24;tick++){
+  const frame={seq:tick,round:a.MP.round,jump:0,held:false,paused:false,controls:{thr:1,pitch:1,steer:tick<=12?1:-.4,yaw:tick<=12?1:-.4,roll:0,boost:tick>16?1:0,ps:tick>8&&tick<=16?1:0},edge:false};
+  Object.assign(car.inp,frame.controls);a.stepCar(car,a.DT);a.predictLocalBall(a.DT);a.DED.history.push(clone(frame));p.input('local',clone(frame));p.step();
+  near(car.p.distanceTo(c.p),0);near(car.v.distanceTo(c.v),0);near(car.w.distanceTo(c.w),0);near(car.wy,c.wy);near(car.q.angleTo(c.q),0,1e-6);
+  if(tick===1){
+   assert.equal(c.wheelsOn,wheels);assert.equal(car.wheelsOn,wheels);assert.equal(c.ground,0);
+   const yaw=-car.w.clone().applyQuaternion(car.q).dot(car.n);assert.ok(yaw>1.2,'real partial tyre support responds on the first fixed tick');
+   partialSnapshot={state:clone(p.state()),tick,ack:tick,driver:clone(p.driver(0))};
+  }
+ }
+ car.p.x+=1;car.w.z+=1;car.wy+=1;assert.ok(car.p.distanceTo(c.p)>.9);
+ a.dedState(partialSnapshot);
+ near(car.p.distanceTo(c.p),0);near(car.v.distanceTo(c.v),0);near(car.w.distanceTo(c.w),0);near(car.wy,c.wy);near(car.q.angleTo(c.q),0,1e-6);
+ near(a.ball.p.distanceTo(p.inspect().ball.p),0);near(a.ball.v.distanceTo(p.inspect().ball.v),0);near(a.ball.w.distanceTo(p.inspect().ball.w),0);
+ assert.equal(car.wasG,c.wasG);assert.equal(car.ground,c.ground);assert.equal(car.canJ,c.canJ);assert.equal(car.canD,c.canD);near(car.handbrake,c.handbrake);assert.equal(a.DED.history.length,23);
+});

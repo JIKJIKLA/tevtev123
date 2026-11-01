@@ -85,7 +85,11 @@ function goalSurroundGeometry(inset=.12,width=.7,depth=.64){
 }
 function goalTunnelRibGeometry(){return goalSurroundGeometry(.13,.105,.13);}
 function decorateArenaGoals(target=scene){
- const structure=arenaPanelMaterial(0xa7aaa0),backing=arenaPanelMaterial(0x3c4544),dark=new THREE.MeshStandardMaterial({color:0x202726,roughness:.9,metalness:.1}),edge=new THREE.MeshStandardMaterial({color:0xb7b8a7,roughness:.72,metalness:.3,envMapIntensity:.25});
+ const structure=arenaPanelMaterial(0xbdc0b6),backing=arenaPanelMaterial(0xb0bec2),dark=new THREE.MeshStandardMaterial({color:0x47565d,roughness:.9,metalness:.06}),edge=new THREE.MeshStandardMaterial({color:0xc1c4b7,roughness:.72,metalness:.3,envMapIntensity:.25});
+ // A small baked return on the recessed panels represents the daylight/turf
+ // bounce absent from direct lights. It follows the existing panel texture,
+ // preserving bolts and seams rather than filling the tunnel with flat glow.
+ backing.emissiveMap=backing.map;backing.emissive.setHex(0x8b9e9f);backing.emissiveIntensity=.12;backing.metalness=.08;
  const group=new THREE.Group();group.name='Layered championship goal tunnels';const haloGeometry=goalFrameHaloGeometry(),haloMap=glowTex(),frameGeometry=goalSurroundGeometry(),gasketGeometry=goalSurroundGeometry(.11,1.02,1.1),beadGeometry=goalSurroundGeometry(.055,.045,.12),channelGeometry=goalSurroundGeometry(.32,.095,.12),ribGeometry=goalTunnelRibGeometry();
  const box=(x,y,z,w,h,d,mat)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);group.add(m);return m;};
  for(const sign of [-1,1]){
@@ -138,7 +142,7 @@ function styleChampionshipStadium(stadium){
     const roof=material.metalness>=.25&&material.metalness<.5,steel=material.metalness>=.5,terrace=!roof&&!steel&&material.roughness>=.9;
     // A daylight bowl needs actual concrete reflectance, not low-albedo navy
     // paint lifted by exposure. Only roof/reveals stay dark; retain matte response.
-    material.color.setHex(roof?0x333b3b:steel?0x87918e:terrace?0x9c9b8d:0x69746d);material.roughness=steel?.78:.94;material.metalness=steel?.25:roof?.12:.025;material.envMapIntensity=.22;
+    material.color.setHex(roof?0x526672:steel?0x8b999c:terrace?0x969a91:0x657a7f);material.roughness=steel?.78:.94;material.metalness=steel?.25:roof?.12:.025;material.envMapIntensity=.22;
    }
    else if(material.isMeshBasicMaterial&&!material.map&&material.color.r>1)material.color.setHex(0xffdca8).multiplyScalar(.9);
   }
@@ -148,20 +152,20 @@ function styleChampionshipStadium(stadium){
  // The 48-triangle silhouette gives 13,104 spectators for about 629k triangles.
  for(const original of crowdMeshes){
   const crowd=new THREE.InstancedMesh(fanGeometry,original.material,original.count*2);crowd.name='Packed seated championship crowd';crowd.material.color.setHex(0xffffff);crowd.material.roughness=1;crowd.material.metalness=0;crowd.material.envMapIntensity=.1;
-  const clothes=[0x657782,0xb9b7a6,0xc0aa8a,0x596771,0x819584,0xa58f82];
+  const clothes=[0x64747c,0x81918f,0x8a8878,0x54616b,0x667c73,0x86756c],crowdTint=new THREE.Color(0x6f838d);
   for(let i=0;i<original.count;i++)for(let pair=0;pair<2;pair++){
    original.getMatrixAt(i,matrix);p.setFromMatrixPosition(matrix);const seed=(Math.imul(i*2+pair+1,1664525)>>>0)%31;
    // The first column is the local lateral axis, including the curved corners.
    const slide=pair?.29:-.25;matrix.elements[12]+=matrix.elements[0]*slide;matrix.elements[14]+=matrix.elements[2]*slide;
    matrix.scale(scale.set(.93+(seed%3)*.035,.91+(seed%5)*.035,.97));crowd.setMatrixAt(i*2+pair,matrix);
-   color.setHex(seed<11?teamPalette[p.z<0?0:1]:clothes[seed%clothes.length]).multiplyScalar(.79+(seed%4)*.07);crowd.setColorAt(i*2+pair,color);
+   color.setHex(seed<7?teamPalette[p.z<0?0:1]:clothes[seed%clothes.length]).lerp(crowdTint,.22).multiplyScalar(.78+(seed%4)*.03);crowd.setColorAt(i*2+pair,color);
   }
   crowd.instanceMatrix.needsUpdate=true;crowd.instanceColor.needsUpdate=true;crowd.castShadow=crowd.receiveShadow=false;crowd.computeBoundingSphere();original.parent.add(crowd);original.parent.remove(original);oldGeometry.add(original.geometry);original.dispose();
   if(!RIVALS.crowd)RIVALS.crowd={mesh:crowd,y:Array.from({length:crowd.count},(_,i)=>crowd.instanceMatrix.array[i*16+13])};
  }
  for(const geometry of oldGeometry)geometry.dispose();
  const trim=teamPalette.map((c,t)=>{const m=new THREE.MeshBasicMaterial({color:c,toneMapped:false});m.userData.team=t;return m});
- RIVALS.trim=trim;const dark=new THREE.MeshBasicMaterial({color:0x151b1c,toneMapped:false});
+ RIVALS.trim=trim;const dark=new THREE.MeshBasicMaterial({color:0x243742,toneMapped:false});
  const box=(x,y,z,w,h,d,mat)=>{const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);mesh.position.set(x,y,z);stadium.add(mesh);return mesh};
  // These merge with the stadium at build time: no new dynamic lights or shadows.
  const steel=new THREE.MeshStandardMaterial({color:0x7b837d,roughness:.84,metalness:.2,envMapIntensity:.24});

@@ -1,0 +1,43 @@
+{
+  "conditions": "Actual active-play camera block, identical prescribed physical poses, 120Hz camera updates/default saved settings; this is separate from vehicle physics and is not a proprietary-game camera reference.",
+  "before": {
+    "closeBall": {
+      "radiusAlternates": [
+        1.99,
+        2.01
+      ],
+      "finalHeadingDegrees": 43.01379135665405,
+      "maxFrameHeadingDegrees": 7.608989338582368
+    },
+    "partialWall": {
+      "samePose": true,
+      "alternatingWheels": [
+        3,
+        2
+      ],
+      "finalMix": 0.481258792021883,
+      "maxEyeStepMetres": 0.09488975888121944,
+      "eyeDisplacementMetres": 2.7179595853235172
+    }
+  },
+  "after": {
+    "closeBall": {
+      "radiusAlternates": [
+        1.99,
+        2.01
+      ],
+      "finalHeadingDegrees": 89.99999999999861,
+      "maxFrameHeadingDegrees": 4.324358478230153e-9
+    },
+    "partialWall": {
+      "samePose": true,
+      "alternatingWheels": [
+        3,
+        2
+      ],
+      "finalMix": 0.9999999999999993,
+      "maxEyeStepMetres": 3.0733808430917733e-12,
+      "eyeDisplacementMetres": 4.25434755126569e-11
+    }
+  }
+}

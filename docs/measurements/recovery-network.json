@@ -1,0 +1,679 @@
+{
+  "conditions": "Two isolated shared solvers (server/physics.cjs authority and source browser harness); synthetic ordered application input/snapshot scheduling, no socket, no remote player; discarded application snapshots are not WebSocket packet loss. Nonzero uplink advances authority at wall time while inputs arrive late; final convergence is measured after all queued inputs are consumed and a current snapshot is applied.",
+  "profiles": [
+    {
+      "scenario": "ground",
+      "profile": {
+        "snapshotHz": 30,
+        "physicsHz": 120,
+        "downstreamDelayTicks": 0,
+        "jitterTicks": [
+          0
+        ],
+        "discardEverySnapshot": 0,
+        "uplinkDelayTicks": 0,
+        "uplinkJitterTicks": [
+          0
+        ],
+        "ticks": 240
+      },
+      "delivered": 60,
+      "dropped": 0,
+      "maxHistory": 4,
+      "localMoved": true,
+      "localTouchTick": null,
+      "maxCarError": 0,
+      "maxBallError": 0,
+      "maxRotationError": 4.2146848510894035e-8,
+      "maxCorrection": 0,
+      "finalCarError": 0,
+      "finalBallError": 0,
+      "historyAfterFinal": 0
+    },
+    {
+      "scenario": "ground",
+      "profile": {
+        "snapshotHz": 30,
+        "physicsHz": 120,
+        "downstreamDelayTicks": 6,
+        "jitterTicks": [
+          0,
+          2,
+          1,
+          4
+        ],
+        "discardEverySnapshot": 0,
+        "uplinkDelayTicks": 0,
+        "uplinkJitterTicks": [
+          0
+        ],
+        "ticks": 240
+      },
+      "delivered": 58,
+      "dropped": 0,
+      "maxHistory": 14,
+      "localMoved": true,
+      "localTouchTick": null,
+      "maxCarError": 0,
+      "maxBallError": 0,
+      "maxRotationError": 4.2146848510894035e-8,
+      "maxCorrection": 0,
+      "finalCarError": 0,
+      "finalBallError": 0,
+      "historyAfterFinal": 0
+    },
+    {
+      "scenario": "ground",
+      "profile": {
+        "snapshotHz": 30,
+        "physicsHz": 120,
+        "downstreamDelayTicks": 12,
+        "jitterTicks": [
+          0,
+          5,
+          2,
+          8
+        ],
+        "discardEverySnapshot": 5,
+        "uplinkDelayTicks": 0,
+        "uplinkJitterTicks": [
+          0
+        ],
+        "ticks": 240
+      },
+      "delivered": 44,
+      "dropped": 12,
+      "maxHistory": 28,
+      "localMoved": true,
+      "localTouchTick": null,
+      "maxCarError": 0,
+      "maxBallError": 0,
+      "maxRotationError": 4.2146848510894035e-8,
+      "maxCorrection": 0,
+      "finalCarError": 0,
+      "finalBallError": 0,
+      "historyAfterFinal": 0
+    },
+    {
+      "scenario": "ground",
+      "profile": {
+        "snapshotHz": 30,
+        "physicsHz": 120,
+        "downstreamDelayTicks": 6,
+        "jitterTicks": [
+          0,
+          2,
+          1,
+          4
+        ],
+        "discardEverySnapshot": 0,
+        "uplinkDelayTicks": 6,
+        "uplinkJitterTicks": [
+          0,
+          2,
+          1,
+          4
+        ],
+        "ticks": 240
+      },
+      "delivered": 58,
+      "dropped": 0,
+      "maxHistory": 24,
+      "localMoved": true,
+      "localTouchTick": null,
+      "maxCarError": 1.0130847490403807,
+      "maxBallError": 1.1102230246251565e-15,
+      "maxRotationError": 0.1866602967749895,
+      "maxCorrection": 0.07095262400721773,
+      "finalCarError": 0,
+      "finalBallError": 0,
+      "historyAfterFinal": 0
+    },
+    {
+      "scenario": "ground",
+      "profile": {
+        "snapshotHz": 30,
+        "physicsHz": 120,
+        "downstreamDelayTicks": 12,
+        "jitterTicks": [
+          0,
+          5,
+          2,
+          8
+        ],
+        "discardEverySnapshot": 5,
+        "uplinkDelayTicks": 12,
+        "uplinkJitterTicks": [
+          0,
+          5,
+          2,
+          8
+        ],
+        "ticks": 240
+      },
+      "delivered": 44,
+      "dropped": 12,
+      "maxHistory": 48,
+      "localMoved": true,
+      "localTouchTick": null,
+      "maxCarError": 2.0324138049643445,
+      "maxBallError": 1.3322676295501878e-15,
+      "maxRotationError": 0.3730865806644367,
+      "maxCorrection": 0.34929289363199323,
+      "finalCarError": 0,
+      "finalBallError": 0,
+      "historyAfterFinal": 0
+    },
+    {
+      "scenario": "hard-touch",
+      "profile": {
+        "snapshotHz": 30,
+        "physicsHz": 120,
+        "downstreamDelayTicks": 0,
+        "jitterTicks": [
+          0
+        ],
+        "discardEverySnapshot": 0,
+        "uplinkDelayTicks": 0,
+        "uplinkJitterTicks": [
+          0
+        ],
+        "ticks": 240
+      },
+      "delivered": 60,
+      "dropped": 0,
+      "maxHistory": 4,
+      "localMoved": true,
+      "localTouchTick": 2,
+      "maxCarError": 0,
+      "maxBallError": 0,
+      "maxRotationError": 4.2146848510894035e-8,
+      "maxCorrection": 0,
+      "finalCarError": 0,
+      "finalBallError": 0,
+      "historyAfterFinal": 0
+    },
+    {
+      "scenario": "hard-touch",
+      "profile": {
+        "snapshotHz": 30,
+        "physicsHz": 120,
+        "downstreamDelayTicks": 6,
+        "jitterTicks": [
+          0,
+          2,
+          1,
+          4
+        ],
+        "discardEverySnapshot": 0,
+        "uplinkDelayTicks": 0,
+        "uplinkJitterTicks": [
+          0
+        ],
+        "ticks": 240
+      },
+      "delivered": 58,
+      "dropped": 0,
+      "maxHistory": 14,
+      "localMoved": true,
+      "localTouchTick": 2,
+      "maxCarError": 0,
+      "maxBallError": 0,
+      "maxRotationError": 4.2146848510894035e-8,
+      "maxCorrection": 0,
+      "finalCarError": 0,
+      "finalBallError": 0,
+      "historyAfterFinal": 0
+    },
+    {
+      "scenario": "hard-touch",
+      "profile": {
+        "snapshotHz": 30,
+        "physicsHz": 120,
+        "downstreamDelayTicks": 12,
+        "jitterTicks": [
+          0,
+          5,
+          2,
+          8
+        ],
+        "discardEverySnapshot": 5,
+        "uplinkDelayTicks": 0,
+        "uplinkJitterTicks": [
+          0
+        ],
+        "ticks": 240
+      },
+      "delivered": 44,
+      "dropped": 12,
+      "maxHistory": 28,
+      "localMoved": true,
+      "localTouchTick": 2,
+      "maxCarError": 0,
+      "maxBallError": 0,
+      "maxRotationError": 4.2146848510894035e-8,
+      "maxCorrection": 0,
+      "finalCarError": 0,
+      "finalBallError": 0,
+      "historyAfterFinal": 0
+    },
+    {
+      "scenario": "hard-touch",
+      "profile": {
+        "snapshotHz": 30,
+        "physicsHz": 120,
+        "downstreamDelayTicks": 6,
+        "jitterTicks": [
+          0,
+          2,
+          1,
+          4
+        ],
+        "discardEverySnapshot": 0,
+        "uplinkDelayTicks": 6,
+        "uplinkJitterTicks": [
+          0,
+          2,
+          1,
+          4
+        ],
+        "ticks": 240
+      },
+      "delivered": 58,
+      "dropped": 0,
+      "maxHistory": 24,
+      "localMoved": true,
+      "localTouchTick": 2,
+      "maxCarError": 1.617817725999535,
+      "maxBallError": 2.0049505104880656,
+      "maxRotationError": 0.1600229958639182,
+      "maxCorrection": 0.5074490522749866,
+      "finalCarError": 0,
+      "finalBallError": 0,
+      "historyAfterFinal": 0
+    },
+    {
+      "scenario": "hard-touch",
+      "profile": {
+        "snapshotHz": 30,
+        "physicsHz": 120,
+        "downstreamDelayTicks": 12,
+        "jitterTicks": [
+          0,
+          5,
+          2,
+          8
+        ],
+        "discardEverySnapshot": 5,
+        "uplinkDelayTicks": 12,
+        "uplinkJitterTicks": [
+          0,
+          5,
+          2,
+          8
+        ],
+        "ticks": 240
+      },
+      "delivered": 44,
+      "dropped": 12,
+      "maxHistory": 48,
+      "localMoved": true,
+      "localTouchTick": 2,
+      "maxCarError": 3.2469772629666807,
+      "maxBallError": 3.9581205039370575,
+      "maxRotationError": 0.3134690706985731,
+      "maxCorrection": 0.7945280559672704,
+      "finalCarError": 0,
+      "finalBallError": 0,
+      "historyAfterFinal": 0
+    },
+    {
+      "scenario": "awkward-landing",
+      "profile": {
+        "snapshotHz": 30,
+        "physicsHz": 120,
+        "downstreamDelayTicks": 0,
+        "jitterTicks": [
+          0
+        ],
+        "discardEverySnapshot": 0,
+        "uplinkDelayTicks": 0,
+        "uplinkJitterTicks": [
+          0
+        ],
+        "ticks": 240
+      },
+      "delivered": 60,
+      "dropped": 0,
+      "maxHistory": 4,
+      "localMoved": true,
+      "localTouchTick": null,
+      "maxCarError": 0,
+      "maxBallError": 0,
+      "maxRotationError": 4.2146848510894035e-8,
+      "maxCorrection": 0,
+      "finalCarError": 0,
+      "finalBallError": 0,
+      "historyAfterFinal": 0
+    },
+    {
+      "scenario": "awkward-landing",
+      "profile": {
+        "snapshotHz": 30,
+        "physicsHz": 120,
+        "downstreamDelayTicks": 6,
+        "jitterTicks": [
+          0,
+          2,
+          1,
+          4
+        ],
+        "discardEverySnapshot": 0,
+        "uplinkDelayTicks": 0,
+        "uplinkJitterTicks": [
+          0
+        ],
+        "ticks": 240
+      },
+      "delivered": 58,
+      "dropped": 0,
+      "maxHistory": 14,
+      "localMoved": true,
+      "localTouchTick": null,
+      "maxCarError": 0,
+      "maxBallError": 0,
+      "maxRotationError": 4.2146848510894035e-8,
+      "maxCorrection": 0,
+      "finalCarError": 0,
+      "finalBallError": 0,
+      "historyAfterFinal": 0
+    },
+    {
+      "scenario": "awkward-landing",
+      "profile": {
+        "snapshotHz": 30,
+        "physicsHz": 120,
+        "downstreamDelayTicks": 12,
+        "jitterTicks": [
+          0,
+          5,
+          2,
+          8
+        ],
+        "discardEverySnapshot": 5,
+        "uplinkDelayTicks": 0,
+        "uplinkJitterTicks": [
+          0
+        ],
+        "ticks": 240
+      },
+      "delivered": 44,
+      "dropped": 12,
+      "maxHistory": 28,
+      "localMoved": true,
+      "localTouchTick": null,
+      "maxCarError": 0,
+      "maxBallError": 0,
+      "maxRotationError": 4.2146848510894035e-8,
+      "maxCorrection": 0,
+      "finalCarError": 0,
+      "finalBallError": 0,
+      "historyAfterFinal": 0
+    },
+    {
+      "scenario": "awkward-landing",
+      "profile": {
+        "snapshotHz": 30,
+        "physicsHz": 120,
+        "downstreamDelayTicks": 6,
+        "jitterTicks": [
+          0,
+          2,
+          1,
+          4
+        ],
+        "discardEverySnapshot": 0,
+        "uplinkDelayTicks": 6,
+        "uplinkJitterTicks": [
+          0,
+          2,
+          1,
+          4
+        ],
+        "ticks": 240
+      },
+      "delivered": 58,
+      "dropped": 0,
+      "maxHistory": 24,
+      "localMoved": true,
+      "localTouchTick": null,
+      "maxCarError": 1.067107616732347,
+      "maxBallError": 1.1102230246251565e-15,
+      "maxRotationError": 0.43687552309120437,
+      "maxCorrection": 0.3286830205086337,
+      "finalCarError": 0,
+      "finalBallError": 0,
+      "historyAfterFinal": 0
+    },
+    {
+      "scenario": "awkward-landing",
+      "profile": {
+        "snapshotHz": 30,
+        "physicsHz": 120,
+        "downstreamDelayTicks": 12,
+        "jitterTicks": [
+          0,
+          5,
+          2,
+          8
+        ],
+        "discardEverySnapshot": 5,
+        "uplinkDelayTicks": 12,
+        "uplinkJitterTicks": [
+          0,
+          5,
+          2,
+          8
+        ],
+        "ticks": 240
+      },
+      "delivered": 44,
+      "dropped": 12,
+      "maxHistory": 48,
+      "localMoved": true,
+      "localTouchTick": null,
+      "maxCarError": 2.2489091857277184,
+      "maxBallError": 1.3322676295501878e-15,
+      "maxRotationError": 0.697246680666984,
+      "maxCorrection": 0.5329981274461779,
+      "finalCarError": 0,
+      "finalBallError": 0,
+      "historyAfterFinal": 0
+    },
+    {
+      "scenario": "aerial-dodge",
+      "profile": {
+        "snapshotHz": 30,
+        "physicsHz": 120,
+        "downstreamDelayTicks": 0,
+        "jitterTicks": [
+          0
+        ],
+        "discardEverySnapshot": 0,
+        "uplinkDelayTicks": 0,
+        "uplinkJitterTicks": [
+          0
+        ],
+        "ticks": 240
+      },
+      "delivered": 60,
+      "dropped": 0,
+      "maxHistory": 4,
+      "localMoved": true,
+      "localTouchTick": null,
+      "maxCarError": 0,
+      "maxBallError": 0,
+      "maxRotationError": 4.2146848510894035e-8,
+      "maxCorrection": 0,
+      "finalCarError": 0,
+      "finalBallError": 0,
+      "historyAfterFinal": 0
+    },
+    {
+      "scenario": "aerial-dodge",
+      "profile": {
+        "snapshotHz": 30,
+        "physicsHz": 120,
+        "downstreamDelayTicks": 6,
+        "jitterTicks": [
+          0,
+          2,
+          1,
+          4
+        ],
+        "discardEverySnapshot": 0,
+        "uplinkDelayTicks": 0,
+        "uplinkJitterTicks": [
+          0
+        ],
+        "ticks": 240
+      },
+      "delivered": 58,
+      "dropped": 0,
+      "maxHistory": 14,
+      "localMoved": true,
+      "localTouchTick": null,
+      "maxCarError": 0,
+      "maxBallError": 0,
+      "maxRotationError": 4.2146848510894035e-8,
+      "maxCorrection": 0,
+      "finalCarError": 0,
+      "finalBallError": 0,
+      "historyAfterFinal": 0
+    },
+    {
+      "scenario": "aerial-dodge",
+      "profile": {
+        "snapshotHz": 30,
+        "physicsHz": 120,
+        "downstreamDelayTicks": 12,
+        "jitterTicks": [
+          0,
+          5,
+          2,
+          8
+        ],
+        "discardEverySnapshot": 5,
+        "uplinkDelayTicks": 0,
+        "uplinkJitterTicks": [
+          0
+        ],
+        "ticks": 240
+      },
+      "delivered": 44,
+      "dropped": 12,
+      "maxHistory": 28,
+      "localMoved": true,
+      "localTouchTick": null,
+      "maxCarError": 0,
+      "maxBallError": 0,
+      "maxRotationError": 4.2146848510894035e-8,
+      "maxCorrection": 0,
+      "finalCarError": 0,
+      "finalBallError": 0,
+      "historyAfterFinal": 0
+    },
+    {
+      "scenario": "aerial-dodge",
+      "profile": {
+        "snapshotHz": 30,
+        "physicsHz": 120,
+        "downstreamDelayTicks": 6,
+        "jitterTicks": [
+          0,
+          2,
+          1,
+          4
+        ],
+        "discardEverySnapshot": 0,
+        "uplinkDelayTicks": 6,
+        "uplinkJitterTicks": [
+          0,
+          2,
+          1,
+          4
+        ],
+        "ticks": 240
+      },
+      "delivered": 58,
+      "dropped": 0,
+      "maxHistory": 24,
+      "localMoved": true,
+      "localTouchTick": null,
+      "maxCarError": 1.4687792892653047,
+      "maxBallError": 1.1102230246251565e-15,
+      "maxRotationError": 0.8055365778435372,
+      "maxCorrection": 0.3335070800074869,
+      "finalCarError": 0,
+      "finalBallError": 0,
+      "historyAfterFinal": 0
+    },
+    {
+      "scenario": "aerial-dodge",
+      "profile": {
+        "snapshotHz": 30,
+        "physicsHz": 120,
+        "downstreamDelayTicks": 12,
+        "jitterTicks": [
+          0,
+          5,
+          2,
+          8
+        ],
+        "discardEverySnapshot": 5,
+        "uplinkDelayTicks": 12,
+        "uplinkJitterTicks": [
+          0,
+          5,
+          2,
+          8
+        ],
+        "ticks": 240
+      },
+      "delivered": 44,
+      "dropped": 12,
+      "maxHistory": 48,
+      "localMoved": true,
+      "localTouchTick": null,
+      "maxCarError": 2.9612083739239385,
+      "maxBallError": 1.3322676295501878e-15,
+      "maxRotationError": 1.6110731556870734,
+      "maxCorrection": 0.5883619253572681,
+      "finalCarError": 0,
+      "finalBallError": 0,
+      "historyAfterFinal": 0
+    }
+  ],
+  "build": "10.5.0",
+  "wire": 3,
+  "protocol": 6,
+  "summary": {
+    "profiles": 20,
+    "zeroUplinkRuns": 12,
+    "zeroUplinkExactPositionAgreement": true,
+    "allFullyAcknowledgedConverged": true,
+    "maxUnacknowledgedHistory": 48,
+    "largestRawPositionCorrection": 0.7945280559672704,
+    "comparison": "docs/measurements/network-fidelity.json (10.4.0)",
+    "changedCorrectionProfiles": [
+      {
+        "scenario": "aerial-dodge",
+        "uplink": 12,
+        "downstream": 12,
+        "beforeMaxCorrection": 0.5917865865789034,
+        "afterMaxCorrection": 0.5883619253572681,
+        "delta": -0.0034246612216353167
+      }
+    ]
+  }
+}

@@ -106,7 +106,7 @@ function wallBallTarget(cameraPosition,carPosition,ballPosition,out){
  return out.copy(wallCarRay).add(wallBallRay).normalize().multiplyScalar(12).add(cameraPosition);
 }
 function positionWallCamera(car,position,desired,dt){
- const target=car.ground?cl((.8-Math.abs(car.n.y))/.6,0,1):0;VIEW.wallMix+=(target-VIEW.wallMix)*(1-Math.exp(-dt*9));if(VIEW.wallMix<.005)return;
+ const supported=car.ground||((car.wheelsOn||0)>0&&!(car.jl>0)&&viewUp.set(0,1,0).applyQuaternion(car.q).dot(car.n)>.4);const target=supported?cl((.8-Math.abs(car.n.y))/.6,0,1):0;VIEW.wallMix+=(target-VIEW.wallMix)*(1-Math.exp(-dt*9));if(VIEW.wallMix<.005)return;
  if(target>.01){wallTangent.crossVectors(Y3,car.n).normalize();wallCarRay.copy(cpos).sub(position);const along=wallCarRay.dot(wallTangent);if(Math.abs(along)>1.2)VIEW.wallSide=Math.sign(along);}
  wallCameraPose(position,car.n,VIEW.wallSide,cameraSettings.distance,wallDesired,cameraSettings.height);desired.lerp(wallDesired,VIEW.wallMix);
 }

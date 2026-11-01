@@ -32,8 +32,9 @@ test('fidelity: falling velocity survives the first 0.15 seconds of a dodge, the
  const rising=air(car(),8);rising.c.v.y=20;rising.c.jp=1;let previous=0;for(let k=0;k<60;k++){ticks(rising,1,{yaw:1});if(k===25)previous=rising.c.v.y;if(k===26&&previous>0)near(rising.c.v.y,previous-6.5/120,.00001,'upward damping ends after 0.21 seconds');}
 });
 
-test('fidelity/stability: flips accelerate under torque and obey the same 5.5 rad/s limit as free aerials',()=>{
- const s=air(car());s.c.jp=1;ticks(s,1,{pitch:1});near(s.c.w.z,-224/120,.00001,'initial forward-flip torque response');for(let k=0;k<180;k++){ticks(s,1);assert.ok(s.c.w.length()<=5.500001);}
+test('regression/stability: deliberate flips finish their bounded cycle while ordinary aerials retain the independent control limit',()=>{
+ const s=air(car());s.c.jp=1;ticks(s,1,{pitch:1});s.c.inp.pitch=0;let maxRotation=0;for(let k=1;k<78;k++){ticks(s,1);maxRotation=Math.max(maxRotation,s.c.q.angleTo(new s.T.Quaternion()));assert.ok(s.c.w.length()<=10);}
+ assert.ok(maxRotation>3,'the flip actually rotates instead of merely returning a constant pose');assert.ok(new s.T.Vector3(0,1,0).applyQuaternion(s.c.q).y>.98,'completed cycle restores the requested orientation');assert.ok(s.c.w.length()<.6,'bounded actuator exit does not retain unwanted spin');for(let k=0;k<120;k++){ticks(s,1);assert.ok(s.c.w.length()<=5.500001);}
  const f=air(car());ticks(f,1,{pitch:.4,yaw:.5,roll:.7});const scale=2*Math.PI*1000/65536;near(f.c.w.x,.7*400*scale/120,1e-10);near(f.c.w.y,-.5*95*scale/120,1e-10);near(f.c.w.z,-.4*130*scale/120,1e-10);
 });
 
@@ -42,8 +43,8 @@ test('integration: flip cancellation removes pitch torque without creating anoth
  const plain=run(false),cancel=run(true);assert.ok(Math.abs(cancel.s.c.w.z)<Math.abs(plain.s.c.w.z)*.7);near(cancel.s.c.v.x,cancel.before.x,1e-10);near(cancel.s.c.v.z,cancel.before.z,1e-10);near(cancel.s.c.v.x,plain.s.c.v.x,1e-10);
 });
 
-test('fidelity: handbrake grip state ramps in 0.2 seconds and recovers in 0.5 seconds',()=>{
- const s=car();ticks(s,12,{ps:1});near(s.c.handbrake,.5,1e-10);ticks(s,12);near(s.c.handbrake,1,1e-10);ticks(s,30,{ps:0});near(s.c.handbrake,.5,1e-10);ticks(s,30);near(s.c.handbrake,0,1e-10);
+test('regression: powerslide activation is gradual and release recovers tyre force without instantly canceling slip',()=>{
+ const s=car();ticks(s,12,{ps:1});near(s.c.handbrake,.5,1e-10);ticks(s,12);near(s.c.handbrake,1,1e-10);s.c.v.set(10,0,6);ticks(s,1,{ps:0});assert.ok(s.c.v.z>5.8);assert.ok(s.c.grip/180<12);ticks(s,29);assert.ok(Math.abs(s.c.v.z)<.75);assert.ok(s.c.grip/180>30);ticks(s,90);assert.ok(Math.abs(s.c.v.z)<.1);assert.ok(s.c.grip/180>42);
 });
 
 test('correctness: a neutral roof remains a recovery opportunity; an explicit roof jump self-rights',()=>{
@@ -60,5 +61,5 @@ test('integration: an ordinary near-floor dodge can produce a wavedash contact r
 });
 
 test('regression/stability: combined slide/boost and aerial inputs are deterministic across display groupings',()=>{
- const result=[];for(const fps of [30,60,120]){const s=car();let tick=0;for(let frame=0;frame<fps*2;frame++)for(let k=0;k<120/fps;k++,tick++){if(tick===126)s.c.jp=1;Object.assign(s.c.inp,tick<60?{thr:1,pitch:0,steer:0,yaw:0,roll:0,ps:0,boost:0}:tick<120?{thr:1,pitch:0,steer:1,yaw:0,roll:0,ps:1,boost:0}:{thr:1,pitch:.3,steer:0,yaw:.3,roll:0,ps:0,boost:1});s.c.jh=tick>=126&&tick<145?1:0;ticks(s,1);assert.ok(s.a.carPenetration(s.c)<.02);assert.ok(s.c.w.length()<=5.500001);}result.push(pose(s.c));}assert.equal(JSON.stringify(result[0]),JSON.stringify(result[1]));assert.equal(JSON.stringify(result[1]),JSON.stringify(result[2]));
+ const result=[];for(const fps of [30,60,120]){const s=car();let tick=0;for(let frame=0;frame<fps*2;frame++)for(let k=0;k<120/fps;k++,tick++){if(tick===126)s.c.jp=1;Object.assign(s.c.inp,tick<60?{thr:1,pitch:0,steer:0,yaw:0,roll:0,ps:0,boost:0}:tick<120?{thr:1,pitch:0,steer:1,yaw:0,roll:0,ps:1,boost:0}:{thr:1,pitch:.3,steer:0,yaw:.3,roll:0,ps:0,boost:1});s.c.jh=tick>=126&&tick<145?1:0;ticks(s,1);assert.ok(s.a.carPenetration(s.c)<.02);assert.ok(s.c.w.length()<=(s.c.dT>1e-8?10:5.500001));}result.push(pose(s.c));}assert.equal(JSON.stringify(result[0]),JSON.stringify(result[1]));assert.equal(JSON.stringify(result[1]),JSON.stringify(result[2]));
 });

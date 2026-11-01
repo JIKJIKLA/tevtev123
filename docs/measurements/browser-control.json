@@ -1,0 +1,2163 @@
+{
+  "conditions": "Desktop Chromium156, WebGL2, Windows Ryzen75800X/RadeonRX6700XT,1280x720 drawing buffer/viewport, Chromebook preset. Developer buttons prepare starting poses; actual subsequent native keyboard input, simulation, collisions and cameras use production source. Traces are actual sampled native-input runs, not scripted successful trajectories. Touch counters persist across pose resets: only increments after the first recorded sample count as new touches. Unclassified-control coverage is a trace integrity check, not a proof of subjective feel.",
+  "limitations": [
+    "Initial-position buttons do not establish a normal-menu kickoff or an independently driven wall approach.",
+    "No physical Chromebook, phone/controller or independent multi-device testing is represented.",
+    "Short desktop clips do not certify every skill, input combination, recovery or proprietary-game fidelity.",
+    "Actual input transitions include tool/event scheduling gaps; planned key durations are descriptive, not a solver-time schedule.",
+    "Frame histories are retained in local raw evidence; fixed-workload renderer profiling is reported separately and no FPS/latency claim is inferred here."
+  ],
+  "records": [
+    {
+      "file": "grip-playtest-touch-turn-attempt1.json",
+      "sha256": "c65f7102ee42b356d104b313e9e5adc0fa8f785116ab17a2e6ea0e80cb85d677",
+      "family": "touch-turn",
+      "exploratoryAttempt": true,
+      "build": "10.5.0",
+      "scenario": "KICKOFF APPROACH",
+      "conditions": {
+        "buffer": [
+          1280,
+          720
+        ],
+        "viewport": [
+          1280,
+          720
+        ],
+        "quality": "Chromebook",
+        "simulationHz": 120,
+        "initialPose": {
+          "position": [
+            0,
+            0.17030399305555555,
+            -10
+          ],
+          "quaternion": [
+            0,
+            -0.7071067811865475,
+            0,
+            0.7071067811865476
+          ]
+        },
+        "nativeKeyPlan": [
+          "W1250ms",
+          "W+A100ms",
+          "W+D100ms",
+          "Shift+W1500ms",
+          "Escape pause"
+        ]
+      },
+      "ticks": 394,
+      "simulatedSeconds": 3.283333333,
+      "initialTouchCounter": 1,
+      "finalTouchCounter": 2,
+      "newTouches": 1,
+      "touchEvents": [
+        {
+          "tick": 179,
+          "seconds": 1.491666667,
+          "from": 1,
+          "to": 2,
+          "branch": "stable",
+          "wheels": 4,
+          "roofUp": 1,
+          "position": [
+            1.9008782770248874e-15,
+            0.1919332877822069,
+            -1.4392052999140508
+          ]
+        }
+      ],
+      "branches": {
+        "stable": 394
+      },
+      "wheelSamples": {
+        "4": 394
+      },
+      "unclassifiedControlTicks": 0,
+      "nonFiniteNumbers": 0,
+      "invalidRequiredNumericFields": 0,
+      "maxResidualPenetrationMetres": 0,
+      "maxLocalAngularRate": 0,
+      "maxPositionProjectionMetres": 0,
+      "maxHullImpulseNs": 0,
+      "maxRecoveryTorque": 0,
+      "final": {
+        "position": [
+          2.433254962654054,
+          0.19457916517650103,
+          29.78904310458397
+        ],
+        "velocity": [
+          1.6297825694013697,
+          1.4636278473922903e-8,
+          22.898323581410402
+        ],
+        "wheels": 4,
+        "branch": "stable",
+        "roofUp": 1
+      },
+      "inputEvents": [
+        {
+          "tick": 0,
+          "seconds": 0,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "stable"
+        },
+        {
+          "tick": 30,
+          "seconds": 0.25,
+          "input": {
+            "thr": 1,
+            "steer": 0,
+            "pitch": 1,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "stable"
+        },
+        {
+          "tick": 180,
+          "seconds": 1.5,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "stable"
+        },
+        {
+          "tick": 181,
+          "seconds": 1.508333333,
+          "input": {
+            "thr": 1,
+            "steer": -1,
+            "pitch": 1,
+            "yaw": -1,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": -0.4159345649370663,
+          "branch": "stable"
+        },
+        {
+          "tick": 194,
+          "seconds": 1.616666667,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": -1.9455078029334418,
+          "branch": "stable"
+        },
+        {
+          "tick": 195,
+          "seconds": 1.625,
+          "input": {
+            "thr": 1,
+            "steer": 1,
+            "pitch": 1,
+            "yaw": 1,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": -1.5295732379963756,
+          "branch": "stable"
+        },
+        {
+          "tick": 209,
+          "seconds": 1.741666667,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 1.9541732752482959,
+          "branch": "stable"
+        },
+        {
+          "tick": 210,
+          "seconds": 1.75,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 1,
+            "ps": 0
+          },
+          "yawRate": 1.5382387103112296,
+          "branch": "stable"
+        },
+        {
+          "tick": 211,
+          "seconds": 1.758333333,
+          "input": {
+            "thr": 1,
+            "steer": 0,
+            "pitch": 1,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 1,
+            "ps": 0
+          },
+          "yawRate": 1.1223041453741633,
+          "branch": "stable"
+        },
+        {
+          "tick": 393,
+          "seconds": 3.275,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "stable"
+        }
+      ],
+      "branchEvents": [
+        {
+          "tick": 0,
+          "seconds": 0,
+          "branch": "stable",
+          "wheels": 4,
+          "roofUp": 1,
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "jumpLock": 0,
+          "dodgeRemaining": 0
+        }
+      ],
+      "acceptance": {
+        "twoNewTouches": false,
+        "steeringBetweenNewTouches": false,
+        "finalSupported": true
+      },
+      "sequenceAccepted": false
+    },
+    {
+      "file": "grip-playtest-touch-turn.json",
+      "sha256": "e327addd53db1c4667cfedbb0f0e704b4400e789da77082af9a9f4511663e58d",
+      "family": "touch-turn",
+      "exploratoryAttempt": false,
+      "build": "10.5.0",
+      "scenario": "KICKOFF APPROACH",
+      "conditions": {
+        "buffer": [
+          1280,
+          720
+        ],
+        "viewport": [
+          1280,
+          720
+        ],
+        "quality": "Chromebook",
+        "simulationHz": 120,
+        "initialPose": {
+          "position": [
+            0,
+            0.17030399305555555,
+            -10
+          ],
+          "quaternion": [
+            0,
+            -0.7071067811865475,
+            0,
+            0.7071067811865476
+          ]
+        },
+        "nativeKeyPlan": [
+          "W1500ms",
+          "W+A40ms",
+          "W+D40ms",
+          "Shift+W1500ms",
+          "Escape pause"
+        ]
+      },
+      "ticks": 410,
+      "simulatedSeconds": 3.416666667,
+      "initialTouchCounter": 0,
+      "finalTouchCounter": 2,
+      "newTouches": 2,
+      "touchEvents": [
+        {
+          "tick": 179,
+          "seconds": 1.491666667,
+          "from": 0,
+          "to": 1,
+          "branch": "stable",
+          "wheels": 4,
+          "roofUp": 1,
+          "position": [
+            1.9008782770248874e-15,
+            0.1919332877822069,
+            -1.4392052999140508
+          ]
+        },
+        {
+          "tick": 338,
+          "seconds": 2.816666667,
+          "from": 1,
+          "to": 2,
+          "branch": "stable",
+          "wheels": 4,
+          "roofUp": 1,
+          "position": [
+            0.5688288655852963,
+            0.19350358546990726,
+            18.546457370334057
+          ]
+        }
+      ],
+      "branches": {
+        "stable": 410
+      },
+      "wheelSamples": {
+        "4": 410
+      },
+      "unclassifiedControlTicks": 0,
+      "nonFiniteNumbers": 0,
+      "invalidRequiredNumericFields": 0,
+      "maxResidualPenetrationMetres": 0,
+      "maxLocalAngularRate": 0,
+      "maxPositionProjectionMetres": 0,
+      "maxHullImpulseNs": 0,
+      "maxRecoveryTorque": 0,
+      "final": {
+        "position": [
+          0.7705715412346513,
+          0.1944758791697212,
+          31.88211977805175
+        ],
+        "velocity": [
+          0.34449041177671835,
+          0.0009662032323463076,
+          22.953665052601696
+        ],
+        "wheels": 4,
+        "branch": "stable",
+        "roofUp": 1
+      },
+      "inputEvents": [
+        {
+          "tick": 0,
+          "seconds": 0,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "stable"
+        },
+        {
+          "tick": 30,
+          "seconds": 0.25,
+          "input": {
+            "thr": 1,
+            "steer": 0,
+            "pitch": 1,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "stable"
+        },
+        {
+          "tick": 211,
+          "seconds": 1.758333333,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "stable"
+        },
+        {
+          "tick": 212,
+          "seconds": 1.766666667,
+          "input": {
+            "thr": 1,
+            "steer": -1,
+            "pitch": 1,
+            "yaw": -1,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": -0.4159345649370663,
+          "branch": "stable"
+        },
+        {
+          "tick": 217,
+          "seconds": 1.808333333,
+          "input": {
+            "thr": 1,
+            "steer": 0,
+            "pitch": 1,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": -1.6637382597482653,
+          "branch": "stable"
+        },
+        {
+          "tick": 219,
+          "seconds": 1.825,
+          "input": {
+            "thr": 1,
+            "steer": 1,
+            "pitch": 1,
+            "yaw": 1,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": -0.8318691298741328,
+          "branch": "stable"
+        },
+        {
+          "tick": 226,
+          "seconds": 1.883333333,
+          "input": {
+            "thr": 1,
+            "steer": 0,
+            "pitch": 1,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 1,
+            "ps": 0
+          },
+          "yawRate": 1.2478036948111988,
+          "branch": "stable"
+        },
+        {
+          "tick": 408,
+          "seconds": 3.4,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 1,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "stable"
+        },
+        {
+          "tick": 409,
+          "seconds": 3.408333333,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "stable"
+        }
+      ],
+      "branchEvents": [
+        {
+          "tick": 0,
+          "seconds": 0,
+          "branch": "stable",
+          "wheels": 4,
+          "roofUp": 1,
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "jumpLock": 0,
+          "dodgeRemaining": 0
+        }
+      ],
+      "acceptance": {
+        "twoNewTouches": true,
+        "steeringBetweenNewTouches": true,
+        "finalSupported": true
+      },
+      "sequenceAccepted": true
+    },
+    {
+      "file": "grip-playtest-slide-jump.json",
+      "sha256": "86e8ba7d3cb66ce921c37748b9c7574fa81c79cce5d79a9b09b687f9b4e3d222",
+      "family": "slide-jump",
+      "exploratoryAttempt": false,
+      "build": "10.5.0",
+      "scenario": "POWERSLIDE RUN",
+      "conditions": {
+        "buffer": [
+          1280,
+          720
+        ],
+        "viewport": [
+          1280,
+          720
+        ],
+        "quality": "Chromebook",
+        "simulationHz": 120,
+        "initialPose": {
+          "position": [
+            1.8422763314873693e-17,
+            0.17030399305555555,
+            -21.91703125
+          ],
+          "quaternion": [
+            0,
+            -0.7071067811865475,
+            0,
+            0.7071067811865476
+          ]
+        },
+        "nativeKeyPlan": [
+          "W+C+A350ms",
+          "W450ms",
+          "W+Space90ms",
+          "W1500ms",
+          "W+D450ms",
+          "Escape pause"
+        ]
+      },
+      "ticks": 382,
+      "simulatedSeconds": 3.183333333,
+      "initialTouchCounter": 2,
+      "finalTouchCounter": 2,
+      "newTouches": 0,
+      "touchEvents": [],
+      "branches": {
+        "stable": 203,
+        "air": 142,
+        "partial": 37
+      },
+      "wheelSamples": {
+        "0": 138,
+        "2": 38,
+        "4": 206
+      },
+      "unclassifiedControlTicks": 0,
+      "nonFiniteNumbers": 0,
+      "invalidRequiredNumericFields": 0,
+      "maxResidualPenetrationMetres": 0,
+      "maxLocalAngularRate": 5.5,
+      "maxPositionProjectionMetres": 0.012084060349203197,
+      "maxHullImpulseNs": 0,
+      "maxRecoveryTorque": 0,
+      "final": {
+        "position": [
+          24.75045243642228,
+          0.19454116442392252,
+          -0.635027446177413
+        ],
+        "velocity": [
+          1.4494742779751912,
+          0.0003012649595178704,
+          13.337144482138314
+        ],
+        "wheels": 4,
+        "branch": "stable",
+        "roofUp": 0.9999999999995862
+      },
+      "inputEvents": [
+        {
+          "tick": 0,
+          "seconds": 0,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "stable"
+        },
+        {
+          "tick": 29,
+          "seconds": 0.241666667,
+          "input": {
+            "thr": 1,
+            "steer": 0,
+            "pitch": 1,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 1
+          },
+          "yawRate": 0,
+          "branch": "stable"
+        },
+        {
+          "tick": 30,
+          "seconds": 0.25,
+          "input": {
+            "thr": 1,
+            "steer": -1,
+            "pitch": 1,
+            "yaw": -1,
+            "roll": 0,
+            "boost": 0,
+            "ps": 1
+          },
+          "yawRate": -0.4159345649370663,
+          "branch": "stable"
+        },
+        {
+          "tick": 73,
+          "seconds": 0.608333333,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": -2.835243524115893,
+          "branch": "stable"
+        },
+        {
+          "tick": 74,
+          "seconds": 0.616666667,
+          "input": {
+            "thr": 1,
+            "steer": 0,
+            "pitch": 1,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": -2.4193089591788266,
+          "branch": "stable"
+        },
+        {
+          "tick": 130,
+          "seconds": 1.083333333,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "stable"
+        },
+        {
+          "tick": 131,
+          "seconds": 1.091666667,
+          "input": {
+            "thr": 1,
+            "steer": 0,
+            "pitch": 1,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "air"
+        },
+        {
+          "tick": 325,
+          "seconds": 2.708333333,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "stable"
+        },
+        {
+          "tick": 326,
+          "seconds": 2.716666667,
+          "input": {
+            "thr": 1,
+            "steer": 1,
+            "pitch": 1,
+            "yaw": 1,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0.4159345649370663,
+          "branch": "stable"
+        }
+      ],
+      "branchEvents": [
+        {
+          "tick": 0,
+          "seconds": 0,
+          "branch": "stable",
+          "wheels": 4,
+          "roofUp": 1,
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "jumpLock": 0,
+          "dodgeRemaining": 0
+        },
+        {
+          "tick": 131,
+          "seconds": 1.091666667,
+          "branch": "air",
+          "wheels": 4,
+          "roofUp": 0.9999996254312229,
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "jumpLock": 0.12,
+          "dodgeRemaining": 0
+        },
+        {
+          "tick": 273,
+          "seconds": 2.275,
+          "branch": "partial",
+          "wheels": 2,
+          "roofUp": 0.6044803603859469,
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "jumpLock": 0,
+          "dodgeRemaining": 0
+        },
+        {
+          "tick": 310,
+          "seconds": 2.583333333,
+          "branch": "stable",
+          "wheels": 4,
+          "roofUp": 0.9921573518623825,
+          "normal": [
+            0,
+            0.9999999999999999,
+            0
+          ],
+          "jumpLock": 0,
+          "dodgeRemaining": 0
+        }
+      ],
+      "acceptance": {
+        "slideTick": 29,
+        "jumpTick": 131,
+        "supportedLandingTick": 310,
+        "steeringAfterLandingTick": 326,
+        "finalSupported": true
+      },
+      "sequenceAccepted": true
+    },
+    {
+      "file": "grip-playtest-wall-exit-attempt1.json",
+      "sha256": "08d672e8edf7e51db7b1b8677bb26b62401b8da82ef96c648f1909cd5607e74f",
+      "family": "wall-exit",
+      "exploratoryAttempt": true,
+      "build": "10.5.0",
+      "scenario": "WALL EXIT",
+      "conditions": {
+        "buffer": [
+          1280,
+          720
+        ],
+        "viewport": [
+          1280,
+          720
+        ],
+        "quality": "Chromebook",
+        "simulationHz": 120,
+        "initialPose": {
+          "position": [
+            40,
+            5.999548611111111,
+            0.08333333333333333
+          ],
+          "quaternion": [
+            0.5,
+            -0.5,
+            0.5,
+            0.5
+          ]
+        },
+        "nativeKeyPlan": [
+          "W450ms",
+          "Space110ms",
+          "Q450ms",
+          "Right900ms",
+          "W+A500ms",
+          "Escape pause"
+        ]
+      },
+      "ticks": 336,
+      "simulatedSeconds": 2.8,
+      "initialTouchCounter": 2,
+      "finalTouchCounter": 2,
+      "newTouches": 0,
+      "touchEvents": [],
+      "branches": {
+        "air": 107,
+        "hull": 52,
+        "partial": 59,
+        "stable": 118
+      },
+      "wheelSamples": {
+        "0": 159,
+        "1": 17,
+        "2": 42,
+        "3": 1,
+        "4": 117
+      },
+      "unclassifiedControlTicks": 0,
+      "nonFiniteNumbers": 0,
+      "invalidRequiredNumericFields": 0,
+      "maxResidualPenetrationMetres": 0.0004961730536082705,
+      "maxLocalAngularRate": 5.500000000000001,
+      "maxPositionProjectionMetres": 0.0056783547734365,
+      "maxHullImpulseNs": 214.16686148877685,
+      "maxRecoveryTorque": 0,
+      "final": {
+        "position": [
+          36.266093451121904,
+          0.20286064935697656,
+          18.971740903460645
+        ],
+        "velocity": [
+          -5.68837812837623,
+          -0.05962786406325555,
+          3.763181800508795
+        ],
+        "wheels": 4,
+        "branch": "stable",
+        "roofUp": 1
+      },
+      "inputEvents": [
+        {
+          "tick": 0,
+          "seconds": 0,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "air"
+        },
+        {
+          "tick": 34,
+          "seconds": 0.283333333,
+          "input": {
+            "thr": 1,
+            "steer": 0,
+            "pitch": 1,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "air"
+        },
+        {
+          "tick": 89,
+          "seconds": 0.741666667,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "air"
+        },
+        {
+          "tick": 106,
+          "seconds": 0.883333333,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": -1,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": -0.29556164040618793,
+          "branch": "air"
+        },
+        {
+          "tick": 161,
+          "seconds": 1.341666667,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": -2.6301809499972486,
+          "branch": "partial"
+        },
+        {
+          "tick": 162,
+          "seconds": 1.35,
+          "input": {
+            "thr": 0,
+            "steer": 1,
+            "pitch": 0,
+            "yaw": 1,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": -2.5489215575794684,
+          "branch": "partial"
+        },
+        {
+          "tick": 271,
+          "seconds": 2.258333333,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "stable"
+        },
+        {
+          "tick": 272,
+          "seconds": 2.266666667,
+          "input": {
+            "thr": 1,
+            "steer": 0,
+            "pitch": 1,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "stable"
+        },
+        {
+          "tick": 273,
+          "seconds": 2.275,
+          "input": {
+            "thr": 1,
+            "steer": -1,
+            "pitch": 1,
+            "yaw": -1,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": -0.11337494227652954,
+          "branch": "stable"
+        },
+        {
+          "tick": 335,
+          "seconds": 2.791666667,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": -1.8903073260312897,
+          "branch": "stable"
+        }
+      ],
+      "branchEvents": [
+        {
+          "tick": 0,
+          "seconds": 0,
+          "branch": "air",
+          "wheels": 0,
+          "roofUp": 0,
+          "normal": [
+            -1,
+            0,
+            0
+          ],
+          "jumpLock": 0,
+          "dodgeRemaining": 0
+        },
+        {
+          "tick": 107,
+          "seconds": 0.891666667,
+          "branch": "hull",
+          "wheels": 0,
+          "roofUp": 0.007879646888464098,
+          "normal": [
+            -0.9650650903981062,
+            0.2620102503622617,
+            0
+          ],
+          "jumpLock": 0,
+          "dodgeRemaining": 0
+        },
+        {
+          "tick": 159,
+          "seconds": 1.325,
+          "branch": "partial",
+          "wheels": 1,
+          "roofUp": 0.9078431000435597,
+          "normal": [
+            -0.5233249001595972,
+            0.8521332342262843,
+            0
+          ],
+          "jumpLock": 0,
+          "dodgeRemaining": 0
+        },
+        {
+          "tick": 218,
+          "seconds": 1.816666667,
+          "branch": "stable",
+          "wheels": 3,
+          "roofUp": 0.9492610011501986,
+          "normal": [
+            -0.12448069603893377,
+            0.9922220297461967,
+            0
+          ],
+          "jumpLock": 0,
+          "dodgeRemaining": 0
+        }
+      ],
+      "acceptance": {
+        "actualWallSupportTick": -1,
+        "airDepartureTick": -1,
+        "aerialAdjustmentTick": -1,
+        "fieldLandingTick": -1,
+        "finalSupported": true
+      },
+      "sequenceAccepted": false
+    },
+    {
+      "file": "grip-playtest-wall-exit.json",
+      "sha256": "3aaa255b3dd3c9313b13408e694137b3875d316674c4fc0a7a587443564b3ceb",
+      "family": "wall-exit",
+      "exploratoryAttempt": false,
+      "build": "10.5.0",
+      "scenario": "WALL EXIT",
+      "conditions": {
+        "buffer": [
+          1280,
+          720
+        ],
+        "viewport": [
+          1280,
+          720
+        ],
+        "quality": "Chromebook",
+        "simulationHz": 120,
+        "initialPose": {
+          "position": [
+            40.7749,
+            6,
+            0.08296875000000001
+          ],
+          "quaternion": [
+            0.5,
+            -0.5,
+            0.5,
+            0.5
+          ]
+        },
+        "nativeKeyPlan": [
+          "W450ms",
+          "Space110ms",
+          "Q450ms",
+          "Right900ms",
+          "W+A500ms",
+          "Escape pause"
+        ]
+      },
+      "ticks": 328,
+      "simulatedSeconds": 2.733333333,
+      "initialTouchCounter": 2,
+      "finalTouchCounter": 2,
+      "newTouches": 0,
+      "touchEvents": [],
+      "branches": {
+        "stable": 93,
+        "air": 154,
+        "hull": 11,
+        "partial": 70
+      },
+      "wheelSamples": {
+        "0": 160,
+        "1": 23,
+        "2": 48,
+        "3": 4,
+        "4": 93
+      },
+      "unclassifiedControlTicks": 0,
+      "nonFiniteNumbers": 0,
+      "invalidRequiredNumericFields": 0,
+      "maxResidualPenetrationMetres": 0.0004638178553957317,
+      "maxLocalAngularRate": 5.500000000000001,
+      "maxPositionProjectionMetres": 0.037544803460811946,
+      "maxHullImpulseNs": 1435.7366772744406,
+      "maxRecoveryTorque": 0,
+      "final": {
+        "position": [
+          33.51957916717584,
+          0.2374440402233055,
+          26.02348774160868
+        ],
+        "velocity": [
+          -0.01812370087397993,
+          -0.21833031297713987,
+          -0.8672690159966916
+        ],
+        "wheels": 4,
+        "branch": "stable",
+        "roofUp": 0.9994062087761576
+      },
+      "inputEvents": [
+        {
+          "tick": 0,
+          "seconds": 0,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "stable"
+        },
+        {
+          "tick": 28,
+          "seconds": 0.233333333,
+          "input": {
+            "thr": 1,
+            "steer": 0,
+            "pitch": 1,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "stable"
+        },
+        {
+          "tick": 83,
+          "seconds": 0.691666667,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "air"
+        },
+        {
+          "tick": 99,
+          "seconds": 0.825,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": -1,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "air"
+        },
+        {
+          "tick": 154,
+          "seconds": 1.283333333,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "air"
+        },
+        {
+          "tick": 155,
+          "seconds": 1.291666667,
+          "input": {
+            "thr": 0,
+            "steer": 1,
+            "pitch": 0,
+            "yaw": 1,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": -0.03550821214533334,
+          "branch": "air"
+        },
+        {
+          "tick": 264,
+          "seconds": 2.2,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "partial"
+        },
+        {
+          "tick": 265,
+          "seconds": 2.208333333,
+          "input": {
+            "thr": 1,
+            "steer": -1,
+            "pitch": 1,
+            "yaw": -1,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0.10398364123426651,
+          "branch": "partial"
+        },
+        {
+          "tick": 327,
+          "seconds": 2.725,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": -0.08949380990895067,
+          "branch": "stable"
+        }
+      ],
+      "branchEvents": [
+        {
+          "tick": 0,
+          "seconds": 0,
+          "branch": "stable",
+          "wheels": 4,
+          "roofUp": 0,
+          "normal": [
+            -1,
+            0,
+            0
+          ],
+          "jumpLock": 0,
+          "dodgeRemaining": 0
+        },
+        {
+          "tick": 83,
+          "seconds": 0.691666667,
+          "branch": "air",
+          "wheels": 4,
+          "roofUp": 0,
+          "normal": [
+            -1,
+            0,
+            0
+          ],
+          "jumpLock": 0.12,
+          "dodgeRemaining": 0
+        },
+        {
+          "tick": 237,
+          "seconds": 1.975,
+          "branch": "hull",
+          "wheels": 0,
+          "roofUp": 0.15477549699488125,
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "jumpLock": 0,
+          "dodgeRemaining": 0
+        },
+        {
+          "tick": 248,
+          "seconds": 2.066666667,
+          "branch": "partial",
+          "wheels": 1,
+          "roofUp": 0.4955632438817773,
+          "normal": [
+            0,
+            0.9999999999999999,
+            0
+          ],
+          "jumpLock": 0,
+          "dodgeRemaining": 0
+        },
+        {
+          "tick": 318,
+          "seconds": 2.65,
+          "branch": "stable",
+          "wheels": 3,
+          "roofUp": 0.9880966553585777,
+          "normal": [
+            0,
+            0.9999999999999999,
+            0
+          ],
+          "jumpLock": 0,
+          "dodgeRemaining": 0
+        }
+      ],
+      "acceptance": {
+        "actualWallSupportTick": 0,
+        "airDepartureTick": 83,
+        "aerialAdjustmentTick": 99,
+        "fieldLandingTick": 318,
+        "finalSupported": true
+      },
+      "sequenceAccepted": true
+    },
+    {
+      "file": "grip-playtest-dodge-challenge-attempt1.json",
+      "sha256": "bd0fc10cb7c58166e56dc319f2db2dd7f21d31a533657d1ca49af2f4065068a0",
+      "family": "dodge-challenge",
+      "exploratoryAttempt": true,
+      "build": "10.5.0",
+      "scenario": "DODGE CHALLENGE",
+      "conditions": {
+        "buffer": [
+          1280,
+          720
+        ],
+        "viewport": [
+          1280,
+          720
+        ],
+        "quality": "Chromebook",
+        "simulationHz": 120,
+        "initialPose": {
+          "position": [
+            1.8422763314873693e-17,
+            0.17030399305555555,
+            -15.91703125
+          ],
+          "quaternion": [
+            0,
+            -0.7071067811865475,
+            0,
+            0.7071067811865476
+          ]
+        },
+        "nativeKeyPlan": [
+          "Space90ms",
+          "W110ms",
+          "W+Space70ms",
+          "W1500ms",
+          "Shift+W700ms",
+          "W+A300ms",
+          "Escape pause"
+        ]
+      },
+      "ticks": 372,
+      "simulatedSeconds": 3.1,
+      "initialTouchCounter": 2,
+      "finalTouchCounter": 5,
+      "newTouches": 3,
+      "touchEvents": [
+        {
+          "tick": 130,
+          "seconds": 1.083333333,
+          "from": 2,
+          "to": 3,
+          "branch": "dodge",
+          "wheels": 0,
+          "roofUp": 0.9613582550834531,
+          "position": [
+            2.2434860377882498e-15,
+            1.2720361411770578,
+            -3.198236759435206
+          ]
+        },
+        {
+          "tick": 155,
+          "seconds": 1.291666667,
+          "from": 3,
+          "to": 4,
+          "branch": "air",
+          "wheels": 0,
+          "roofUp": 0.9969522350113635,
+          "position": [
+            2.5156138335803556e-15,
+            1.378512557455333,
+            -0.5973607552721418
+          ]
+        },
+        {
+          "tick": 299,
+          "seconds": 2.491666667,
+          "from": 4,
+          "to": 5,
+          "branch": "partial",
+          "wheels": 2,
+          "roofUp": 0.96170667217476,
+          "position": [
+            -9.56653897963918e-13,
+            0.3128783243466922,
+            14.083941085945533
+          ]
+        }
+      ],
+      "branches": {
+        "stable": 88,
+        "air": 97,
+        "dodge": 78,
+        "hull": 43,
+        "partial": 66
+      },
+      "wheelSamples": {
+        "0": 214,
+        "2": 66,
+        "4": 92
+      },
+      "unclassifiedControlTicks": 0,
+      "nonFiniteNumbers": 0,
+      "invalidRequiredNumericFields": 0,
+      "maxResidualPenetrationMetres": 0.00032908517921714526,
+      "maxLocalAngularRate": 9.66643893412244,
+      "maxPositionProjectionMetres": 0.016813768075405373,
+      "maxHullImpulseNs": 512.038721669495,
+      "maxRecoveryTorque": 8,
+      "final": {
+        "position": [
+          1.4279553155627809,
+          0.19639634458924976,
+          23.604424587209692
+        ],
+        "velocity": [
+          9.185981270333134,
+          -0.017758900853521196,
+          14.16610381576115
+        ],
+        "wheels": 4,
+        "branch": "stable",
+        "roofUp": 0.9999999999678812
+      },
+      "inputEvents": [
+        {
+          "tick": 0,
+          "seconds": 0,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "stable"
+        },
+        {
+          "tick": 42,
+          "seconds": 0.35,
+          "input": {
+            "thr": 1,
+            "steer": 0,
+            "pitch": 1,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "air"
+        },
+        {
+          "tick": 56,
+          "seconds": 0.466666667,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": -1.3877787807814457e-17,
+          "branch": "air"
+        },
+        {
+          "tick": 57,
+          "seconds": 0.475,
+          "input": {
+            "thr": 1,
+            "steer": 0,
+            "pitch": 1,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": -2.220446049250313e-16,
+          "branch": "dodge"
+        },
+        {
+          "tick": 248,
+          "seconds": 2.066666667,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 1,
+            "ps": 0
+          },
+          "yawRate": 1.9770355379610615e-16,
+          "branch": "partial"
+        },
+        {
+          "tick": 249,
+          "seconds": 2.075,
+          "input": {
+            "thr": 1,
+            "steer": 0,
+            "pitch": 1,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 1,
+            "ps": 0
+          },
+          "yawRate": 3.2695255028550277e-16,
+          "branch": "partial"
+        },
+        {
+          "tick": 334,
+          "seconds": 2.783333333,
+          "input": {
+            "thr": 1,
+            "steer": -1,
+            "pitch": 1,
+            "yaw": -1,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": -0.4159345649370663,
+          "branch": "stable"
+        },
+        {
+          "tick": 371,
+          "seconds": 3.091666667,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": -1.5525326321160589,
+          "branch": "stable"
+        }
+      ],
+      "branchEvents": [
+        {
+          "tick": 0,
+          "seconds": 0,
+          "branch": "stable",
+          "wheels": 4,
+          "roofUp": 1,
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "jumpLock": 0,
+          "dodgeRemaining": 0
+        },
+        {
+          "tick": 29,
+          "seconds": 0.241666667,
+          "branch": "air",
+          "wheels": 4,
+          "roofUp": 1,
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "jumpLock": 0.12,
+          "dodgeRemaining": 0
+        },
+        {
+          "tick": 57,
+          "seconds": 0.475,
+          "branch": "dodge",
+          "wheels": 0,
+          "roofUp": 0.9832546512307736,
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "jumpLock": 0,
+          "dodgeRemaining": 0.6416666666666667
+        },
+        {
+          "tick": 135,
+          "seconds": 1.125,
+          "branch": "air",
+          "wheels": 0,
+          "roofUp": 0.9632842051039626,
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "jumpLock": 0,
+          "dodgeRemaining": 0
+        },
+        {
+          "tick": 204,
+          "seconds": 1.7,
+          "branch": "hull",
+          "wheels": 0,
+          "roofUp": -0.11400289552220544,
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "jumpLock": 0,
+          "dodgeRemaining": 0
+        },
+        {
+          "tick": 247,
+          "seconds": 2.058333333,
+          "branch": "partial",
+          "wheels": 2,
+          "roofUp": 0.5479616411203894,
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "jumpLock": 0,
+          "dodgeRemaining": 0
+        },
+        {
+          "tick": 313,
+          "seconds": 2.608333333,
+          "branch": "stable",
+          "wheels": 4,
+          "roofUp": 0.9920108927773708,
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "jumpLock": 0,
+          "dodgeRemaining": 0
+        }
+      ],
+      "acceptance": {
+        "lastDodgeTick": 134,
+        "supportedRecoveryTick": 313,
+        "challengeAfterRecovery": null,
+        "finalSupported": true
+      },
+      "sequenceAccepted": false
+    },
+    {
+      "file": "grip-playtest-dodge-challenge.json",
+      "sha256": "8ff826d1a95557ad755d1a117ec8cfd4707fe69231de998f081a239c48509a38",
+      "family": "dodge-challenge",
+      "exploratoryAttempt": false,
+      "build": "10.5.0",
+      "scenario": "DODGE CHALLENGE",
+      "conditions": {
+        "buffer": [
+          1280,
+          720
+        ],
+        "viewport": [
+          1280,
+          720
+        ],
+        "quality": "Chromebook",
+        "simulationHz": 120,
+        "initialPose": {
+          "position": [
+            1.8422763314873693e-17,
+            0.17030399305555555,
+            -15.91703125
+          ],
+          "quaternion": [
+            0,
+            -0.7071067811865475,
+            0,
+            0.7071067811865476
+          ]
+        },
+        "nativeKeyPlan": [
+          "Space90ms",
+          "W110ms",
+          "W+Space70ms",
+          "W1500ms",
+          "Shift+W800ms",
+          "W+A200ms",
+          "Escape pause"
+        ]
+      },
+      "ticks": 376,
+      "simulatedSeconds": 3.133333333,
+      "initialTouchCounter": 2,
+      "finalTouchCounter": 3,
+      "newTouches": 1,
+      "touchEvents": [
+        {
+          "tick": 319,
+          "seconds": 2.658333333,
+          "from": 2,
+          "to": 3,
+          "branch": "stable",
+          "wheels": 4,
+          "roofUp": 0.9999960315367933,
+          "position": [
+            1.5479139868416778e-14,
+            0.20756267377731025,
+            18.651064040353702
+          ]
+        }
+      ],
+      "branches": {
+        "stable": 109,
+        "air": 76,
+        "dodge": 78,
+        "hull": 37,
+        "partial": 76
+      },
+      "wheelSamples": {
+        "0": 187,
+        "2": 76,
+        "4": 113
+      },
+      "unclassifiedControlTicks": 0,
+      "nonFiniteNumbers": 0,
+      "invalidRequiredNumericFields": 0,
+      "maxResidualPenetrationMetres": 0.0003961079538700148,
+      "maxLocalAngularRate": 9.66643893412244,
+      "maxPositionProjectionMetres": 0.017151451881274576,
+      "maxHullImpulseNs": 573.8780094193198,
+      "maxRecoveryTorque": 8,
+      "final": {
+        "position": [
+          0.7372948905730634,
+          0.19368285668647633,
+          26.7810995001718
+        ],
+        "velocity": [
+          6.908886096462368,
+          0.00843693567507732,
+          16.70996491335924
+        ],
+        "wheels": 4,
+        "branch": "stable",
+        "roofUp": 0.9999999999999689
+      },
+      "inputEvents": [
+        {
+          "tick": 0,
+          "seconds": 0,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "stable"
+        },
+        {
+          "tick": 42,
+          "seconds": 0.35,
+          "input": {
+            "thr": 1,
+            "steer": 0,
+            "pitch": 1,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "air"
+        },
+        {
+          "tick": 56,
+          "seconds": 0.466666667,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": -1.3877787807814457e-17,
+          "branch": "air"
+        },
+        {
+          "tick": 57,
+          "seconds": 0.475,
+          "input": {
+            "thr": 1,
+            "steer": 0,
+            "pitch": 1,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "air"
+        },
+        {
+          "tick": 68,
+          "seconds": 0.566666667,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": -8.881784197001252e-16,
+          "branch": "dodge"
+        },
+        {
+          "tick": 69,
+          "seconds": 0.575,
+          "input": {
+            "thr": 1,
+            "steer": 0,
+            "pitch": 1,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": -8.881784197001252e-16,
+          "branch": "dodge"
+        },
+        {
+          "tick": 250,
+          "seconds": 2.083333333,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": -5.3141511937100786e-17,
+          "branch": "partial"
+        },
+        {
+          "tick": 251,
+          "seconds": 2.091666667,
+          "input": {
+            "thr": 1,
+            "steer": 0,
+            "pitch": 1,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 1,
+            "ps": 0
+          },
+          "yawRate": 1.3276939496065341e-16,
+          "branch": "partial"
+        },
+        {
+          "tick": 348,
+          "seconds": 2.9,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": 0,
+          "branch": "stable"
+        },
+        {
+          "tick": 349,
+          "seconds": 2.908333333,
+          "input": {
+            "thr": 1,
+            "steer": -1,
+            "pitch": 1,
+            "yaw": -1,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": -0.4159345649370663,
+          "branch": "stable"
+        },
+        {
+          "tick": 375,
+          "seconds": 3.125,
+          "input": {
+            "thr": 0,
+            "steer": 0,
+            "pitch": 0,
+            "yaw": 0,
+            "roll": 0,
+            "boost": 0,
+            "ps": 0
+          },
+          "yawRate": -1.5326098022591088,
+          "branch": "stable"
+        }
+      ],
+      "branchEvents": [
+        {
+          "tick": 0,
+          "seconds": 0,
+          "branch": "stable",
+          "wheels": 4,
+          "roofUp": 1,
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "jumpLock": 0,
+          "dodgeRemaining": 0
+        },
+        {
+          "tick": 29,
+          "seconds": 0.241666667,
+          "branch": "air",
+          "wheels": 4,
+          "roofUp": 1,
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "jumpLock": 0.12,
+          "dodgeRemaining": 0
+        },
+        {
+          "tick": 58,
+          "seconds": 0.483333333,
+          "branch": "dodge",
+          "wheels": 0,
+          "roofUp": 0.9808624762769955,
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "jumpLock": 0,
+          "dodgeRemaining": 0.6416666666666667
+        },
+        {
+          "tick": 136,
+          "seconds": 1.133333333,
+          "branch": "air",
+          "wheels": 0,
+          "roofUp": 0.9927735168483015,
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "jumpLock": 0,
+          "dodgeRemaining": 0
+        },
+        {
+          "tick": 183,
+          "seconds": 1.525,
+          "branch": "hull",
+          "wheels": 0,
+          "roofUp": 0.243666662285826,
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "jumpLock": 0,
+          "dodgeRemaining": 0
+        },
+        {
+          "tick": 220,
+          "seconds": 1.833333333,
+          "branch": "partial",
+          "wheels": 2,
+          "roofUp": 0.5547520920775171,
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "jumpLock": 0,
+          "dodgeRemaining": 0
+        },
+        {
+          "tick": 296,
+          "seconds": 2.466666667,
+          "branch": "stable",
+          "wheels": 4,
+          "roofUp": 0.9915363689619432,
+          "normal": [
+            0,
+            1,
+            0
+          ],
+          "jumpLock": 0,
+          "dodgeRemaining": 0
+        }
+      ],
+      "acceptance": {
+        "lastDodgeTick": 135,
+        "supportedRecoveryTick": 296,
+        "challengeAfterRecovery": {
+          "tick": 319,
+          "seconds": 2.658333333,
+          "from": 2,
+          "to": 3,
+          "branch": "stable",
+          "wheels": 4,
+          "roofUp": 0.9999960315367933,
+          "position": [
+            1.5479139868416778e-14,
+            0.20756267377731025,
+            18.651064040353702
+          ]
+        },
+        "finalSupported": true
+      },
+      "sequenceAccepted": true
+    }
+  ]
+}

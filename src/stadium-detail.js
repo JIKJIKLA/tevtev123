@@ -34,7 +34,7 @@ function stadiumConcourseMaterial(){
  const map=tex(c);map.wrapS=THREE.RepeatWrapping;return new THREE.MeshStandardMaterial({map,roughness:.96,metalness:0,envMapIntensity:.12,side:THREE.DoubleSide});
 }
 function refineStadiumStructure(stadium){
- const display=stadiumDisplayMaterial(),concourse=stadiumConcourseMaterial(),structure=arenaPanelMaterial(0x9ca196),dark=new THREE.MeshStandardMaterial({color:0x2d3433,roughness:.94,metalness:.08,envMapIntensity:.16}),light=new THREE.MeshBasicMaterial({color:0xeac18d,toneMapped:false});
+ const display=stadiumDisplayMaterial(),concourse=stadiumConcourseMaterial(),structure=arenaPanelMaterial(0x9ca196),dark=new THREE.MeshStandardMaterial({color:0x405059,roughness:.94,metalness:.04,envMapIntensity:.22}),light=new THREE.MeshBasicMaterial({color:0xeac18d,toneMapped:false});
  // The ribbons face outward; their field-facing reveal must also be visible.
  structure.side=dark.side=THREE.DoubleSide;
  const box=(x,y,z,w,h,d,mat)=>{const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);mesh.position.set(x,y,z);stadium.add(mesh);return mesh;};

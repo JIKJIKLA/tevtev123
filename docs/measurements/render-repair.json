@@ -1,0 +1,729 @@
+{
+  "conditions": "two120Hz simulation steps per driving draw; held0.45s goal effect;20warm+60measured callbacks; not display FPS",
+  "hardware": {
+    "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+    "threads": 16,
+    "gpu": "ANGLE (AMD, AMD Radeon RX 6700 XT (0x000073DF) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+  },
+  "before": [
+    {
+      "build": "10.4.0",
+      "scenario": "normal",
+      "conditions": "two120Hz simulation steps per driving draw; held0.45s goal effect;20warm+60measured callbacks; not display FPS",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "hardwareConcurrency": 16,
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "dpr": 1,
+        "buffer": [
+          1280,
+          720
+        ]
+      },
+      "backend": "WebGL2",
+      "quality": "Chromebook",
+      "frames": 60,
+      "cpu": {
+        "p50": 1.7999999998137355,
+        "p95": 2.199999999953434
+      },
+      "frame": {
+        "p50": 4.199999999953434,
+        "p95": 9.300000000046566
+      },
+      "gpu": {
+        "samples": 57,
+        "p50": 1.16928,
+        "p95": 2.46788
+      },
+      "calls": 133,
+      "triangles": 2250372,
+      "info": {
+        "frame": 426,
+        "calls": 116,
+        "triangles": 2249378,
+        "points": 0,
+        "lines": 0
+      },
+      "gpuRenderer": "ANGLE (AMD, AMD Radeon RX 6700 XT (0x000073DF) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "build": "10.4.0",
+      "scenario": "traffic",
+      "conditions": "two120Hz simulation steps per driving draw; held0.45s goal effect;20warm+60measured callbacks; not display FPS",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "hardwareConcurrency": 16,
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "dpr": 1,
+        "buffer": [
+          1280,
+          720
+        ]
+      },
+      "backend": "WebGL2",
+      "quality": "Chromebook",
+      "frames": 60,
+      "cpu": {
+        "p50": 2.800000000046566,
+        "p95": 3.5
+      },
+      "frame": {
+        "p50": 5.399999999906868,
+        "p95": 9.699999999953434
+      },
+      "gpu": {
+        "samples": 57,
+        "p50": 1.4023,
+        "p95": 4.5988
+      },
+      "calls": 244,
+      "triangles": 2676593,
+      "info": {
+        "frame": 426,
+        "calls": 197,
+        "triangles": 2591298,
+        "points": 0,
+        "lines": 0
+      },
+      "gpuRenderer": "ANGLE (AMD, AMD Radeon RX 6700 XT (0x000073DF) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "build": "10.4.0",
+      "scenario": "boost-contact",
+      "conditions": "two120Hz simulation steps per driving draw; held0.45s goal effect;20warm+60measured callbacks; not display FPS",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "hardwareConcurrency": 16,
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "dpr": 1,
+        "buffer": [
+          1280,
+          720
+        ]
+      },
+      "backend": "WebGL2",
+      "quality": "Chromebook",
+      "frames": 60,
+      "cpu": {
+        "p50": 2.6000000000931323,
+        "p95": 3.2000000001862645
+      },
+      "frame": {
+        "p50": 8.800000000046566,
+        "p95": 16.699999999953434
+      },
+      "gpu": {
+        "samples": 56,
+        "p50": 2.03419,
+        "p95": 7.42956
+      },
+      "calls": 204,
+      "triangles": 2632579,
+      "info": {
+        "frame": 424,
+        "calls": 260,
+        "triangles": 2751291,
+        "points": 0,
+        "lines": 0
+      },
+      "gpuRenderer": "ANGLE (AMD, AMD Radeon RX 6700 XT (0x000073DF) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "build": "10.4.0",
+      "scenario": "goal",
+      "conditions": "two120Hz simulation steps per driving draw; held0.45s goal effect;20warm+60measured callbacks; not display FPS",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "hardwareConcurrency": 16,
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "dpr": 1,
+        "buffer": [
+          1280,
+          720
+        ]
+      },
+      "backend": "WebGL2",
+      "quality": "Chromebook",
+      "frames": 60,
+      "cpu": {
+        "p50": 1.6000000000931323,
+        "p95": 2.0999999998603016
+      },
+      "frame": {
+        "p50": 4.199999999953434,
+        "p95": 4.300000000046566
+      },
+      "gpu": {
+        "samples": 57,
+        "p50": 1.14956,
+        "p95": 1.36369
+      },
+      "calls": 121,
+      "triangles": 2250528,
+      "info": {
+        "frame": 427,
+        "calls": 121,
+        "triangles": 2250528,
+        "points": 0,
+        "lines": 0
+      },
+      "gpuRenderer": "ANGLE (AMD, AMD Radeon RX 6700 XT (0x000073DF) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "build": "10.4.0",
+      "scenario": "wall",
+      "conditions": "two120Hz simulation steps per driving draw; held0.45s goal effect;20warm+60measured callbacks; not display FPS",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "hardwareConcurrency": 16,
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "dpr": 1,
+        "buffer": [
+          1280,
+          720
+        ]
+      },
+      "backend": "WebGL2",
+      "quality": "Chromebook",
+      "frames": 60,
+      "cpu": {
+        "p50": 1.7999999998137355,
+        "p95": 2.400000000372529
+      },
+      "frame": {
+        "p50": 4.2999999998137355,
+        "p95": 9.700000000186265
+      },
+      "gpu": {
+        "samples": 56,
+        "p50": 1.01453,
+        "p95": 3.44279
+      },
+      "calls": 115,
+      "triangles": 2249376,
+      "info": {
+        "frame": 411,
+        "calls": 113,
+        "triangles": 2249426,
+        "points": 0,
+        "lines": 0
+      },
+      "gpuRenderer": "ANGLE (AMD, AMD Radeon RX 6700 XT (0x000073DF) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "build": "10.4.0",
+      "scenario": "corner",
+      "conditions": "two120Hz simulation steps per driving draw; held0.45s goal effect;20warm+60measured callbacks; not display FPS",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "hardwareConcurrency": 16,
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "dpr": 1,
+        "buffer": [
+          1280,
+          720
+        ]
+      },
+      "backend": "WebGL2",
+      "quality": "Chromebook",
+      "frames": 60,
+      "cpu": {
+        "p50": 2.0999999998603016,
+        "p95": 3.4000000001396984
+      },
+      "frame": {
+        "p50": 4.300000000046566,
+        "p95": 10
+      },
+      "gpu": {
+        "samples": 57,
+        "p50": 0.7876,
+        "p95": 3.29734
+      },
+      "calls": 147,
+      "triangles": 2251248,
+      "info": {
+        "frame": 414,
+        "calls": 142,
+        "triangles": 2251152,
+        "points": 0,
+        "lines": 0
+      },
+      "gpuRenderer": "ANGLE (AMD, AMD Radeon RX 6700 XT (0x000073DF) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    }
+  ],
+  "after": [
+    {
+      "build": "10.5.0",
+      "scenario": "normal",
+      "conditions": "two120Hz simulation steps per driving draw; held0.45s goal effect;20warm+60measured callbacks; not display FPS",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "hardwareConcurrency": 16,
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "dpr": 1,
+        "buffer": [
+          1280,
+          720
+        ]
+      },
+      "backend": "WebGL2",
+      "quality": "Chromebook",
+      "frames": 60,
+      "cpu": {
+        "p50": 1.8999999999068677,
+        "p95": 2.7999999998137355
+      },
+      "frame": {
+        "p50": 4.300000000279397,
+        "p95": 10.200000000186265
+      },
+      "gpu": {
+        "samples": 56,
+        "p50": 1.20091,
+        "p95": 5.09438
+      },
+      "calls": 133,
+      "triangles": 2250372,
+      "info": {
+        "frame": 410,
+        "calls": 116,
+        "triangles": 2249378,
+        "points": 0,
+        "lines": 0
+      },
+      "gpuRenderer": "ANGLE (AMD, AMD Radeon RX 6700 XT (0x000073DF) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "build": "10.5.0",
+      "scenario": "traffic",
+      "conditions": "two120Hz simulation steps per driving draw; held0.45s goal effect;20warm+60measured callbacks; not display FPS",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "hardwareConcurrency": 16,
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "dpr": 1,
+        "buffer": [
+          1280,
+          720
+        ]
+      },
+      "backend": "WebGL2",
+      "quality": "Chromebook",
+      "frames": 60,
+      "cpu": {
+        "p50": 2.7000000001862645,
+        "p95": 4.099999999627471
+      },
+      "frame": {
+        "p50": 5.2000000001862645,
+        "p95": 8.200000000186265
+      },
+      "gpu": {
+        "samples": 57,
+        "p50": 1.3624,
+        "p95": 3.28092
+      },
+      "calls": 244,
+      "triangles": 2676593,
+      "info": {
+        "frame": 427,
+        "calls": 197,
+        "triangles": 2591298,
+        "points": 0,
+        "lines": 0
+      },
+      "gpuRenderer": "ANGLE (AMD, AMD Radeon RX 6700 XT (0x000073DF) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "build": "10.5.0",
+      "scenario": "boost-contact",
+      "conditions": "two120Hz simulation steps per driving draw; held0.45s goal effect;20warm+60measured callbacks; not display FPS",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "hardwareConcurrency": 16,
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "dpr": 1,
+        "buffer": [
+          1280,
+          720
+        ]
+      },
+      "backend": "WebGL2",
+      "quality": "Chromebook",
+      "frames": 60,
+      "cpu": {
+        "p50": 2.7999999998137355,
+        "p95": 3.3999999999068677
+      },
+      "frame": {
+        "p50": 9.300000000279397,
+        "p95": 16.200000000186265
+      },
+      "gpu": {
+        "samples": 57,
+        "p50": 1.89103,
+        "p95": 7.93068
+      },
+      "calls": 204,
+      "triangles": 2632579,
+      "info": {
+        "frame": 429,
+        "calls": 260,
+        "triangles": 2751291,
+        "points": 0,
+        "lines": 0
+      },
+      "gpuRenderer": "ANGLE (AMD, AMD Radeon RX 6700 XT (0x000073DF) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "build": "10.5.0",
+      "scenario": "goal",
+      "conditions": "two120Hz simulation steps per driving draw; held0.45s goal effect;20warm+60measured callbacks; not display FPS",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "hardwareConcurrency": 16,
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "dpr": 1,
+        "buffer": [
+          1280,
+          720
+        ]
+      },
+      "backend": "WebGL2",
+      "quality": "Chromebook",
+      "frames": 60,
+      "cpu": {
+        "p50": 1.6000000000931323,
+        "p95": 1.900000000372529
+      },
+      "frame": {
+        "p50": 4.199999999720603,
+        "p95": 5.800000000279397
+      },
+      "gpu": {
+        "samples": 57,
+        "p50": 1.13432,
+        "p95": 2.07395
+      },
+      "calls": 121,
+      "triangles": 2250528,
+      "info": {
+        "frame": 417,
+        "calls": 121,
+        "triangles": 2250528,
+        "points": 0,
+        "lines": 0
+      },
+      "gpuRenderer": "ANGLE (AMD, AMD Radeon RX 6700 XT (0x000073DF) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "build": "10.5.0",
+      "scenario": "wall",
+      "conditions": "two120Hz simulation steps per driving draw; held0.45s goal effect;20warm+60measured callbacks; not display FPS",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "hardwareConcurrency": 16,
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "dpr": 1,
+        "buffer": [
+          1280,
+          720
+        ]
+      },
+      "backend": "WebGL2",
+      "quality": "Chromebook",
+      "frames": 60,
+      "cpu": {
+        "p50": 1.7999999998137355,
+        "p95": 2.5
+      },
+      "frame": {
+        "p50": 4.199999999720603,
+        "p95": 10
+      },
+      "gpu": {
+        "samples": 57,
+        "p50": 0.87034,
+        "p95": 2.7198
+      },
+      "calls": 115,
+      "triangles": 2249376,
+      "info": {
+        "frame": 424,
+        "calls": 113,
+        "triangles": 2249426,
+        "points": 0,
+        "lines": 0
+      },
+      "gpuRenderer": "ANGLE (AMD, AMD Radeon RX 6700 XT (0x000073DF) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    {
+      "build": "10.5.0",
+      "scenario": "corner",
+      "conditions": "two120Hz simulation steps per driving draw; held0.45s goal effect;20warm+60measured callbacks; not display FPS",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "hardwareConcurrency": 16,
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "dpr": 1,
+        "buffer": [
+          1280,
+          720
+        ]
+      },
+      "backend": "WebGL2",
+      "quality": "Chromebook",
+      "frames": 60,
+      "cpu": {
+        "p50": 2.099999999627471,
+        "p95": 3
+      },
+      "frame": {
+        "p50": 4.300000000279397,
+        "p95": 9
+      },
+      "gpu": {
+        "samples": 57,
+        "p50": 0.84752,
+        "p95": 2.64956
+      },
+      "calls": 147,
+      "triangles": 2251248,
+      "info": {
+        "frame": 422,
+        "calls": 142,
+        "triangles": 2251152,
+        "points": 0,
+        "lines": 0
+      },
+      "gpuRenderer": "ANGLE (AMD, AMD Radeon RX 6700 XT (0x000073DF) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    }
+  ],
+  "visual": [
+    {
+      "view": "center",
+      "matching": true,
+      "fields": [
+        "camera",
+        "quaternion",
+        "fov",
+        "car",
+        "carQuaternion",
+        "ball",
+        "viewport",
+        "dpr",
+        "buffer",
+        "frames"
+      ],
+      "before": {
+        "build": "10.4.0",
+        "view": "center",
+        "quality": "Chromebook",
+        "camera": [
+          -0.4438772633257008,
+          1.1701,
+          -24.663263594741373
+        ],
+        "quaternion": [
+          -0.003127827622243746,
+          0.9958758287638708,
+          -0.037792798432872095,
+          -0.08242120336934775
+        ],
+        "fov": 77.55215512517766,
+        "car": [
+          0,
+          0.1701,
+          -22
+        ],
+        "carQuaternion": [
+          0,
+          -0.7071067811865475,
+          0,
+          0.7071067811865476
+        ],
+        "ball": [
+          2,
+          2.3,
+          -10
+        ],
+        "viewport": [
+          1280,
+          720
+        ],
+        "dpr": 1,
+        "buffer": [
+          1280,
+          720
+        ],
+        "frames": 120
+      },
+      "after": {
+        "build": "10.5.0",
+        "view": "center",
+        "quality": "Chromebook",
+        "camera": [
+          -0.4438772633257008,
+          1.1701,
+          -24.663263594741373
+        ],
+        "quaternion": [
+          -0.003127827622243746,
+          0.9958758287638708,
+          -0.037792798432872095,
+          -0.08242120336934775
+        ],
+        "fov": 77.55215512517766,
+        "car": [
+          0,
+          0.1701,
+          -22
+        ],
+        "carQuaternion": [
+          0,
+          -0.7071067811865475,
+          0,
+          0.7071067811865476
+        ],
+        "ball": [
+          2,
+          2.3,
+          -10
+        ],
+        "viewport": [
+          1280,
+          720
+        ],
+        "dpr": 1,
+        "buffer": [
+          1280,
+          720
+        ],
+        "frames": 120
+      }
+    },
+    {
+      "view": "garage",
+      "matching": true,
+      "fields": [
+        "camera",
+        "quaternion",
+        "fov",
+        "car",
+        "carQuaternion",
+        "ball",
+        "viewport",
+        "dpr",
+        "buffer",
+        "frames"
+      ],
+      "before": {
+        "build": "10.4.0",
+        "view": "garage",
+        "quality": "Chromebook",
+        "camera": [
+          1.938,
+          0.6659999999999999,
+          4.1575
+        ],
+        "quaternion": [
+          -0.05069441470820493,
+          0.41769732115601116,
+          0.023349447112160904,
+          0.9068703476991853
+        ],
+        "fov": 43,
+        "car": [
+          0,
+          0.1861,
+          2.5
+        ],
+        "carQuaternion": [
+          0,
+          0.07492970727274234,
+          0,
+          0.9971888181122075
+        ],
+        "ball": [
+          0,
+          54.5,
+          0
+        ],
+        "viewport": [
+          1280,
+          720
+        ],
+        "dpr": 1,
+        "buffer": [
+          1280,
+          720
+        ],
+        "frames": 120
+      },
+      "after": {
+        "build": "10.5.0",
+        "view": "garage",
+        "quality": "Chromebook",
+        "camera": [
+          1.938,
+          0.6659999999999999,
+          4.1575
+        ],
+        "quaternion": [
+          -0.05069441470820493,
+          0.41769732115601116,
+          0.023349447112160904,
+          0.9068703476991853
+        ],
+        "fov": 43,
+        "car": [
+          0,
+          0.1861,
+          2.5
+        ],
+        "carQuaternion": [
+          0,
+          0.07492970727274234,
+          0,
+          0.9971888181122075
+        ],
+        "ball": [
+          0,
+          54.5,
+          0
+        ],
+        "viewport": [
+          1280,
+          720
+        ],
+        "dpr": 1,
+        "buffer": [
+          1280,
+          720
+        ],
+        "frames": 120
+      }
+    }
+  ],
+  "limitations": [
+    "Short fixed-workload callbacks containing two120Hz simulation steps plus draw are not display FPS or input-latency measurements.",
+    "Camera paths diverge under repaired physics; paired workload is comparable rather than identical pixel workload.",
+    "Desktop Ryzen75800X/RX6700XT only; no physical Chromebook verification.",
+    "Small samples and other system activity make tail differences exploratory; no FPS improvement is claimed.",
+    "WebGL2 renderer profiled; WebGPU not certified in this run."
+  ]
+}

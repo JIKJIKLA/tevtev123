@@ -2,7 +2,7 @@
 try {
 
 
-/* Nivet League 10.4.0 — Control. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
+/* Nivet League 10.5.0 — Grip. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
 window.tevinBoot.stage='game script';
 
 const ENGINE=TevinEngine;
@@ -110,7 +110,7 @@ const PHYS={
 
  // https://wiki.rlbot.org/v4/botmaking/jumping-physics/
 
- jump:{jump:525.6,holdF:2628,holdT:.2,lock:.12,double:525.6,window:1.25,flip:900,flipRate:2*Math.PI/.65,flipT:.65,flipCool:.3,minHold:.025,stickyF:585,stickyT:.025,cancelRate:12,dodgeDeadzone:.5,forwardTorque:224,sideTorque:260,zDamp120:.35,zDampStart:.15,zDampEnd:.21,pitchLockExtra:.3},
+ jump:{jump:525.6,holdF:2628,holdT:.2,lock:.12,double:525.6,window:1.25,flip:900,flipRate:2*Math.PI/.65,flipT:.65,flipCool:.3,minHold:.025,stickyF:585,stickyT:.025,cancelRate:12,dodgeDeadzone:.5,forwardTorque:224,sideTorque:260,zDamp120:.35,zDampStart:.15,zDampEnd:.21,pitchLockExtra:0},
 
  air:{throttleF:120,reverseF:60,T:{roll:380,yaw:680,pitch:780},controlScale:2*Math.PI*1000/65536,wmax:5.5,damp:1.2,damp0:5},                            // control torques, max spin, damping (active / released)
 
@@ -179,7 +179,7 @@ function resolveArenaCar(c){
 
   if(pen>deepest+1e-6){deepest=pen;_n.copy(SN);vehicleContactPoint.copy(_p);count=1;bodyContact=k<CAR_HULL.length;}else if(pen>0&&Math.abs(pen-deepest)<1e-6&&SN.dot(_n)>.99){vehicleContactPoint.add(_p);count++;}
 
- }if(deepest<.0005)break;vehicleContactPoint.multiplyScalar(1/Math.max(1,count));c.p.addScaledVector(_n,deepest+.0002);const vn=c.v.dot(_n);if(bodyContact&&!c.wasG)vehicleHullContact(c,_n);else if(vn<0)c.v.addScaledVector(_n,-vn);if(vn<-5&&pass===0)impactSound('wall',-vn,c.p)}
+ }if(deepest<.0005)break;vehicleContactPoint.multiplyScalar(1/Math.max(1,count));c.p.addScaledVector(_n,deepest+.0002);const vn=c.v.dot(_n);if(bodyContact&&!c.wasG)vehicleHullContact(c,_n);else if(vn<0){c.v.addScaledVector(_n,-vn);if(window.__NIVET_CONTROL_TRACE__&&c.controlTrace)c.controlTrace.linearProjectionImpulse+=-vn*CM;}if(window.__NIVET_CONTROL_TRACE__&&c.controlTrace)c.controlTrace.positionProjection+=deepest+.0002;if(vn<-5&&pass===0)impactSound('wall',-vn,c.p)}
 
 }
 
@@ -209,15 +209,16 @@ function stepCar(c,dt){
  if(!c.enabled)return;if(tickDemolition(c,dt))return;c.ballHitCooldown=Math.max(0,(c.ballHitCooldown||0)-dt);secretCarStep(c,dt);if(cfg.unlimited)c.boost=100;
 
  const i=c.inp,q=c.q,P=PHYS,Gd=P.ground,B=P.boost,J=P.jump,A=P.air,CI=bodyPhysics(c).inertia;
- c.handbrake=cl((c.handbrake||0)+(i.ps?5:-2)*dt,0,1);
+ const wasStable=!!c.ground;vehicleNormalBefore.copy(c.n);vehicleTraceBegin(c,dt);let controlBranch='air';
+ c.handbrake=i.ps?Math.min(1,(c.handbrake||0)+5*dt):(c.handbrake||0)*Math.exp(-Gd.gripRelease*dt);if(c.handbrake<1e-5)c.handbrake=0;
 
  c.prevP.copy(c.p);c.renderP.copy(c.p);c.prevQ.copy(q);c.jAge+=dt;
 
  c.jl=Math.max(0,c.jl-dt);c.dcd=Math.max(0,c.dcd-dt);resolveArenaCar(c);sampleCarSupport(c);
 
- const contact=c.wheelsOn>0||c.hullContact;let ground=c.wheelsOn>=3&&_up.dot(supportN)>.4&&!c.jl;
+ const contact=c.wheelsOn>0||c.hullContact,alignment=_up.dot(supportN),wheelSupport=c.wheelsOn>0&&alignment>.45&&!c.jl&&c.v.dot(supportN)<1;let ground=wheelSupport&&c.wheelsOn>=3,partial=wheelSupport&&!ground;
 
- c.cT=contact?c.cT+dt:0;
+ c.cT=contact?c.cT+dt:0;if(partial)vehicleTireDodgeContact(c,supportN);
 
  if(ground){
 
@@ -227,9 +228,9 @@ function stepCar(c,dt){
 
   if(c.wasG&&c.n.dot(supportN)>.35){_q1.setFromUnitVectors(c.n,supportN);q.premultiply(_q1);c.v.applyQuaternion(_q1)}
 
-  c.n.copy(supportN);c.righting=0;c.autoFlipTime=0;c.canD=1;c.jumped=0;c.jHoldTime=0;c.aT=0;c.dT=c.dcd=0;
+  c.n.copy(supportN);if(!wasStable){vehicleAngularWorld.copy(c.w).applyQuaternion(q);c.wy=-vehicleAngularWorld.dot(c.n);}c.righting=0;c.autoFlipTime=0;c.canD=1;c.jumped=0;c.jHoldTime=0;c.aT=0;c.dT=c.dcd=0;
 
- }else{if(contact)c.n.copy(hullN);c.aT+=dt}
+ }else{if(partial)c.n.copy(supportN);else if(contact)c.n.copy(hullN);c.aT+=dt;if(wasStable){vehicleAngularWorld.copy(vehicleNormalBefore).multiplyScalar(-c.wy);vehicleInverse.copy(q).invert();c.w.add(vehicleAngularWorld.applyQuaternion(vehicleInverse));}}
 
  c.v.y-=P.g*dt;
 
@@ -242,7 +243,7 @@ function stepCar(c,dt){
 
  if(c.jp){c.jp=0;const autoFlipped=!ground&&beginVehicleAutoFlip(c);
 
-  if(jumpOK){audioWorld('jump',8,c.p,c.id);_f.copy(ground?c.n:hullN);c.v.addScaledVector(_f,J.jump/CM);c.jdir.copy(_f);c.jt=J.holdT;c.jAge=0;c.jHoldTime=0;c.jumped=1;c.jl=J.lock;c.canJ=0;c.canD=1;c.aT=0;ground=false;c.w.set(0,0,0);c.wy=0}
+  if(jumpOK){audioWorld('jump',8,c.p,c.id);_f.copy(ground?c.n:hullN);c.v.addScaledVector(_f,J.jump/CM);c.jdir.copy(_f);c.jt=J.holdT;c.jAge=0;c.jHoldTime=0;c.jumped=1;c.jl=J.lock;c.canJ=0;c.canD=1;c.aT=0;ground=false;partial=false;c.w.set(0,0,0);c.wy=0}
 
   else if(!autoFlipped&&c.canD&&(!c.jumped||c.aT<J.window+c.jHoldTime)&&c.dT<=0&&c.dcd<=0){const directional=vehicleDodge(c,i);audioWorld(directional?'dodge':'jump',8,c.p,c.id);
    if(!directional)c.v.addScaledVector(_up,J.double/CM);c.canD=0;c.jt=0
@@ -267,7 +268,7 @@ function stepCar(c,dt){
 
  if(ground){
 
-  const n=c.n;_up.set(0,1,0).applyQuaternion(q);_q1.setFromUnitVectors(_up,n);_q2.identity().slerp(_q1,1-Math.exp(-P.surf.align*dt));q.premultiply(_q2);
+  controlBranch='stable';const n=c.n;_up.set(0,1,0).applyQuaternion(q);_q1.setFromUnitVectors(_up,n);_q2.identity().slerp(_q1,1-Math.exp(-P.surf.align*dt));q.premultiply(_q2);
 
   _ft.set(1,0,0).applyQuaternion(q).addScaledVector(n,-_ft.dot(n)).normalize();_rt.crossVectors(_ft,n);
 
@@ -280,11 +281,11 @@ function stepCar(c,dt){
 
   else a=-Math.sign(vf)*Math.min(sp/dt,Gd.coastF/CM);
 
-  if(bo)a+=9.91667*cfg.speed;vf+=a*dt;
+  if(bo)a+=9.91667*cfg.speed;vf+=a*dt;if(window.__NIVET_CONTROL_TRACE__&&c.controlTrace){c.controlTrace.traction=1;c.controlTrace.tireAcceleration=a;}
 
   const tg=Gd.gripF*(1+.2*(1-Math.abs(n.y)));c.grip=tg+(Gd.slideGripF-tg)*c.handbrake;vl-=cl(vl,-c.grip/CM*dt,c.grip/CM*dt);
 
-  const curv=steeringCurvature(sp),wt=i.steer*sp*curv*(vf<-.5?-1:1)*(1+(Gd.slideYaw-1)*c.handbrake),al=Gd.yawT/CI.y;
+  const curv=steeringCurvature(sp),wt=i.steer*sp*curv*(vf<-.5?-1:1)*(1+(Gd.slideYaw-1)*(i.ps?c.handbrake:0)),al=Gd.yawT/CI.y;
 
   c.wy+=cl(wt-c.wy,-al*dt,al*dt);q.premultiply(_q1.setFromAxisAngle(n,-c.wy*dt));
 
@@ -292,17 +293,21 @@ function stepCar(c,dt){
 
   const spring=cl((P.surf.rest-c.clearance)*P.surf.spring-vn*P.surf.damping,-P.surf.adhesion,24);
 
-  vn+=(spring+P.g*n.y)*dt;c.v.copy(_ft).multiplyScalar(vf).addScaledVector(_rt,vl).addScaledVector(n,vn);c.w.set(0,0,0);
+  if(window.__NIVET_CONTROL_TRACE__&&c.controlTrace){c.controlTrace.springAcceleration=spring;c.controlTrace.gripAcceleration=c.grip/CM;c.controlTrace.steeringTarget=wt;}vn+=(spring+P.g*n.y)*dt;c.v.copy(_ft).multiplyScalar(vf).addScaledVector(_rt,vl).addScaledVector(n,vn);c.w.set(0,0,0);
 
  }else{
 
-  c.wy=0;_ft.set(1,0,0).applyQuaternion(q);c.v.addScaledVector(_ft,((bo?B.F+A.throttleF:0)+(bo?0:i.thr>0?i.thr*A.throttleF:i.thr*A.reverseF))/CM*dt);
+  _ft.set(1,0,0).applyQuaternion(q);c.v.addScaledVector(_ft,((bo?B.F+A.throttleF:0)+(bo?0:i.thr>0?i.thr*A.throttleF:i.thr*A.reverseF))/CM*dt);
 
   const autoFlipping=vehicleAutoFlipStep(c,dt),flipping=!autoFlipping&&vehicleFlipStep(c,i,dt);
-  if(!autoFlipping&&!flipping&&!c.wheelsOn)vehicleAirControl(c,i.roll,i.yaw,c.dcd>0&&c.canD===0?0:i.pitch,dt);
-  vehicleAutoRoll(c,dt);limitCarAngular(c);
+  partial=partial&&!c.jl&&!flipping&&!autoFlipping;
+  if(!autoFlipping&&!flipping){
+   if(partial){controlBranch='partial';vehiclePartialDrive(c,dt,bo);}
+   else{controlBranch=!c.jl&&c.hullContact?'hull':'air';const supportedHull=contact&&!c.jl&&c.hullContact&&Math.abs(c.n.y)>.55,pitch=supportedHull&&Math.abs(i.thr)>.01&&i.pitch*i.thr>0?0:i.pitch;vehicleAirControl(c,i.roll,i.yaw,pitch,dt);}
+  }else controlBranch=autoFlipping?'auto-flip':'dodge';
+  if(!partial&&!flipping&&!autoFlipping)vehicleAutoRoll(c,dt);limitCarAngular(c);vehicleAngularWorld.copy(c.w).applyQuaternion(q);c.wy=-vehicleAngularWorld.dot(c.n);
 
- const m=c.w.length();if(m>1e-4){_a.copy(c.w).divideScalar(m);q.multiply(_q1.setFromAxisAngle(_a,m*dt))}c.v.multiplyScalar(Math.exp(-Gd.drag*c.v.length()*dt*.5));
+ const m=c.w.length();if(m>1e-4&&!flipping){_a.copy(c.w).divideScalar(m);q.multiply(_q1.setFromAxisAngle(_a,m*dt))}c.v.multiplyScalar(Math.exp(-Gd.drag*c.v.length()*dt*.5));
 
  }
 
@@ -314,7 +319,7 @@ function stepCar(c,dt){
 
  for(let k=1;k<=slices;k++){q.copy(c.prevQ).slerp(c.moveQ,k/slices);c.p.addScaledVector(c.v,dt/slices);resolveArenaCar(c)}
 
- c.ground=ground?1:0;c.wasG=ground;updateSupersonic(c,dt);
+ c.ground=ground?1:0;c.wasG=ground||partial;updateSupersonic(c,dt);vehicleTraceEnd(c,controlBranch);
 
 }
 
@@ -2163,7 +2168,7 @@ async function build3d(forceGL){
 
  for(let r=0;r<12;r++)for(let q=0;q<14;q++){const x=q*40+(r%2?20:0),y=r*23+12;bg.beginPath();eg2.beginPath();for(let k=0;k<6;k++){const a=k*Math.PI/3,px=x+Math.cos(a)*21,py=y+Math.sin(a)*21;bg[k?'lineTo':'moveTo'](px,py);eg2[k?'lineTo':'moveTo'](px,py)}bg.closePath();eg2.closePath();bg.fillStyle=(q+r)%3?'#c4d0de':'#2a3444';bg.fill();bg.strokeStyle='#5a6a80';bg.lineWidth=2;bg.stroke();eg2.strokeStyle='#fff';eg2.lineWidth=3;eg2.stroke()}
 
- bm=new THREE.Mesh(cfg.models?ENGINE.importedBallGeometry():new THREE.SphereGeometry(BR,40,28),ENGINE.physicalMaterial(ren,{map:cfg.models?importedTextures.ball:tex(bc),emissiveMap:cfg.models?null:tex(ec2),emissive:0x222222,emissiveIntensity:cfg.models?.08:.3,metalness:.04,roughness:.64,clearcoat:.05,envMapIntensity:.5,transparent:false,opacity:1,side:THREE.FrontSide}));bm.castShadow=true;scene.add(bm);
+ bm=new THREE.Mesh(cfg.models?ENGINE.importedBallGeometry():new THREE.SphereGeometry(BR,40,28),ENGINE.physicalMaterial(ren,{map:cfg.models?importedTextures.ball:tex(bc),emissiveMap:cfg.models?null:tex(ec2),emissive:0x222222,emissiveIntensity:cfg.models?.08:.3,metalness:.04,roughness:.64,clearcoat:.05,envMapIntensity:.5,transparent:false,opacity:1,side:THREE.FrontSide}));styleMatchBall(bm);bm.castShadow=true;scene.add(bm);
 
  const sp=cvs(64,64),sg=sp.getContext('2d'),rg=sg.createRadialGradient(32,32,0,32,32,32);rg.addColorStop(0,'#fff');rg.addColorStop(.3,'rgba(255,255,255,.5)');rg.addColorStop(1,'rgba(255,255,255,0)');sg.fillStyle=rg;sg.fillRect(0,0,64,64);
 
@@ -2240,7 +2245,7 @@ function render(dt){
   shadow.visible=(!isCar||!!c?.enabled&&!carDemolished(c))&&Math.abs(p.x)<36.5&&Math.abs(p.z)<46.5&&height<10;shadow.position.set(p.x,.018,p.z);shadow.material.opacity=(cfg.hi?.32:.47)*Math.exp(-height*.42);shadow.scale.setScalar(1+Math.min(height,10)*.055);
   if(isCar&&c){renderForward.set(1,0,0).applyQuaternion(cm[k].quaternion);shadow.rotation.y=-Math.atan2(renderForward.z,renderForward.x)}}
 
-  const glow=ball.last>=0?ball.color||PALETTE[ball.last]:0x222222;if(bm.userData.glow!==glow){bm.material.emissive.setHex(glow);bm.userData.glow=glow}
+  const glow=ball.last>=0?ball.color||PALETTE[ball.last]:(bm.userData.baseBallGlow||0x222222);if(bm.userData.glow!==glow){bm.material.emissive.setHex(glow);bm.userData.glow=glow}
 
   // Keep live particles packed; upload only the used prefix of each dynamic buffer.
 
@@ -2256,7 +2261,7 @@ function render(dt){
 
   const c=local,cp=cm[c.id].position;carCameraHeading(c,cm[c.id].quaternion,camDesired,cd);
 
-  camToBall.copy(bm.position).sub(cp);if(ballCam&&camToBall.lengthSq()>.01){camToBall.y=0;if(camToBall.lengthSq()>4)camDesired.copy(camToBall.normalize())}
+  camToBall.copy(bm.position).sub(cp);if(ballCam&&camToBall.lengthSq()>.01){camToBall.y=0;if(camToBall.lengthSq()>4)camDesired.copy(camToBall.normalize());else camDesired.copy(cd)}
 
   cameraHeadingStep(cd,camDesired,4+cameraSettings.stiffness*12,dt);camDesired.copy(cp).addScaledVector(cd,-(cameraSettings.distance+c.v.length()*.008));if(c.ground&&c.n.y<0)camDesired.addScaledVector(c.n,cameraSettings.height);else camDesired.y=Math.max(camDesired.y+cameraSettings.height,.9);positionWallCamera(c,cp,camDesired,dt);
 
@@ -2349,7 +2354,7 @@ setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();se
 
 window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:120,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,multiplayer:DED.active?'Phoenix dedicated':'offline',rtt:DED.rtt,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
 
-window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD '+BUILD+' · CONTROL · Ready to play');
+window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD '+BUILD+' · GRIP · Ready to play');
 
 
 } catch(error) { window.tevinBoot.error=String(error.message||error);window.tevinBoot.show("Startup failed at "+window.tevinBoot.stage+": "+window.tevinBoot.error);console.error(error); }

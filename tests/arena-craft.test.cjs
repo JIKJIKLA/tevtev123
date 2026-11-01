@@ -48,9 +48,9 @@ test('shared stadium materials receive one architectural treatment regardless of
  const single=treatment(1),reused=treatment(28);assert.equal(single.color.getHex(),reused.color.getHex());assert.equal(single.roughness,reused.roughness);assert.equal(single.metalness,reused.metalness);assert.ok(reused.roughness>=.7);assert.ok(reused.envMapIntensity<.3);
 });
 
-test('daylight terraces use warm concrete reflectance while roof and recesses retain depth',()=>{
+test('daylight terraces retain concrete reflectance while roof recesses avoid crushed-black contrast',()=>{
  const {api:a}=arena(),T=a.THREE,stadium=new T.Group(),terrace=new T.MeshStandardMaterial({color:0x263b48,roughness:.91}),roof=new T.MeshStandardMaterial({color:0x263b48,roughness:.62,metalness:.35}),steel=new T.MeshStandardMaterial({color:0x263b48,roughness:.52,metalness:.65});
  for(const material of [terrace,roof,steel])stadium.add(new T.Mesh(new T.BoxGeometry(1,1,1),material));a.styleChampionshipStadium(stadium);
  const luminance=color=>.2126*color.r+.7152*color.g+.0722*color.b;
- assert.ok(luminance(terrace.color)>.3,'Terrace albedo is still dark paint rather than concrete');assert.ok(terrace.color.r>=terrace.color.b,'Concrete drifted back to navy');assert.ok(luminance(roof.color)<luminance(terrace.color)*.25,'Roof lost the recessed shade contrast');assert.ok(luminance(steel.color)>.2);for(const material of [terrace,roof,steel]){assert.ok(material.roughness>=.78);assert.ok(material.envMapIntensity<=.24);}let lights=0;stadium.traverse(object=>{if(object.isLight)lights++;});assert.equal(lights,0);
+ assert.ok(luminance(terrace.color)>.3,'Terrace albedo is still dark paint rather than concrete');assert.ok(terrace.color.r>=terrace.color.b,'Concrete drifted back to navy');const roofRatio=luminance(roof.color)/luminance(terrace.color);assert.ok(roofRatio>=.25&&roofRatio<=.65,'Recesses must remain darker than terraces without crushing their diffuse reflectance');assert.ok(luminance(steel.color)>.2);for(const material of [terrace,roof,steel]){assert.ok(material.roughness>=.78);assert.ok(material.envMapIntensity<=.24);}let lights=0;stadium.traverse(object=>{if(object.isLight)lights++;});assert.equal(lights,0);
 });

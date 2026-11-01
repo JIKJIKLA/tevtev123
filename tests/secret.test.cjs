@@ -16,10 +16,11 @@ test('timed boost, fields and freeze expire and reset on the next kickoff',()=>{
  a.secretApply(0,'magnet');a.ball.p.copy(c.p).add(new a.THREE.Vector3(5,1,0));a.secretBallStep(.1);assert.ok(a.ball.v.x<0);a.secretBallStep(6);assert.equal(a.SECRET.fields.length,0);a.kickoff();assert.equal(a.SECRET.boost[0],0);
  assert.equal(a.secretApply(0,'__proto__'),false);assert.equal(a.secretApply(99,'hop'),false);
 });
-test('neutral air spin settles while a player-triggered dodge retains bounded rotation',()=>{
+test('neutral air spin settles while a player-triggered dodge completes a finite bounded rotation',()=>{
  const {a}=playing(),c=a.cars[0];for(const other of a.cars)other.enabled=other===c;a.resetCar(c,0,0);c.p.y=10;c.w.set(3,2,3);c.ground=c.wasG=0;for(let i=0;i<90;i++)a.stepCar(c,a.DT);assert.ok(c.w.length()<.6,c.w.length());
- a.resetCar(c,0,0);c.p.y=10;c.ground=c.wasG=0;c.jp=1;c.inp.pitch=1;const before=c.q.clone();for(let i=0;i<12;i++){a.stepCar(c,a.DT);assert.ok(c.w.length()<=5.500001);assert.ok(a.carPenetration(c)<.02);assert.ok([...c.v.toArray(),...c.q.toArray()].every(Number.isFinite));}assert.ok(c.q.angleTo(before)>.45);assert.ok(c.w.length()>5);
+ a.resetCar(c,0,0);c.p.y=10;c.ground=c.wasG=0;c.jp=1;c.inp.pitch=1;const before=c.q.clone();let maxRotation=0;for(let i=0;i<78;i++){a.stepCar(c,a.DT);c.inp.pitch=0;maxRotation=Math.max(maxRotation,c.q.angleTo(before));assert.ok(c.w.length()<=10);assert.ok(a.carPenetration(c)<.02);assert.ok([...c.v.toArray(),...c.q.toArray()].every(Number.isFinite));}assert.ok(maxRotation>3);const roof=new a.THREE.Vector3(0,1,0).applyQuaternion(c.q);assert.ok(roof.y>.98,'completed dodge returns its original orientation');assert.ok(c.w.length()<.6);
 });
+
 test('a neutral upside-down car retains its pose until explicit roof-jump recovery',()=>{
  const {a}=playing(),c=a.cars[0];a.resetCar(c,0,0);c.p.y=.7;c.q.setFromAxisAngle(new a.THREE.Vector3(1,0,0),Math.PI);c.prevQ.copy(c.q);c.ground=c.wasG=0;for(let i=0;i<480;i++)a.stepCar(c,a.DT);const up=new a.THREE.Vector3(0,1,0);assert.ok(up.applyQuaternion(c.q).y<-.9,'neutral roof should not silently recover');c.jp=1;for(let i=0;i<120;i++){a.stepCar(c,a.DT);assert.ok(a.carPenetration(c)<.02);assert.ok(c.w.length()<=5.500001);}up.set(0,1,0).applyQuaternion(c.q);assert.ok(up.y>.9,'explicit recovery up='+up.y);assert.equal(c.ground,1);
 });

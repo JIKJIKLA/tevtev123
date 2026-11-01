@@ -1,7 +1,7 @@
 // Photographed CC0 micro surface under original mown/team-painted field art.
 // The photo contributes restrained luminance, so dry brown grass never recolors teams.
 let TURF_SURFACE_ASSETS=null;
-const TURF_SURFACE=Object.freeze({tile:2.5,width:2048,height:2560,normal:.32});
+const TURF_SURFACE=Object.freeze({tile:3.5,width:2048,height:2560,normal:.17});
 async function loadTurfSurfaceAssets(){
  if(TURF_SURFACE_ASSETS)return TURF_SURFACE_ASSETS;
  const keys=['diffuse','normal','roughness'],urls=['TURF:diffuse','TURF:normal','TURF:roughness'];
@@ -18,15 +18,16 @@ function applyPitchDetail(material,assets,renderer){
  if(renderer.isWebGPURenderer)ENGINE.pitchDetail(material,assets.diffuse,repeat);
  else{material.onBeforeCompile=shader=>{shader.uniforms.turfDetail={value:assets.diffuse};shader.uniforms.turfDetailRepeat={value:repeat};
   shader.fragmentShader='uniform sampler2D turfDetail; uniform vec2 turfDetailRepeat;\n'+shader.fragmentShader;
-  shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>','#include <color_fragment>\n float turfLuma=dot(texture2D(turfDetail,vMapUv*turfDetailRepeat).rgb,vec3(.2126,.7152,.0722)); diffuseColor.rgb*=clamp(turfLuma*2.5+.55,.55,1.3);');
- };material.customProgramCacheKey=()=>'nivet-championship-pitch-detail-v1';}
+   shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>','#include <color_fragment>\n float turfLuma=dot(texture2D(turfDetail,vMapUv*turfDetailRepeat).rgb,vec3(.2126,.7152,.0722)); diffuseColor.rgb*=clamp(turfLuma*.65+.86,.88,1.12);');
+ };material.customProgramCacheKey=()=>'nivet-championship-pitch-detail-v2';}
  material.userData.turfTile=TURF_SURFACE.tile;return material;
 }
 function championshipPitchMaterial(){
  const m=ENGINE.pitchMaterial(ren,teamPalette),c=m.map.image;c.width=TURF_SURFACE.width;c.height=TURF_SURFACE.height;const g=c.getContext('2d'),w=c.width,h=c.height;
- g.fillStyle='#436e2b';g.fillRect(0,0,w,h);
- // Broad, closely matched mowing tones read as a carpet rather than a chessboard.
- for(let y=0;y<10;y++)for(let x=0;x<8;x++){g.fillStyle=(x+y)%2?'#4a7731':'#3e6828';g.fillRect(x*w/8,y*h/10,w/8+1,h/10+1);}
+ g.fillStyle='#3c672c';g.fillRect(0,0,w,h);
+ // Wide, softly edged transverse mowing lanes support distance judgements.
+ // A checkerboard made every tile boundary compete with white pitch markings.
+ for(let y=0;y<10;y++){const top=y*h/10,bottom=(y+1)*h/10,shade=g.createLinearGradient(0,top,0,bottom);shade.addColorStop(0,y%2?'#426e2f':'#3b652b');shade.addColorStop(.12,y%2?'#477334':'#3d682d');shade.addColorStop(.88,y%2?'#477334':'#3d682d');shade.addColorStop(1,y%2?'#426e2f':'#3b652b');g.fillStyle=shade;g.fillRect(0,top,w,bottom-top+1);}
  let seed=49177;const rand=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
  for(let i=0;i<190;i++){const x=rand()*w,y=rand()*h,r=35+rand()*130,gradient=g.createRadialGradient(x,y,0,x,y,r);gradient.addColorStop(0,i%2?'rgba(130,152,65,.045)':'rgba(14,34,13,.045)');gradient.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gradient;g.fillRect(x-r,y-r,r*2,r*2);}
  for(let i=0;i<40000;i++){g.fillStyle=i%3?'rgba(180,193,115,.055)':'rgba(14,35,15,.07)';g.fillRect(rand()*w,rand()*h,.7,1+rand()*2.5);}

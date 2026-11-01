@@ -53,13 +53,13 @@ function turfMaterial(uniforms){
    float groom=sin(w.y*.23)*turfShape.z*h*h*fade;float wave=(sin(t*1.18+w.x*.48+w.y*.27)*.5+sin(t*2.4+w.y*.65+r*7.)*.16+sin(t*4.8+w.x*2.2+r*5.)*.05)*h*h*ht*turfShape.w*wind;transformed.xz+=vec2(wave,groom+wave*.42);
    vec3 ob[7];ob[0]=c0;ob[1]=c1;ob[2]=c2;ob[3]=c3;ob[4]=c4;ob[5]=c5;ob[6]=c6;vec4 motion[7];motion[0]=motion0;motion[1]=motion1;motion[2]=motion2;motion[3]=motion3;motion[4]=motion4;motion[5]=motion5;motion[6]=motion6;float contactShade=1.,compression=1.;
    for(int i=0;i<7;i++){vec2 q=w-ob[i].xz;if(motion[i].w>0.&&dot(q,q)<25.){float distanceToBody=length(q),nearGround=motion[i].w;float f=(1.-smoothstep(.2,1.15,distanceToBody))*nearGround;float core=(1.-smoothstep(.12,i==6?1.05:.72,distanceToBody))*nearGround;contactShade*=1.-core*.28;vec2 dir=motion[i].xy,radial=q+vec2(.0001);radial/=max(length(radial),.0001);float along=dot(q,dir),side=length(q-dir*along);float wake=(1.-smoothstep(.35,1.1,side))*smoothstep(-3.8,-.5,along)*(1.-smoothstep(-.2,.5,along))*motion[i].z*nearGround;transformed.xz+=(radial*f*.045+dir*wake*.065)*h*h*fade;compression*=1.-min(.75,f*.56+wake*.24);}}
-   transformed.y=turfShape.y+h*ht*max(.18,compression);float turfVariation=sin(w.x*.61+w.y*.33)*sin(w.y*.77-w.x*.2)*.065;float fiber=mix(.60,1.14,h)*(.86+.26*r+turfVariation)*max(.64,contactShade);
+   transformed.y=turfShape.y+h*ht*max(.18,compression);float turfVariation=sin(w.x*.61+w.y*.33)*sin(w.y*.77-w.x*.2)*.025;float fiber=mix(.76,1.06,h)*(.94+.12*r+turfVariation)*max(.8,contactShade);
    turfPigment=texture2D(paint,vec2(w.x/fieldSize.x+.5,.5-w.y/fieldSize.y)).rgb*fiber;}`);
   shader.fragmentShader='varying vec3 turfPigment;\n'+shader.fragmentShader;
   shader.fragmentShader=shader.fragmentShader.replace('#include <normal_fragment_begin>','#include <normal_fragment_begin>\n normal=normalize(vNormal);');
   shader.fragmentShader=shader.fragmentShader.replace('#include <emissivemap_fragment>','#include <emissivemap_fragment>\n totalEmissiveRadiance += turfPigment * .035;');
   shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>','#include <color_fragment>\n diffuseColor.rgb *= turfPigment;');
- };material.customProgramCacheKey=()=>'nivet-groomed-turf-v7';}return material;
+ };material.customProgramCacheKey=()=>'nivet-groomed-turf-v8';}return material;
 }
 function makeGrass(){
  const group=new THREE.Group();group.name='Two-tier groomed turf carpet';const base=turfUniforms(PITCH_TEXTURE,2*HX,2*HZ),near=turfUniforms(PITCH_TEXTURE,2*HX,2*HZ,true,base),layers=[base,near];GU=base;GU.layers=layers;

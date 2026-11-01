@@ -1,0 +1,341 @@
+{
+  "conditions": "Actual DOM bounding boxes in Chromium156 on desktop.390x844 portrait and844x390 landscape use touch controls selected through normal Settings;1280x720 uses keyboard mode. This is responsive-layout inspection, not physical phone/touch hardware certification. Only the named functional groups are tested for separation; circular boost/speed widget bounding boxes may intersect by design.",
+  "normalNavigation": "Settings→touch controls→Training→Play; pause→Quit→Home→Settings→keyboard controls→Training→Play. The normal menu flow was exercised independently of developer-pose controls.",
+  "reproducedIssue": "A late original shell bottom:66px rule stretched desktop training-hud to552px and centered the button inside it. A higher-specificity body #training-hud bottom:auto rule restores a32px row at top102px. Touch-specific rules already overrode the old rule.",
+  "checks": [
+    {
+      "viewport": [
+        390,
+        844
+      ],
+      "trainingRect": {
+        "height": 32,
+        "width": 123.1875,
+        "x": 12,
+        "y": 194
+      },
+      "trainingRowHeight": 32,
+      "trainingChatSeparation": 350,
+      "chatStickSeparation": 66,
+      "chatBallcamSeparation": null
+    },
+    {
+      "viewport": [
+        844,
+        390
+      ],
+      "trainingRect": {
+        "height": 28,
+        "width": 114.671875,
+        "x": 12,
+        "y": 55
+      },
+      "trainingRowHeight": 28,
+      "trainingChatSeparation": 114,
+      "chatStickSeparation": 12,
+      "chatBallcamSeparation": null
+    },
+    {
+      "viewport": [
+        1280,
+        720
+      ],
+      "trainingRect": {
+        "height": 32,
+        "width": 160.125,
+        "x": 28.796875,
+        "y": 102
+      },
+      "trainingRowHeight": 32,
+      "trainingChatSeparation": 458,
+      "chatStickSeparation": null,
+      "chatBallcamSeparation": 20
+    }
+  ],
+  "cases": [
+    {
+      "elements": [
+        {
+          "id": "sb",
+          "rect": {
+            "height": 39,
+            "width": 187,
+            "x": 101.5,
+            "y": 10
+          },
+          "visible": true
+        },
+        {
+          "id": "matchtag",
+          "rect": {
+            "height": 22.859375,
+            "width": 75.828125,
+            "x": 12,
+            "y": 112
+          },
+          "visible": true
+        },
+        {
+          "id": "training-hud",
+          "rect": {
+            "height": 32,
+            "width": 123.1875,
+            "x": 12,
+            "y": 194
+          },
+          "visible": true
+        },
+        {
+          "id": "quick-chat",
+          "rect": {
+            "height": 42,
+            "width": 154,
+            "x": 14,
+            "y": 576
+          },
+          "visible": true
+        },
+        {
+          "id": "bo",
+          "rect": {
+            "height": 100,
+            "width": 100,
+            "x": 282,
+            "y": 117
+          },
+          "visible": true
+        },
+        {
+          "id": "spd",
+          "rect": {
+            "height": 78,
+            "width": 78,
+            "x": 202,
+            "y": 130
+          },
+          "visible": true
+        },
+        {
+          "id": "touch-stick",
+          "rect": {
+            "height": 140,
+            "width": 140,
+            "x": 14,
+            "y": 684
+          },
+          "visible": true
+        },
+        {
+          "id": "touch-boost",
+          "rect": {
+            "height": 73,
+            "width": 73,
+            "x": 303,
+            "y": 749
+          },
+          "visible": true
+        },
+        {
+          "id": "touch-jump",
+          "rect": {
+            "height": 62,
+            "width": 62,
+            "x": 230,
+            "y": 704
+          },
+          "visible": true
+        }
+      ],
+      "size": [
+        390,
+        844
+      ]
+    },
+    {
+      "elements": [
+        {
+          "id": "sb",
+          "rect": {
+            "height": 39,
+            "width": 187,
+            "x": 328.5,
+            "y": 18
+          },
+          "visible": true
+        },
+        {
+          "id": "matchtag",
+          "rect": {
+            "height": 26.609375,
+            "width": 75.828125,
+            "x": 12,
+            "y": 12
+          },
+          "visible": true
+        },
+        {
+          "id": "training-hud",
+          "rect": {
+            "height": 28,
+            "width": 114.671875,
+            "x": 12,
+            "y": 55
+          },
+          "visible": true
+        },
+        {
+          "id": "quick-chat",
+          "rect": {
+            "height": 42,
+            "width": 154,
+            "x": 14,
+            "y": 197
+          },
+          "visible": true
+        },
+        {
+          "id": "bo",
+          "rect": {
+            "height": 92,
+            "width": 92,
+            "x": 744,
+            "y": 80
+          },
+          "visible": true
+        },
+        {
+          "id": "spd",
+          "rect": {
+            "height": 70,
+            "width": 70,
+            "x": 671,
+            "y": 93
+          },
+          "visible": true
+        },
+        {
+          "id": "touch-stick",
+          "rect": {
+            "height": 127,
+            "width": 127,
+            "x": 14,
+            "y": 251
+          },
+          "visible": true
+        },
+        {
+          "id": "touch-boost",
+          "rect": {
+            "height": 70,
+            "width": 70,
+            "x": 754,
+            "y": 307
+          },
+          "visible": true
+        },
+        {
+          "id": "touch-jump",
+          "rect": {
+            "height": 59,
+            "width": 59,
+            "x": 685,
+            "y": 269
+          },
+          "visible": true
+        }
+      ],
+      "size": [
+        844,
+        390
+      ]
+    },
+    {
+      "elements": [
+        {
+          "id": "sb",
+          "rect": {
+            "height": 49,
+            "width": 276,
+            "x": 502,
+            "y": 18
+          },
+          "visible": true
+        },
+        {
+          "id": "matchtag",
+          "rect": {
+            "height": 30.515625,
+            "width": 104.25,
+            "x": 28.796875,
+            "y": 19
+          },
+          "visible": true
+        },
+        {
+          "id": "training-hud",
+          "rect": {
+            "height": 32,
+            "width": 160.125,
+            "x": 28.796875,
+            "y": 102
+          },
+          "visible": true
+        },
+        {
+          "id": "training-open",
+          "rect": {
+            "height": 32,
+            "width": 160.125,
+            "x": 28.796875,
+            "y": 102
+          },
+          "visible": true
+        },
+        {
+          "id": "quick-chat",
+          "rect": {
+            "height": 49,
+            "width": 184,
+            "x": 28.796875,
+            "y": 592
+          },
+          "visible": true
+        },
+        {
+          "id": "camtag",
+          "rect": {
+            "height": 35,
+            "width": 107,
+            "x": 28.796875,
+            "y": 661
+          },
+          "visible": true
+        },
+        {
+          "id": "bo",
+          "rect": {
+            "height": 176,
+            "width": 176,
+            "x": 1080,
+            "y": 524
+          },
+          "visible": true
+        },
+        {
+          "id": "spd",
+          "rect": {
+            "height": 118,
+            "width": 118,
+            "x": 964,
+            "y": 578
+          },
+          "visible": true
+        }
+      ],
+      "size": [
+        1280,
+        720
+      ]
+    }
+  ]
+}
