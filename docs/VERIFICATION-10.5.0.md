@@ -1,6 +1,6 @@
 # Grip 10.5.0 verification
 
-Source regressions, staged-start native-input sequences, matched rendering profiles, responsive layouts and Phoenix production checks are recorded below. Web-publication receipts follow independent verification of each hosted document.
+Source regressions, staged-start native-input sequences, matched rendering profiles, responsive layouts, Phoenix production and all three hosted documents have been checked as recorded below.
 
 ## Source regressions
 
@@ -28,6 +28,8 @@ The short profile baseline uses Chromium156/WebGL2 on Windows, Ryzen75800X (16 l
 | Corner |2.10 /3.40 |2.10 /3.00 |0.788 /3.297 |0.848 /2.650 |
 
 The [complete paired profiles](measurements/render-repair.json) retain raw conditions, GPU timer coverage and callback timing. Baseline GPU timer coverage is56 samples for boost/contact and wall,57 otherwise; candidate coverage is56 for normal driving,57 otherwise. Median CPU differs by at most0.20ms and median GPU by at most0.145ms. All six median draw-call and triangle counts are unchanged. GPU p95 is higher in normal driving, boost/contact and the held goal effect, and lower in traffic, wall and corner views; CPU p95 also has mixed results. No general FPS improvement is inferred or claimed. Moving profiles include changed physics/camera behavior, so their differences do not isolate material cost. Short tails, long-session freezes and physical Chromebook performance require longer hardware-specific testing.
+
+An additional automatic-renderer Detail-preset smoke check selected WebGL2 and completed60 normal-driving callbacks at1280×720 with no captured console errors. CPU p50/p95 was3.00/4.30ms; GPU p50/p95 was2.676/3.044ms from56 completed timer samples. This has no matched Detail baseline and supports no before/after FPS claim. WebGPU remains unverified. The raw smoke record is included in the structured release receipt and source ZIP evidence.
 
 ## Native browser sequence acceptance
 
@@ -60,6 +62,10 @@ Normal navigation was separately exercised through Settings→touch controls→T
 
 The accepted portable HTML has20,994,439bytes and SHA-256 `d5911fc1b05043d27533ca0cc2dd998318647777de543cce4a60e9b55eb73021`. Phoenix health independently reports10.5.0/wire3 at120Hz/30Hz, capacity4, zero rooms and zero dropped ticks. All49 production source SHA-256 hashes match the staged source. Both3v3 playlists initialized, and actual TLS two-client lifecycle and custom-paint checks passed across Pages/CDN origins. The single237ms application ping is a sample from this connection, not a Las Vegas player latency estimate. Deployment was guarded by idle10.4.0/wire2 checks and retains `/home/ubuntu/tevin-before-grip-10.5.0-20261101T175158Z.tar.gz` for rollback.
 
-Pages/Bunny/Cloudflare source/build publication and CI receipts are recorded after their exact root-document hashes are independently verified. Existing services/plans remain: no network rules, ports, nginx/service configuration, dependencies or paid resources changed.
+The source/build commit is [82b31caea82f40529d5697b6350d971dad306a6f](https://github.com/JIKJIKLA/tevtev123/commit/82b31caea82f40529d5697b6350d971dad306a6f). The55 changed/new files were verified against local Git blob hashes;203 unchanged base entries were preserved. [Verify game41334286259](https://github.com/JIKJIKLA/tevtev123/actions/runs/41334286259) and [Pages deployment41334285714](https://github.com/JIKJIKLA/tevtev123/actions/runs/41334285714) succeeded. Pages, Bunny and Cloudflare root documents match the accepted20,994,439byte SHA-256 exactly. Bunny's actual root GET returned200 after its normal cache expired, with cache status EXPIRED and refill timestamp18:11:07UTC; no cache-busting query or account purge was used as a substitute.
 
-The portable HTML and source ZIP must contain the accepted build. Package only maintained selected source/assets/tests/scripts and final evidence; exclude private keys, dependencies and unrelated scratch archives. SHA-256 compare every ZIP entry with staged source and record the final archive hash outside the archive.
+Cloudflare deployment `40c7ef91-e2be-4cd7-9095-d572b79f7d91` serves version `a1537e2c-834c-47e3-8e10-e93582aaca06` at100%. Worker source ETag is unchanged: `d453c4d08ccfd917365ea1922c91713a722d569c284b351bf6c152972f97d2f7`. GET, HEAD, build health, release metadata and404 responses were checked. The published Worker game was played through a real private Phoenix create/start-with-AI/countdown/boost-and-turn/pause/quit flow; speed54 and boost consumption/pickup were observed. No browser console errors were captured, and an independent final health read confirmed zero rooms and zero dropped ticks. This is one desktop browser with authority/AI, not independent multi-device playtesting. [Structured receipt](measurements/release-10.5.0.json) records the actual checks and limits.
+
+Existing services/plans remain: no network rules, ports, nginx/service configuration, dependencies or paid resources changed.
+
+The portable HTML and source ZIP contain the accepted build, maintained selected source/assets/tests/scripts and final evidence. Private keys, dependencies and unrelated scratch archives are excluded. Every ZIP entry is SHA-256 compared with staged source; its final archive hash is recorded externally to avoid a self-referential hash inside the archive.

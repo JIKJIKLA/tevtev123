@@ -1,0 +1,200 @@
+{
+  "release": "10.5.0",
+  "name": "Grip",
+  "source": {
+    "commit": "82b31caea82f40529d5697b6350d971dad306a6f",
+    "url": "https://github.com/JIKJIKLA/tevtev123/commit/82b31caea82f40529d5697b6350d971dad306a6f",
+    "changedFiles": 55,
+    "unchangedBaseFilesVerified": 203
+  },
+  "document": {
+    "bytes": 20994439,
+    "sha256": "d5911fc1b05043d27533ca0cc2dd998318647777de543cce4a60e9b55eb73021",
+    "gitBlobSha": "c887dd162f877bec3d13ea5178e12c1e973f7871",
+    "protocol": 6,
+    "dedicatedWire": 3
+  },
+  "tests": {
+    "frontend": 317,
+    "dedicatedServer": 34,
+    "total": 351
+  },
+  "workflows": [
+    {
+      "name": "Verify game",
+      "runId": 41334286259,
+      "status": "success",
+      "url": "https://github.com/JIKJIKLA/tevtev123/actions/runs/41334286259"
+    },
+    {
+      "name": "Pages deployment",
+      "runId": 41334285714,
+      "status": "success",
+      "url": "https://github.com/JIKJIKLA/tevtev123/actions/runs/41334285714"
+    }
+  ],
+  "hosts": {
+    "pages": {
+      "url": "https://jikjikla.github.io/tevtev123/",
+      "status": "verified",
+      "http": 200,
+      "bytes": 20994439,
+      "sha256": "d5911fc1b05043d27533ca0cc2dd998318647777de543cce4a60e9b55eb73021"
+    },
+    "cloudflare": {
+      "url": "https://nivet-league.jikdifn.workers.dev/",
+      "status": "verified",
+      "http": 200,
+      "bytes": 20994439,
+      "sha256": "d5911fc1b05043d27533ca0cc2dd998318647777de543cce4a60e9b55eb73021",
+      "version": "a1537e2c-834c-47e3-8e10-e93582aaca06",
+      "deployment": "40c7ef91-e2be-4cd7-9095-d572b79f7d91",
+      "trafficPercent": 100,
+      "workerSourceEtag": "d453c4d08ccfd917365ea1922c91713a722d569c284b351bf6c152972f97d2f7",
+      "checks": {
+        "get": 200,
+        "head": 200,
+        "health": {
+          "http": 200,
+          "build": "10.5.0"
+        },
+        "releaseMetadata": {
+          "http": 200,
+          "sha256": "d5911fc1b05043d27533ca0cc2dd998318647777de543cce4a60e9b55eb73021"
+        },
+        "missingPath": 404
+      },
+      "configuration": "Existing Worker source/ETag and binding structure retained; build metadata/assets updated;1%sampling andcacheoff retained."
+    },
+    "bunny": {
+      "url": "https://tevtev123.b-cdn.net/",
+      "status": "verified",
+      "http": 200,
+      "bytes": 20994439,
+      "sha256": "d5911fc1b05043d27533ca0cc2dd998318647777de543cce4a60e9b55eb73021",
+      "cache": "EXPIRED",
+      "cacheRefilledAt": "2026-11-01T18:11:07Z",
+      "previousCachedVersion": {
+        "build": "10.4.0",
+        "bytes": 20980284,
+        "sha256": "df27e76b66f4cce2998a3a77131363d8ba429118d98e12d6c03d6657ca5c5f87",
+        "cache": "HIT",
+        "cachedAt": "2026-11-01T18:00:32Z",
+        "expiresAt": "2026-11-01T18:10:32Z"
+      },
+      "verification": "Actual root GET after normal cache expiry; no query-selected copy, cache-busting substitute or account purge used."
+    }
+  },
+  "oracle": {
+    "release": "10.5.0 Grip",
+    "endpoint": "https://tevin-161-153-26-154.sslip.io/health",
+    "verifiedAt": "2026-11-01T17:53:33.907Z",
+    "productionFilesVerified": 49,
+    "health": {
+      "ok": true,
+      "service": "nivet-match-server",
+      "wire": 3,
+      "region": "Phoenix",
+      "build": "10.5.0",
+      "physicsHz": 120,
+      "snapshotHz": 30,
+      "rooms": 0,
+      "capacity": 4,
+      "droppedTicks": 0
+    },
+    "rollbackBackup": "/home/ubuntu/tevin-before-grip-10.5.0-20261101T175158Z.tar.gz",
+    "protocol": 6,
+    "deploymentGuard": "Existing production10.4.0/wire2; zero rooms before copy and restart",
+    "checks": {
+      "productionSha256Files": 49,
+      "syntax": "pass",
+      "sharedSolver3v3Soccar": "WAIT",
+      "sharedSolver3v3Heatseeker": "WAIT",
+      "liveWssLifecycle": "pass",
+      "liveWssCustomPaint": "pass",
+      "testRoomsRemaining": 0
+    },
+    "liveCheckOutput": "PASS: verified TLS, Pages and CDN origins, three-digit match and party codes, two-player room, ready, server kickoff driver reconciliation, bottomless boost and synchronized ball freeze. RTT 237ms from this connection.",
+    "paintCheckOutput": "PASS: deployed WSS server preserves custom black and pink paint across both players and site origins.",
+    "configurationChanges": "Existing source and server entrypoint only; no new resources, firewall, nginx, systemd configuration, dependencies or paid services.",
+    "limitations": "The237ms application ping is from this test connection; it is not a Las Vegas player latency measurement."
+  },
+  "actualPublishedBrowser": {
+    "origin": "https://nivet-league.jikdifn.workers.dev/",
+    "flow": [
+      "create private Phoenix lobby",
+      "start with AI",
+      "authoritative countdown",
+      "native boost/steering",
+      "pause",
+      "quit"
+    ],
+    "observations": {
+      "speedObserved": 54,
+      "boostConsumedAndPickup": true,
+      "browserConsoleErrors": 0
+    },
+    "cleanup": {
+      "healthBuild": "10.5.0",
+      "wire": 3,
+      "rooms": 0,
+      "droppedTicks": 0
+    },
+    "limitations": "One desktop browser with server AI; not independent multi-device player latency testing."
+  },
+  "artifacts": {
+    "portableHtml": "nivet-league-10.5.0.html",
+    "sourceZip": "nivet-league-10.5.0-source.zip",
+    "archiveHash": "Recorded externally after final receipt refresh to avoid a self-referential archive hash."
+  },
+  "configurationChanges": "Existing resources only; no paid services/plans, network rules/ports, nginx/service settings or dependencies added.",
+  "detailPresetSmoke": {
+    "profile": {
+      "build": "10.5.0",
+      "scenario": "normal",
+      "conditions": "two120Hz simulation steps per driving draw; held0.45s goal effect;20warm+60measured callbacks; not display FPS",
+      "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/156.0.0.0 Safari/537.36",
+      "hardwareConcurrency": 16,
+      "viewport": {
+        "width": 1280,
+        "height": 720,
+        "dpr": 1,
+        "buffer": [
+          1280,
+          720
+        ]
+      },
+      "backend": "WebGL2",
+      "quality": "Detail",
+      "frames": 60,
+      "cpu": {
+        "p50": 3,
+        "p95": 4.2999999998137355
+      },
+      "frame": {
+        "p50": 6,
+        "p95": 9.799999999813735
+      },
+      "gpu": {
+        "samples": 56,
+        "p50": 2.67611,
+        "p95": 3.04444
+      },
+      "calls": 227,
+      "triangles": 3560089,
+      "info": {
+        "frame": 5727,
+        "calls": 202,
+        "triangles": 3558877,
+        "points": 0,
+        "lines": 0
+      },
+      "gpuRenderer": "ANGLE (AMD, AMD Radeon RX 6700 XT (0x000073DF) Direct3D11 vs_5_0 ps_5_0, D3D11)"
+    },
+    "consoleErrors": 0,
+    "rendererRequest": "Automatic; selected WebGL2",
+    "limitations": "Additional60-callback normal-driving Detail-preset smoke check only. No matched Detail baseline, no FPS gain claim, and WebGPU remains unverified."
+  },
+  "allThreeRootDocumentsVerified": true,
+  "webVerificationCompletedAt": "2026-11-01T18:11:07Z"
+}
