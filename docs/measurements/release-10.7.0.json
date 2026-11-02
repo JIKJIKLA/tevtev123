@@ -1,12 +1,169 @@
 {
   "build": "10.7.0",
-  "status": "verified candidate; publication pending",
+  "status": "published and verified",
+  "checkedAt": "2026-11-02T22:44:05.314Z",
+  "sourceCommit": "13ff53a9633cba7214feb0a355e26d62b5b9ba05",
+  "sourceTree": "2092ef282ac3582a035342c24c0ea34c09dc3d4c",
+  "baselineCommit": "e78b1411cb5d36974e6016c40fbf84da76fbbafa",
   "clientProtocol": 8,
   "dedicatedWire": 5,
   "portableBuildSha256": "505db88134fc94d3815469359700944b2877f2922c2d4336dc24aef66a847a7a",
-  "clientTests": {"passed":375,"failed":0},
-  "serverTests": {"passed":35,"failed":0},
-  "frozenFilesUnchanged":93,
-  "physicalDeviceLimitations": ["No physical Chromebook", "No hardware controller", "No two-human internet playtest"],
-  "details": "../RECOVERY-10.7.0.md"
+  "hosts": [
+    {
+      "name": "pages",
+      "url": "https://jikjikla.github.io/tevtev123/",
+      "status": 200,
+      "bytes": 21011439,
+      "sha256": "505db88134fc94d3815469359700944b2877f2922c2d4336dc24aef66a847a7a",
+      "date": "Mon, 02 Nov 2026 22:40:15 GMT",
+      "expires": "Mon, 02 Nov 2026 22:50:14 GMT",
+      "cache": null
+    },
+    {
+      "name": "cdn",
+      "url": "https://tevtev123.b-cdn.net/",
+      "status": 200,
+      "bytes": 21011439,
+      "sha256": "505db88134fc94d3815469359700944b2877f2922c2d4336dc24aef66a847a7a",
+      "date": "Mon, 02 Nov 2026 22:40:17 GMT",
+      "expires": "Mon, 02 Nov 2026 22:50:16 GMT",
+      "cache": "EXPIRED"
+    },
+    {
+      "name": "worker",
+      "url": "https://nivet-league.jikdifn.workers.dev/",
+      "status": 200,
+      "bytes": 21011439,
+      "sha256": "505db88134fc94d3815469359700944b2877f2922c2d4336dc24aef66a847a7a",
+      "date": "Mon, 02 Nov 2026 22:40:19 GMT",
+      "expires": null,
+      "cache": "MISS"
+    }
+  ],
+  "tests": {
+    "client": {
+      "passed": 375,
+      "failed": 0
+    },
+    "server": {
+      "passed": 35,
+      "failed": 0
+    },
+    "planeWallCasesPerVersion": 2268,
+    "curvedCasesPerVersion": 3402,
+    "heatseekerShotsPerVersion": 72,
+    "sourceStableDuringFinalMetrics": true,
+    "frozenFilesUnchanged": 93
+  },
+  "liveMultiplayer": {
+    "checkedAt": "2026-11-02T22:42:17.824Z",
+    "description": "Live TLS WebSocket, real Phoenix authoritative 3v3 matches, one transport-controlled human seat and five ordinary bots. This is not a two-human subjective latency/feel check.",
+    "results": [
+      {
+        "playlist": "Soccar",
+        "size": 3,
+        "wire": 5,
+        "states": 260,
+        "ack": 107,
+        "movingBots": 5,
+        "driverTimers": {
+          "supportTime": 0.1,
+          "jumpBuffer": 0
+        },
+        "score": [
+          0,
+          0
+        ],
+        "physicalTouches": [
+          1,
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      {
+        "playlist": "Heatseeker",
+        "size": 3,
+        "wire": 5,
+        "states": 259,
+        "ack": 108,
+        "movingBots": 5,
+        "driverTimers": {
+          "supportTime": 0.1,
+          "jumpBuffer": 0
+        },
+        "score": [
+          0,
+          0
+        ],
+        "physicalTouches": [
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ]
+      }
+    ],
+    "health": {
+      "ok": true,
+      "service": "nivet-match-server",
+      "wire": 5,
+      "region": "Phoenix",
+      "build": "10.7.0",
+      "physicsHz": 120,
+      "snapshotHz": 30,
+      "rooms": 0,
+      "capacity": 4,
+      "droppedTicks": 0
+    }
+  },
+  "liveSocketLifecycle": "TLS, three-digit room/party codes, two sockets, loading/ready/start, driver reconstruction, secret powers and personal paint checks passed. 110 ms ping RTT on this QA connection is not a player latency guarantee.",
+  "oracle": {
+    "region": "Phoenix",
+    "files": 50,
+    "backup": "/home/ubuntu/tevin-before-recovery-10.7.0-20261102T223909Z.tar.gz",
+    "idleGuard": true,
+    "hashesVerified": true
+  },
+  "cloudflare": {
+    "worker": "nivet-league",
+    "version": "3f51e555-9a33-4a97-8877-a513259a405b",
+    "deployment": "74e13d46-8006-4ae4-9b81-d0c934e6978f",
+    "percentage": 100,
+    "workerCodeETag": "d453c4d08ccfd917365ea1922c91713a722d569c284b351bf6c152972f97d2f7",
+    "codeAndSettingsPreserved": true,
+    "checks": {
+      "health": 200,
+      "release": 200,
+      "head": 200,
+      "missingAsset": 404
+    }
+  },
+  "physicalDeviceLimitations": [
+    "No physical Chromebook",
+    "No hardware controller",
+    "No two-human internet playtest",
+    "Background/minimized in-app browser throttled some native wall-clock timings and prevented late screenshots; full input/tick histories are retained."
+  ],
+  "details": "../RECOVERY-10.7.0.md",
+  "ci": [
+    {
+      "name": "pages build and deployment",
+      "id": 41539063477,
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/JIKJIKLA/tevtev123/actions/runs/41539063477"
+    },
+    {
+      "name": "Verify game",
+      "id": 41539064186,
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/JIKJIKLA/tevtev123/actions/runs/41539064186"
+    }
+  ]
 }
