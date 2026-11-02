@@ -7,8 +7,8 @@ function peer(origin){
 }
 (async()=>{try{
  const a=peer('https://jikjikla.github.io'),b=peer('https://tevtev123.b-cdn.net');await Promise.all([a.next('hello'),b.next('hello')]);
- a.send({type:'create',wire:4,settings:{size:1,teamColors:false},profile:{name:'PAINT CHECK A',paint:0}});const room=await a.next('joined');
- b.send({type:'join',wire:4,code:room.code,profile:{name:'PAINT CHECK B',paint:0xff43b5}});await b.next('joined');
+ a.send({type:'create',wire:5,settings:{size:1,teamColors:false},profile:{name:'PAINT CHECK A',paint:0}});const room=await a.next('joined');
+ b.send({type:'join',wire:5,code:room.code,profile:{name:'PAINT CHECK B',paint:0xff43b5}});await b.next('joined');
  a.send({type:'ready'});b.send({type:'ready'});await a.next('lobby',m=>Object.keys(m.seats).length===2&&Object.values(m.seats).every(s=>s.ready));a.send({type:'start'});
  const state=await b.next('state',m=>m.state.phase==='PLAY');assert.equal(state.state.cars[0].color,0);assert.equal(state.state.cars[1].color,0xff43b5);
  console.log('PASS: deployed WSS server preserves custom black and pink paint across both players and site origins.');

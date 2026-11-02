@@ -1,0 +1,167 @@
+{
+  "conditions": {
+    "physicsHz": 120,
+    "seconds": 1,
+    "bodies": [
+      0,
+      1,
+      2
+    ],
+    "surfaces": [
+      [
+        "floor-ramp",
+        [
+          39.78842712474619,
+          1.1715728752538097,
+          0
+        ],
+        [
+          -0.7071067811865476,
+          0.7071067811865476,
+          0
+        ]
+      ],
+      [
+        "ceiling-ramp",
+        [
+          39.78842712474619,
+          19.308427124746192,
+          0
+        ],
+        [
+          -0.7071067811865476,
+          -0.7071067811865476,
+          0
+        ]
+      ],
+      [
+        "vertical-corner",
+        [
+          39.78842712474619,
+          10,
+          50.028427124746194
+        ],
+        [
+          -0.7071067811865476,
+          0,
+          -0.7071067811865476
+        ]
+      ],
+      [
+        "goal-side",
+        [
+          8.92755,
+          3,
+          55.6
+        ],
+        [
+          -1,
+          0,
+          0
+        ]
+      ],
+      [
+        "goal-roof",
+        [
+          0,
+          6.42775,
+          54.2
+        ],
+        [
+          0,
+          -1,
+          0
+        ]
+      ],
+      [
+        "goal-back",
+        [
+          0,
+          3,
+          60
+        ],
+        [
+          0,
+          0,
+          -1
+        ]
+      ]
+    ],
+    "tilts": [
+      [
+        "four",
+        0,
+        0
+      ],
+      [
+        "two-roll",
+        0.45,
+        0
+      ],
+      [
+        "two-pitch",
+        0,
+        0.15
+      ],
+      [
+        "three-reach",
+        0.1,
+        0.1
+      ],
+      [
+        "one",
+        0.3,
+        0.15
+      ],
+      [
+        "side-chassis",
+        1.5707963267948966,
+        0
+      ],
+      [
+        "roof-chassis",
+        3.141592653589793,
+        0
+      ]
+    ],
+    "headings": [
+      0,
+      3.141592653589793,
+      1.5707963267948966
+    ],
+    "actions": [
+      "neutral",
+      "drive",
+      "reverse",
+      "brake",
+      "left",
+      "right",
+      "boost",
+      "jump-drive",
+      "escape"
+    ],
+    "limits": "Nominal pose labels describe the initial rotation; actual wheel counts are measured, including curvature-induced differences. Natural sliding/falling is a valid escape. No pose is forced upright."
+  },
+  "source": {
+    "game.js": "7ed3378f5def908583fe0b927feba9c2d6315c99c11b32fcea859fc49fefe6bd",
+    "vehicle-fidelity.js": "3e73177c06ca161cd5350f3403f58aeed3b2db875795900ad5c17533d7df122a",
+    "controls.js": "1c6df8a6b097a4c5ee8604edaf93d05daad07101490df563f0a9d4d473a7df0a"
+  },
+  "sourceStable": true,
+  "versions": [
+    {
+      "version": "10.6.0",
+      "cases": 3402,
+      "invalid": 0,
+      "maximumPenetration": 0.0004999520350347205,
+      "trappedGroups": []
+    },
+    {
+      "version": "current",
+      "cases": 3402,
+      "invalid": 0,
+      "maximumPenetration": 0.0004999862423744617,
+      "trappedGroups": []
+    }
+  ]
+}

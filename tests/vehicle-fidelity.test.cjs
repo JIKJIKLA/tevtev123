@@ -51,13 +51,13 @@ test('correctness: a neutral roof remains a recovery opportunity; an explicit ro
  const s=car();s.c.q.setFromAxisAngle(new s.T.Vector3(1,0,0),Math.PI);ticks(s,240);const up=new s.T.Vector3(0,1,0);assert.ok(up.applyQuaternion(s.c.q).y<-.98,'no passive timed pose correction');s.c.jp=1;ticks(s,120);assert.ok(up.set(0,1,0).applyQuaternion(s.c.q).y>.98,'roof-jump torque is a deliberate recovery');assert.ok(s.c.ground);assert.ok(s.a.carPenetration(s.c)<.02);
 });
 
-test('fidelity: only renewed three-wheel support resets the jump/dodge state',()=>{
- const s=car();s.c.q.setFromAxisAngle(new s.T.Vector3(1,0,0),65*Math.PI/180);s.c.canD=0;s.c.jumped=1;s.c.jAge=2;ticks(s,1);assert.ok(s.c.wheelsOn<3);assert.equal(s.c.canD,0);s.c.q.identity();s.c.p.set(0,s.a.bodyPhysics(s.c).height+.015,0);s.c.w.set(0,0,0);ticks(s,1);assert.ok(s.c.wheelsOn>=3);assert.equal(s.c.canD,1);assert.equal(s.c.dcd,0);
+test('landing resources require settled compatible tire support rather than a three-wheel count or one-frame graze',()=>{
+ const s=car();s.c.q.setFromAxisAngle(new s.T.Vector3(1,0,0),65*Math.PI/180);s.c.canD=0;s.c.jumped=1;s.c.jAge=2;ticks(s,1);assert.ok(s.c.wheelsOn<3);assert.equal(s.c.canD,0);s.c.q.identity();s.c.p.set(0,s.a.bodyPhysics(s.c).height+.015,0);s.c.w.set(0,0,0);ticks(s,1);assert.ok(s.c.loadedWheels>=2);assert.equal(s.c.canD,0,'first touch is not a free dodge refund');ticks(s,9);assert.equal(s.c.canD,1);assert.ok(s.c.supportTime>=.05);assert.equal(s.c.dcd,0);
  const ceiling=car();ceiling.c.q.setFromAxisAngle(new ceiling.T.Vector3(1,0,0),Math.PI);ceiling.c.p.set(0,20.48-ceiling.a.bodyPhysics(ceiling.c).height-.015,0);ceiling.c.n.set(0,-1,0);ticks(ceiling,1);ceiling.c.p.y=19.9;ticks(ceiling,240);assert.equal(ceiling.c.jumped,0);assert.equal(ceiling.c.canD,1,'driving/falling off a surface does not start the jump expiry timer');ceiling.c.jp=1;ticks(ceiling,1,{pitch:1});assert.ok(ceiling.c.dT>0);
 });
 
 test('integration: an ordinary near-floor dodge can produce a wavedash contact reset without a trick button',()=>{
- const s=air(car(),.31);s.c.q.setFromAxisAngle(new s.T.Vector3(0,0,1),.2);s.c.v.set(5,-1,0);s.c.jp=1;ticks(s,1,{pitch:1});assert.ok(s.c.v.x>9);let reset=false;for(let k=0;k<120;k++){ticks(s,1,{pitch:0});assert.ok(s.a.carPenetration(s.c)<.02);if(s.c.ground){reset=true;assert.equal(s.c.dT,0);assert.equal(s.c.dcd,0);assert.equal(s.c.canD,1);break;}}assert.ok(reset,'the standard wheel contact state resets the flip');
+ const s=air(car(),.31);s.c.q.setFromAxisAngle(new s.T.Vector3(0,0,1),.2);s.c.v.set(5,-1,0);s.c.jp=1;ticks(s,1,{pitch:1});assert.ok(s.c.v.x>9);let reset=false;for(let k=0;k<120;k++){ticks(s,1,{pitch:0});assert.ok(s.a.carPenetration(s.c)<.02);if(s.c.ground&&s.c.canD){reset=true;assert.equal(s.c.dT,0);assert.equal(s.c.dcd,0);assert.ok(s.c.supportTime>=.05);break;}}assert.ok(reset,'settled wheel contact resets the flip without an extra trick input');
 });
 
 test('regression/stability: combined slide/boost and aerial inputs are deterministic across display groupings',()=>{

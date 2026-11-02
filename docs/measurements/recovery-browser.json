@@ -1,0 +1,559 @@
+{
+  "conditions": "Native CUA keyboard input, developer-only initial scene selection, production browser simulation. Wall-clock delays were affected by background/minimized-app throttling. Requested input hold durations are not treated as exact simulation-time controls. Baseline and candidate share initial fixtures but native timing is not deterministic.",
+  "limitations": [
+    "No physical Chromebook or hardware controller.",
+    "No two-human internet playtest.",
+    "Initial awkward two-tire pose settled to four tires before the native jump. Genuine paired-support jump is demonstrated by the corner trace and focused one-tick reproduction.",
+    "Latest screenshot capture failed while the app was minimized; earlier candidate screenshots are retained.",
+    "3v3 candidate sample conceded the first high return; the baseline sample contained more touches."
+  ],
+  "buildSHA256": "505db88134fc94d3815469359700944b2877f2922c2d4336dc24aef66a847a7a",
+  "scenarios": [
+    {
+      "name": "before-two-wheel",
+      "file": "recovery-native-before-two-wheel.json",
+      "sha256": "f280c7f4654f50397679ddcfa670a1044c68295fec88feb031e429ecf4a7cc75",
+      "ticks": 205,
+      "seconds": 1.7083333333333297,
+      "stopReason": "manual capture",
+      "initialWheels": 2,
+      "initialPosition": [
+        0,
+        0.23362533006676056,
+        -18
+      ],
+      "finalPosition": [
+        1.8554374695452003,
+        0.19457916933580915,
+        -18.944728309440364
+      ],
+      "finalUp": 1,
+      "score": [
+        0,
+        0
+      ],
+      "jump": null,
+      "steeringTicks": 61,
+      "groundSteeringTicks": 61,
+      "maximumPenetration": 0,
+      "lastTeams": [
+        {
+          "id": 0,
+          "team": 0,
+          "touches": 0,
+          "mode": "KICKOFF"
+        }
+      ]
+    },
+    {
+      "name": "after-two-wheel",
+      "file": "recovery-native-after-two-wheel.json",
+      "sha256": "aafc36f0b0355cb164373f75c01c3c9a38172bcbe44e9248a8991423d27a9bbd",
+      "ticks": 220,
+      "seconds": 1.8333333333333293,
+      "stopReason": "manual capture",
+      "initialWheels": 2,
+      "initialPosition": [
+        0,
+        0.23362533006676056,
+        -18
+      ],
+      "finalPosition": [
+        1.495102227418758,
+        0.19438514896889242,
+        -18.761407464957713
+      ],
+      "finalUp": 0.9999999999997249,
+      "score": [
+        0,
+        0
+      ],
+      "jump": {
+        "tick": 8,
+        "wheels": 4,
+        "beforeVelocity": [
+          0,
+          -0.10373738803444404,
+          0
+        ],
+        "afterVelocity": [
+          -0.009215444742597783,
+          2.8563297721531153,
+          0
+        ],
+        "normal": [
+          0,
+          1,
+          0
+        ],
+        "lock": 0.12
+      },
+      "steeringTicks": 61,
+      "groundSteeringTicks": 47,
+      "maximumPenetration": 0,
+      "lastTeams": [
+        {
+          "id": 0,
+          "team": 0,
+          "touches": 0,
+          "mode": "KICKOFF"
+        }
+      ]
+    },
+    {
+      "name": "before-wall-early-jump",
+      "file": "recovery-native-before-wall-early-jump.json",
+      "sha256": "6cf729fe347c54c804d7298835572c2c625e5eb9b8d911be73c722441792fb40",
+      "ticks": 139,
+      "seconds": 1.1583333333333317,
+      "stopReason": "manual capture",
+      "initialWheels": 2,
+      "initialPosition": [
+        40.663519115327,
+        10,
+        0
+      ],
+      "finalPosition": [
+        40.74090172658784,
+        8.23934075249566,
+        -5.886469474519815e-17
+      ],
+      "finalUp": 6.730460271411626e-17,
+      "score": [
+        0,
+        0
+      ],
+      "jump": null,
+      "steeringTicks": 0,
+      "groundSteeringTicks": 0,
+      "maximumPenetration": 0,
+      "lastTeams": [
+        {
+          "id": 0,
+          "team": 0,
+          "touches": 0,
+          "mode": "KICKOFF"
+        }
+      ]
+    },
+    {
+      "name": "after-wall-early-jump",
+      "file": "recovery-native-after-wall-early-jump.json",
+      "sha256": "c7d25b1b80cc000c6b957534ebb8c06146c8a5ec6f06090fac029b17c874ca27",
+      "ticks": 663,
+      "seconds": 5.525000000000064,
+      "stopReason": "manual capture",
+      "initialWheels": 2,
+      "initialPosition": [
+        40.663519115327,
+        10,
+        0
+      ],
+      "finalPosition": [
+        34.19761095578397,
+        0.1945791666666675,
+        0.6763399932387503
+      ],
+      "finalUp": 1,
+      "score": [
+        0,
+        0
+      ],
+      "jump": {
+        "tick": 0,
+        "wheels": 2,
+        "beforeVelocity": [
+          0,
+          0,
+          0
+        ],
+        "afterVelocity": [
+          -3.0024710641195753,
+          -0.05416666666666666,
+          0.05292080665019968
+        ],
+        "normal": [
+          -1,
+          0,
+          0
+        ],
+        "lock": 0.12
+      },
+      "steeringTicks": 0,
+      "groundSteeringTicks": 0,
+      "maximumPenetration": 0,
+      "lastTeams": [
+        {
+          "id": 0,
+          "team": 0,
+          "touches": 0,
+          "mode": "KICKOFF"
+        }
+      ]
+    },
+    {
+      "name": "after-wall-climb-reverse",
+      "file": "recovery-native-after-wall-climb-reverse.json",
+      "sha256": "cd19efd8a5fe541cbf45c19b2ea59c374da20cee8de239f7e5f1d40c3f5ea042",
+      "ticks": 343,
+      "seconds": 2.858333333333326,
+      "stopReason": "manual capture",
+      "initialWheels": 4,
+      "initialPosition": [
+        40.7749,
+        10,
+        0
+      ],
+      "finalPosition": [
+        36.14455240197509,
+        0.3800051492039316,
+        0
+      ],
+      "finalUp": 0.8146807011426171,
+      "score": [
+        0,
+        0
+      ],
+      "jump": {
+        "tick": 228,
+        "wheels": 4,
+        "beforeVelocity": [
+          3.2513674292593865e-15,
+          -10.482327527296567,
+          0
+        ],
+        "afterVelocity": [
+          -3.0145833333333303,
+          -10.536494193963234,
+          0
+        ],
+        "normal": [
+          -1,
+          0,
+          0
+        ],
+        "lock": 0.12
+      },
+      "steeringTicks": 0,
+      "groundSteeringTicks": 0,
+      "maximumPenetration": 0.00047940697248926873,
+      "lastTeams": [
+        {
+          "id": 0,
+          "team": 0,
+          "touches": 0,
+          "mode": "KICKOFF"
+        }
+      ]
+    },
+    {
+      "name": "after-corner-full",
+      "file": "recovery-native-after-corner-full.json",
+      "sha256": "b0d3c74ba40c2b8a45d54560a79038fa73c558179f61b7f5c502149cf177f1a6",
+      "ticks": 960,
+      "seconds": 8.000000000000187,
+      "stopReason": "manual capture",
+      "initialWheels": 2,
+      "initialPosition": [
+        39.57878348070172,
+        10,
+        49.818783480701725
+      ],
+      "finalPosition": [
+        34.72990725314332,
+        0.19457916666666658,
+        28.75898932471254
+      ],
+      "finalUp": 1,
+      "score": [
+        0,
+        0
+      ],
+      "jump": {
+        "tick": 73,
+        "wheels": 2,
+        "beforeVelocity": [
+          0.9219520347373015,
+          0.625493338235634,
+          -6.664838484241126
+        ],
+        "afterVelocity": [
+          -2.0725822192990453,
+          0.5782843751992333,
+          -6.874144431887945
+        ],
+        "normal": [
+          -0.9977892533610848,
+          0,
+          -0.06645754943668175
+        ],
+        "lock": 0.12
+      },
+      "steeringTicks": 0,
+      "groundSteeringTicks": 0,
+      "maximumPenetration": 0.000397808404022257,
+      "lastTeams": [
+        {
+          "id": 0,
+          "team": 0,
+          "touches": 0,
+          "mode": "KICKOFF"
+        }
+      ]
+    },
+    {
+      "name": "before-heat-rally-1v1",
+      "file": "recovery-native-before-heat-rally-1v1.json",
+      "sha256": "fb43d4b9773264abb38c45abff2640a4c47e556a025f3e43ba53f739fe399e7f",
+      "ticks": 698,
+      "seconds": 5.8166666666667455,
+      "stopReason": "first goal reached",
+      "initialWheels": 4,
+      "initialPosition": [
+        0,
+        0.1851,
+        -44
+      ],
+      "finalPosition": [
+        -0.0019480703580075536,
+        0.19457916666666372,
+        -45.35033684686493
+      ],
+      "finalUp": 1,
+      "score": [
+        1,
+        0
+      ],
+      "jump": {
+        "tick": 194,
+        "wheels": 4,
+        "beforeVelocity": [
+          -2.3710257554585445e-16,
+          -0.1834286352713891,
+          -1.067815070876895
+        ],
+        "afterVelocity": [
+          -2.3710257554585445e-16,
+          2.7769880313952773,
+          -1.067815070876895
+        ],
+        "normal": [
+          0,
+          0.9999999999999999,
+          0
+        ],
+        "lock": 0.12
+      },
+      "steeringTicks": 0,
+      "groundSteeringTicks": 0,
+      "maximumPenetration": 0,
+      "lastTeams": [
+        {
+          "id": 0,
+          "team": 0,
+          "touches": 1,
+          "mode": "KICKOFF"
+        },
+        {
+          "id": 1,
+          "team": 1,
+          "touches": 0,
+          "mode": "SAVE"
+        }
+      ]
+    },
+    {
+      "name": "after-heat-rally-1v1",
+      "file": "recovery-native-after-heat-rally-1v1.json",
+      "sha256": "f459bfc31bd0701778b675baef812914e19001365036fefa4435837d2ee193ad",
+      "ticks": 832,
+      "seconds": 6.933333333333468,
+      "stopReason": "first goal reached",
+      "initialWheels": 4,
+      "initialPosition": [
+        0,
+        0.1851,
+        -44
+      ],
+      "finalPosition": [
+        -0.5743217691209862,
+        0.19457916666666658,
+        -45.046054668842494
+      ],
+      "finalUp": 1,
+      "score": [
+        0,
+        1
+      ],
+      "jump": {
+        "tick": 168,
+        "wheels": 4,
+        "beforeVelocity": [
+          0,
+          2.432571301475006e-7,
+          0
+        ],
+        "afterVelocity": [
+          0,
+          2.9604169099237967,
+          0
+        ],
+        "normal": [
+          0,
+          1,
+          0
+        ],
+        "lock": 0.12
+      },
+      "steeringTicks": 0,
+      "groundSteeringTicks": 0,
+      "maximumPenetration": 0.000366516029659536,
+      "lastTeams": [
+        {
+          "id": 0,
+          "team": 0,
+          "touches": 1,
+          "mode": "KICKOFF"
+        },
+        {
+          "id": 1,
+          "team": 1,
+          "touches": 1,
+          "mode": "DEFEND"
+        }
+      ]
+    },
+    {
+      "name": "before-heat-3v3",
+      "file": "recovery-native-before-heat-3v3.json",
+      "sha256": "66b28bdb13e357112073b9431c6fc1b0180beae298f6e381ddb6234c37ba8963",
+      "ticks": 1459,
+      "seconds": 12.158333333333283,
+      "stopReason": "manual capture",
+      "initialWheels": 4,
+      "initialPosition": [
+        0,
+        0.1851,
+        -44
+      ],
+      "finalPosition": [
+        0.10969939982062508,
+        0.19457916666666658,
+        -52.757083241212264
+      ],
+      "finalUp": 1,
+      "score": [
+        1,
+        0
+      ],
+      "jump": null,
+      "steeringTicks": 0,
+      "groundSteeringTicks": 0,
+      "maximumPenetration": 0,
+      "lastTeams": [
+        {
+          "id": 0,
+          "team": 0,
+          "touches": 0,
+          "mode": "KICKOFF"
+        },
+        {
+          "id": 1,
+          "team": 1,
+          "touches": 0,
+          "mode": "SAVE"
+        },
+        {
+          "id": 2,
+          "team": 0,
+          "touches": 1,
+          "mode": "APPROACH"
+        },
+        {
+          "id": 3,
+          "team": 1,
+          "touches": 1,
+          "mode": "SAVE"
+        },
+        {
+          "id": 4,
+          "team": 0,
+          "touches": 1,
+          "mode": "RECOVER"
+        },
+        {
+          "id": 5,
+          "team": 1,
+          "touches": 0,
+          "mode": "SAVE"
+        }
+      ]
+    },
+    {
+      "name": "after-heat-3v3",
+      "file": "recovery-native-after-heat-3v3.json",
+      "sha256": "16606823926e18fee62339c723d19ad464e9440f9c055965813c846abadddf4c",
+      "ticks": 555,
+      "seconds": 4.6250000000000195,
+      "stopReason": "first goal reached",
+      "initialWheels": 4,
+      "initialPosition": [
+        0,
+        0.1851,
+        -44
+      ],
+      "finalPosition": [
+        0,
+        0.1945791666666666,
+        -44
+      ],
+      "finalUp": 1,
+      "score": [
+        1,
+        0
+      ],
+      "jump": null,
+      "steeringTicks": 0,
+      "groundSteeringTicks": 0,
+      "maximumPenetration": 0,
+      "lastTeams": [
+        {
+          "id": 0,
+          "team": 0,
+          "touches": 0,
+          "mode": "KICKOFF"
+        },
+        {
+          "id": 1,
+          "team": 1,
+          "touches": 0,
+          "mode": "DEFEND"
+        },
+        {
+          "id": 2,
+          "team": 0,
+          "touches": 0,
+          "mode": "SUPPORT"
+        },
+        {
+          "id": 3,
+          "team": 1,
+          "touches": 0,
+          "mode": "DEFEND"
+        },
+        {
+          "id": 4,
+          "team": 0,
+          "touches": 1,
+          "mode": "SUPPORT"
+        },
+        {
+          "id": 5,
+          "team": 1,
+          "touches": 0,
+          "mode": "DEFEND"
+        }
+      ]
+    }
+  ]
+}

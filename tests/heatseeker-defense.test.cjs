@@ -1,0 +1,37 @@
+const test=require('node:test'),assert=require('node:assert/strict'),load=require('./harness.cjs');
+function game(size=1,level=1){const g=load({source:true}),a=g.api;a.cfg.mode=1;a.cfg.size=size;a.cfg.lvl=level;a.configureCars();a.setState({st:'PLAY',sandbox:false});for(const c of a.cars){a.resetCar(c,(c.id>>1)*5,(c.team?1:-1)*42);c.q.setFromAxisAngle(new a.THREE.Vector3(0,1,0),c.team?Math.PI/2:-Math.PI/2);}a.heat.server=-1;a.ball.last=0;a.heat.target=1;a.ball.p.set(0,2,0);a.ball.v.set(0,0,25);return{...g,a,c:a.cars[1]};}
+test('a stationary defensive bot holds its target instead of driving through it',()=>{const{a,c}=game();a.planBot(c);c.planT=10;c.ai.mode='DEFEND';c.ai.target.copy(c.p);c.v.set(0,0,0);a.bot(c);assert.equal(c.inp.thr,0);assert.equal(c.inp.boost,0);assert.equal(c.inp.ps,0);});
+test('an urgent Heatseeker save survives a teammate claim and voluntary yield decoration',()=>{const{a,c}=game(2);a.ball.p.set(0,1.5,34);a.ball.v.set(0,0,28);a.cars[3].p.set(-15,.2,28);a.RIVALS.claim={team:1,slot:3,until:100};c.ai.yieldUntil=100;a.planBot(c);assert.equal(c.ai.mode,'SAVE');assert.equal(c.ai.heatState,'INTERCEPT');assert.ok(c.ai.urgent);});
+test('outgoing Heatseeker balls produce defensive repositioning rather than an attacking chase',()=>{const{a,c}=game();a.heat.target=-1;a.ball.last=1;a.ball.p.set(8,2,-10);a.ball.v.set(-3,1,-28);a.planBot(c);assert.equal(c.ai.heatState,'REPOSITION');assert.ok(c.ai.target.z>25);assert.ok(c.ai.target.z<51);assert.equal(c.ai.commit,0);});
+test('Heatseeker forecast planning does not mutate live ball or homing state',()=>{const{a,c}=game();const before=JSON.stringify({p:a.ball.p.toArray(),v:a.ball.v.toArray(),w:a.ball.w.toArray(),heat:a.heat});a.planBot(c);assert.equal(JSON.stringify({p:a.ball.p.toArray(),v:a.ball.v.toArray(),w:a.ball.w.toArray(),heat:a.heat}),before);});
+test('defensive arrival brakes and holds without a forward/reverse limit cycle',()=>{
+ const{a,c,window}=game();window.__TEVIN_SERVER__=true;a.cars[0].enabled=false;a.heat.target=0;a.ball.last=1;a.ball.p.set(0,.9125,0);a.ball.v.set(0,0,0);a.planBot(c);c.p.copy(c.ai.target);c.p.y=a.bodyPhysics(c).height+.015;c.v.set(0,0,0);c.planT=10;
+ const initial=c.p.clone();let switches=0,previous=0;for(let tick=0;tick<240;tick++){a.sim(a.DT);if(Math.sign(c.inp.thr)!==previous&&previous)switches++;previous=Math.sign(c.inp.thr);}
+ assert.ok(c.p.distanceTo(initial)<.08);assert.equal(c.inp.thr,0);assert.equal(c.inp.boost,0);assert.equal(switches,0);
+});
+test('curved incoming forecast supplies a feasible intercept rather than a straight-line save',()=>{
+ for(const team of [0,1]){const{a,window}=game();window.__TEVIN_SERVER__=true;const c=a.cars[team],sign=team?1:-1;a.ball.last=1-team;a.heat.target=sign;a.heat.speed=28;a.ball.p.set(-sign*16,3,sign*8);a.ball.v.set(sign*19,1,sign*24);a.planBot(c);assert.equal(c.ai.heatState,'INTERCEPT');assert.ok(c.ai.time>0);assert.ok(c.ai.heatThreatTime>=c.ai.time-.05);assert.ok(c.ai.heatThreatPoint);assert.ok(Math.abs(c.ai.heatThreatPoint[0])<6,'homing curves toward the actual goal');assert.ok(c.ai.intercept.z*sign>20);assert.ok(c.ai.intercept.y<5);}
+});
+test('both teams assign one reachable interceptor and distinct cover positions at every size and difficulty',()=>{
+ for(const size of [1,2,3])for(const level of [0,1,2])for(const team of [0,1]){const{a,window}=game(size,level);window.__TEVIN_SERVER__=true;const sign=team?1:-1;a.ball.last=1-team;a.heat.target=sign;a.heat.speed=24;a.ball.p.set(0,1.5,sign*18);a.ball.v.set(0,0,sign*24);const mates=a.cars.filter(c=>c.team===team);let owner=-1;for(let n=0;n<8;n++){for(const c of mates)a.planBot(c);const interceptors=mates.filter(c=>c.ai.heatState==='INTERCEPT');assert.equal(interceptors.length,1,'exactly one reachable primary');if(owner>=0)assert.equal(interceptors[0].id,owner,'role lease prevents assignment flapping');owner=interceptors[0].id;const covers=mates.filter(c=>c.id!==owner);if(covers.length===2)assert.ok(covers[0].ai.target.distanceTo(covers[1].ai.target)>4);for(const c of covers)assert.ok(c.ai.target.z*sign>35);a.sim(a.DT);}}
+});
+test('a backboard return and a real new touch invalidate the shared defensive forecast',()=>{
+ const{a,window}=game(2);window.__TEVIN_SERVER__=true;const c=a.cars[0];a.ball.last=0;a.ball.lastPlayer=0;a.heat.target=1;a.heat.speed=40;a.ball.p.set(20,2.5,48);a.ball.v.set(0,0,40);a.planBot(c);const revision=c.ai.heatForecastRevision;assert.ok(c.ai.heatThreatPoint,'the forecast includes the homing backboard return');for(let k=0;k<20&&a.heat.target===1;k++)a.ballSub(a.DT);assert.equal(a.heat.target,-1);a.planBot(c);assert.ok(c.ai.heatForecastRevision>revision);const updated=c.ai.heatForecastRevision;a.cars[1].lastTouchAt=1;a.ball.last=1;a.ball.lastPlayer=1;a.heat.target=-1;a.heat.speed=42;a.planBot(c);assert.ok(c.ai.heatForecastRevision>updated);
+});
+test('a demolished or actively recovering primary releases its role lease immediately',()=>{
+ const{a,window}=game(3);window.__TEVIN_SERVER__=true;a.ball.p.set(0,1.5,18);a.ball.v.set(0,0,24);a.heat.target=1;a.heat.speed=24;const mates=a.cars.filter(c=>c.team===1);
+ // Each backup must actually be able to reach this shot. The shared fixture's
+ // x=10m far-side car cannot turn and travel there before the goal crossing.
+ mates.forEach((c,k)=>c.p.x=(k-1)*1.5);
+ for(const c of mates)a.planBot(c);const primary=mates.find(c=>c.ai.heatState==='INTERCEPT');assert.ok(primary);primary.demoTime=1;for(const c of mates.filter(c=>c!==primary))a.planBot(c);const replacement=mates.find(c=>c!==primary&&c.ai.heatState==='INTERCEPT');assert.ok(replacement);replacement.un=.5;for(const c of mates.filter(c=>c!==primary&&c!==replacement))a.planBot(c);assert.ok(mates.some(c=>c!==primary&&c!==replacement&&c.ai.heatState==='INTERCEPT'));
+});
+test('an unreachable high goal-bound shot does not start a jump or endless boost sequence',()=>{
+ const{a,window}=game(3,2);window.__TEVIN_SERVER__=true;a.ball.last=0;a.heat.target=1;a.heat.speed=42;a.ball.p.set(0,5.1,47);a.ball.v.set(0,0,42);for(let k=0;k<30&&a.getState().st==='PLAY';k++){a.sim(a.DT);for(const c of a.cars.filter(c=>c.team===1)){assert.equal(c.ai.heatReachable,false);assert.equal(c.bs,0);assert.equal(c.inp.boost,0);}}
+});
+test('partial wall support uses its real navigation frame and suppresses competing airborne recovery',()=>{
+ const{a,c}=game();a.cfg.mode=0;c.planT=10;c.p.set(40.77,8,0);c.n.set(-1,0,0);const f=new a.THREE.Vector3(0,-1,0),r=new a.THREE.Vector3().crossVectors(f,c.n);c.q.setFromRotationMatrix(new a.THREE.Matrix4().makeBasis(f,c.n,r));c.surfaceSupport=true;c.ground=false;c.wheelsOn=2;c.ai.target.set(c.p.x,3,0);c.ai.mode='DEFEND';c.v.set(0,0,0);a.bot(c);assert.equal(c.inp.pitch,0);assert.equal(c.inp.roll,0);assert.ok(Math.abs(c.inp.steer)<1e-9);assert.equal(c.ai.mode,'DEFEND');assert.ok(c.inp.thr>0);
+});
+test('stalled partial/chassis contacts use ordinary reverse and recovery-jump inputs without changing physics directly',()=>{
+ const{a,c}=game();a.planBot(c);c.planT=10;c.ai.mode='DEFEND';c.ai.target.set(0,.8,20);c.ground=false;c.surfaceSupport=true;c.wheelsOn=2;c.hullContact=1;c.n.set(0,1,0);c.v.set(0,0,0);const position=c.p.clone(),velocity=c.v.clone();let recovery=false;for(let k=0;k<200;k++){c.jp=0;a.bot(c);if(c.jp){recovery=true;assert.equal(c.inp.thr,-1);assert.equal(c.inp.boost,0);break;}}assert.ok(recovery);assert.equal(c.p.distanceTo(position),0);assert.equal(c.v.distanceTo(velocity),0);
+});
+module.exports={game};

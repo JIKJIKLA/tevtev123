@@ -1,6 +1,6 @@
 // Direct Phoenix match transport. No database writes in the gameplay loop.
 const DED={enabled:!window.__TEVIN_SERVER__,url:'wss://tevin-161-153-26-154.sslip.io/play',ws:null,connecting:null,active:false,owner:'',requests:new Map(),request:0,entering:null,history:[],outbox:[],seq:0,lastJump:0,replaying:false,offset:new V3(),ballOffset:new V3(),rtt:0,pingAt:0,lastPacket:0};
-const DRIVER_SCALARS=['demoTime','demoSeq','demoBy','respawnSeq','supersonic','supersonicTime','boostHold','jt','jl','jAge','jumped','jHoldTime','canJ','canD','dT','dcd','aT','cT','wy','grip','wasG','ground','bs','bt','bst','sk','un','righting','clearance','wheelsOn','hullContact','handbrake','autoFlipTime','autoFlipSign','ballHitCooldown','carriedPitch'];
+const DRIVER_SCALARS=['demoTime','demoSeq','demoBy','respawnSeq','supersonic','supersonicTime','boostHold','jt','jl','jAge','jumped','jHoldTime','canJ','canD','dT','dcd','aT','cT','wy','grip','wasG','ground','bs','bt','bst','sk','un','righting','clearance','wheelsOn','hullContact','handbrake','autoFlipTime','autoFlipSign','ballHitCooldown','supportTime','jumpBuffer'];
 // Draw remote cars on the authority's evenly spaced clock, not packet arrival jitter.
 Object.assign(DED,{clockReady:false,serverOffset:0,serverTime:0,arrival:0,jitter:0,viewDelay:50,viewTime:0,rotationOffset:new Qn()});
 const dedIdentity=new Qn();
@@ -20,7 +20,7 @@ function dedRenderTime(now,dt){
  DED.viewTime+=cl(target-DED.viewTime,0,Math.max(0,dt)*1150);return DED.viewTime;
 }
 function packDriver(c){const s={};for(const k of DRIVER_SCALARS)if(Number.isFinite(c[k])||typeof c[k]==='boolean')s[k]=c[k];return{s,jdir:c.jdir.toArray(),flipAxis:c.flipAxis.toArray()}}
-function readDriver(c,p){if(!p)return;for(const k of DRIVER_SCALARS){const value=p.s?.[k];if(k==='carriedPitch'){if(value===-1||value===0||value===1)c[k]=value;}else if(Number.isFinite(value)||typeof value==='boolean')c[k]=value;}if(finiteVector(p.jdir,3,1.01))c.jdir.fromArray(p.jdir);if(finiteVector(p.flipAxis,3,1.01))c.flipAxis.fromArray(p.flipAxis)}
+function readDriver(c,p){if(!p)return;for(const k of DRIVER_SCALARS){const value=p.s?.[k];if(k==='supportTime'||k==='jumpBuffer'){const max=k==='supportTime'?.1:.08;if(Number.isFinite(value)&&value>=0&&value<=max)c[k]=value;}else if(Number.isFinite(value)||typeof value==='boolean')c[k]=value;}if(finiteVector(p.jdir,3,1.01))c.jdir.fromArray(p.jdir);if(finiteVector(p.flipAxis,3,1.01))c.flipAxis.fromArray(p.flipAxis)}
 function dedSend(m){if(DED.ws?.readyState!==1)return false;if(DED.ws.bufferedAmount>65536)return false;DED.ws.send(JSON.stringify(m));return true}
 function dedRequest(m){return new Promise((resolve,reject)=>{const request=++DED.request,timer=setTimeout(()=>{DED.requests.delete(request);reject(Error('Server did not respond. Try again.'))},12000);DED.requests.set(request,{resolve,reject,timer});if(!dedSend({...m,request})){clearTimeout(timer);DED.requests.delete(request);reject(Error('Server connection is unavailable.'))}})}
 function dedConnect(){

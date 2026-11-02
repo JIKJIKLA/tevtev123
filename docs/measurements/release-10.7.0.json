@@ -1,0 +1,12 @@
+{
+  "build": "10.7.0",
+  "status": "verified candidate; publication pending",
+  "clientProtocol": 8,
+  "dedicatedWire": 5,
+  "portableBuildSha256": "505db88134fc94d3815469359700944b2877f2922c2d4336dc24aef66a847a7a",
+  "clientTests": {"passed":375,"failed":0},
+  "serverTests": {"passed":35,"failed":0},
+  "frozenFilesUnchanged":93,
+  "physicalDeviceLimitations": ["No physical Chromebook", "No hardware controller", "No two-human internet playtest"],
+  "details": "../RECOVERY-10.7.0.md"
+}

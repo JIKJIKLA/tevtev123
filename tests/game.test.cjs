@@ -1,5 +1,5 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),load=require('./harness.cjs');
-test('headless engine and gameplay initialize',()=>{const {api}=load();assert.equal(api.PROTOCOL,7);assert.equal(api.PADS.length,34);});
+test('headless engine and gameplay initialize',()=>{const {api}=load();assert.equal(api.PROTOCOL,8);assert.equal(api.PADS.length,34);});
 test('complete menu boots with camera and binding settings',()=>{const g=load({full:true});assert.equal(g.document.querySelectorAll('.binding-button').length,10);assert.equal(g.document.querySelectorAll('.camera-row').length,5);assert.equal(g.api.cfg.hi,0);assert.equal(g.api.cfg.models,1);});
 function setup(){const g=load(),a=g.api;a.configureCars();a.setState({st:'PLAY',sandbox:true});a.cars[1].enabled=false;const c=a.cars[0];a.resetCar(c,0,0);c.q.identity();return {...g,a,c};}
 function drive(a,c,seconds,input){Object.assign(c.inp,input);for(let k=0;k<Math.round(seconds/a.DT);k++){a.stepCar(c,a.DT);c.p.x=0;c.p.z=0;}return c;}

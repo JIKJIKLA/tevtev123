@@ -31,7 +31,7 @@ function renderBindings(){
  const box=$('binding-grid');if(!box)return;box.replaceChildren();
  const labels={forward:'Accelerate / pitch',reverse:'Brake / pitch',left:'Steer left',right:'Steer right',jump:'Jump / dodge',boost:'Boost',rollLeft:'Air roll left',rollRight:'Air roll right',slide:'Powerslide',camera:'Ball camera'};
  for(const action in bindings){const button=document.createElement('button');button.className='binding-button';button.textContent=labels[action]+' · '+(bindingCapture===action?'PRESS A KEY':keyLabel(bindings[action]));button.onclick=()=>{bindingCapture=action;renderBindings();$('binding-status').textContent='Press a key. Escape cancels. Used bindings swap places.'};box.appendChild(button);}
- if(!bindingCapture)$('binding-status').textContent='Changes save automatically. Hold your driving key through a jump without adding pitch; release and press again in flight to pitch. Direction still chooses your second-jump dodge. R / T reset training; F2 opens training settings.';
+ if(!bindingCapture)$('binding-status').textContent='Changes save automatically. W / S drive on a surface and pitch in the air, including immediately after jumping. Direction chooses your second-jump dodge. Press jump to recover from supported side or roof contact. R / T reset training; F2 opens training settings.';
  $('camtag').dataset.camera=ballCam?'ball':'car';$('camtag').textContent=(ballCam?'BALL CAM':'CAR CAM')+' · '+keyLabel(bindings.camera);
 }
 function menuNavigationReady(){return st==='MENU'&&!INTRO.active&&!LOADING.active&&!bindingCapture&&!(SECRET.open&&!SECRET.minimized)&&!document.hidden&&inputFocused&&!!$('menu')?.classList.contains('on');}
@@ -133,9 +133,6 @@ function human(c){if(carDemolished(c)||SECRET.open&&!SECRET.minimized){Object.as
  const k=keys,w=k.w||k.arrowup?1:0,s=k.s||k.arrowdown?1:0,a=k.a||k.arrowleft?1:0,d=k.d||k.arrowright?1:0,i=c.inp;
  const combine=(digital,touch,analog)=>digital||(touchInput.active?touch:analog);
  i.thr=combine(w-s,touchInput.thr,padInput.thr);i.pitch=combine(w-s,touchInput.pitch,padInput.pitch);i.steer=combine(d-a,touchInput.steer,padInput.steer);i.yaw=combine(d-a,touchInput.yaw,padInput.yaw);
- // Only digital W/S (including the arrow aliases) shares a driving and pitch
- // axis. Independent controller/touch pitch must never inherit keyboard intent.
- i.coupledPitch=w!==s?1:0;
  i.roll=combine((k.e?1:0)-(k.q?1:0),touchInput.roll,padInput.roll);i.boost=k.shift||k.mouseBoost||touchInput.boost||padInput.boost?1:0;i.ps=k.control||touchInput.ps||padInput.ps?1:0;c.jh=k[' ']||touchInput.jump||padInput.jump?1:0;
 }
 addEventListener('pointerdown',e=>{if(e.pointerType!=='touch'&&e.button===0&&e.target?.id==='cv'&&st==='PLAY'&&!LOADING.active){keys.mouseBoost=1;e.preventDefault();}});

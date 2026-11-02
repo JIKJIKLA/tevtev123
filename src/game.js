@@ -2,7 +2,7 @@
 try {
 
 
-/* Nivet League 10.6.0 — Drive. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
+/* Nivet League 10.7.0 — Recovery. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
 window.tevinBoot.stage='game script';
 
 const ENGINE=TevinEngine;
@@ -126,17 +126,17 @@ const CM=PHYS.car.mass,CI={x:CM*(.88*.88+.7*.7)/12,y:CM*(2.06*2.06+.88*.88)/12,z
 
 const _p=new V3(),_n=new V3(),_up=new V3(),_ft=new V3(),_rt=new V3(),_a=new V3(),_b=new V3(),_c=new V3(),_d=new V3(),_e=new V3(),_f=new V3(),_g=new V3(),_h=new V3(),_q1=new Qn(),_q2=new Qn(),_iq=new Qn();
 
-const Z={thr:0,steer:0,pitch:0,yaw:0,roll:0,boost:0,ps:0,coupledPitch:0};
+const Z={thr:0,steer:0,pitch:0,yaw:0,roll:0,boost:0,ps:0};
 
 // INLINE:demolition.js
 
-const mkCar=t=>({team:t,id:t,enabled:true,color:t?0xff7a20:0x2a6bff,touches:0,goals:0,topSpeed:0,boostUsed:0,lastTouchAt:-100,p:new V3(),prevP:new V3(),renderP:new V3(),prevQ:new Qn(),frameP:new V3(),frameQ:new Qn(),sweepEnd:new V3(),moveQ:new Qn(),sweepQ:new Qn(),v:new V3(),q:new Qn(),w:new V3(),n:new V3(0,1,0),jdir:new V3(0,1,0),boost:33,handbrake:0,carriedPitch:0,autoFlipTime:0,autoFlipSign:0,ballHitCooldown:0,demoTime:0,demoSeq:0,demoBy:-1,respawnSeq:0,supersonic:false,supersonicTime:0,boostHold:0,inp:{...Z},jp:0,jh:0,jt:0,jl:0,jAge:0,jumped:0,jHoldTime:0,flipAxis:new V3(),canJ:0,canD:0,dT:0,dcd:0,aT:0,cT:0,wy:0,grip:PHYS.ground.gripF,wasG:0,ground:0,bs:0,bt:0,bst:0,ai:{target:new V3(),intercept:new V3(),mode:'ATTACK',time:0,commit:0,rotateSide:1,strikeCD:0,tune:{steerGain:2.6,boostAngle:.28,boostRange:7,dodgeDistance:5.4,setup:2.6,airGain:3.4,wallGain:1}}});
+const mkCar=t=>({team:t,id:t,enabled:true,color:t?0xff7a20:0x2a6bff,touches:0,goals:0,topSpeed:0,boostUsed:0,lastTouchAt:-100,p:new V3(),prevP:new V3(),renderP:new V3(),prevQ:new Qn(),frameP:new V3(),frameQ:new Qn(),sweepEnd:new V3(),moveQ:new Qn(),sweepQ:new Qn(),v:new V3(),q:new Qn(),w:new V3(),n:new V3(0,1,0),jdir:new V3(0,1,0),boost:33,handbrake:0,supportTime:0,jumpBuffer:0,surfaceSupport:false,tireLoad:0,loadedWheels:0,autoFlipTime:0,autoFlipSign:0,ballHitCooldown:0,demoTime:0,demoSeq:0,demoBy:-1,respawnSeq:0,supersonic:false,supersonicTime:0,boostHold:0,inp:{...Z},jp:0,jh:0,jt:0,jl:0,jAge:0,jumped:0,jHoldTime:0,flipAxis:new V3(),canJ:0,canD:0,dT:0,dcd:0,aT:0,cT:0,wy:0,grip:PHYS.ground.gripF,wasG:0,ground:0,bs:0,bt:0,bst:0,ai:{target:new V3(),intercept:new V3(),mode:'ATTACK',time:0,commit:0,rotateSide:1,strikeCD:0,tune:{steerGain:2.6,boostAngle:.28,boostRange:7,dodgeDistance:5.4,setup:2.6,airGain:3.4,wallGain:1}}});
 
 const cars=[mkCar(0),mkCar(1)],P1=cars[0],ball={p:new V3(),v:new V3(),w:new V3(),last:-1,hit:0,hitT:0,prevP:new V3(),frameP:new V3()},PADS=[];
 
 STANDARD_PADS.forEach(([x,z,big])=>PADS.push({x,z,big,t:0}));
 
-function resetCar(c,x,z){c.demoTime=0;c.carriedPitch=0;c.handbrake=c.autoFlipTime=c.autoFlipSign=c.ballHitCooldown=0;c.supersonic=false;c.supersonicTime=c.boostHold=0;c.p.set(x,bodyPhysics(c).height+.015,z);c.v.set(0,0,0);c.w.set(0,0,0);c.n.set(0,1,0);c.boost=33;c.jp=c.jh=c.jt=c.jl=c.jAge=c.jumped=c.jHoldTime=0;c.canJ=1;c.canD=1;c.dT=c.dcd=c.aT=c.cT=c.wy=0;c.grip=PHYS.ground.gripF;c.wasG=1;c.ground=1;c.bs=c.bt=c.bst=c.sk=c.un=0;Object.assign(c.inp,Z);c.q.setFromAxisAngle(Y3,Math.hypot(x,z)>1e-6?Math.atan2(z,-x):0);c.prevP.copy(c.p);c.renderP.copy(c.p);c.prevQ.copy(c.q);c.frameP.copy(c.p);c.frameQ.copy(c.q);c.planT=c.righting=0;c.ai.mode='KICKOFF';c.ai.time=c.ai.commit=c.ai.strikeCD=c.ai.pressure=0;c.ai.rotateSide=x>0?1:-1;c.ai.target.copy(c.p);c.ai.intercept.set(0,BR,0);c.tgt=c.ai.target}
+function resetCar(c,x,z){c.demoTime=0;c.supportTime=c.jumpBuffer=0;c.surfaceSupport=false;c.tireLoad=c.loadedWheels=0;c.handbrake=c.autoFlipTime=c.autoFlipSign=c.ballHitCooldown=0;c.supersonic=false;c.supersonicTime=c.boostHold=0;c.p.set(x,bodyPhysics(c).height+.015,z);c.v.set(0,0,0);c.w.set(0,0,0);c.n.set(0,1,0);c.boost=33;c.jp=c.jh=c.jt=c.jl=c.jAge=c.jumped=c.jHoldTime=0;c.canJ=1;c.canD=1;c.dT=c.dcd=c.aT=c.cT=c.wy=0;c.grip=PHYS.ground.gripF;c.wasG=1;c.ground=1;c.bs=c.bt=c.bst=c.sk=c.un=0;Object.assign(c.inp,Z);c.q.setFromAxisAngle(Y3,Math.hypot(x,z)>1e-6?Math.atan2(z,-x):0);c.prevP.copy(c.p);c.renderP.copy(c.p);c.prevQ.copy(c.q);c.frameP.copy(c.p);c.frameQ.copy(c.q);c.planT=c.righting=0;c.ai.mode='KICKOFF';c.ai.time=c.ai.commit=c.ai.strikeCD=c.ai.pressure=0;c.ai.rotateSide=x>0?1:-1;c.ai.target.copy(c.p);c.ai.intercept.set(0,BR,0);c.tgt=c.ai.target;resetHeatBotState(c)}
 
 const axStep=(w,u,acc,dt)=>{const A=PHYS.air;if(u)w+=u*acc*dt*(w*u<0?2.2:1);w*=Math.exp(-(u?A.damp:A.damp0)*dt);return cl(w,-A.wmax,A.wmax)};
 
@@ -179,27 +179,29 @@ function resolveArenaCar(c){
 
   if(pen>deepest+1e-6){deepest=pen;_n.copy(SN);vehicleContactPoint.copy(_p);count=1;bodyContact=k<CAR_HULL.length;}else if(pen>0&&Math.abs(pen-deepest)<1e-6&&SN.dot(_n)>.99){vehicleContactPoint.add(_p);count++;}
 
- }if(deepest<.0005)break;vehicleContactPoint.multiplyScalar(1/Math.max(1,count));c.p.addScaledVector(_n,deepest+.0002);const vn=c.v.dot(_n);if(bodyContact&&!c.wasG)vehicleHullContact(c,_n);else if(vn<0){c.v.addScaledVector(_n,-vn);if(window.__NIVET_CONTROL_TRACE__&&c.controlTrace)c.controlTrace.linearProjectionImpulse+=-vn*CM;}if(window.__NIVET_CONTROL_TRACE__&&c.controlTrace)c.controlTrace.positionProjection+=deepest+.0002;if(vn<-5&&pass===0)impactSound('wall',-vn,c.p)}
+ }if(deepest<.0005)break;vehicleContactPoint.multiplyScalar(1/Math.max(1,count));c.p.addScaledVector(_n,deepest+.0002);const vn=c.v.dot(_n);if(bodyContact&&!vehicleTireConstraintAt(c,_n))vehicleHullContact(c,_n);else if(vn<0){c.v.addScaledVector(_n,-vn);if(window.__NIVET_CONTROL_TRACE__&&c.controlTrace)c.controlTrace.linearProjectionImpulse+=-vn*CM;}if(window.__NIVET_CONTROL_TRACE__&&c.controlTrace)c.controlTrace.positionProjection+=deepest+.0002;if(vn<-5&&pass===0)impactSound('wall',-vn,c.p)}
 
 }
 
+const supportSamples=Array.from({length:4},()=>({point:new V3(),normal:new V3(),gap:0,weight:0,velocity:0})),supportAngular=new V3(),supportVelocity=new V3(),supportSeed=new V3(),hullSeed=new V3();
 function sampleCarSupport(c){
- const {hull:CAR_HULL,wheels}=bodyPhysics(c);
-
- supportN.set(0,0,0);hullN.set(0,0,0);_up.set(0,1,0).applyQuaternion(c.q);let count=0,weight=0,gap=0,hull=0,minWheelGap=Infinity;const smoothSurface=Math.abs(c.p.z)<HZ-R-1||Math.abs(c.p.x)>GX+2,reach=PHYS.surf.tol+(c.wasG&&!c.jl&&smoothSurface?PHYS.surf.retain:0);
-
- for(const p of wheels){_p.set(p[0],p[1],p[2]).applyQuaternion(c.q).add(c.p);surf(_p);
-
-  if(SS<reach&&SN.dot(_up)>.1){minWheelGap=Math.min(minWheelGap,SS);const w=Math.max(.05,1-SS/reach);supportN.addScaledVector(SN,w);gap+=Math.max(0,SS)*w;weight+=w;count++}}
-
- for(const p of CAR_HULL){_p.copy(p).applyQuaternion(c.q).add(c.p);surf(_p);if(SS<.035){hullN.add(SN);hull++}}
-
+ const {hull:CAR_HULL,wheels}=bodyPhysics(c),S=PHYS.surf;
+ supportN.set(0,0,0);hullN.set(0,0,0);_up.set(0,1,0).applyQuaternion(c.q);
+ const smoothSurface=Math.abs(c.p.z)<HZ-R-1||Math.abs(c.p.x)>GX+2,reach=S.tol+(c.wasG&&!c.jl&&smoothSurface?S.retain:0);
+ supportAngular.copy(c.w).applyQuaternion(c.q);if(c.ground)supportAngular.addScaledVector(c.n,-c.wy);
+ for(let k=0;k<wheels.length;k++){const s=supportSamples[k];s.point.fromArray(wheels[k]).applyQuaternion(c.q);supportVelocity.crossVectors(supportAngular,s.point).add(c.v);s.point.add(c.p);surf(s.point);s.gap=SS;s.normal.copy(SN);s.velocity=supportVelocity.dot(SN);s.weight=SS<reach&&SN.dot(_up)>.1&&(s.velocity<1||SS<=S.rest+.000001)?cl((reach-SS)/(reach-S.rest),0,1):0;}
+ // Select one compatible manifold. A floor and a perpendicular post must not
+ // average into a fictitious ramp, even when both have samples in reach.
+ let best=0;supportSeed.copy(c.n);for(const s of supportSamples){if(!s.weight)continue;let score=0;for(const other of supportSamples)if(other.normal.dot(s.normal)>.7)score+=other.weight;score+=.001*s.normal.dot(c.n);if(score>best){best=score;supportSeed.copy(s.normal);}}
+ let count=0,loaded=0,escapeContacts=0,escapeSpan=0,weight=0,gap=0,minGap=Infinity,normalSpeed=0,span=0;
+ const usableEscape=s=>s.weight>=.35&&(s.velocity<1||s.gap<=S.rest+.001)&&s.normal.dot(supportSeed)>.7;
+ for(const s of supportSamples){if(!s.weight||s.normal.dot(supportSeed)<=.7)continue;count++;if(s.gap<=.035)loaded++;if(usableEscape(s)){escapeContacts++;for(const other of supportSamples)if(usableEscape(other))escapeSpan=Math.max(escapeSpan,s.point.distanceTo(other.point));}weight+=s.weight;gap+=Math.max(0,s.gap)*s.weight;normalSpeed+=s.velocity*s.weight;minGap=Math.min(minGap,s.gap);supportN.addScaledVector(s.normal,s.weight);for(const other of supportSamples)if(other.weight&&other.normal.dot(supportSeed)>.7)span=Math.max(span,s.point.distanceTo(other.point));}
  if(count&&supportN.lengthSq()>.001)supportN.normalize();else supportN.copy(c.n);
-
+ let nearest=Infinity,hull=0;hullSeed.copy(supportN);for(const p of CAR_HULL){_p.copy(p).applyQuaternion(c.q).add(c.p);surf(_p);if(SS<nearest){nearest=SS;hullSeed.copy(SN);}}
+ for(const p of CAR_HULL){_p.copy(p).applyQuaternion(c.q).add(c.p);surf(_p);if(SS<.035&&SN.dot(hullSeed)>.7){hullN.add(SN);hull++;}}
  if(hull&&hullN.lengthSq()>.001)hullN.normalize();else hullN.copy(supportN);
-
- c.supportGap=minWheelGap;c.wheelsOn=count;c.clearance=weight?gap/weight:PHYS.surf.tol;c.hullContact=hull;
-
+ c.supportGap=minGap;c.wheelsOn=count;c.loadedWheels=loaded;c.escapeContacts=escapeContacts;c.escapeSpan=escapeSpan;c.clearance=weight?gap/weight:S.tol;c.hullContact=hull;c.supportSpan=span;c.supportNormalSpeed=weight?normalSpeed/weight:0;
+ c.tireLoad=!c.jl?cl(weight/1.5,0,1):0;c.surfaceSupport=!!(count&&c.tireLoad>.05&&!c.jl&&_up.dot(supportN)>.25);
 }
 
 // INLINE:vehicle-fidelity.js
@@ -214,15 +216,17 @@ function stepCar(c,dt){
 
  c.prevP.copy(c.p);c.renderP.copy(c.p);c.prevQ.copy(q);c.jAge+=dt;
 
- c.jl=Math.max(0,c.jl-dt);c.dcd=Math.max(0,c.dcd-dt);resolveArenaCar(c);sampleCarSupport(c);
+ c.jl=Math.max(0,c.jl-dt);c.dcd=Math.max(0,c.dcd-dt);c.jumpBuffer=Math.max(0,(c.jumpBuffer||0)-dt);resolveArenaCar(c);sampleCarSupport(c);
 
- // Center velocity alone can point outward while real tips stay loaded on a
- // curved constraint. Only the existing rest-gap contact bypasses that gate;
- // jump lock and actual extension still release every tire force.
- const contact=c.wheelsOn>0||c.hullContact,alignment=_up.dot(supportN),wheelSupport=c.wheelsOn>0&&alignment>.45&&!c.jl&&(c.v.dot(supportN)<1||c.supportGap<=P.surf.rest);let ground=wheelSupport&&c.wheelsOn>=3,partial=wheelSupport&&!ground;
-
- vehicleCarriedPitch(c,wheelSupport);
- c.cT=contact?c.cT+dt:0;if(partial)vehicleTireDodgeContact(c,supportN);
+ const contact=c.wheelsOn>0||c.hullContact,alignment=_up.dot(supportN),wheelSupport=c.surfaceSupport;
+ c.cT=contact?c.cT+dt:0;if(wheelSupport)vehicleTireDodgeContact(c,supportN);
+ // Tire load, orientation constraint, jump escape and landing reset each have
+ // their own evidence. Two compressed tires can drive; a grazing tip cannot
+ // silently award another airborne dodge.
+ let ground=wheelSupport&&alignment>.94&&c.supportSpan>.25&&c.loadedWheels>=2&&c.dT<=0&&c.autoFlipTime<=0,partial=wheelSupport&&!ground;
+ const resetSupport=wheelSupport&&alignment>.92&&c.loadedWheels>=2&&c.supportSpan>.25&&Math.abs(c.supportNormalSpeed)<1&&c.w.length()<3&&c.dT<=0&&c.autoFlipTime<=0;
+ c.supportTime=resetSupport?Math.min(.1,(c.supportTime||0)+dt):0;
+ if(c.supportTime>=.05){c.canD=1;c.jumped=0;c.jHoldTime=0;c.aT=0;c.dcd=0;}
 
  if(ground){
 
@@ -232,29 +236,26 @@ function stepCar(c,dt){
 
   if(c.wasG&&c.n.dot(supportN)>.35){_q1.setFromUnitVectors(c.n,supportN);q.premultiply(_q1);c.v.applyQuaternion(_q1)}
 
-  c.n.copy(supportN);if(!wasStable){vehicleAngularWorld.copy(c.w).applyQuaternion(q);c.wy=-vehicleAngularWorld.dot(c.n);}c.righting=0;c.autoFlipTime=0;c.canD=1;c.jumped=0;c.jHoldTime=0;c.aT=0;c.dT=c.dcd=0;
+  c.n.copy(supportN);if(!wasStable){vehicleAngularWorld.copy(c.w).applyQuaternion(q);c.wy=-vehicleAngularWorld.dot(c.n);}c.righting=0;
 
  }else{if(partial)c.n.copy(supportN);else if(contact)c.n.copy(hullN);c.aT+=dt;if(wasStable){vehicleAngularWorld.copy(vehicleNormalBefore).multiplyScalar(-c.wy);vehicleInverse.copy(q).invert();c.w.add(vehicleAngularWorld.applyQuaternion(vehicleInverse));}}
 
  c.v.y-=P.g*dt;
 
- const jumpOK=ground;c.canJ=jumpOK?1:0;
+ const jumpOK=wheelSupport&&c.escapeContacts>=2&&c.escapeSpan>.25&&c.tireLoad>.55&&alignment>.45;c.canJ=jumpOK?1:0;
 
  // Contact stabilization removes penetration and applies tangential scrape only.
  // Neutral side/roof poses remain under player control; supported self-righting
  // is throttle torque or an explicit roof-jump, not a timed orientation slerp.
  if(!ground&&contact&&!c.jl&&c.hullContact&&!c.wheelsOn){const vn=c.v.dot(c.n);c.v.addScaledVector(c.n,-vn).multiplyScalar(Math.exp(-P.surf.hullFric*dt)).addScaledVector(c.n,vn);}
 
- if(c.jp){c.jp=0;const autoFlipped=!ground&&beginVehicleAutoFlip(c);
-
-  if(jumpOK){audioWorld('jump',8,c.p,c.id);_f.copy(ground?c.n:hullN);c.v.addScaledVector(_f,J.jump/CM);c.jdir.copy(_f);c.jt=J.holdT;c.jAge=0;c.jHoldTime=0;c.jumped=1;c.jl=J.lock;c.canJ=0;c.canD=1;c.aT=0;ground=false;partial=false;c.w.set(0,0,0);c.wy=0}
-
-  else if(!autoFlipped&&c.canD&&(!c.jumped||c.aT<J.window+c.jHoldTime)&&c.dT<=0&&c.dcd<=0){const directional=vehicleDodge(c,i);audioWorld(directional?'dodge':'jump',8,c.p,c.id);
-   if(!directional)c.v.addScaledVector(_up,J.double/CM);c.canD=0;c.jt=0
-
-  }
-
+ if(c.jp)c.jumpBuffer=.08;c.jp=0;
+ if(c.jumpBuffer>0){
+  if(jumpOK){audioWorld('jump',8,c.p,c.id);_f.copy(c.n);c.v.addScaledVector(_f,J.jump/CM);c.jdir.copy(_f);c.jt=J.holdT;c.jAge=0;c.jHoldTime=0;c.jumped=1;c.jl=J.lock;c.canJ=0;c.aT=0;c.supportTime=0;c.jumpBuffer=0;if(ground){vehicleAngularWorld.copy(c.n).multiplyScalar(-c.wy);c.w.copy(vehicleAngularWorld).applyQuaternion(vehicleInverse.copy(q).invert());}ground=false;partial=false;c.surfaceSupport=false;c.tireLoad=0;}
+  else if(!c.jl&&c.hullContact&&beginVehicleAutoFlip(c)){c.jumpBuffer=0;ground=false;partial=false;c.surfaceSupport=false;c.tireLoad=0;}
+  else if(c.canD&&(!c.jumped||c.aT<J.window+c.jHoldTime)&&c.dT<=0&&c.dcd<=0){const directional=vehicleDodge(c,i);audioWorld(directional?'dodge':'jump',8,c.p,c.id);if(!directional)c.v.addScaledVector(_up,J.double/CM);c.canD=0;c.jt=0;c.jumpBuffer=0;}
  }
+ c.ground=ground?1:0;
 
  // Holding jump follows the car's roof as it tilts. Release ends the bonus;
 
@@ -301,13 +302,13 @@ function stepCar(c,dt){
 
  }else{
 
-  _ft.set(1,0,0).applyQuaternion(q);c.v.addScaledVector(_ft,((bo?B.F+A.throttleF:0)+(bo?0:i.thr>0?i.thr*A.throttleF:i.thr*A.reverseF))/CM*dt);
+  if(!partial||c.dT>0||c.autoFlipTime>0){_ft.set(1,0,0).applyQuaternion(q);c.v.addScaledVector(_ft,((bo?B.F+A.throttleF:0)+(bo?0:i.thr>0?i.thr*A.throttleF:i.thr*A.reverseF))/CM*dt);}
 
   const autoFlipping=vehicleAutoFlipStep(c,dt),flipping=!autoFlipping&&vehicleFlipStep(c,i,dt);
   partial=partial&&!c.jl&&!flipping&&!autoFlipping;
   if(!autoFlipping&&!flipping){
    if(partial){controlBranch='partial';vehiclePartialDrive(c,dt,bo);}
-   else{controlBranch=!c.jl&&c.hullContact?'hull':'air';const supportedHull=contact&&!c.jl&&c.hullContact&&Math.abs(c.n.y)>.55,pitch=supportedHull&&Math.abs(i.thr)>.01&&i.pitch*i.thr>0?0:vehicleEffectivePitch(c);vehicleAirControl(c,i.roll,i.yaw,pitch,dt);}
+   else{controlBranch=!c.jl&&c.hullContact?'hull':'air';const supportedHull=contact&&!c.jl&&c.hullContact&&c.v.dot(c.n)<1,pitch=supportedHull&&Math.abs(i.thr)>.01&&i.pitch*i.thr>0?0:i.pitch;vehicleAirControl(c,i.roll,i.yaw,pitch,dt);}
   }else controlBranch=autoFlipping?'auto-flip':'dodge';
   if(!partial&&!flipping&&!autoFlipping)vehicleAutoRoll(c,dt);limitCarAngular(c);vehicleAngularWorld.copy(c.w).applyQuaternion(q);c.wy=-vehicleAngularWorld.dot(c.n);
 
@@ -507,6 +508,8 @@ function predictBall(seconds=2){
 
 }
 
+// INLINE:heatseeker-ai.js
+
 // Planner blackboard and behavior nodes are built once. Existing thresholds and
 
 // through-ball / around-ball steering targets remain the leaves of the tree.
@@ -569,7 +572,7 @@ const boostManagement=new ENGINE.Action('Boost Management',b=>{
 
 const recoveryController=new ENGINE.Action('Surface Recovery',c=>{
 
- if(c.ground||c.dT>0||c.bs===3||c.bs===1)return false;
+ if(botHasSurface(c)||c.dT>0||c.bs===3||c.bs===1||c.bs===4)return false;
 
  const i=c.inp,tune=c.ai.tune;
 
@@ -588,6 +591,8 @@ const botTree=tacticalTree;
 // Replan at a difficulty-dependent cadence. Steering reads the cached target every fixed tick.
 
 function planBot(c){
+
+ if(cfg.mode===1){imitationTune(c);planHeatseeker(c);arenaBotTarget(c);c.tgt=c.ai.target;return;}
 
  predictBall();policyEncoders[c.team].encode(c,nearestOpponent(c),ball,HZ,kickoffAge<5&&ball.last<0);imitationTune(c);const ai=c.ai,tune=ai.tune,atk=c.team?-1:1,lv=cfg.lvl,limit=lv===0?18:lv===1?32:40;
 
@@ -655,32 +660,41 @@ function planBot(c){
 
 function bot(c){
 
- const i=c.inp,ai=c.ai,lv=cfg.lvl;i.coupledPitch=0;ai.commit=Math.max(0,ai.commit-DT);ai.strikeCD=Math.max(0,ai.strikeCD-DT);
+ const i=c.inp,ai=c.ai,lv=cfg.lvl;ai.commit=Math.max(0,ai.commit-DT);ai.strikeCD=Math.max(0,ai.strikeCD-DT);
 
- c.planT-=DT;if(c.planT<=0){planBot(c);c.planT=lv===0?.16:lv===1?.09:.065}
+ c.planT-=DT;if(cfg.mode===1&&ai.heatSignal!==heatBallSignal())c.planT=0;if(c.planT<=0){planBot(c);c.planT=cfg.mode===1&&ai.urgent?(lv===0?.08:.05):lv===0?.16:lv===1?.09:.065}
 
- if(cfg.mode===1&&ball.last<0&&heat.server>=0&&c.id!==heat.server){Object.assign(i,Z);c.jp=c.jh=0;return;}
-
- const tune=ai.tune,n=c.ground?c.n:Y3;botF.set(1,0,0).applyQuaternion(c.q);botF.addScaledVector(n,-botF.dot(n));if(botF.lengthSq()<.01)botF.set(1,0,0);else botF.normalize();botR.crossVectors(botF,n);
+ const supported=botHasSurface(c),tune=ai.tune,n=supported?c.n:Y3;botF.set(1,0,0).applyQuaternion(c.q);botF.addScaledVector(n,-botF.dot(n));if(botF.lengthSq()<.01){botF.copy(Math.abs(n.y)<.8?Y3:new V3(1,0,0));botF.addScaledVector(n,-botF.dot(n)).normalize();}else botF.normalize();botR.crossVectors(botF,n);
 
  botD.copy(ai.target).sub(c.p);botD.addScaledVector(n,-botD.dot(n));const to=botD.length(),ang=Math.atan2(botD.dot(botR),botD.dot(botF));
 
- botD.copy(ball.p).sub(c.p);botD.addScaledVector(n,-botD.dot(n));const flat=botD.length(),angB=Math.atan2(botD.dot(botR),botD.dot(botF)),spd=c.v.length(),attack=ai.mode==='COMMIT'||ai.mode==='KICKOFF'||ai.mode==='SAVE';
+ botD.copy(ball.p).sub(c.p);botD.addScaledVector(n,-botD.dot(n));const flat=botD.length(),angB=Math.atan2(botD.dot(botR),botD.dot(botF)),spd=c.v.length(),attack=ai.mode==='COMMIT'||ai.mode==='KICKOFF';
 
- c.sk=spd<1.2&&c.ground&&to>3?c.sk+DT:0;if(c.sk>1){c.un=.5;c.sk=0}
+ const contact=supported||c.hullContact>0;
+ if(to>2.5&&contact){
+  if(!Number.isFinite(ai.progressDistance)||ai.progressMode!==ai.mode||ai.progressDistance-to>.12){ai.progressDistance=to;ai.progressMode=ai.mode;ai.heatNoProgress=0;}
+  else ai.heatNoProgress=(ai.heatNoProgress||0)+DT;
+ }else{ai.progressDistance=to;ai.heatNoProgress=0;}
+ c.sk=contact&&to>3&&spd<1.2?c.sk+DT:0;if(c.sk>1||(ai.heatNoProgress||0)>1.5){c.un=.5;c.sk=0;ai.heatNoProgress=0;}
+ if(c.un>0){const first=c.un>=.5-DT;c.un-=DT;i.thr=-1;i.steer=ang>0?-1:1;i.boost=i.ps=i.pitch=i.yaw=i.roll=0;c.jh=0;if(first&&contact)c.jp=1;return;}
 
- if(c.un>0){c.un-=DT;i.thr=-1;i.steer=ang>0?-1:1;i.boost=i.ps=i.pitch=i.yaw=i.roll=0;c.jh=0;return}
-
- i.steer=cl(ang*tune.steerGain*(c.n.y<.75?tune.wallGain:1)-c.wy*.34,-1,1);let desired=attack&&Math.abs(ang)<.35?23:Math.max(4,21/(1+ang*ang*2.4));
+ const holding=ai.mode==='DEFEND'||ai.mode==='SUPPORT'||cfg.mode===1&&ai.arrive!==false,forwardSpeed=c.v.dot(botF);
+ if(!attack&&to<7&&Math.abs(ang)>2.2&&Math.abs(forwardSpeed)<5)ai.reverseDrive=true;else if(to>9||Math.abs(ang)<1.35||attack)ai.reverseDrive=false;
+ const direction=ai.reverseDrive?-1:1,driveAngle=direction<0?Math.atan2(-Math.sin(ang),-Math.cos(ang)):ang;
+ i.steer=cl(direction*driveAngle*tune.steerGain*(n.y<.75?tune.wallGain:1)-c.wy*.34,-1,1);let desired=(attack&&Math.abs(ang)<.35?23:Math.max(4,21/(1+driveAngle*driveAngle*2.4)))*cfg.speed;
+ if(holding)desired=Math.min(desired,Math.sqrt(Math.max(0,to-.55)*20));
+ if(cfg.mode===1&&ai.mode==='SAVE')desired=Math.min(desired,to/Math.max(.12,ai.time-Math.max(0,simTime-(ai.heatPlanAt||0))-.04));
 
  // Leave enough speed to steer, but make the staging turn before accelerating through contact.
 
  if((ai.mode==='APPROACH'||ai.mode==='ROTATE')&&to<10)desired=Math.min(desired,cl(to*1.4+4,5.5,14));
 
  if(ai.control)desired=cl(ball.v.length()+Math.max(2,flat*.8),5,12);
- i.thr=spd>desired+2?-.5:1;if(!attack&&to<2&&spd>5)i.thr=-.65;
+ const desiredForward=direction*desired;
+ i.thr=holding||cfg.mode===1?Math.abs(desiredForward)<.12?(Math.abs(forwardSpeed)<.12?0:cl(-forwardSpeed*.7,-1,1)):cl((desiredForward-forwardSpeed)*.65,-1,1):spd>desired+2?-.5:1;
+ if(!holding&&cfg.mode!==1&&!attack&&to<2&&spd>5)i.thr=-.65;
 
- i.ps=Math.abs(ang)>.75&&spd>7?1:0;i.boost=!ai.control&&lv>0&&c.boost>0&&to>tune.boostRange&&Math.abs(ang)<tune.boostAngle&&ai.mode!=='DEFEND'?1:0;
+ i.ps=Math.abs(driveAngle)>.75&&spd>7&&to>2?1:0;i.boost=!ai.control&&lv>0&&c.boost>0&&direction>0&&desired>forwardSpeed+1&&to>tune.boostRange&&Math.abs(ang)<tune.boostAngle&&ai.mode!=='DEFEND'?1:0;
 
  i.pitch=i.yaw=i.roll=0;c.jh=0;
 
@@ -696,7 +710,8 @@ function bot(c){
 
  const high=ai.intercept.y>2.6&&ai.intercept.y<(lv===2?8:5.7),aerial=lv>0&&high&&flat>3&&flat<(lv===2?18:12)&&Math.abs(angB)<.4&&spd>5&&c.boost>24&&c.n.y>.85;
 
- if(c.ground&&!c.bs&&ai.strikeCD<=0&&(groundStrike||aerial)){c.bs=aerial?3:1;c.bt=0;ai.doubleUsed=false;ai.strikeCD=1.15;c.jp=1;c.jh=1}
+ if(cfg.mode===1&&ai.heatState!=='SERVE'){heatInterceptJump(c);recoveryController.tick(c);return;}
+ if(supported&&!c.bs&&ai.strikeCD<=0&&(groundStrike||aerial)){c.bs=aerial?3:1;c.bt=0;ai.doubleUsed=false;ai.strikeCD=1.15;c.jp=1;c.jh=1}
 
  if(c.bs){c.bt+=DT;
 
@@ -1476,7 +1491,7 @@ function carPacket(c){return{x:c.p.x,y:c.p.y,z:c.p.z,q:c.q.toArray(),v:c.v.toArr
 function ballPacket(){return{p:ball.p.toArray(),v:ball.v.toArray(),w:ball.w.toArray(),last:ball.last,lastPlayer:ball.lastPlayer??-1,color:ball.color||0xdceeff}}
 function mpSnapshot(){return{arcade:secretSnapshot(),heat:{target:heat.target,speed:heat.speed,cooldown:heat.cooldown},goal:RIVALS.goal,series:{...SERIES,wins:[...SERIES.wins]},serve:heat.server,audio:audioPacket(),seq:++MP.seq,round:MP.round,phase:st,resume:ps_||'COUNT',endReason:MP.endReason||'',clock:tl,count:cnt,goalTime:gt,overtime:!!ot,score:[...score],cars:cars.map(carPacket),ball:ballPacket(),pads:PADS.map(p=>p.t)}}
 function publishMultiplayer(dt){if(!MP.active||!MP.loaded||!MP.room||MP.closed)return;MP.publishClock+=dt;if(MP.pending>=4||(!MP.force&&MP.publishClock<.05))return;MP.publishClock=0;MP.force=false;MP.pending++;const session=MP.session;let path,value;if(MP.role==='host'){path='state';value=mpSnapshot()}else{human(localPlayer());path='inputs/'+session;value={seq:++MP.seq,round:MP.round,paused:MP.localPaused,jump:MP.jump,held:!!localPlayer().jh,controls:{...localPlayer().inp}}}MP.room.child(path).set(value).catch(e=>{if(MP.session===session)mpFailure(e)}).finally(()=>{if(MP.session===session)MP.pending--})}
-function mpRemoteControls(c){const seat=MP.seats[c.id];if(!seat){bot(c);return}const p=MP.inputs[seat.session];Object.assign(c.inp,Z);c.jp=c.jh=0;if(carDemolished(c)||!p||p.round!==MP.round||p.paused)return;for(const key in Z)c.inp[key]=cl(Number(p.controls?.[key])||0,-1,1);c.inp.coupledPitch=p.controls?.coupledPitch===1?1:0;c.jp=p.jump>(MP.seenJumps[seat.session]||0)?1:0;MP.seenJumps[seat.session]=p.jump;c.jh=p.held?1:0}
+function mpRemoteControls(c){const seat=MP.seats[c.id];if(!seat){bot(c);return}const p=MP.inputs[seat.session];Object.assign(c.inp,Z);c.jp=c.jh=0;if(carDemolished(c)||!p||p.round!==MP.round||p.paused)return;for(const key in Z)c.inp[key]=cl(Number(p.controls?.[key])||0,-1,1);c.jp=p.jump>(MP.seenJumps[seat.session]||0)?1:0;MP.seenJumps[seat.session]=p.jump;c.jh=p.held?1:0}
 function packetValid(p){return p&&[p.x,p.y,p.z].every(x=>Number.isFinite(x)&&Math.abs(x)<=1000)&&Number.isFinite(p.boost)&&p.boost>=0&&p.boost<=100&&finiteVector(p.q,4,1.01)&&p.q.reduce((sum,x)=>sum+x*x,0)>.5&&finiteVector(p.v,3,100)&&finiteVector(p.w,3,100)&&finiteVector(p.n,3,1.01)&&validDemoPacket(p)}
 function mpReadCar(c,p,blend,age,previous=p){if(!packetValid(p)||!packetValid(previous))return;const discontinuity=(p.demoSeq||0)!==(previous.demoSeq||0)||(p.respawnSeq||0)!==(previous.respawnSeq||0);if(discontinuity){blend=1;age=0;}readDemoPacket(c,p);_a.set(previous.x,previous.y,previous.z);_b.set(p.x,p.y,p.z);c.p.lerpVectors(_a,_b,blend);_b.fromArray(p.v);c.p.addScaledVector(_b,age);c.q.fromArray(previous.q).normalize();_q1.fromArray(p.q).normalize();c.q.slerp(_q1,blend);c.v.copy(_b);if(p.w?.length===3)c.w.fromArray(p.w);if(p.n?.length===3)c.n.fromArray(p.n);c.boost=p.boost;c.ground=p.ground;c.bst=p.boosting?1:0;c.color=validPaint(p.color)?p.color:PALETTE[c.team];c.touches=p.touches||0;c.goals=p.goals||0;c.topSpeed=p.topSpeed||0;c.boostUsed=p.boostUsed||0;Object.assign(c.inp,p.input||Z);c.frameP.copy(c.p);c.frameQ.copy(c.q);c.prevP.copy(c.p);c.prevQ.copy(c.q);if(c.id<2)updateScorePaint()}
 function applyMultiplayer(dt,snap=false){if(MP.role!=='guest'||!MP.snapshot)return;let a=MP.snapshot,b=a,blend=1,age=0;const target=DED.active?dedRenderTime(performance.now(),dt):performance.now()-100,buf=MP.buffer,stamp=item=>DED.active?(item.time??item.at):item.at;if(!snap&&a.phase==='PLAY'&&buf.length){a=b=buf[0].state;for(let k=1;k<buf.length;k++){if(stamp(buf[k])>=target){a=buf[k-1].state;b=buf[k].state;blend=cl((target-stamp(buf[k-1]))/Math.max(1,stamp(buf[k])-stamp(buf[k-1])),0,1);break}a=b=buf[k].state}if(target>stamp(buf[buf.length-1]))age=Math.min(.05,(target-stamp(buf[buf.length-1]))/1000)}for(let k=0;k<cars.length;k++)if(!DED.active||snap||k!==MP.slot)mpReadCar(cars[k],b.cars[k],blend,age,a.cars[k]);if((!DED.active||snap)&&a.ball?.p?.length===3&&b.ball?.p?.length===3){_a.fromArray(a.ball.p);_b.fromArray(b.ball.p);ball.p.lerpVectors(_a,_b,blend);ball.v.fromArray(b.ball.v);ball.p.addScaledVector(ball.v,age);ball.w.fromArray(b.ball.w);ball.last=b.ball.last;ball.lastPlayer=b.ball.lastPlayer;ball.color=b.ball.color;ball.frameP.copy(ball.p);ball.prevP.copy(ball.p)}}
@@ -1539,12 +1554,11 @@ function spawnCar(c){const row=c.id>>1,side=c.team?1:-1;resetCar(c,row===0?side*
 function nearestOpponent(c){let best=cars[1-c.team],dist=Infinity;for(const x of cars)if(x.enabled&&!carDemolished(x)&&x.team!==c.team){const d=x.p.distanceToSquared(ball.p);if(d<dist){dist=d;best=x}}return best}
 function teamRole(c){let ahead=0;const d=c.p.distanceToSquared(ball.p);for(const mate of cars)if(mate.enabled&&!carDemolished(mate)&&mate!==c&&mate.team===c.team){const md=mate.p.distanceToSquared(ball.p);if(md<d-1||Math.abs(md-d)<=1&&mate.id<c.id)ahead++}return ahead}
 function teamPlan(c){
- if(cfg.mode===1&&ball.last<0&&heat.server>=0){c.ai.mode=c.id===heat.server?'COMMIT':'DEFEND';c.ai.commit=0;if(c.id===heat.server){c.ai.target.copy(ball.p);c.ai.target.z+=c.team?-1:1;c.ai.intercept.copy(ball.p)}else c.ai.target.set(((c.id>>1)-1)*5,0,(c.team?1:-1)*42);return;}
+ if(cfg.mode===1){planHeatseeker(c);return;}
  const rank=teamRole(c),ai=c.ai,atk=c.team?-1:1;if(rank){ai.mode=rank===1?'SUPPORT':'DEFEND';ai.commit=0;
   ai.target.set(cl(ball.p.x*.55+(rank===1?(ball.p.x>0?-7:7):0),-24,24),0,cl(ball.p.z-atk*(rank===1?14:27),-43,43));
   if(kickoffAge<5&&ball.last<0)ai.target.set(rank===1?0:8,0,-atk*(rank===1?21:42));
  }
- if(cfg.mode===1&&heat.target===-atk){ai.mode='SAVE';const vz=ball.v.z,t=vz*heat.target>1?cl((-atk*44-ball.p.z)/vz,0,2):0;ai.target.set(cl(ball.p.x+ball.v.x*t,-GX+1,GX-1),0,-atk*43+rank*atk*3);ai.intercept.set(ai.target.x,cl(ball.p.y+ball.v.y*t,BR,7),ai.target.z);}
 }
 // Inspired by the published Heatseeker rules, independently implemented:
 // https://www.rocketleague.com/news/heatseeker-mode-launches-april-16
@@ -2358,7 +2372,7 @@ setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();se
 
 window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:120,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,multiplayer:DED.active?'Phoenix dedicated':'offline',rtt:DED.rtt,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
 
-window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD '+BUILD+' · DRIVE · Ready to play');
+window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD '+BUILD+' · RECOVERY · Ready to play');
 
 
 } catch(error) { window.tevinBoot.error=String(error.message||error);window.tevinBoot.show("Startup failed at "+window.tevinBoot.stage+": "+window.tevinBoot.error);console.error(error); }

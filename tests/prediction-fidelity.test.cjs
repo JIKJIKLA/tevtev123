@@ -48,8 +48,10 @@ test('regression: remote car bumps remain authority-owned and a snapshot restore
 for(const [wheels,roll,pitch]of [[1,.3,.15],[2,0,.15]])test('reconciliation: actual '+wheels+'-wheel support keeps authority/prediction steering and delayed recovery identical',()=>{
  const {p,a,c,car}=setup(),T=a.THREE;
  // Place the actual tyre geometry, rather than overriding wheelsOn. The first
- // snapshot is taken during partial support, so wasG, yaw and local angular
- // velocity must restore the same contact transition for pending inputs.
+ // snapshot is taken on that real contact geometry, so wasG, yaw and local
+ // angular velocity must restore the same transition for pending inputs.
+ // Two loaded tires may now use stable driving; wheel count is not a forced
+ // controller classification or a universal jump/resource-reset rule.
  c.q.setFromEuler(new T.Euler(roll,0,pitch));
  c.p.set(0,-Math.min(...a.bodyPhysics(c).wheels.map(v=>new T.Vector3(...v).applyQuaternion(c.q).y))+.015,0);
  c.v.set(10,0,0);c.w.set(0,0,0);c.wy=1.2;c.n.set(0,1,0);c.ground=c.wasG=1;
@@ -61,8 +63,8 @@ for(const [wheels,roll,pitch]of [[1,.3,.15],[2,0,.15]])test('reconciliation: act
   Object.assign(car.inp,frame.controls);a.stepCar(car,a.DT);a.predictLocalBall(a.DT);a.DED.history.push(clone(frame));p.input('local',clone(frame));p.step();
   near(car.p.distanceTo(c.p),0);near(car.v.distanceTo(c.v),0);near(car.w.distanceTo(c.w),0);near(car.wy,c.wy);near(car.q.angleTo(c.q),0,1e-6);
   if(tick===1){
-   assert.equal(c.wheelsOn,wheels);assert.equal(car.wheelsOn,wheels);assert.equal(c.ground,0);
-   const yaw=-car.w.clone().applyQuaternion(car.q).dot(car.n);assert.ok(yaw>1.2,'real partial tyre support responds on the first fixed tick');
+   assert.equal(c.wheelsOn,wheels);assert.equal(car.wheelsOn,wheels);assert.ok(c.surfaceSupport&&car.surfaceSupport);assert.ok(c.tireLoad>0&&car.tireLoad>0);
+   const yaw=car.ground?car.wy:-car.w.clone().applyQuaternion(car.q).dot(car.n);assert.ok(yaw>1.2,'real tire support responds on the first fixed tick in its current angular representation');
    partialSnapshot={state:clone(p.state()),tick,ack:tick,driver:clone(p.driver(0))};
   }
  }

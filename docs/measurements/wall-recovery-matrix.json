@@ -1,0 +1,741 @@
+{
+  "conditions": {
+    "physicsHz": 120,
+    "secondsPerCase": 1,
+    "bodies": [
+      0,
+      1,
+      2
+    ],
+    "surfaces": [
+      "right",
+      "left",
+      "back",
+      "front"
+    ],
+    "tilts": [
+      "four",
+      "two-roll",
+      "two-pitch",
+      "three-reach",
+      "one",
+      "side-chassis",
+      "roof-chassis"
+    ],
+    "headings": [
+      "uphill",
+      "downhill",
+      "sideways"
+    ],
+    "actions": [
+      "neutral",
+      "drive",
+      "reverse",
+      "brake",
+      "left",
+      "right",
+      "boost",
+      "jump-drive",
+      "escape"
+    ],
+    "reset": "Identical fresh pose and exhausted dodge before every case. Real human mapper. No ball or bots. All cases are retained in the raw archive; no shot/force weakening between versions.",
+    "limits": "Plane-wall matrix. Curved corner/goal/floor/ceiling cases have a separate integrated regression suite. A supported roof may remain still under throttle; the group passes only if another ordinary action gives progress or an explicit escape."
+  },
+  "versions": [
+    {
+      "version": "10.6.0",
+      "cases": 2268,
+      "groups": 252,
+      "trappedGroups": [],
+      "invalid": 0,
+      "maximumPenetration": 0.0004984352998248483,
+      "aggregate": [
+        {
+          "body": 0,
+          "surface": "right",
+          "cases": 189,
+          "averageDrivingStallSeconds": 0.052513227513227484,
+          "maximumPenetration": 0.0004984352998248483,
+          "invalid": 0,
+          "successfulEscape": 6,
+          "escapeCases": 21
+        },
+        {
+          "body": 0,
+          "surface": "left",
+          "cases": 189,
+          "averageDrivingStallSeconds": 0.052513227513227484,
+          "maximumPenetration": 0.0004984352998248483,
+          "invalid": 0,
+          "successfulEscape": 6,
+          "escapeCases": 21
+        },
+        {
+          "body": 0,
+          "surface": "back",
+          "cases": 189,
+          "averageDrivingStallSeconds": 0.052513227513227484,
+          "maximumPenetration": 0.0004984352998248483,
+          "invalid": 0,
+          "successfulEscape": 6,
+          "escapeCases": 21
+        },
+        {
+          "body": 0,
+          "surface": "front",
+          "cases": 189,
+          "averageDrivingStallSeconds": 0.052513227513227484,
+          "maximumPenetration": 0.0004984352998248483,
+          "invalid": 0,
+          "successfulEscape": 6,
+          "escapeCases": 21
+        },
+        {
+          "body": 1,
+          "surface": "right",
+          "cases": 189,
+          "averageDrivingStallSeconds": 0.052513227513227484,
+          "maximumPenetration": 0.0004984352998248483,
+          "invalid": 0,
+          "successfulEscape": 6,
+          "escapeCases": 21
+        },
+        {
+          "body": 1,
+          "surface": "left",
+          "cases": 189,
+          "averageDrivingStallSeconds": 0.052513227513227484,
+          "maximumPenetration": 0.0004984352998248483,
+          "invalid": 0,
+          "successfulEscape": 6,
+          "escapeCases": 21
+        },
+        {
+          "body": 1,
+          "surface": "back",
+          "cases": 189,
+          "averageDrivingStallSeconds": 0.052513227513227484,
+          "maximumPenetration": 0.0004984352998248483,
+          "invalid": 0,
+          "successfulEscape": 6,
+          "escapeCases": 21
+        },
+        {
+          "body": 1,
+          "surface": "front",
+          "cases": 189,
+          "averageDrivingStallSeconds": 0.052513227513227484,
+          "maximumPenetration": 0.0004984352998248483,
+          "invalid": 0,
+          "successfulEscape": 6,
+          "escapeCases": 21
+        },
+        {
+          "body": 2,
+          "surface": "right",
+          "cases": 189,
+          "averageDrivingStallSeconds": 0.04947089947089944,
+          "maximumPenetration": 0.0004954938421731754,
+          "invalid": 0,
+          "successfulEscape": 6,
+          "escapeCases": 21
+        },
+        {
+          "body": 2,
+          "surface": "left",
+          "cases": 189,
+          "averageDrivingStallSeconds": 0.04947089947089944,
+          "maximumPenetration": 0.0004897260302100222,
+          "invalid": 0,
+          "successfulEscape": 6,
+          "escapeCases": 21
+        },
+        {
+          "body": 2,
+          "surface": "back",
+          "cases": 189,
+          "averageDrivingStallSeconds": 0.04947089947089944,
+          "maximumPenetration": 0.0004954938421731754,
+          "invalid": 0,
+          "successfulEscape": 6,
+          "escapeCases": 21
+        },
+        {
+          "body": 2,
+          "surface": "front",
+          "cases": 189,
+          "averageDrivingStallSeconds": 0.04947089947089944,
+          "maximumPenetration": 0.0004897260302100222,
+          "invalid": 0,
+          "successfulEscape": 6,
+          "escapeCases": 21
+        }
+      ],
+      "stationaryDriveCases": [
+        {
+          "surface": "right",
+          "body": 0,
+          "tilt": "two-roll",
+          "heading": "uphill",
+          "action": "drive",
+          "maxMove": 0.051006944444459634,
+          "stalledSeconds": 0.9583333333333334
+        },
+        {
+          "surface": "right",
+          "body": 0,
+          "tilt": "two-roll",
+          "heading": "downhill",
+          "action": "reverse",
+          "maxMove": 0.051006944444459634,
+          "stalledSeconds": 0.9583333333333334
+        },
+        {
+          "surface": "right",
+          "body": 0,
+          "tilt": "one",
+          "heading": "uphill",
+          "action": "drive",
+          "maxMove": 0.2810135641941789,
+          "stalledSeconds": 0.125
+        },
+        {
+          "surface": "right",
+          "body": 0,
+          "tilt": "one",
+          "heading": "downhill",
+          "action": "reverse",
+          "maxMove": 0.10070550935612765,
+          "stalledSeconds": 0.4
+        },
+        {
+          "surface": "left",
+          "body": 0,
+          "tilt": "two-roll",
+          "heading": "uphill",
+          "action": "drive",
+          "maxMove": 0.051006944444459634,
+          "stalledSeconds": 0.9583333333333334
+        },
+        {
+          "surface": "left",
+          "body": 0,
+          "tilt": "two-roll",
+          "heading": "downhill",
+          "action": "reverse",
+          "maxMove": 0.051006944444459634,
+          "stalledSeconds": 0.9583333333333334
+        },
+        {
+          "surface": "left",
+          "body": 0,
+          "tilt": "one",
+          "heading": "uphill",
+          "action": "drive",
+          "maxMove": 0.2810135641941789,
+          "stalledSeconds": 0.125
+        },
+        {
+          "surface": "left",
+          "body": 0,
+          "tilt": "one",
+          "heading": "downhill",
+          "action": "reverse",
+          "maxMove": 0.10070550935612765,
+          "stalledSeconds": 0.4
+        },
+        {
+          "surface": "back",
+          "body": 0,
+          "tilt": "two-roll",
+          "heading": "uphill",
+          "action": "drive",
+          "maxMove": 0.051006944444459634,
+          "stalledSeconds": 0.9583333333333334
+        },
+        {
+          "surface": "back",
+          "body": 0,
+          "tilt": "two-roll",
+          "heading": "downhill",
+          "action": "reverse",
+          "maxMove": 0.051006944444459634,
+          "stalledSeconds": 0.9583333333333334
+        },
+        {
+          "surface": "back",
+          "body": 0,
+          "tilt": "one",
+          "heading": "uphill",
+          "action": "drive",
+          "maxMove": 0.28101356419417883,
+          "stalledSeconds": 0.125
+        },
+        {
+          "surface": "back",
+          "body": 0,
+          "tilt": "one",
+          "heading": "downhill",
+          "action": "reverse",
+          "maxMove": 0.10070550935612778,
+          "stalledSeconds": 0.4
+        },
+        {
+          "surface": "front",
+          "body": 0,
+          "tilt": "two-roll",
+          "heading": "uphill",
+          "action": "drive",
+          "maxMove": 0.051006944444459634,
+          "stalledSeconds": 0.9583333333333334
+        },
+        {
+          "surface": "front",
+          "body": 0,
+          "tilt": "two-roll",
+          "heading": "downhill",
+          "action": "reverse",
+          "maxMove": 0.051006944444459634,
+          "stalledSeconds": 0.9583333333333334
+        },
+        {
+          "surface": "front",
+          "body": 0,
+          "tilt": "one",
+          "heading": "uphill",
+          "action": "drive",
+          "maxMove": 0.28101356419417883,
+          "stalledSeconds": 0.125
+        },
+        {
+          "surface": "front",
+          "body": 0,
+          "tilt": "one",
+          "heading": "downhill",
+          "action": "reverse",
+          "maxMove": 0.10070550935612778,
+          "stalledSeconds": 0.4
+        },
+        {
+          "surface": "right",
+          "body": 1,
+          "tilt": "two-roll",
+          "heading": "uphill",
+          "action": "drive",
+          "maxMove": 0.051006944444459634,
+          "stalledSeconds": 0.9583333333333334
+        },
+        {
+          "surface": "right",
+          "body": 1,
+          "tilt": "two-roll",
+          "heading": "downhill",
+          "action": "reverse",
+          "maxMove": 0.051006944444459634,
+          "stalledSeconds": 0.9583333333333334
+        },
+        {
+          "surface": "right",
+          "body": 1,
+          "tilt": "one",
+          "heading": "uphill",
+          "action": "drive",
+          "maxMove": 0.2810135641941789,
+          "stalledSeconds": 0.125
+        },
+        {
+          "surface": "right",
+          "body": 1,
+          "tilt": "one",
+          "heading": "downhill",
+          "action": "reverse",
+          "maxMove": 0.10070550935612765,
+          "stalledSeconds": 0.4
+        },
+        {
+          "surface": "left",
+          "body": 1,
+          "tilt": "two-roll",
+          "heading": "uphill",
+          "action": "drive",
+          "maxMove": 0.051006944444459634,
+          "stalledSeconds": 0.9583333333333334
+        },
+        {
+          "surface": "left",
+          "body": 1,
+          "tilt": "two-roll",
+          "heading": "downhill",
+          "action": "reverse",
+          "maxMove": 0.051006944444459634,
+          "stalledSeconds": 0.9583333333333334
+        },
+        {
+          "surface": "left",
+          "body": 1,
+          "tilt": "one",
+          "heading": "uphill",
+          "action": "drive",
+          "maxMove": 0.2810135641941789,
+          "stalledSeconds": 0.125
+        },
+        {
+          "surface": "left",
+          "body": 1,
+          "tilt": "one",
+          "heading": "downhill",
+          "action": "reverse",
+          "maxMove": 0.10070550935612765,
+          "stalledSeconds": 0.4
+        },
+        {
+          "surface": "back",
+          "body": 1,
+          "tilt": "two-roll",
+          "heading": "uphill",
+          "action": "drive",
+          "maxMove": 0.051006944444459634,
+          "stalledSeconds": 0.9583333333333334
+        },
+        {
+          "surface": "back",
+          "body": 1,
+          "tilt": "two-roll",
+          "heading": "downhill",
+          "action": "reverse",
+          "maxMove": 0.051006944444459634,
+          "stalledSeconds": 0.9583333333333334
+        },
+        {
+          "surface": "back",
+          "body": 1,
+          "tilt": "one",
+          "heading": "uphill",
+          "action": "drive",
+          "maxMove": 0.28101356419417883,
+          "stalledSeconds": 0.125
+        },
+        {
+          "surface": "back",
+          "body": 1,
+          "tilt": "one",
+          "heading": "downhill",
+          "action": "reverse",
+          "maxMove": 0.10070550935612778,
+          "stalledSeconds": 0.4
+        },
+        {
+          "surface": "front",
+          "body": 1,
+          "tilt": "two-roll",
+          "heading": "uphill",
+          "action": "drive",
+          "maxMove": 0.051006944444459634,
+          "stalledSeconds": 0.9583333333333334
+        },
+        {
+          "surface": "front",
+          "body": 1,
+          "tilt": "two-roll",
+          "heading": "downhill",
+          "action": "reverse",
+          "maxMove": 0.051006944444459634,
+          "stalledSeconds": 0.9583333333333334
+        },
+        {
+          "surface": "front",
+          "body": 1,
+          "tilt": "one",
+          "heading": "uphill",
+          "action": "drive",
+          "maxMove": 0.28101356419417883,
+          "stalledSeconds": 0.125
+        },
+        {
+          "surface": "front",
+          "body": 1,
+          "tilt": "one",
+          "heading": "downhill",
+          "action": "reverse",
+          "maxMove": 0.10070550935612778,
+          "stalledSeconds": 0.4
+        },
+        {
+          "surface": "right",
+          "body": 2,
+          "tilt": "two-roll",
+          "heading": "uphill",
+          "action": "drive",
+          "maxMove": 0.05371527777779406,
+          "stalledSeconds": 1
+        },
+        {
+          "surface": "right",
+          "body": 2,
+          "tilt": "two-roll",
+          "heading": "downhill",
+          "action": "reverse",
+          "maxMove": 0.05371527777779406,
+          "stalledSeconds": 1
+        },
+        {
+          "surface": "right",
+          "body": 2,
+          "tilt": "one",
+          "heading": "uphill",
+          "action": "drive",
+          "maxMove": 0.3761572474765488,
+          "stalledSeconds": 0.125
+        },
+        {
+          "surface": "right",
+          "body": 2,
+          "tilt": "one",
+          "heading": "downhill",
+          "action": "reverse",
+          "maxMove": 0.1519835287057033,
+          "stalledSeconds": 0.10833333333333334
+        },
+        {
+          "surface": "left",
+          "body": 2,
+          "tilt": "two-roll",
+          "heading": "uphill",
+          "action": "drive",
+          "maxMove": 0.05371527777779406,
+          "stalledSeconds": 1
+        },
+        {
+          "surface": "left",
+          "body": 2,
+          "tilt": "two-roll",
+          "heading": "downhill",
+          "action": "reverse",
+          "maxMove": 0.05371527777779406,
+          "stalledSeconds": 1
+        },
+        {
+          "surface": "left",
+          "body": 2,
+          "tilt": "one",
+          "heading": "uphill",
+          "action": "drive",
+          "maxMove": 0.3761572474765488,
+          "stalledSeconds": 0.125
+        },
+        {
+          "surface": "left",
+          "body": 2,
+          "tilt": "one",
+          "heading": "downhill",
+          "action": "reverse",
+          "maxMove": 0.1519835287057033,
+          "stalledSeconds": 0.10833333333333334
+        },
+        {
+          "surface": "back",
+          "body": 2,
+          "tilt": "two-roll",
+          "heading": "uphill",
+          "action": "drive",
+          "maxMove": 0.05371527777779406,
+          "stalledSeconds": 1
+        },
+        {
+          "surface": "back",
+          "body": 2,
+          "tilt": "two-roll",
+          "heading": "downhill",
+          "action": "reverse",
+          "maxMove": 0.05371527777779406,
+          "stalledSeconds": 1
+        },
+        {
+          "surface": "back",
+          "body": 2,
+          "tilt": "one",
+          "heading": "uphill",
+          "action": "drive",
+          "maxMove": 0.37615724747654866,
+          "stalledSeconds": 0.125
+        },
+        {
+          "surface": "back",
+          "body": 2,
+          "tilt": "one",
+          "heading": "downhill",
+          "action": "reverse",
+          "maxMove": 0.15198352870570334,
+          "stalledSeconds": 0.10833333333333334
+        },
+        {
+          "surface": "front",
+          "body": 2,
+          "tilt": "two-roll",
+          "heading": "uphill",
+          "action": "drive",
+          "maxMove": 0.05371527777779406,
+          "stalledSeconds": 1
+        },
+        {
+          "surface": "front",
+          "body": 2,
+          "tilt": "two-roll",
+          "heading": "downhill",
+          "action": "reverse",
+          "maxMove": 0.05371527777779406,
+          "stalledSeconds": 1
+        },
+        {
+          "surface": "front",
+          "body": 2,
+          "tilt": "one",
+          "heading": "uphill",
+          "action": "drive",
+          "maxMove": 0.37615724747654866,
+          "stalledSeconds": 0.125
+        },
+        {
+          "surface": "front",
+          "body": 2,
+          "tilt": "one",
+          "heading": "downhill",
+          "action": "reverse",
+          "maxMove": 0.15198352870570334,
+          "stalledSeconds": 0.10833333333333334
+        }
+      ]
+    },
+    {
+      "version": "current",
+      "cases": 2268,
+      "groups": 252,
+      "trappedGroups": [],
+      "invalid": 0,
+      "maximumPenetration": 0.0004926055403027263,
+      "aggregate": [
+        {
+          "body": 0,
+          "surface": "right",
+          "cases": 189,
+          "averageDrivingStallSeconds": 0.008862433862433865,
+          "maximumPenetration": 0.0004926055403027263,
+          "invalid": 0,
+          "successfulEscape": 18,
+          "escapeCases": 21
+        },
+        {
+          "body": 0,
+          "surface": "left",
+          "cases": 189,
+          "averageDrivingStallSeconds": 0.008862433862433865,
+          "maximumPenetration": 0.0004926055403027263,
+          "invalid": 0,
+          "successfulEscape": 18,
+          "escapeCases": 21
+        },
+        {
+          "body": 0,
+          "surface": "back",
+          "cases": 189,
+          "averageDrivingStallSeconds": 0.008862433862433865,
+          "maximumPenetration": 0.0004926055403027263,
+          "invalid": 0,
+          "successfulEscape": 18,
+          "escapeCases": 21
+        },
+        {
+          "body": 0,
+          "surface": "front",
+          "cases": 189,
+          "averageDrivingStallSeconds": 0.008862433862433865,
+          "maximumPenetration": 0.0004926055403027263,
+          "invalid": 0,
+          "successfulEscape": 18,
+          "escapeCases": 21
+        },
+        {
+          "body": 1,
+          "surface": "right",
+          "cases": 189,
+          "averageDrivingStallSeconds": 0.008862433862433865,
+          "maximumPenetration": 0.0004926055403027263,
+          "invalid": 0,
+          "successfulEscape": 18,
+          "escapeCases": 21
+        },
+        {
+          "body": 1,
+          "surface": "left",
+          "cases": 189,
+          "averageDrivingStallSeconds": 0.008862433862433865,
+          "maximumPenetration": 0.0004926055403027263,
+          "invalid": 0,
+          "successfulEscape": 18,
+          "escapeCases": 21
+        },
+        {
+          "body": 1,
+          "surface": "back",
+          "cases": 189,
+          "averageDrivingStallSeconds": 0.008862433862433865,
+          "maximumPenetration": 0.0004926055403027263,
+          "invalid": 0,
+          "successfulEscape": 18,
+          "escapeCases": 21
+        },
+        {
+          "body": 1,
+          "surface": "front",
+          "cases": 189,
+          "averageDrivingStallSeconds": 0.008862433862433865,
+          "maximumPenetration": 0.0004926055403027263,
+          "invalid": 0,
+          "successfulEscape": 18,
+          "escapeCases": 21
+        },
+        {
+          "body": 2,
+          "surface": "right",
+          "cases": 189,
+          "averageDrivingStallSeconds": 0.008333333333333335,
+          "maximumPenetration": 0.0004899665794457775,
+          "invalid": 0,
+          "successfulEscape": 18,
+          "escapeCases": 21
+        },
+        {
+          "body": 2,
+          "surface": "left",
+          "cases": 189,
+          "averageDrivingStallSeconds": 0.008333333333333335,
+          "maximumPenetration": 0.0004899665794466657,
+          "invalid": 0,
+          "successfulEscape": 18,
+          "escapeCases": 21
+        },
+        {
+          "body": 2,
+          "surface": "back",
+          "cases": 189,
+          "averageDrivingStallSeconds": 0.008333333333333335,
+          "maximumPenetration": 0.0004899665794511066,
+          "invalid": 0,
+          "successfulEscape": 18,
+          "escapeCases": 21
+        },
+        {
+          "body": 2,
+          "surface": "front",
+          "cases": 189,
+          "averageDrivingStallSeconds": 0.008333333333333335,
+          "maximumPenetration": 0.0004899665794511066,
+          "invalid": 0,
+          "successfulEscape": 18,
+          "escapeCases": 21
+        }
+      ],
+      "stationaryDriveCases": []
+    }
+  ]
+}

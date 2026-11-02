@@ -2,7 +2,7 @@ const test=require('node:test'),assert=require('node:assert/strict');
 const {fresh,run,angularCycle,stepRecord,pose}=require('../scripts/measure-contact-continuity.cjs');
 
 test('loaded four-wheel curve contacts cannot become free flight solely from center outward velocity',()=>{
- const result=run('wall-return');assert.equal(result.loadedAirTicks,0);assert.ok(result.nearWheelAirTicks>0,'genuine suspension extension is allowed to release');assert.equal(result.maxAngular,0,'held drive input must not inject pitch during that brief release');assert.ok(result.final.ground&&result.final.up>.99);assert.ok(result.maxPenetration<.005);
+ const result=run('wall-return');assert.equal(result.loadedAirTicks,0);assert.ok(result.maxAngular<.2,'continuous actual tire support bounds curve-frame adjustment without an input latch');assert.ok(result.final.ground&&result.final.up>.99);assert.ok(result.maxPenetration<.005);
  // This uses the integrated wall-to-floor trajectory, not a synthetic gate value.
  const loadedFast=result.trace.filter(t=>t.gate.wheels>=3&&t.gate.minGap<=.015&&t.gate.outward>1);assert.ok(loadedFast.length>0,'the reproduced center-velocity counterexample remains exercised');for(const t of loadedFast)assert.equal(t.branch,'stable');
 });
@@ -13,8 +13,8 @@ test('the actual-tip exception releases unsupported outward motion and never kee
  const jumped=run('deliberate-jump','current',0,23,40),takeoff=jumped.trace[12];assert.ok(takeoff.gate.wheels>=3);assert.equal(takeoff.branch,'air');assert.equal(takeoff.traction,0);assert.ok(jumped.trace.slice(12).every(t=>t.traction===0));
 });
 
-test('brief support loss while already driving retains pitch intent without holding a phantom surface',()=>{
- const result=run('brief-bounce');const airborne=result.trace.filter(t=>t.tick>=20&&t.branch==='air');assert.ok(airborne.length>0);assert.ok(airborne.every(t=>t.traction===0));assert.equal(result.maxAngular,0);assert.ok(result.final.ground&&result.final.up>.99);
+test('brief physical support loss preserves responsive input without phantom traction or an indefinite pitch latch',()=>{
+ const result=run('brief-bounce');const airborne=result.trace.filter(t=>t.tick>=20&&t.branch==='air');assert.ok(airborne.length>0);assert.ok(airborne.every(t=>t.traction===0));assert.ok(result.maxAngular<.5,'the short actual departure remains recoverable instead of accumulating a roof flip');assert.ok(result.final.ground&&result.final.up>.99);
 });
 
 test('all three bodies keep loaded curve contact and recover field driving over a useful speed range',()=>{

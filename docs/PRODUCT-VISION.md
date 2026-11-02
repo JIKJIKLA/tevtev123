@@ -3,6 +3,8 @@
 Owner request: 2026-10-23. This file is the durable end-result specification for future sessions, not a claim of human-like cross-chat memory.
 
 ## Non-negotiables
+
+Current handling acceptance is documented in [Recovery 10.7.0](RECOVERY-10.7.0.md): geometric tire support, separate jump/landing resource rules, immediate deliberate airborne pitch and a distinct curved-forecast Heatseeker defense planner supersede earlier three-wheel/pitch-latch policies. Freeze unrelated presentation changes during this recovery update.
 - Browser-first car soccer, recognizable blue/orange team identity, Nivet branding.
 - Chromebook preset must retain detailed cars and native-resolution readability. Prefer batched/instanced scenery, baked textures and bounded effects; no mandatory heavy postprocessing.
 - Same 120 Hz rules for humans and bots; Phoenix server owns online scoring, collision and match state. Prediction may improve responsiveness but cannot award goals or progress.

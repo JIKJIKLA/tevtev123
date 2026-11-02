@@ -179,6 +179,9 @@ function updateRematchUI(){
  const e=$('series-result');if(e){e.hidden=SERIES.bestOf<=1;e.textContent='BEST OF '+SERIES.bestOf+' · BLUE '+SERIES.wins[0]+' — '+SERIES.wins[1]+' ORANGE'+(SERIES.winner>=0?' · '+(SERIES.winner?'ORANGE':'BLUE')+' WINS SERIES':'');}
 }
 function respectTeamClaim(c){
+ // Heatseeker assigns reachable interception/cover roles itself. Generic
+ // Soccar yielding must not overwrite its emergency save after planning.
+ if(cfg.mode===1)return;
  const claim=RIVALS.claim;if(claim&&claim.until>simTime&&c.team===claim.team&&c.id!==claim.slot&&c.p.distanceTo(ball.p)>4){c.ai.mode='SUPPORT';const atk=c.team?-1:1;c.ai.target.set(cl(ball.p.x+(ball.p.x>0?-9:9),-26,26),0,cl(ball.p.z-atk*14,-42,42));}
  if(c.ai.yieldUntil>simTime&&c.p.distanceTo(ball.p)>4){c.ai.mode='SUPPORT';c.ai.target.set(cl(ball.p.x+(c.id%3-1)*8,-26,26),0,cl(ball.p.z+(c.team?14:-14),-42,42));}
 }
