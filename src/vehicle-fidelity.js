@@ -11,6 +11,16 @@ function vehicleHullContact(c,normal){
  if(window.__NIVET_CONTROL_TRACE__&&c.controlTrace){c.controlTrace.hullImpulses++;c.controlTrace.hullImpulse+=impulse;}
 }
 function vehicleAirControl(c,roll,yaw,pitch,dt){const scale=PHYS.air.controlScale,ws=c.w;ws.x=airRotation(ws.x,roll,400*scale,50*scale,dt,true);ws.y=airRotation(ws.y,-yaw,95*scale,20*scale,dt);ws.z=airRotation(ws.z,-pitch,130*scale,30*scale,dt);}
+// A held keyboard drive key is not a fresh aerial pitch command. Remember
+// only actual supported driving; releasing/changing it immediately restores
+// ordinary pitch. Raw input still chooses and cancels every dodge.
+function vehicleCarriedPitch(c,supported){
+ const i=c.inp,direction=Math.sign(i.pitch);
+ if(i.coupledPitch!==1||!direction||Math.abs(i.thr)<.01||i.pitch*i.thr<=0){c.carriedPitch=0;return;}
+ if(c.carriedPitch&&c.carriedPitch!==direction)c.carriedPitch=0;
+ if(supported)c.carriedPitch=direction;
+}
+function vehicleEffectivePitch(c){return c.inp.coupledPitch===1&&c.carriedPitch===Math.sign(c.inp.pitch)?0:c.inp.pitch;}
 function limitCarAngular(c){
  // The finite dodge actuator has its own bounded rate; applying the free-air
  // cap here made a0.65s flip stop halfway around. Collisions still remain bounded.
@@ -86,7 +96,7 @@ function vehiclePartialDrive(c,dt,boosting){
  if(window.__NIVET_CONTROL_TRACE__&&c.controlTrace){c.controlTrace.traction=authority;c.controlTrace.tireAcceleration=acceleration*authority;c.controlTrace.gripAcceleration=c.grip/CM;c.controlTrace.steeringTarget=target;c.controlTrace.partialTorque=vehicleTorque.toArray();}
 }
 function vehicleTraceBegin(c,dt){if(!window.__NIVET_CONTROL_TRACE__)return;c.controlTrace={dt,input:{...c.inp},before:{v:c.v.toArray(),w:c.w.toArray(),wy:c.wy,ground:c.ground},hullImpulses:0,hullImpulse:0,linearProjectionImpulse:0,positionProjection:0,recoveryTorque:0,traction:0};}
-function vehicleTraceEnd(c,branch){if(!window.__NIVET_CONTROL_TRACE__)return;Object.assign(c.controlTrace,{branch,wheels:c.wheelsOn,ground:c.ground,hull:c.hullContact,normal:c.n.toArray(),clearance:c.clearance,v:c.v.toArray(),w:c.w.toArray(),wy:c.wy,jump:!!c.canJ,dodge:!!c.canD,jumpLock:c.jl,dodgeTime:c.dT,angularSpeed:c.w.length(),penetration:carPenetration(c)});}
+function vehicleTraceEnd(c,branch){if(!window.__NIVET_CONTROL_TRACE__)return;Object.assign(c.controlTrace,{branch,wheels:c.wheelsOn,ground:c.ground,hull:c.hullContact,normal:c.n.toArray(),clearance:c.clearance,v:c.v.toArray(),w:c.w.toArray(),wy:c.wy,jump:!!c.canJ,dodge:!!c.canD,jumpLock:c.jl,dodgeTime:c.dT,angularSpeed:c.w.length(),supportGap:Number.isFinite(c.supportGap)?c.supportGap:null,carriedPitch:c.carriedPitch||0,effectivePitch:vehicleEffectivePitch(c),penetration:carPenetration(c)});}
 function vehicleTraceFrame(c){return window.__NIVET_CONTROL_TRACE__?c.controlTrace:null;}
 
 // A rotating dodge cannot keep driving two real tire tips through a support

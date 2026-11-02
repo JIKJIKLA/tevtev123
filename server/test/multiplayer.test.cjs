@@ -45,7 +45,7 @@ test('RGB profiles validate custom paint and preserve black without breaking old
 });
 test('malformed controls cannot inject forces or nonfinite values',()=>{
  for(const controlsValue of [{boost:Infinity},{thr:2},{steer:'1'},null])assert.throws(()=>controls(controlsValue));
- assert.deepEqual(controls({thr:1,position:{x:900}}),{thr:1,steer:0,pitch:0,yaw:0,roll:0,boost:0,ps:0});
+ assert.deepEqual(controls({thr:1,position:{x:900}}),{thr:1,steer:0,pitch:0,yaw:0,roll:0,boost:0,ps:0,coupledPitch:0});
 });
 test('two sockets join, ready, start, receive authoritative motion and survive leader departure',async t=>{
  const app=createService({inviteRandom:()=>0});app.server.listen(0,'127.0.0.1');await once(app.server,'listening');t.after(()=>app.close());

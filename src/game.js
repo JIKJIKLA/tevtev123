@@ -2,7 +2,7 @@
 try {
 
 
-/* Nivet League 10.5.0 — Grip. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
+/* Nivet League 10.6.0 — Drive. See docs/ACCURACY.md for measured references and limitations. Original engine/assets preserved in legacy-8.2.html. */
 window.tevinBoot.stage='game script';
 
 const ENGINE=TevinEngine;
@@ -126,17 +126,17 @@ const CM=PHYS.car.mass,CI={x:CM*(.88*.88+.7*.7)/12,y:CM*(2.06*2.06+.88*.88)/12,z
 
 const _p=new V3(),_n=new V3(),_up=new V3(),_ft=new V3(),_rt=new V3(),_a=new V3(),_b=new V3(),_c=new V3(),_d=new V3(),_e=new V3(),_f=new V3(),_g=new V3(),_h=new V3(),_q1=new Qn(),_q2=new Qn(),_iq=new Qn();
 
-const Z={thr:0,steer:0,pitch:0,yaw:0,roll:0,boost:0,ps:0};
+const Z={thr:0,steer:0,pitch:0,yaw:0,roll:0,boost:0,ps:0,coupledPitch:0};
 
 // INLINE:demolition.js
 
-const mkCar=t=>({team:t,id:t,enabled:true,color:t?0xff7a20:0x2a6bff,touches:0,goals:0,topSpeed:0,boostUsed:0,lastTouchAt:-100,p:new V3(),prevP:new V3(),renderP:new V3(),prevQ:new Qn(),frameP:new V3(),frameQ:new Qn(),sweepEnd:new V3(),moveQ:new Qn(),sweepQ:new Qn(),v:new V3(),q:new Qn(),w:new V3(),n:new V3(0,1,0),jdir:new V3(0,1,0),boost:33,handbrake:0,autoFlipTime:0,autoFlipSign:0,ballHitCooldown:0,demoTime:0,demoSeq:0,demoBy:-1,respawnSeq:0,supersonic:false,supersonicTime:0,boostHold:0,inp:{...Z},jp:0,jh:0,jt:0,jl:0,jAge:0,jumped:0,jHoldTime:0,flipAxis:new V3(),canJ:0,canD:0,dT:0,dcd:0,aT:0,cT:0,wy:0,grip:PHYS.ground.gripF,wasG:0,ground:0,bs:0,bt:0,bst:0,ai:{target:new V3(),intercept:new V3(),mode:'ATTACK',time:0,commit:0,rotateSide:1,strikeCD:0,tune:{steerGain:2.6,boostAngle:.28,boostRange:7,dodgeDistance:5.4,setup:2.6,airGain:3.4,wallGain:1}}});
+const mkCar=t=>({team:t,id:t,enabled:true,color:t?0xff7a20:0x2a6bff,touches:0,goals:0,topSpeed:0,boostUsed:0,lastTouchAt:-100,p:new V3(),prevP:new V3(),renderP:new V3(),prevQ:new Qn(),frameP:new V3(),frameQ:new Qn(),sweepEnd:new V3(),moveQ:new Qn(),sweepQ:new Qn(),v:new V3(),q:new Qn(),w:new V3(),n:new V3(0,1,0),jdir:new V3(0,1,0),boost:33,handbrake:0,carriedPitch:0,autoFlipTime:0,autoFlipSign:0,ballHitCooldown:0,demoTime:0,demoSeq:0,demoBy:-1,respawnSeq:0,supersonic:false,supersonicTime:0,boostHold:0,inp:{...Z},jp:0,jh:0,jt:0,jl:0,jAge:0,jumped:0,jHoldTime:0,flipAxis:new V3(),canJ:0,canD:0,dT:0,dcd:0,aT:0,cT:0,wy:0,grip:PHYS.ground.gripF,wasG:0,ground:0,bs:0,bt:0,bst:0,ai:{target:new V3(),intercept:new V3(),mode:'ATTACK',time:0,commit:0,rotateSide:1,strikeCD:0,tune:{steerGain:2.6,boostAngle:.28,boostRange:7,dodgeDistance:5.4,setup:2.6,airGain:3.4,wallGain:1}}});
 
 const cars=[mkCar(0),mkCar(1)],P1=cars[0],ball={p:new V3(),v:new V3(),w:new V3(),last:-1,hit:0,hitT:0,prevP:new V3(),frameP:new V3()},PADS=[];
 
 STANDARD_PADS.forEach(([x,z,big])=>PADS.push({x,z,big,t:0}));
 
-function resetCar(c,x,z){c.demoTime=0;c.handbrake=c.autoFlipTime=c.autoFlipSign=c.ballHitCooldown=0;c.supersonic=false;c.supersonicTime=c.boostHold=0;c.p.set(x,bodyPhysics(c).height+.015,z);c.v.set(0,0,0);c.w.set(0,0,0);c.n.set(0,1,0);c.boost=33;c.jp=c.jh=c.jt=c.jl=c.jAge=c.jumped=c.jHoldTime=0;c.canJ=1;c.canD=1;c.dT=c.dcd=c.aT=c.cT=c.wy=0;c.grip=PHYS.ground.gripF;c.wasG=1;c.ground=1;c.bs=c.bt=c.bst=c.sk=c.un=0;Object.assign(c.inp,Z);c.q.setFromAxisAngle(Y3,Math.hypot(x,z)>1e-6?Math.atan2(z,-x):0);c.prevP.copy(c.p);c.renderP.copy(c.p);c.prevQ.copy(c.q);c.frameP.copy(c.p);c.frameQ.copy(c.q);c.planT=c.righting=0;c.ai.mode='KICKOFF';c.ai.time=c.ai.commit=c.ai.strikeCD=c.ai.pressure=0;c.ai.rotateSide=x>0?1:-1;c.ai.target.copy(c.p);c.ai.intercept.set(0,BR,0);c.tgt=c.ai.target}
+function resetCar(c,x,z){c.demoTime=0;c.carriedPitch=0;c.handbrake=c.autoFlipTime=c.autoFlipSign=c.ballHitCooldown=0;c.supersonic=false;c.supersonicTime=c.boostHold=0;c.p.set(x,bodyPhysics(c).height+.015,z);c.v.set(0,0,0);c.w.set(0,0,0);c.n.set(0,1,0);c.boost=33;c.jp=c.jh=c.jt=c.jl=c.jAge=c.jumped=c.jHoldTime=0;c.canJ=1;c.canD=1;c.dT=c.dcd=c.aT=c.cT=c.wy=0;c.grip=PHYS.ground.gripF;c.wasG=1;c.ground=1;c.bs=c.bt=c.bst=c.sk=c.un=0;Object.assign(c.inp,Z);c.q.setFromAxisAngle(Y3,Math.hypot(x,z)>1e-6?Math.atan2(z,-x):0);c.prevP.copy(c.p);c.renderP.copy(c.p);c.prevQ.copy(c.q);c.frameP.copy(c.p);c.frameQ.copy(c.q);c.planT=c.righting=0;c.ai.mode='KICKOFF';c.ai.time=c.ai.commit=c.ai.strikeCD=c.ai.pressure=0;c.ai.rotateSide=x>0?1:-1;c.ai.target.copy(c.p);c.ai.intercept.set(0,BR,0);c.tgt=c.ai.target}
 
 const axStep=(w,u,acc,dt)=>{const A=PHYS.air;if(u)w+=u*acc*dt*(w*u<0?2.2:1);w*=Math.exp(-(u?A.damp:A.damp0)*dt);return cl(w,-A.wmax,A.wmax)};
 
@@ -186,11 +186,11 @@ function resolveArenaCar(c){
 function sampleCarSupport(c){
  const {hull:CAR_HULL,wheels}=bodyPhysics(c);
 
- supportN.set(0,0,0);hullN.set(0,0,0);_up.set(0,1,0).applyQuaternion(c.q);let count=0,weight=0,gap=0,hull=0;const smoothSurface=Math.abs(c.p.z)<HZ-R-1||Math.abs(c.p.x)>GX+2,reach=PHYS.surf.tol+(c.wasG&&!c.jl&&smoothSurface?PHYS.surf.retain:0);
+ supportN.set(0,0,0);hullN.set(0,0,0);_up.set(0,1,0).applyQuaternion(c.q);let count=0,weight=0,gap=0,hull=0,minWheelGap=Infinity;const smoothSurface=Math.abs(c.p.z)<HZ-R-1||Math.abs(c.p.x)>GX+2,reach=PHYS.surf.tol+(c.wasG&&!c.jl&&smoothSurface?PHYS.surf.retain:0);
 
  for(const p of wheels){_p.set(p[0],p[1],p[2]).applyQuaternion(c.q).add(c.p);surf(_p);
 
-  if(SS<reach&&SN.dot(_up)>.1){const w=Math.max(.05,1-SS/reach);supportN.addScaledVector(SN,w);gap+=Math.max(0,SS)*w;weight+=w;count++}}
+  if(SS<reach&&SN.dot(_up)>.1){minWheelGap=Math.min(minWheelGap,SS);const w=Math.max(.05,1-SS/reach);supportN.addScaledVector(SN,w);gap+=Math.max(0,SS)*w;weight+=w;count++}}
 
  for(const p of CAR_HULL){_p.copy(p).applyQuaternion(c.q).add(c.p);surf(_p);if(SS<.035){hullN.add(SN);hull++}}
 
@@ -198,7 +198,7 @@ function sampleCarSupport(c){
 
  if(hull&&hullN.lengthSq()>.001)hullN.normalize();else hullN.copy(supportN);
 
- c.wheelsOn=count;c.clearance=weight?gap/weight:PHYS.surf.tol;c.hullContact=hull;
+ c.supportGap=minWheelGap;c.wheelsOn=count;c.clearance=weight?gap/weight:PHYS.surf.tol;c.hullContact=hull;
 
 }
 
@@ -216,8 +216,12 @@ function stepCar(c,dt){
 
  c.jl=Math.max(0,c.jl-dt);c.dcd=Math.max(0,c.dcd-dt);resolveArenaCar(c);sampleCarSupport(c);
 
- const contact=c.wheelsOn>0||c.hullContact,alignment=_up.dot(supportN),wheelSupport=c.wheelsOn>0&&alignment>.45&&!c.jl&&c.v.dot(supportN)<1;let ground=wheelSupport&&c.wheelsOn>=3,partial=wheelSupport&&!ground;
+ // Center velocity alone can point outward while real tips stay loaded on a
+ // curved constraint. Only the existing rest-gap contact bypasses that gate;
+ // jump lock and actual extension still release every tire force.
+ const contact=c.wheelsOn>0||c.hullContact,alignment=_up.dot(supportN),wheelSupport=c.wheelsOn>0&&alignment>.45&&!c.jl&&(c.v.dot(supportN)<1||c.supportGap<=P.surf.rest);let ground=wheelSupport&&c.wheelsOn>=3,partial=wheelSupport&&!ground;
 
+ vehicleCarriedPitch(c,wheelSupport);
  c.cT=contact?c.cT+dt:0;if(partial)vehicleTireDodgeContact(c,supportN);
 
  if(ground){
@@ -303,7 +307,7 @@ function stepCar(c,dt){
   partial=partial&&!c.jl&&!flipping&&!autoFlipping;
   if(!autoFlipping&&!flipping){
    if(partial){controlBranch='partial';vehiclePartialDrive(c,dt,bo);}
-   else{controlBranch=!c.jl&&c.hullContact?'hull':'air';const supportedHull=contact&&!c.jl&&c.hullContact&&Math.abs(c.n.y)>.55,pitch=supportedHull&&Math.abs(i.thr)>.01&&i.pitch*i.thr>0?0:i.pitch;vehicleAirControl(c,i.roll,i.yaw,pitch,dt);}
+   else{controlBranch=!c.jl&&c.hullContact?'hull':'air';const supportedHull=contact&&!c.jl&&c.hullContact&&Math.abs(c.n.y)>.55,pitch=supportedHull&&Math.abs(i.thr)>.01&&i.pitch*i.thr>0?0:vehicleEffectivePitch(c);vehicleAirControl(c,i.roll,i.yaw,pitch,dt);}
   }else controlBranch=autoFlipping?'auto-flip':'dodge';
   if(!partial&&!flipping&&!autoFlipping)vehicleAutoRoll(c,dt);limitCarAngular(c);vehicleAngularWorld.copy(c.w).applyQuaternion(q);c.wy=-vehicleAngularWorld.dot(c.n);
 
@@ -651,7 +655,7 @@ function planBot(c){
 
 function bot(c){
 
- const i=c.inp,ai=c.ai,lv=cfg.lvl;ai.commit=Math.max(0,ai.commit-DT);ai.strikeCD=Math.max(0,ai.strikeCD-DT);
+ const i=c.inp,ai=c.ai,lv=cfg.lvl;i.coupledPitch=0;ai.commit=Math.max(0,ai.commit-DT);ai.strikeCD=Math.max(0,ai.strikeCD-DT);
 
  c.planT-=DT;if(c.planT<=0){planBot(c);c.planT=lv===0?.16:lv===1?.09:.065}
 
@@ -1472,7 +1476,7 @@ function carPacket(c){return{x:c.p.x,y:c.p.y,z:c.p.z,q:c.q.toArray(),v:c.v.toArr
 function ballPacket(){return{p:ball.p.toArray(),v:ball.v.toArray(),w:ball.w.toArray(),last:ball.last,lastPlayer:ball.lastPlayer??-1,color:ball.color||0xdceeff}}
 function mpSnapshot(){return{arcade:secretSnapshot(),heat:{target:heat.target,speed:heat.speed,cooldown:heat.cooldown},goal:RIVALS.goal,series:{...SERIES,wins:[...SERIES.wins]},serve:heat.server,audio:audioPacket(),seq:++MP.seq,round:MP.round,phase:st,resume:ps_||'COUNT',endReason:MP.endReason||'',clock:tl,count:cnt,goalTime:gt,overtime:!!ot,score:[...score],cars:cars.map(carPacket),ball:ballPacket(),pads:PADS.map(p=>p.t)}}
 function publishMultiplayer(dt){if(!MP.active||!MP.loaded||!MP.room||MP.closed)return;MP.publishClock+=dt;if(MP.pending>=4||(!MP.force&&MP.publishClock<.05))return;MP.publishClock=0;MP.force=false;MP.pending++;const session=MP.session;let path,value;if(MP.role==='host'){path='state';value=mpSnapshot()}else{human(localPlayer());path='inputs/'+session;value={seq:++MP.seq,round:MP.round,paused:MP.localPaused,jump:MP.jump,held:!!localPlayer().jh,controls:{...localPlayer().inp}}}MP.room.child(path).set(value).catch(e=>{if(MP.session===session)mpFailure(e)}).finally(()=>{if(MP.session===session)MP.pending--})}
-function mpRemoteControls(c){const seat=MP.seats[c.id];if(!seat){bot(c);return}const p=MP.inputs[seat.session];Object.assign(c.inp,Z);c.jp=c.jh=0;if(carDemolished(c)||!p||p.round!==MP.round||p.paused)return;for(const key in Z)c.inp[key]=cl(Number(p.controls?.[key])||0,-1,1);c.jp=p.jump>(MP.seenJumps[seat.session]||0)?1:0;MP.seenJumps[seat.session]=p.jump;c.jh=p.held?1:0}
+function mpRemoteControls(c){const seat=MP.seats[c.id];if(!seat){bot(c);return}const p=MP.inputs[seat.session];Object.assign(c.inp,Z);c.jp=c.jh=0;if(carDemolished(c)||!p||p.round!==MP.round||p.paused)return;for(const key in Z)c.inp[key]=cl(Number(p.controls?.[key])||0,-1,1);c.inp.coupledPitch=p.controls?.coupledPitch===1?1:0;c.jp=p.jump>(MP.seenJumps[seat.session]||0)?1:0;MP.seenJumps[seat.session]=p.jump;c.jh=p.held?1:0}
 function packetValid(p){return p&&[p.x,p.y,p.z].every(x=>Number.isFinite(x)&&Math.abs(x)<=1000)&&Number.isFinite(p.boost)&&p.boost>=0&&p.boost<=100&&finiteVector(p.q,4,1.01)&&p.q.reduce((sum,x)=>sum+x*x,0)>.5&&finiteVector(p.v,3,100)&&finiteVector(p.w,3,100)&&finiteVector(p.n,3,1.01)&&validDemoPacket(p)}
 function mpReadCar(c,p,blend,age,previous=p){if(!packetValid(p)||!packetValid(previous))return;const discontinuity=(p.demoSeq||0)!==(previous.demoSeq||0)||(p.respawnSeq||0)!==(previous.respawnSeq||0);if(discontinuity){blend=1;age=0;}readDemoPacket(c,p);_a.set(previous.x,previous.y,previous.z);_b.set(p.x,p.y,p.z);c.p.lerpVectors(_a,_b,blend);_b.fromArray(p.v);c.p.addScaledVector(_b,age);c.q.fromArray(previous.q).normalize();_q1.fromArray(p.q).normalize();c.q.slerp(_q1,blend);c.v.copy(_b);if(p.w?.length===3)c.w.fromArray(p.w);if(p.n?.length===3)c.n.fromArray(p.n);c.boost=p.boost;c.ground=p.ground;c.bst=p.boosting?1:0;c.color=validPaint(p.color)?p.color:PALETTE[c.team];c.touches=p.touches||0;c.goals=p.goals||0;c.topSpeed=p.topSpeed||0;c.boostUsed=p.boostUsed||0;Object.assign(c.inp,p.input||Z);c.frameP.copy(c.p);c.frameQ.copy(c.q);c.prevP.copy(c.p);c.prevQ.copy(c.q);if(c.id<2)updateScorePaint()}
 function applyMultiplayer(dt,snap=false){if(MP.role!=='guest'||!MP.snapshot)return;let a=MP.snapshot,b=a,blend=1,age=0;const target=DED.active?dedRenderTime(performance.now(),dt):performance.now()-100,buf=MP.buffer,stamp=item=>DED.active?(item.time??item.at):item.at;if(!snap&&a.phase==='PLAY'&&buf.length){a=b=buf[0].state;for(let k=1;k<buf.length;k++){if(stamp(buf[k])>=target){a=buf[k-1].state;b=buf[k].state;blend=cl((target-stamp(buf[k-1]))/Math.max(1,stamp(buf[k])-stamp(buf[k-1])),0,1);break}a=b=buf[k].state}if(target>stamp(buf[buf.length-1]))age=Math.min(.05,(target-stamp(buf[buf.length-1]))/1000)}for(let k=0;k<cars.length;k++)if(!DED.active||snap||k!==MP.slot)mpReadCar(cars[k],b.cars[k],blend,age,a.cars[k]);if((!DED.active||snap)&&a.ball?.p?.length===3&&b.ball?.p?.length===3){_a.fromArray(a.ball.p);_b.fromArray(b.ball.p);ball.p.lerpVectors(_a,_b,blend);ball.v.fromArray(b.ball.v);ball.p.addScaledVector(ball.v,age);ball.w.fromArray(b.ball.w);ball.last=b.ball.last;ball.lastPlayer=b.ball.lastPlayer;ball.color=b.ball.color;ball.frameP.copy(ball.p);ball.prevP.copy(ball.p)}}
@@ -2354,7 +2358,7 @@ setupModesUI();setupMenu();setupDriverSettings();setupSocial();setupAudioUI();se
 
 window.tevinDiagnostics=()=>({backend:ENGINE.status.backend,physicsHz:120,simulationHz:120,policyVersion:1,policyLength:policyEncoders[1].data.length,build:BUILD,multiplayer:DED.active?'Phoenix dedicated':'offline',rtt:DED.rtt,quality:cfg.hi?'Detail':'Chromebook',fps:Math.round(1/perfEMA),renderScale,pads:PADS.length,protocol:PROTOCOL});
 
-window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD '+BUILD+' · GRIP · Ready to play');
+window.tevinBoot.ready=true;window.tevinBoot.stage='ready';window.tevinBoot.show('BUILD '+BUILD+' · DRIVE · Ready to play');
 
 
 } catch(error) { window.tevinBoot.error=String(error.message||error);window.tevinBoot.show("Startup failed at "+window.tevinBoot.stage+": "+window.tevinBoot.error);console.error(error); }
