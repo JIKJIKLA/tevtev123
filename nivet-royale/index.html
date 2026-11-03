@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#07335c" />
+    <title>NIVET ROYALE</title>
+    <meta
+      name="description"
+      content="A local solo battle royale. Drop, loot, build, survive."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230c4ea1'/%3E%3Ctext x='11' y='48' font-family='Arial' font-weight='900' font-size='44' fill='%23ffe456'%3EN%3C/text%3E%3C/svg%3E"
+    />
+    <script type="module" crossorigin src="./assets/index-DZF-r89u.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-DMzqFBQF.css">
+  </head>
+  <body>
+    <canvas id="game" aria-label="Nivet Royale 3D game"></canvas>
+    <div id="loading">
+      <div class="wordmark">NIVET <span>ROYALE</span></div>
+      <p id="load-label">Preparing the island…</p>
+      <div class="load-track"><i id="load-progress"></i></div>
+    </div>
+    <div id="lobby" class="screen hidden">
+      <header>
+        <a class="brand" href="#">NIVET<span>ROYALE</span></a>
+        <nav>
+          <span class="active">PLAY</span
+          ><button id="open-controls">CONTROLS</button
+          ><button id="open-settings">SETTINGS</button>
+        </nav>
+        <span class="local-badge">SOLO · OFFLINE</span>
+      </header>
+      <div class="lobby-content">
+        <div class="eyebrow">YOUR ISLAND. YOUR LAST STAND.</div>
+        <h1>DROP IN.<br />BUILD UP.<br /><em>STAND TALL.</em></h1>
+        <p>
+          A fresh island. A familiar fight.<br />Loot the town, outbuild your
+          rivals,<br />and outrun the storm.
+        </p>
+        <div class="mode-card">
+          <span>01 / CLASSIC</span>
+          <h2>SOLO BATTLE ROYALE</h2>
+          <p>You + 15 bots · Building enabled</p>
+          <button id="play-solo" class="primary">LET’S DROP <b>→</b></button
+          ><button id="play-practice" class="secondary">
+            PRACTICE ISLAND <small>Learn the ropes</small>
+          </button>
+        </div>
+      </div>
+      <div class="lobby-location">
+        <span>EXPLORE THE ISLAND</span><strong>SUNSET SQUARE</strong>
+        <p>Every rooftop is an opportunity.</p>
+      </div>
+      <footer>
+        <span>CHAPTER 1 INSPIRED · LOCAL PLAYTEST BUILD</span
+        ><span
+          >WASD MOVE &nbsp; · &nbsp; MOUSE AIM &nbsp; · &nbsp; Q BUILD</span
+        >
+      </footer>
+    </div>
+    <div id="hud" class="hidden">
+      <div id="compass"></div>
+      <div class="match-info">
+        <span id="location-label">SUNSET SQUARE</span
+        ><canvas id="minimap" width="210" height="210"></canvas>
+        <div>
+          <b id="storm-clock">◷ 1:00</b><span id="alive-count">♟ 16</span
+          ><span id="kill-count">◇ 0</span>
+        </div>
+      </div>
+      <div id="feed"></div>
+      <div id="banner"></div>
+      <div id="damage-vignette"></div>
+      <div id="reticle"><i></i><b>+</b></div>
+      <div id="hit-marker">×</div>
+      <div id="damage-number"></div>
+      <div id="scope" class="hidden"></div>
+      <div id="interact"></div>
+      <div id="phase-hint"></div>
+      <div id="health-panel">
+        <div class="player-label">NIVET <span>YOU</span></div>
+        <div class="bar shield">
+          <i id="shield-fill"></i><strong id="shield-text">100</strong
+          ><span>⬡</span>
+        </div>
+        <div class="bar health">
+          <i id="health-fill"></i><strong id="health-text">100</strong
+          ><span>+</span>
+        </div>
+        <div class="stamina"><i id="stamina-fill"></i></div>
+      </div>
+      <div id="combat-panel">
+        <div id="materials"></div>
+        <div id="ammo-display"></div>
+        <div id="build-pieces"></div>
+        <div id="quickbar"></div>
+        <div id="build-controls">
+          Q BUILD &nbsp; F EDIT &nbsp; R RELOAD &nbsp; E PICK UP
+        </div>
+      </div>
+      <div id="debug-perf"></div>
+      <div id="practice-note"></div>
+    </div>
+    <div id="pause" class="modal hidden">
+      <div class="modal-card">
+        <span class="eyebrow">TAKE A BREATHER</span>
+        <h2>PAUSED</h2>
+        <p>Local simulation is paused.</p>
+        <button id="resume" class="primary">BACK TO THE ISLAND</button
+        ><button id="pause-settings" class="secondary">SETTINGS</button
+        ><button id="leave" class="secondary">RETURN TO LOBBY</button>
+      </div>
+    </div>
+    <div id="settings" class="modal hidden">
+      <div class="modal-card wide">
+        <span class="eyebrow">MAKE IT YOURS</span>
+        <h2>SETTINGS</h2>
+        <div class="settings-grid">
+          <label
+            >Graphics<select id="quality">
+              <option value="low">Low · performance</option>
+              <option value="medium">Medium · balanced</option>
+              <option value="high">High · detail</option>
+            </select></label
+          ><label
+            >Mouse sensitivity<input
+              id="sensitivity"
+              type="range"
+              min="0.3"
+              max="2.5"
+              step="0.1" /></label
+          ><label
+            >Aim sensitivity<input
+              id="aimSensitivity"
+              type="range"
+              min="0.2"
+              max="1.5"
+              step="0.1" /></label
+          ><label
+            >Master volume<input
+              id="volume"
+              type="range"
+              min="0"
+              max="1"
+              step="0.05" /></label
+          ><label
+            >Effects volume<input
+              id="effects"
+              type="range"
+              min="0"
+              max="1"
+              step="0.05" /></label
+          ><label
+            >Ambient volume<input
+              id="ambient"
+              type="range"
+              min="0"
+              max="1"
+              step="0.05" /></label
+          ><label
+            >Camera motion<select id="motion">
+              <option value="off">Off</option>
+              <option value="on">Restrained recoil</option>
+            </select></label
+          ><label
+            >Performance display<select id="showFps">
+              <option value="off">Hidden</option>
+              <option value="on">Show FPS / frame time</option>
+            </select></label
+          >
+        </div>
+        <p class="hint">
+          Key bindings: click an action, then press a key. Escape cancels.
+        </p>
+        <div id="binding-list"></div>
+        <button id="close-settings" class="primary">SAVE & CLOSE</button>
+      </div>
+    </div>
+    <div id="controls" class="modal hidden">
+      <div class="modal-card wide">
+        <span class="eyebrow">ISLAND FIELD GUIDE</span>
+        <h2>MAKE YOUR MOVE</h2>
+        <div id="controls-content"></div>
+        <button id="close-controls" class="primary">GOT IT</button>
+      </div>
+    </div>
+    <div id="results" class="screen hidden">
+      <div class="result-card">
+        <div id="result-rank"></div>
+        <h1 id="result-title"></h1>
+        <p id="result-subtitle"></p>
+        <div id="result-stats"></div>
+        <button id="play-again" class="primary">DROP AGAIN →</button
+        ><button id="result-lobby" class="secondary">BACK TO LOBBY</button>
+      </div>
+    </div>
+  </body>
+</html>
